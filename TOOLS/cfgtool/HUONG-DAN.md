@@ -199,6 +199,7 @@ Bộ đọc: `config::read_log (log.cpp)`.
 |---|---|---|---|---|---|
 | (gốc) | `schema` | số nguyên, đúng bằng 1; 1 – 1 | bắt buộc | Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu. | Luôn để 1. Không sửa. `1` |
 | (gốc) | `audit` | true/false | bắt buộc | true: ghi thêm log thống kê và kiểm toán. | Production: true. `true` |
+| (gốc) | `play_trace` | true/false | tuỳ chọn (mặc định false) | true: zone ghi một dòng kiểm cho mỗi việc của người chơi (dev/server/README.md). | Production: false; dev: true. `false` |
 | [file] | `dir` | chuỗi; 1 – 512 byte, không ký tự điều khiển | bắt buộc | Thư mục chứa tệp log; mỗi tiến trình một tệp. | Ổ có đủ chỗ, có dọn định kỳ. `"../log"` |
 | [file] | `rotate_mb` | số nguyên; 1 – 2147483647; đơn vị MB | bắt buộc | Tệp log lớn quá số MB này thì mở tệp mới. | 64–256. `128` |
 | [level] | `default` | một trong tập giá trị; error | warn | info | debug | bắt buộc | Mức log mặc định: error, warn, info, debug (ít tới nhiều). | Production: info; debug chỉ khi điều tra lỗi. `"info"` |

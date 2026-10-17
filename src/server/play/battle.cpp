@@ -384,6 +384,7 @@ void Battle::cast(std::uint64_t session, const protocol::CastSkill& message, con
         arena_.clear_events();
         return reject(code_of(outcome));
     }
+    out.note(session, Act::kCast, 0, message.skill);
     last_skill_[who.entity] = message.skill;
     std::uint8_t level = 1;
     for (const combat::SkillEntry& entry : me->skills) {
@@ -445,10 +446,13 @@ void Battle::drain(const Env& env, bool from_cast) {
         };
         switch (event.kind) {
         case combat::EventKind::kCastStarted: last_skill_[source] = static_cast<std::uint16_t>(event.id); break;
-        case combat::EventKind::kDamaged:
-            number(protocol::CombatKind::kDamage, Figure{.value = event.value, .flags = static_cast<std::uint8_t>((event.extra & 1) != 0 ? 1 : 0)});
+        case combat::EventKind::kDamaged: {
+            const std::uint8_t crit = (event.extra & 1) != 0 ? 1 : 0;
+            number(protocol::CombatKind::kDamage, Figure{.value = event.value, .flags = crit});
+            note_hit(out, event);
             touched.push_back(victim);
             break;
+        }
         case combat::EventKind::kHealed:
             // Tự hồi theo nhịp (người hồi là chính nó, ngoài lúc ra chiêu) không hiện số bay.
             if (from_cast || event.actor != event.target) number(protocol::CombatKind::kHeal, Figure{.value = event.value, .flags = 0});
@@ -510,6 +514,13 @@ void Battle::drain(const Env& env, bool from_cast) {
     }
 }
 
+void Battle::note_hit(Output& out, const combat::Event& event) const {
+    const auto source = by_entity_.find(event.actor.index);
+    const auto victim = by_entity_.find(event.target.index);
+    if (source != by_entity_.end()) out.note(source->second, Act::kStrike, 0, event.value);
+    if (victim != by_entity_.end()) out.note(victim->second, Act::kStruck, 0, event.value);
+}
+
 void Battle::on_monster_death(const combat::Event& event, const Env& env) {
     Surroundings& stage = *env.stage;
     const std::uint32_t entity = event.target.index;
@@ -521,7 +532,9 @@ void Battle::on_monster_death(const combat::Event& event, const Env& env) {
         stage.fell(place_of(entity));
         if (const auto killer = by_entity_.find(event.actor.index); killer != by_entity_.end()) {
             const auto member = members_.find(killer->second);
-            if (member != members_.end()) reward(member->second, killer->second, *monster, *unit, env);
+            const std::uint64_t winner = killer->second;
+            env.out->note(winner, Act::kSlay, 0, unit->template_id);
+            if (member != members_.end()) reward(member->second, winner, *monster, *unit, env);
         }
     }
     static_cast<void>(arena_.remove(event.target));
@@ -576,6 +589,7 @@ void Battle::on_player_death(const combat::Event& event, const Env& env) {
     const auto owner = by_entity_.find(entity);
     if (owner == by_entity_.end()) return;
     const std::uint64_t session = owner->second;
+    env.out->note(session, Act::kDie, 0, event.actor.index);
     Member& who = members_.at(session);
     Player& player = *who.player;
     // Người quanh nhận EntityDied ngay; chính người chết nhận sau DeathNotice và SelfVitals (hp 0) để client dựng bảng hồi sinh
@@ -615,6 +629,7 @@ void Battle::respawn(std::uint64_t session, const protocol::Respawn& message, co
         z_cm = who.home_z_cm;
     }
     if (!arena_.revive(me->handle, revival_here())) return reject(protocol::ErrorCode::kNotDead);
+    out.note(session, Act::kRespawn, 0, std::to_underlying(message.place));
     arena_.clear_events();
     me->position = combat::Position{.x_cm = x_cm, .z_cm = z_cm};
     who.sent_percent = percent_of(me->body);
@@ -671,6 +686,7 @@ void Battle::pick_up(std::uint64_t session, const protocol::PickUp& message, con
     }
     stage.sweep(place_of(message.drop));
     drops_.erase(drop);
+    out.note(session, Act::kPick, 0, stack.item);
     env.report->picked.push_back(Picked{.session = session, .item = stack.item});
     env.report->changed.push_back(session);
 }

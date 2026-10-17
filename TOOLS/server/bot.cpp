@@ -16,25 +16,39 @@
  *  TELEGRAM  : @Hoon9xx
  *============================================================================*/
 
-// Chạy: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] [--seconds 6] [--prefix bot]
-//       [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>] [--fight <x_m>,<z_m>]
+// Chạy: thienlong_bot --identity <identity.key> [--game 7100] [--auth 7101] [--count 4]
+//       [--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
+//       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
-// --straight 1: mỗi khách đi thẳng một hướng (chia đều 360 độ theo số khách) tới khi bị luật đi của zone chặn, rồi
-// đo việc server kéo về: phải có ít nhất một lần kéo về, và mỗi lần kéo về chỉ lùi vài bước so với chỗ khách tưởng
-// mình đang đứng (không nhảy đi đâu khác). Khi đó khách không cần thấy nhau (mỗi người đi một hướng, ra khỏi vùng nhìn).
-// --hunt X,Z: mỗi khách đi thẳng tới điểm (X, Z) mét (cảnh vào game) rồi đứng đó --seconds giây, đếm quái hiện ra, quái
-// di chuyển (EntityPos Walk/Idle) và khoảng gần nhất quái tới khách: kiểm AI quái của zone trên cụm thật. Đạt khi thấy
-// quái hiện ra và quái có đi.
-// --fight X,Z: đi tới điểm (X, Z) mét, chọn quái gần nhất còn sống, đi sát và ra chiêu đầu tiên trong SelfSkills tới khi
-// nó chết, rồi nhặt vật rơi (nếu có). Đạt khi có SkillCast mang seq của mình, sát thương, EntityDied và kinh nghiệm tăng.
+// --walk <walk.path>: tệp .path của cảnh vào (dev/server/scenes/<cảnh>/walk.path). --hunt, --talk,
+// --fight đi theo các điểm rẽ của luật đi client (nav::Field::plan_move, nhấp chuột tìm đường vòng
+// vật cản) thay vì đi thẳng; không có --walk thì đi thẳng và vướng vật cản của zone như --straight.
+// --peers N: đứng yên đủ --seconds giây ở điểm sinh (không thoát sớm), chỉ đọc tin và Ping giữ
+// phiên; hết giờ thì thoát 0 nếu đã thấy ít nhất N người chơi khác hiện ra. Dùng làm con mắt chạy
+// song song với client thật trong kịch bản E2E.
+// --straight 1: mỗi khách đi thẳng một hướng (chia đều 360 độ theo số khách) tới khi bị luật đi của
+// zone chặn, rồi đo việc server kéo về: phải có ít nhất một lần kéo về, và mỗi lần kéo về chỉ lùi
+// vài bước so với chỗ khách tưởng mình đang đứng (không nhảy đi đâu khác). Khi đó khách không cần
+// thấy nhau (mỗi người đi một hướng, ra khỏi vùng nhìn).
+// --hunt X,Z: mỗi khách đi thẳng tới điểm (X, Z) mét (cảnh vào game) rồi đứng đó --seconds giây,
+// đếm quái hiện ra, quái di chuyển (EntityPos Walk/Idle) và khoảng gần nhất quái tới khách: kiểm AI
+// quái của zone trên cụm thật. Đạt khi thấy quái hiện ra và quái có đi.
+// --fight X,Z: đi tới điểm (X, Z) mét, chọn quái gần nhất còn sống, đi sát và ra chiêu đầu tiên
+// trong SelfSkills tới khi nó chết, rồi nhặt vật rơi (nếu có). Đạt khi có SkillCast mang seq của
+// mình, sát thương, EntityDied và kinh nghiệm tăng. --seconds là tổng giờ săn (mặc định 6 giây là
+// quá ngắn, nên đặt 60 trở lên). Server báo ngoài tầm (mã 31) thì đứng sát hơn; sau 8 lần liên tiếp
+// ở tầm sát nhất thì bỏ quái đó, đánh con khác.
 
 #include "io/platform.hpp"
 #include "link/link.hpp"
+#include "nav/mesh.hpp"
+#include "nav/route.hpp"
 #include "net/net.hpp"
 #include "protocol/messages.hpp"
 #include "protocol/wire.hpp"
 #include "secure/secure.hpp"
 
+#include <algorithm>
 #include <atomic>
 #include <charconv>
 #include <chrono>
@@ -45,7 +59,9 @@
 #include <cstdlib>
 #include <filesystem>
 #include <format>
+#include <fstream>
 #include <iterator>
+#include <memory>
 #include <numbers>
 #include <optional>
 #include <print>
@@ -55,6 +71,7 @@
 #include <system_error>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -63,6 +80,7 @@ namespace {
 
 namespace io = game::io;
 namespace link = game::link;
+namespace nav = game::nav;
 namespace net = game::net;
 namespace protocol = game::protocol;
 namespace secure = game::secure;
@@ -73,10 +91,12 @@ constexpr std::string_view kPassword = "Bot-pass-2026-xyz";
 
 struct Options {
     std::filesystem::path identity;
-    std::uint16_t game_port = 7000;
-    std::uint16_t auth_port = 7001;
+    std::uint16_t game_port = 7100;
+    std::uint16_t auth_port = 7101;
     int count = 4;
     int seconds = 6;
+    // Chế độ --peers: số người chơi khác phải thấy; 0 là không dùng chế độ này.
+    int peers = 0;
     std::string prefix = "bot";
     bool straight = false;
     // Điểm tới của --hunt, centimet.
@@ -85,6 +105,10 @@ struct Options {
     std::optional<std::pair<float, float>> talk;
     // Điểm tới của --fight, centimet.
     std::optional<std::pair<float, float>> fight;
+    // --walk: tệp .path của cảnh vào; đi vòng vật cản bằng đúng luật đi của client. Field nạp một
+    // lần ở main.
+    std::filesystem::path walk;
+    std::shared_ptr<const nav::Field> field;
 };
 
 struct Tally {
@@ -202,11 +226,17 @@ struct Seen {
     // Chế độ --fight: kỹ năng đã học, quái và vật rơi đang thấy, kinh nghiệm mới nhất và túi đồ mới nhất.
     std::vector<protocol::SkillEntry> skills;
     std::unordered_map<std::uint32_t, Npc> monsters;
+    // Quái mà luật đi client từ chối hay đi không tới được: --fight bỏ qua, đánh tiếp con khác.
+    std::unordered_set<std::uint32_t> unreachable;
+    // Số lần liên tiếp server từ chối chiêu vì ngoài tầm (mã 31); một chiêu được nhận thì về 0.
+    int out_of_range = 0;
     std::unordered_map<std::uint32_t, Npc> loot;
     std::optional<std::uint64_t> exp;
     std::optional<protocol::SelfBag> bag;
     float x_cm = 0.0F;
     float z_cm = 0.0F;
+    // Lưới đi của cảnh (mượn từ Options); null là đi thẳng.
+    const nav::Field* field = nullptr;
     std::optional<protocol::Position> position;
     std::optional<protocol::CharacterList> roster;
     bool refused = false;
@@ -253,6 +283,9 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
     if (const auto* bye = std::get_if<protocol::Goodbye>(&message)) {
         std::println(stderr, "  server đóng phiên: lý do {}", static_cast<unsigned>(bye->reason));
     }
+    const auto* denied = std::get_if<protocol::Reject>(&message);
+    const bool is_far = denied != nullptr && denied->code == protocol::ErrorCode::kOutOfRange;
+    if (is_far) ++seen.out_of_range;
     if (const auto* list = std::get_if<protocol::CharacterList>(&message)) seen.roster = *list;
     if (const auto* spot = std::get_if<protocol::Position>(&message)) seen.position = *spot;
     if ((std::holds_alternative<protocol::Reject>(message) && !seen.tolerate_reject) ||
@@ -299,7 +332,10 @@ void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) 
         if (seen.exp && stats->exp > *seen.exp) tally.exp_gained += static_cast<std::int64_t>(stats->exp - *seen.exp);
         seen.exp = stats->exp;
     }
-    if (const auto* cast = std::get_if<protocol::SkillCast>(&message); cast != nullptr && cast->seq != 0) ++tally.casts;
+    const auto* cast = std::get_if<protocol::SkillCast>(&message);
+    const bool is_mine = cast != nullptr && cast->seq != 0;
+    if (is_mine) ++tally.casts;
+    if (is_mine) seen.out_of_range = 0;
     if (const auto* hit = std::get_if<protocol::CombatEvent>(&message);
         hit != nullptr && hit->kind == protocol::CombatKind::kDamage && hit->value > 0) {
         ++tally.damage_events;
@@ -355,34 +391,198 @@ struct Gait {
     return true;
 }
 
-// Đi thẳng tới khi cách `goal` không quá `close_cm` (10 cm mỗi bước, 30 bước mỗi giây), vẫn đọc mọi tin. Position kéo
-// về thì đặt lại vị trí như client thật.
-void go(link::Link& line, Seen& seen, Tally& tally, std::pair<float, float> goal, float close_cm, std::uint32_t& tick) {
-    constexpr float kStepCm = 10.0F;
-    const auto give_up = Clock::now() + std::chrono::seconds{120};
-    while (Clock::now() < give_up && !seen.refused && std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm) > close_cm) {
-        ++tick;
-        const float heading = std::atan2(goal.second - seen.z_cm, goal.first - seen.x_cm);
-        seen.x_cm += kStepCm * std::cos(heading);
-        seen.z_cm += kStepCm * std::sin(heading);
-        if (!send(line, protocol::Move{.x_cm = seen.x_cm, .z_cm = seen.z_cm, .tick = tick})) return;
-        const auto frame_end = Clock::now() + std::chrono::milliseconds{33};
-        while (Clock::now() < frame_end) {
-            const auto message = read_game(line, net::Milliseconds{3});
-            if (!message) continue;
-            note(*message, seen, tally);
-            if (const auto* spot = std::get_if<protocol::Position>(&*message)) {
-                ++tally.corrections;
-                seen.x_cm = spot->x_cm;
-                seen.z_cm = spot->z_cm;
-            }
-        }
+using Goal = std::pair<float, float>;
+
+// Một chặng đi thẳng: tới khi cách `goal` (centimet) không quá `close_cm` hoặc hết `limit`.
+struct Leg {
+    Goal goal;
+    float close_cm = 0.0F;
+    std::chrono::seconds limit{0};
+};
+
+// Đọc mọi tin trong một khung 33 ms. Position kéo về thì đặt lại vị trí như client thật.
+void drain_frame(link::Link& line, Seen& seen, Tally& tally) {
+    const auto frame_end = Clock::now() + std::chrono::milliseconds{33};
+    while (Clock::now() < frame_end) {
+        const auto message = read_game(line, net::Milliseconds{3});
+        if (!message) continue;
+        note(*message, seen, tally);
+        const auto* spot = std::get_if<protocol::Position>(&*message);
+        if (spot == nullptr) continue;
+        ++tally.corrections;
+        seen.x_cm = spot->x_cm;
+        seen.z_cm = spot->z_cm;
     }
 }
 
-// Đi thẳng tới `goal` rồi đứng lại `seconds` giây, vẫn đọc mọi tin và gửi Ping mỗi giây để giữ phiên.
-void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal,
-    int seconds) {
+// Đi thẳng một chặng, tối đa 10 cm mỗi bước, 30 bước mỗi giây, vẫn đọc mọi tin. Bước cuối chỉ đi
+// đúng phần còn lại để đứng đúng điểm rẽ: điểm rẽ của luật client cách vật cản 10 cm, đứng lệch 12
+// cm là đã vào vật cản và zone kéo về. Trả đúng khi tới nơi, sai khi hết hạn hay phiên đóng.
+[[nodiscard]] bool go_leg(link::Link& line, Seen& seen, Tally& tally, const Leg& leg,
+    std::uint32_t& tick) {
+    constexpr float kStepCm = 10.0F;
+    const auto give_up = Clock::now() + leg.limit;
+    while (Clock::now() < give_up && !seen.refused) {
+        const float gap = std::hypot(leg.goal.first - seen.x_cm, leg.goal.second - seen.z_cm);
+        if (gap <= leg.close_cm) return true;
+        ++tick;
+        const float stride = std::min(kStepCm, gap);
+        const float heading = std::atan2(leg.goal.second - seen.z_cm, leg.goal.first - seen.x_cm);
+        seen.x_cm += stride * std::cos(heading);
+        seen.z_cm += stride * std::sin(heading);
+        const protocol::Move step{.x_cm = seen.x_cm, .z_cm = seen.z_cm, .tick = tick};
+        if (!send(line, step)) return false;
+        drain_frame(line, seen, tally);
+    }
+    return false;
+}
+
+// Một đơn vị game là 100 cm.
+constexpr float kCmPerUnit = 100.0F;
+
+// Các điểm rẽ client sẽ đi từ chỗ đang đứng tới `goal`: cùng luật nav::Field::plan_move với client
+// thật (nhấp chuột, tìm đường vòng vật cản). Rỗng khi lệnh đi bị từ chối.
+[[nodiscard]] nav::Path plan_route(const nav::Field& field, const Seen& seen, Goal goal) {
+    const nav::Point from{.x = seen.x_cm / kCmPerUnit, .z = seen.z_cm / kCmPerUnit};
+    const nav::Point to{.x = goal.first / kCmPerUnit, .z = goal.second / kCmPerUnit};
+    const nav::Segment walk{.start = from, .end = to};
+    const nav::MoveAsk ask{.walk = walk, .mode = nav::MoveMode::kFind};
+    nav::Scratch scratch;
+    return field.plan_move(ask, scratch);
+}
+
+constexpr float kNodeCm = 2.0F;
+
+// Hạn cho một chặng dài `gap` cm: 250 cm mỗi giây (bot đi 300 cm mỗi giây) cộng dư 10 giây. Hạn cố
+// định 20 giây ngắn hơn một đoạn 61 m của lộ trình: bot bỏ giữa đường, quay sang điểm rẽ kế và đâm
+// thẳng vào vật cản.
+[[nodiscard]] std::chrono::seconds time_for(float gap) {
+    constexpr float kCmPerSecond = 250.0F;
+    constexpr int kSpareSeconds = 10;
+    return std::chrono::seconds{static_cast<int>(gap / kCmPerSecond) + kSpareSeconds};
+}
+
+// Đi tới `spot` cho tới khi cách không quá `stop` cm. false khi không tới được.
+[[nodiscard]] bool reach_spot(link::Link& line, Seen& seen, Tally& tally, Goal spot, float stop,
+    std::uint32_t& tick) {
+    const float gap = std::hypot(spot.first - seen.x_cm, spot.second - seen.z_cm);
+    const Leg leg{.goal = spot, .close_cm = stop, .limit = time_for(gap)};
+    return go_leg(line, seen, tally, leg, tick);
+}
+
+// Chỗ cách khách đúng `radius` cm, theo hướng thứ `index` trong `count` hướng đều nhau.
+[[nodiscard]] Goal ring_spot(const Seen& seen, float radius, int index, int count) {
+    constexpr float kTurn = 2.0F * std::numbers::pi_v<float>;
+    const float heading = kTurn * static_cast<float>(index) / static_cast<float>(count);
+    return Goal{seen.x_cm + radius * std::cos(heading), seen.z_cm + radius * std::sin(heading)};
+}
+
+// Trong các chỗ trên vòng bán kính `radius` mà luật đi client cho tới được, chỗ gần `goal` nhất.
+[[nodiscard]] std::optional<Goal> best_on_ring(const nav::Field& field, const Seen& seen, Goal goal,
+    float radius) {
+    constexpr int kHeadings = 16;
+    std::optional<Goal> best;
+    float best_gap = 0.0F;
+    for (int i = 0; i < kHeadings; ++i) {
+        const Goal spot = ring_spot(seen, radius, i, kHeadings);
+        if (plan_route(field, seen, spot).empty()) continue;
+        const float gap = std::hypot(goal.first - spot.first, goal.second - spot.second);
+        if (best && gap >= best_gap) continue;
+        best = spot;
+        best_gap = gap;
+    }
+    return best;
+}
+
+// Đứng trong vật cản (điểm sinh nằm trên tam giác vật cản) thì luật client chỉ cho đi thẳng ra qua
+// một cạnh: người chơi bấm gần trước. Bước ra chỗ đi được gần nhất về phía `goal`; false khi không
+// có.
+[[nodiscard]] bool step_out(link::Link& line, Seen& seen, Tally& tally, Goal goal,
+    std::uint32_t& tick) {
+    for (const float radius : {100.0F, 200.0F, 400.0F}) {
+        const std::optional<Goal> spot = best_on_ring(*seen.field, seen, goal, radius);
+        if (!spot) continue;
+        return reach_spot(line, seen, tally, *spot, kNodeCm, tick);
+    }
+    return false;
+}
+
+// Các điểm rẽ theo luật client; kẹt trong vật cản thì bước ra rồi tính lại. Rỗng khi client từ
+// chối.
+[[nodiscard]] nav::Path route_of(link::Link& line, Seen& seen, Tally& tally, Goal goal,
+    std::uint32_t& tick) {
+    nav::Path route = plan_route(*seen.field, seen, goal);
+    if (!route.empty()) return route;
+    if (!step_out(line, seen, tally, goal, tick)) return route;
+    return plan_route(*seen.field, seen, goal);
+}
+
+void report_goal(std::string_view what, Goal goal) {
+    constexpr std::string_view kFormat = "  {} ({:.0f}, {:.0f})";
+    std::println(kFormat, what, goal.first, goal.second);
+}
+
+// Không có lưới đi: đi thẳng tới `goal`, vướng vật cản của zone như --straight. Trả đúng khi tới
+// nơi.
+bool go_straight(link::Link& line, Seen& seen, Tally& tally, Goal goal, float close,
+    std::uint32_t& tick) {
+    constexpr std::chrono::seconds kLongLimit{120};
+    const Leg leg{.goal = goal, .close_cm = close, .limit = kLongLimit};
+    return go_leg(line, seen, tally, leg, tick);
+}
+
+// Đi tới `goal` cho tới khi cách không quá `close` cm. Có lưới đi (--walk) thì đi theo các điểm rẽ
+// của luật đi client rồi dừng ở điểm cuối của lộ trình (đích nằm trong vật cản thì lộ trình dừng
+// trước nó, như client), đứng yên khi client từ chối lệnh đi; không có thì đi thẳng. Position kéo
+// về thì đặt lại vị trí như client thật. Trả đúng khi đã đi hết lộ trình (hay tới nơi khi đi
+// thẳng).
+bool go(link::Link& line, Seen& seen, Tally& tally, Goal goal, float close, std::uint32_t& tick) {
+    const bool is_straight = seen.field == nullptr;
+    if (is_straight) return go_straight(line, seen, tally, goal, close, tick);
+    const nav::Path route = route_of(line, seen, tally, goal, tick);
+    if (route.empty()) report_goal("client từ chối lệnh đi tới", goal);
+    if (route.empty()) return false;
+    for (std::size_t at = 0; at < route.size(); ++at) {
+        const Goal spot{route[at].x * kCmPerUnit, route[at].z * kCmPerUnit};
+        const bool is_final = at + 1 == route.size();
+        const float stop = is_final ? close : kNodeCm;
+        const bool is_reached = reach_spot(line, seen, tally, spot, stop, tick);
+        if (!is_reached) report_goal("không tới được điểm rẽ", spot);
+        if (!is_reached) return false;
+    }
+    return true;
+}
+
+// Gửi Ping khi tới hạn `due`; trả hạn kế (mỗi giây một lần) để giữ phiên.
+[[nodiscard]] Clock::time_point keep_alive(link::Link& line, Clock::time_point due) {
+    if (Clock::now() < due) return due;
+    const protocol::Ping beat{.client_time = std::chrono::milliseconds{0}};
+    static_cast<void>(send(line, beat));
+    return due + std::chrono::seconds{1};
+}
+
+// Đứng yên `seconds` giây, đọc mọi tin và Ping mỗi giây.
+void stand(link::Link& line, Seen& seen, Tally& tally, int seconds) {
+    const auto until = Clock::now() + std::chrono::seconds{seconds};
+    auto next_ping = Clock::now();
+    while (Clock::now() < until && !seen.refused) {
+        next_ping = keep_alive(line, next_ping);
+        const auto message = read_game(line, net::Milliseconds{20});
+        if (message) note(*message, seen, tally);
+    }
+}
+
+// Chế độ --peers: đứng xem rồi thoát êm; phiên bị server đóng giữa chừng thì tính một lỗi.
+void watch(link::Link& line, Seen& seen, Tally& tally, std::string_view account, int seconds) {
+    stand(line, seen, tally, seconds);
+    if (seen.refused) report(account, "bị server đóng giữa chừng");
+    if (seen.refused) ++tally.failed;
+    if (!seen.refused) static_cast<void>(send(line, protocol::Logout{}));
+}
+
+// Đi thẳng tới `goal` rồi đứng lại `seconds` giây.
+void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start,
+    std::pair<float, float> goal, int seconds) {
     constexpr float kCloseCm = 300.0F;
     seen.x_cm = start.x_cm;
     seen.z_cm = start.z_cm;
@@ -390,16 +590,7 @@ void hunt(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
     go(line, seen, tally, goal, kCloseCm, tick);
     std::println("  tới ({:.0f}, {:.0f}) cm, còn cách đích {:.0f} cm", seen.x_cm, seen.z_cm,
         std::hypot(goal.first - seen.x_cm, goal.second - seen.z_cm));
-    const auto until = Clock::now() + std::chrono::seconds{seconds};
-    auto next_ping = Clock::now();
-    while (Clock::now() < until && !seen.refused) {
-        if (Clock::now() >= next_ping) {
-            static_cast<void>(send(line, protocol::Ping{.client_time = std::chrono::milliseconds{0}}));
-            next_ping += std::chrono::seconds{1};
-        }
-        const auto message = read_game(line, net::Milliseconds{20});
-        if (message) note(*message, seen, tally);
-    }
+    stand(line, seen, tally, seconds);
 }
 
 // Đọc mọi tin tới khi `done()` đúng hoặc hết `wait`.
@@ -495,11 +686,11 @@ void talk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
     std::optional<std::pair<std::uint32_t, Npc>> best;
     float best_gap = 0.0F;
     for (const auto& [id, monster] : seen.monsters) {
+        if (seen.unreachable.contains(id)) continue;
         const float gap = std::hypot(monster.x_cm - seen.x_cm, monster.z_cm - seen.z_cm);
-        if (!best || gap < best_gap) {
-            best = std::pair{id, monster};
-            best_gap = gap;
-        }
+        if (best && gap >= best_gap) continue;
+        best = std::pair{id, monster};
+        best_gap = gap;
     }
     return best;
 }
@@ -527,46 +718,99 @@ void talk(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& 
     return changed;
 }
 
-// Săn quái ở `goal`: giết tối đa kMaxKills con (dừng sớm khi đã nhặt được một món), mỗi con đánh bằng kỹ năng đầu tiên
-// trong SelfSkills.
-void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start, std::pair<float, float> goal) {
-    constexpr float kCloseCm = 300.0F;
-    constexpr float kReachCm = 150.0F;
-    constexpr int kMaxKills = 12;
+// Tầm đứng cách quái khi ra chiêu: 150 cm, sát hơn một nửa sau mỗi hai lần server báo ngoài tầm (mã
+// 31), tối thiểu 20 cm.
+[[nodiscard]] float reach_for(int refusals) {
+    constexpr float kFirstCm = 150.0F;
+    constexpr float kLeastCm = 20.0F;
+    const float shrunk = kFirstCm / static_cast<float>(1 << (refusals / 2));
+    return std::max(shrunk, kLeastCm);
+}
+
+// Một đợt đánh: chiêu, quái đang nhắm, số chiêu đã ra cho quái này và hạn chót của cả lượt săn.
+struct Strike {
+    std::uint16_t skill = 0;
+    std::uint16_t seq = 0;
+    std::uint32_t target = 0;
+    int casts = 0;
+    Clock::time_point deadline;
+};
+
+// Đứng sát quái `strike.target` rồi ra chiêu tới khi nó chết. Trả đúng khi chết. Không chết thì
+// quái bị ghi vào `unreachable` (đi không tới, server báo ngoài tầm kGiveUp lần liên tiếp dù đã
+// đứng sát nhất, hay quá kMaxCasts chiêu).
+[[nodiscard]] bool engage(link::Link& line, Seen& seen, Tally& tally, Strike& strike,
+    std::uint32_t& tick) {
     constexpr int kMaxCasts = 40;
+    constexpr int kGiveUp = 8;
+    constexpr std::chrono::milliseconds kBetween{1400};
+    const int deaths_before = tally.deaths.load();
+    const auto is_dead = [&] { return tally.deaths.load() != deaths_before; };
+    seen.out_of_range = 0;
+    strike.casts = 0;
+    for (int round = 0; round < kMaxCasts; ++round) {
+        const auto current = seen.monsters.find(strike.target);
+        if (current == seen.monsters.end()) break;
+        if (seen.refused || Clock::now() >= strike.deadline) break;
+        if (seen.out_of_range >= kGiveUp) break;
+        const std::pair spot{current->second.x_cm, current->second.z_cm};
+        const bool is_near = go(line, seen, tally, spot, reach_for(seen.out_of_range), tick);
+        if (!is_near) break;
+        const protocol::CastSkill cast{
+            .seq = ++strike.seq, .skill = strike.skill, .target = strike.target};
+        const bool is_sent = send(line, cast);
+        if (!is_sent) seen.refused = true;
+        if (!is_sent) break;
+        ++strike.casts;
+        // 1,4 giây giữa hai chiêu: đủ hồi chiêu cơ bản và dưới trần mười ý định mỗi giây của
+        // server.
+        listen(line, seen, tally, kBetween, is_dead);
+        if (is_dead()) return true;
+    }
+    seen.unreachable.insert(strike.target);
+    return false;
+}
+
+void report_empty(const Seen& seen) {
+    std::println("  không còn quái sống quanh ({:.0f}, {:.0f})", seen.x_cm, seen.z_cm);
+}
+
+void report_pick(const Seen& seen) {
+    const std::size_t slots = seen.bag ? seen.bag->slots.size() : 0U;
+    std::println("  nhặt được vật rơi, túi có {} ô", slots);
+}
+
+// Săn quái ở `goal`: giết tối đa kMaxKills con (dừng sớm khi đã nhặt được một món hoặc hết
+// `seconds` giây), mỗi con đánh bằng kỹ năng đầu tiên trong SelfSkills.
+void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position& start,
+    std::pair<float, float> goal, int seconds) {
+    constexpr float kCloseCm = 300.0F;
+    constexpr int kMaxKills = 12;
     seen.x_cm = start.x_cm;
     seen.z_cm = start.z_cm;
     seen.tolerate_reject = true;
     std::uint32_t tick = 0;
-    std::uint16_t seq = 0;
     go(line, seen, tally, goal, kCloseCm, tick);
     listen(line, seen, tally, std::chrono::milliseconds{1500}, [] { return false; });
     if (seen.skills.empty()) {
         std::println("  SelfSkills rỗng: nhân vật chưa có kỹ năng");
         return;
     }
-    const std::uint16_t skill = seen.skills.front().skill;
-    std::println("  ra chiêu {} (cấp {})", skill, seen.skills.front().level);
+    Strike strike;
+    strike.skill = seen.skills.front().skill;
+    strike.deadline = Clock::now() + std::chrono::seconds{seconds};
+    std::println("  ra chiêu {} (cấp {})", strike.skill, seen.skills.front().level);
     for (int kills = 0; kills < kMaxKills && tally.picked.load() == 0 && !seen.refused; ++kills) {
         const auto target = nearest_monster(seen);
-        if (!target) {
-            std::println("  không còn quái sống quanh ({:.0f}, {:.0f})", seen.x_cm, seen.z_cm);
-            break;
-        }
-        const int deaths_before = tally.deaths.load();
-        for (int round = 0; round < kMaxCasts && tally.deaths.load() == deaths_before && !seen.refused; ++round) {
-            const auto current = seen.monsters.find(target->first);
-            if (current == seen.monsters.end()) break;
-            go(line, seen, tally, std::pair{current->second.x_cm, current->second.z_cm}, kReachCm, tick);
-            if (!send(line, protocol::CastSkill{.seq = ++seq, .skill = skill, .target = target->first})) return;
-            // 1,4 giây giữa hai chiêu: đủ hồi chiêu cơ bản và dưới trần mười ý định mỗi giây của server.
-            listen(line, seen, tally, std::chrono::milliseconds{1400}, [&] { return tally.deaths.load() != deaths_before; });
-        }
-        if (tally.deaths.load() == deaths_before) continue;
-        std::println("  quái {:#x} chết sau {} chiêu", target->first, seq);
+        if (!target) report_empty(seen);
+        if (!target) break;
+        strike.target = target->first;
+        if (!engage(line, seen, tally, strike, tick)) continue;
+        std::println("  quái {:#x} chết sau {} chiêu", strike.target, strike.casts);
         listen(line, seen, tally, std::chrono::milliseconds{800}, [] { return false; });
-        if (collect(line, seen, tally, tick)) std::println("  nhặt được vật rơi, túi có {} ô", seen.bag ? seen.bag->slots.size() : 0U);
+        if (collect(line, seen, tally, tick)) report_pick(seen);
     }
+    if (Clock::now() >= strike.deadline) std::println("  hết {} giây săn quái", seconds);
 }
 
 void run_bot(const Options& options, const secure::PublicKey& server, int index, Tally& tally) {
@@ -584,6 +828,7 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     if (!line) return fail("không nối được cổng game");
     if (!send(*line, protocol::Login{.account = account, .ticket = *ticket})) return fail("gửi Login hỏng");
     Seen seen;
+    seen.field = options.field.get();
     for (int round = 0; round < 8 && !seen.roster && !seen.refused; ++round) {
         const auto message = read_game(*line, kStep);
         if (!message) return fail("không nhận được danh sách nhân vật");
@@ -616,11 +861,12 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     const float arrived_x = seen.position->x_cm;
     const float arrived_z = seen.position->z_cm;
     std::println("[{}] vào tại x={:.0f} z={:.0f} (cm)", account, arrived_x, arrived_z);
+    if (options.peers > 0) return watch(*line, seen, tally, account, options.seconds);
     const float share = static_cast<float>(index) / static_cast<float>(options.count);
     const float heading = 2.0F * std::numbers::pi_v<float> * share;
     bool walked = true;
     if (options.fight) {
-        fight(*line, seen, tally, *seen.position, *options.fight);
+        fight(*line, seen, tally, *seen.position, *options.fight, options.seconds);
     } else if (options.talk) {
         talk(*line, seen, tally, *seen.position, *options.talk);
     } else if (options.hunt) {
@@ -654,6 +900,60 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     return static_cast<std::uint16_t>(*value);
 }
 
+// --peers <n>: 1 tới 256 người chơi khác phải thấy.
+[[nodiscard]] bool take_peers(Options& options, std::string_view text) {
+    const std::optional<int> number = whole_number(text);
+    if (!number) return false;
+    const bool is_in_range = *number >= 1 && *number <= 256;
+    if (is_in_range) options.peers = *number;
+    return is_in_range;
+}
+
+[[nodiscard]] bool take_path(std::filesystem::path& slot, std::string_view text) {
+    slot = std::filesystem::path{std::string{text}};
+    return !text.empty();
+}
+
+[[nodiscard]] bool take_port(std::uint16_t& slot, std::string_view text) {
+    const std::optional<std::uint16_t> port = port_number(text);
+    if (port) slot = *port;
+    return port.has_value();
+}
+
+[[nodiscard]] bool take_number(int& slot, std::string_view text) {
+    const std::optional<int> number = whole_number(text);
+    if (number) slot = *number;
+    return number.has_value();
+}
+
+// "x_m,z_m" (mét, số nguyên) thành centimet.
+[[nodiscard]] bool take_goal(std::optional<Goal>& slot, std::string_view text) {
+    const std::size_t comma = text.find(',');
+    if (comma == std::string_view::npos) return false;
+    const std::optional<int> east = whole_number(text.substr(0, comma));
+    const std::optional<int> south = whole_number(text.substr(comma + 1));
+    if (!east || !south) return false;
+    slot = Goal{static_cast<float>(*east) * kCmPerUnit, static_cast<float>(*south) * kCmPerUnit};
+    return true;
+}
+
+// Một cặp `--khoá giá trị`; false khi khoá lạ hay giá trị hỏng.
+[[nodiscard]] bool take_option(Options& options, std::string_view key, std::string_view value) {
+    if (key == "--peers") return take_peers(options, value);
+    if (key == "--identity") return take_path(options.identity, value);
+    if (key == "--walk") return take_path(options.walk, value);
+    if (key == "--game") return take_port(options.game_port, value);
+    if (key == "--auth") return take_port(options.auth_port, value);
+    if (key == "--count") return take_number(options.count, value);
+    if (key == "--seconds") return take_number(options.seconds, value);
+    if (key == "--hunt") return take_goal(options.hunt, value);
+    if (key == "--talk") return take_goal(options.talk, value);
+    if (key == "--fight") return take_goal(options.fight, value);
+    if (key == "--prefix") options.prefix = value;
+    if (key == "--straight") options.straight = value == "1";
+    return key == "--prefix" || key == "--straight";
+}
+
 [[nodiscard]] std::optional<Options> parse(std::span<const char* const> args) {
     Options options;
     for (std::size_t at = 1; at < args.size(); ++at) {
@@ -661,44 +961,40 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
         if (at + 1 >= args.size()) return std::nullopt;
         ++at;
         const std::string_view value = args[at];
-        if (key == "--identity") {
-            options.identity = std::filesystem::path{std::string{value}};
-        } else if (key == "--game") {
-            const std::optional<std::uint16_t> port = port_number(value);
-            if (!port) return std::nullopt;
-            options.game_port = *port;
-        } else if (key == "--auth") {
-            const std::optional<std::uint16_t> port = port_number(value);
-            if (!port) return std::nullopt;
-            options.auth_port = *port;
-        } else if (key == "--count" || key == "--seconds") {
-            const std::optional<int> number = whole_number(value);
-            if (!number) return std::nullopt;
-            (key == "--count" ? options.count : options.seconds) = *number;
-        } else if (key == "--prefix") {
-            options.prefix = value;
-        } else if (key == "--straight") {
-            options.straight = value == "1";
-        } else if (key == "--hunt" || key == "--talk" || key == "--fight") {
-            const std::size_t comma = value.find(',');
-            if (comma == std::string_view::npos) return std::nullopt;
-            const std::optional<int> east = whole_number(value.substr(0, comma));
-            const std::optional<int> south = whole_number(value.substr(comma + 1));
-            if (!east || !south) return std::nullopt;
-            const std::pair goal{static_cast<float>(*east) * 100.0F, static_cast<float>(*south) * 100.0F};
-            if (key == "--hunt") {
-                options.hunt = goal;
-            } else if (key == "--talk") {
-                options.talk = goal;
-            } else {
-                options.fight = goal;
-            }
-        } else {
-            return std::nullopt;
-        }
+        if (!take_option(options, key, value)) return std::nullopt;
     }
-    if (options.identity.empty() || options.count < 1 || options.count > 256 || options.seconds < 1) return std::nullopt;
+    const bool is_complete = !options.identity.empty() && options.seconds >= 1;
+    const bool is_count_ok = options.count >= 1 && options.count <= 256;
+    if (!is_complete || !is_count_ok) return std::nullopt;
     return options;
+}
+
+// --walk <walk.path>: nạp lưới đi của cảnh vào một lần, mọi khách dùng chung (chỉ đọc). Cỡ cảnh suy
+// từ lưới tra.
+[[nodiscard]] bool load_walk(Options& options) {
+    if (options.walk.empty()) return true;
+    std::ifstream file{options.walk, std::ios::binary};
+    const std::istreambuf_iterator<char> first{file};
+    const std::vector<char> raw{first, std::istreambuf_iterator<char>{}};
+    const std::span<const std::byte> bytes = std::as_bytes(std::span{raw});
+    nav::MeshResult mesh = nav::read_mesh(bytes);
+    if (!mesh) {
+        const std::string_view why = nav::describe(mesh.error());
+        std::println(stderr, "không đọc được lưới đi {}: {}", options.walk.string(), why);
+        return false;
+    }
+    const float width = static_cast<float>(mesh->columns * mesh->cell_size);
+    const float depth = static_cast<float>(mesh->rows * mesh->cell_size);
+    const nav::Area area{.width = width, .depth = depth};
+    options.field = std::make_shared<const nav::Field>(std::move(*mesh), area);
+    return true;
+}
+
+void print_usage() {
+    std::println(stderr, "dùng: thienlong_bot --identity <khoá> [--game 7100] [--auth 7101]");
+    std::println(stderr, "  [--count 4] [--seconds 6] [--prefix bot] [--straight 1] [--peers <n>]");
+    std::println(stderr, "  [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>] [--fight <x_m>,<z_m>]");
+    std::println(stderr, "  [--walk <walk.path>]");
 }
 
 } // namespace
@@ -706,14 +1002,13 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
 // NOLINTNEXTLINE(bugprone-exception-escape): công cụ thử, hết bộ nhớ thì dừng tiến trình là đủ.
 int main(int argc, char** argv) {
     io::use_utf8_console();
-    const std::optional<Options> options =
-        parse(std::span<const char* const>{argv, static_cast<std::size_t>(argc)});
+    const std::span<const char* const> args{argv, static_cast<std::size_t>(argc)};
+    std::optional<Options> options = parse(args);
     if (!options) {
-        std::println(stderr, "dùng: thienlong_bot --identity <identity.key> [--game 7000] [--auth 7001] [--count 4] "
-                             "[--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>] "
-                             "[--fight <x_m>,<z_m>]");
+        print_usage();
         return 2;
     }
+    if (!load_walk(*options)) return 2;
     const net::NetResult<net::Network> network = net::Network::start();
     if (!network) return 1;
     const secure::Result<secure::Identity> identity = secure::Identity::load(options->identity);
@@ -736,6 +1031,11 @@ int main(int argc, char** argv) {
         tally.npcs.load(), tally.monsters.load(), tally.corrections.load(), tally.drifted.load(), tally.failed.load());
     if (tally.failed.load() != 0) return 1;
     if (tally.entered.load() != options->count) return 1;
+    if (options->peers > 0) {
+        const int seen_peers = tally.appear.load();
+        std::println("đứng xem: thấy {} người chơi khác, cần {}", seen_peers, options->peers);
+        return seen_peers >= options->peers ? 0 : 1;
+    }
     if (options->fight) {
         std::println("chiến đấu: chiêu của mình={} sát thương={} quái chết={} vật rơi thấy={} đã nhặt={} kinh nghiệm +{}",
             tally.casts.load(), tally.damage_events.load(), tally.deaths.load(), tally.drops.load(), tally.picked.load(),

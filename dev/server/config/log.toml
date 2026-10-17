@@ -6,8 +6,9 @@
 #==================================================
 # Chung
 #==================================================
-schema = 1      # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
-audit  = true   # true: ghi thêm log thống kê và kiểm toán
+schema     = 1      # Phiên bản bố cục của tệp; bộ đọc từ chối số nó không hiểu
+audit      = true   # true: ghi thêm log thống kê và kiểm toán
+play_trace = true   # true: zone ghi một dòng kiểm cho mỗi việc của người chơi (dev/server/README.md)
 
 #==================================================
 # Tệp log

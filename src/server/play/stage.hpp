@@ -115,6 +115,44 @@ public:
     virtual void sweep(Place place) = 0;
 };
 
+// Việc của người chơi cho log kiểm (docs/giao-viec/HOAN-THIEN/G0-M.md). Chỉ ghi khi Output::traced
+// bật.
+enum class Act : std::uint8_t {
+    kTalk,
+    kChoose,
+    kAccept,
+    kTurnIn,
+    kAbandon,
+    kCast,
+    kStrike, // người chơi ra đòn trúng, value là sát thương
+    kStruck, // người chơi bị trúng, value là sát thương
+    kSlay, // người chơi hạ quái, value là mẫu quái
+    kDie,
+    kRespawn,
+    kPick,
+};
+
+// Việc ứng với loại tin của client; loại không có việc riêng (DialogClose, Move...) thì nullopt.
+[[nodiscard]] inline std::optional<Act> act_of(std::uint16_t request) noexcept {
+    if (request == protocol::Talk::kKind) return Act::kTalk;
+    if (request == protocol::DialogChoose::kKind) return Act::kChoose;
+    if (request == protocol::QuestAccept::kKind) return Act::kAccept;
+    if (request == protocol::QuestTurnIn::kKind) return Act::kTurnIn;
+    if (request == protocol::QuestAbandon::kKind) return Act::kAbandon;
+    if (request == protocol::CastSkill::kKind) return Act::kCast;
+    if (request == protocol::Respawn::kKind) return Act::kRespawn;
+    if (request == protocol::PickUp::kKind) return Act::kPick;
+    return std::nullopt;
+}
+
+// Một việc đã xảy ra với một phiên. code là ErrorCode bằng số khi bị từ chối, 0 là thành công.
+struct Note {
+    std::uint64_t session = 0;
+    Act act = Act::kTalk;
+    std::uint16_t code = 0;
+    std::int64_t value = 0;
+};
+
 struct Output {
     struct Frame {
         std::uint64_t session = 0;
@@ -138,8 +176,17 @@ struct Output {
     std::vector<Frame> frames;
     std::vector<Keep> keeps;
     std::vector<Place> places;
-    // Tin không mã hoá được (trường quá trần): scene luôn điền trong trần, nên đây là lỗi lập trình lộ ra bằng số.
+    // Host bật thì các nơi xử lý ý định ghi Note; tắt thì note() không làm gì và không tốn bộ nhớ.
+    bool traced = false;
+    std::vector<Note> notes;
+    // Tin không mã hoá được (trường quá trần): scene luôn điền trong trần, nên đây là lỗi lập trình
+    // lộ ra bằng số.
     std::size_t encode_failures = 0;
+
+    void note(std::uint64_t session, Act act, std::uint16_t code = 0, std::int64_t value = 0) {
+        if (!traced) return;
+        notes.push_back(Note{.session = session, .act = act, .code = code, .value = value});
+    }
 
     template <typename Message>
     void down(std::uint64_t session, const Message& message) {
@@ -153,7 +200,10 @@ struct Output {
     void place(std::uint64_t session, std::int32_t x_cm, std::int32_t z_cm) {
         places.push_back(Place{.session = session, .x_cm = x_cm, .z_cm = z_cm});
     }
+    // Từ chối một ý định của client: gửi Reject, và ghi việc đó kèm mã lỗi vào log kiểm.
     void reject(std::uint64_t session, std::uint16_t request, protocol::ErrorCode code) {
+        const std::optional<Act> act = act_of(request);
+        if (act) note(session, *act, std::to_underlying(code));
         down(session, protocol::Reject{.request = request, .code = code});
     }
 };

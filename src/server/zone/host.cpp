@@ -168,7 +168,7 @@ private:
     Outbox* out_;
 };
 
-Host::Host(Config config) : config_(std::move(config)) {
+Host::Host(Config config) : config_(std::move(config)), trace_(config_.trace, config_.hz) {
     core::check(accepted_hz(config_.hz), "hz zone phải là 20, 30 hoặc 40");
     config_.play.hz = config_.hz;
     if (config_.world == nullptr) return;
@@ -189,9 +189,42 @@ const Scene* Host::scene_of(std::uint64_t session) const noexcept {
     return found == where_.end() ? nullptr : find(found->second);
 }
 
-// Đổ kết quả của gameplay vào Outbox: tin xuống client, và trạng thái chơi cần ghi kèm điểm đứng hiện tại.
+play::Output Host::fresh_output() const {
+    play::Output output;
+    output.traced = trace_.on();
+    return output;
+}
+
+TraceSpot Host::spot_of(std::uint64_t session) const {
+    const Scene* scene = scene_of(session);
+    if (scene == nullptr) return TraceSpot{};
+    const std::optional<std::uint32_t> self = scene->entity_of(session);
+    const std::optional<Scene::Where> spot = self ? scene->where(*self) : std::nullopt;
+    if (!spot) return TraceSpot{};
+    return TraceSpot{.scene = scene->id(), .x_cm = spot->x_cm, .z_cm = spot->z_cm};
+}
+
+void Host::trace_step(std::uint64_t session, const ipc::Moved& step, bool pulled) {
+    if (!trace_.on()) return;
+    const TraceSpot here = spot_of(session);
+    const TraceSpot refused{.scene = here.scene, .x_cm = step.x_cm, .z_cm = step.z_cm};
+    if (pulled) trace_.pull(session, refused, here, ticks_);
+    if (!pulled) trace_.walk(session, here, ticks_);
+}
+
+void Host::trace_notes(const play::Output& output) {
+    for (const play::Note& note : output.notes) {
+        const TraceSpot spot = spot_of(note.session);
+        trace_.act(note, spot, ticks_);
+    }
+}
+
+// Đổ kết quả của gameplay vào Outbox: tin xuống client, và trạng thái chơi cần ghi kèm điểm đứng
+// hiện tại.
 void Host::deliver(play::Output& output, Outbox& out) {
-    for (const play::Output::Frame& frame : output.frames) out.down_frame(frame.session, frame.bytes);
+    for (const auto& frame : output.frames)
+        out.down_frame(frame.session, frame.bytes);
+    trace_notes(output);
     // Gate đặt mốc mới cho guard::Pace rồi gửi Position: client dời nhân vật về chỗ hồi sinh, sau mọi tin của lượt.
     for (const play::Output::Place& spot : output.places) {
         out.place(spot.session, static_cast<float>(spot.x_cm), static_cast<float>(spot.z_cm));
@@ -262,11 +295,12 @@ void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {
     }
     where_[session] = arrival->scene;
     if (!play_) {
+        trace_.enter(session, *arrival, spot_of(session), ticks_);
         remember_foot(session, *scene);
         return;
     }
     // Sau SceneEnter và EntityAppear: client đã vào cảnh khi nhận QuestBook và SelfStats.
-    play::Output output;
+    play::Output output = fresh_output();
     const std::optional<std::uint32_t> self = scene->entity_of(session);
     Around around{*this, out};
     if (!self || !play_->attach(play::Gameplay::Arrival{.session = session, .entity = *self}, *arrival, around, output)) {
@@ -276,6 +310,7 @@ void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {
         out.refuse(session, protocol::ErrorCode::kBusy);
         return;
     }
+    trace_.enter(session, *arrival, spot_of(session), ticks_);
     deliver(output, out);
     remember_foot(session, *scene);
 }
@@ -284,11 +319,13 @@ void Host::detach(std::uint64_t session, Outbox& out) {
     const auto found = where_.find(session);
     if (found == where_.end()) return;
     if (play_) {
-        // Trước khi rời cảnh: trạng thái cuối cần điểm đứng, mà điểm đứng chỉ còn khi người chơi còn trong cảnh.
-        play::Output output;
+        // Trước khi rời cảnh: trạng thái cuối cần điểm đứng, mà điểm đứng chỉ còn khi người chơi
+        // còn trong cảnh.
+        play::Output output = fresh_output();
         play_->detach(session, output);
         deliver(output, out);
     }
+    trace_.leave(session, spot_of(session), ticks_);
     if (Scene* scene = find(found->second)) scene->detach(session, out);
     where_.erase(found);
     feet_.erase(session);
@@ -303,7 +340,8 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
         const std::optional<ipc::Moved> step = ipc::decode_moved(frame.body);
         Scene* scene = found == where_.end() ? nullptr : find(found->second);
         if (scene != nullptr && step) {
-            scene->moved(frame.session, *step, out);
+            const bool pulled = scene->moved(frame.session, *step, out);
+            trace_step(frame.session, *step, pulled);
             consider_gate(frame.session, out);
             return;
         }
@@ -315,7 +353,7 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
             ++ignored_;
             return;
         }
-        play::Output output;
+        play::Output output = fresh_output();
         Around around{*this, out};
         play_->intent(frame.session, frame.body, around, output);
         deliver(output, out);
@@ -339,7 +377,7 @@ void Host::advance(Outbox& out) {
         if (save_now) scene.autosave(out);
     }
     if (play_) {
-        play::Output output;
+        play::Output output = fresh_output();
         Around around{*this, out};
         play_->step(around, output);
         if (save_now) play_->autosave(output);
@@ -409,10 +447,11 @@ void Host::restore(std::uint64_t session, std::uint16_t scene, float x_cm, float
     Scene* back = find(scene);
     const ipc::Attach next = attach_of(card, scene, x_cm, z_cm);
     if (back == nullptr || back->attach(session, next, out)) {
+        trace_.leave(session, TraceSpot{}, ticks_);
         where_.erase(session);
         feet_.erase(session);
         if (!play_) return;
-        play::Output output;
+        play::Output output = fresh_output();
         play_->detach(session, output);
         deliver(output, out);
         return;
@@ -433,7 +472,7 @@ void Host::transfer(std::uint64_t session, Scene& from, const AreaStand& stand, 
     const Scene::PlayerCard& kept = *card;
 
     if (play_) {
-        play::Output dialog;
+        play::Output dialog = fresh_output();
         play_->left_scene(session, dialog);
         deliver(dialog, out);
     }
@@ -447,7 +486,7 @@ void Host::transfer(std::uint64_t session, Scene& from, const AreaStand& stand, 
     out.place(session, stand.dest_x_cm, stand.dest_z_cm);
     if (play_) {
         const std::optional<std::uint32_t> self = dest->entity_of(session);
-        play::Output moved;
+        play::Output moved = fresh_output();
         Around around{*this, out};
         const bool seated = self && play_->change_scene(session, stand.dest_scene, *self, stand.dest_x_cm, stand.dest_z_cm,
                                               around, moved);
@@ -458,7 +497,7 @@ void Host::transfer(std::uint64_t session, Scene& from, const AreaStand& stand, 
             const Scene* back = find(old_scene);
             const std::optional<std::uint32_t> again = back != nullptr ? back->entity_of(session) : std::nullopt;
             if (!again) return;
-            play::Output returned;
+            play::Output returned = fresh_output();
             Around second{*this, out};
             static_cast<void>(play_->change_scene(session, old_scene, *again, old_x, old_z, second, returned));
             deliver(returned, out);

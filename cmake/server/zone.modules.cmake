@@ -23,7 +23,8 @@ if(TARGET game_account)
         src/server/zone/scene.cpp
         src/server/zone/host.cpp
         src/server/zone/saver.cpp
-        src/server/zone/serve.cpp)
+        src/server/zone/serve.cpp
+        src/server/zone/trace.cpp)
     target_link_libraries(game_zone
         PUBLIC game_core game_dice game_ipc game_protocol game_ids game_scenedata game_table game_play
         PRIVATE game_config game_account game_io game_net game_process)

@@ -542,22 +542,26 @@ void Gameplay::handle(std::uint64_t session, Entry& who, const protocol::GameCli
 }
 
 void Gameplay::on(const Call& call, const protocol::Talk& message) {
-    const std::optional<Surroundings::Npc> npc = call.around->npc(call.session, Surroundings::Target{.entity = message.npc});
+    Entry& who = *call.who;
+    Output& out = *call.out;
+    const Surroundings::Target target{.entity = message.npc};
+    const std::optional<Surroundings::Npc> npc = call.around->npc(call.session, target);
     if (!npc) {
-        call.out->reject(call.session, protocol::Talk::kKind, protocol::ErrorCode::kNoSuchEntity);
+        out.reject(call.session, protocol::Talk::kKind, protocol::ErrorCode::kNoSuchEntity);
         return;
     }
     const Near near{*call.around, Near::Addressee{.session = call.session, .entity = message.npc}};
     const talk::NpcRef ref{
         .guid = npc->guid, .scene = npc->scene, .name = ops::name_id(npc->name), .script = npc->script};
-    talk::Result answer = service_.talk(*call.who->player, ref, near, ids::Tick{tick_}, calendar());
-    call.who->npc_entity = message.npc;
-    call.who->npc_name = npc->name;
+    talk::Result answer = service_.talk(*who.player, ref, near, ids::Tick{tick_}, calendar());
+    who.npc_entity = message.npc;
+    who.npc_name = npc->name;
+    if (answer) out.note(call.session, Act::kTalk, 0, message.npc);
     if (!answer) {
-        fail(call.session, protocol::Talk::kKind, answer.error(), *call.who, npc->name, message.npc, *call.out);
+        fail(call.session, protocol::Talk::kKind, answer.error(), who, npc->name, message.npc, out);
         return;
     }
-    reply(call.session, *call.who, npc->name, message.npc, *answer, *call.out);
+    reply(call.session, who, npc->name, message.npc, *answer, out);
 }
 
 // Từ đây phiên đã mở: tên NPC và id thực thể lấy lại từ NPC của phiên, không tin client nhắc lại.
@@ -584,6 +588,7 @@ void Gameplay::on(const Call& call, const protocol::QuestTurnIn& message) {
 
 void Gameplay::on(const Call& call, const protocol::QuestAbandon& message) {
     const mission::Result done = service_.abandon(*call.who->player, message.quest, calendar());
+    if (done) call.out->note(call.session, Act::kAbandon, 0, message.quest);
     if (!done) {
         call.out->reject(call.session, protocol::QuestAbandon::kKind, mission_code(done.error()));
         return;
@@ -644,6 +649,11 @@ void Gameplay::settle(const Report& report, Output& out) {
 }
 
 void Gameplay::finish(const Call& call, std::uint16_t request, talk::Result& answer) {
+    // Lựa chọn đã đổi (kOptionGone) được vẽ lại chứ không bị từ chối, nên cũng là thành công.
+    const bool is_redrawn = !answer && answer.error().error == talk::Error::kOptionGone;
+    const bool is_done = static_cast<bool>(answer) || is_redrawn;
+    const std::optional<Act> act = act_of(request);
+    if (act && is_done) call.out->note(call.session, *act, 0, call.who->npc_entity);
     if (!answer) {
         fail(call.session, request, answer.error(), *call.who, call.who->npc_name, call.who->npc_entity, *call.out);
         return;

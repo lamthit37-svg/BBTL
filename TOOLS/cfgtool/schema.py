@@ -279,7 +279,9 @@ add(FileSpec("gate.toml", "CẤU HÌNH CỔNG CÔNG KHAI (GATE)", ("Tệp: gate.
 )))
 
 add(FileSpec("log.toml", "CẤU HÌNH LOG", ("Tệp: log.toml. Mọi tiến trình đều đọc tệp này.",), "config::read_log (log.cpp)", (
-    Group("", "Chung", (SCHEMA, flag("audit", "true: ghi thêm log thống kê và kiểm toán.", "Production: true.", "true"))),
+    Group("", "Chung", (SCHEMA, flag("audit", "true: ghi thêm log thống kê và kiểm toán.", "Production: true.", "true"),
+        flag("play_trace", "true: zone ghi một dòng kiểm cho mỗi việc của người chơi (dev/server/README.md).",
+             "Production: false; dev: true.", "false", required=False, default="false"))),
     Group("file", "Tệp log", (
         path("dir", "Thư mục chứa tệp log; mỗi tiến trình một tệp.", "Ổ có đủ chỗ, có dọn định kỳ.", '"../log"'),
         count("rotate_mb", "Tệp log lớn quá số MB này thì mở tệp mới.", "64–256.", "128", unit="MB"),

@@ -273,16 +273,17 @@ void Scene::autosave(Outbox& out) {
     }
 }
 
-void Scene::moved(std::uint64_t session, const ipc::Moved& step, Outbox& out) {
+bool Scene::moved(std::uint64_t session, const ipc::Moved& step, Outbox& out) {
     const auto found = players_.find(session);
-    if (found == players_.end()) return;
+    if (found == players_.end()) return false;
     const Entity& who = entities_[found->second];
     // Người đã chết nằm yên: bước nào cũng bị kéo về chỗ nằm.
     if (who.state == protocol::EntityState::kDead || blocked(who, step)) {
         out.place(session, who.x_cm, who.z_cm);
-        return;
+        return true;
     }
     relocate(found->second, Point{.x_cm = step.x_cm, .z_cm = step.z_cm}, out);
+    return false;
 }
 
 bool Scene::blocked(const Entity& who, const ipc::Moved& step) const {

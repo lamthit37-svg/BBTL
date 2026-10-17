@@ -22,6 +22,7 @@
 #include "account/rpc.hpp"
 #include "config/cluster.hpp"
 #include "config/issue.hpp"
+#include "config/log.hpp"
 #include "config/types.hpp"
 #include "config/zone.hpp"
 #include "io/file.hpp"
@@ -160,6 +161,22 @@ struct Roots {
     return true;
 }
 
+// log.toml đã qua check_child trước khi zone chạy; đọc lại chỉ để lấy khoá play_trace.
+[[nodiscard]] bool load_trace(const Path& config_dir, Settings& settings, std::string& error) {
+    const io::TextResult text = io::read_text(config_dir / "log.toml");
+    if (!text) {
+        error = "không đọc được log.toml";
+        return false;
+    }
+    const config::ReadResult<config::Log> log = config::read_log(*text);
+    if (!log) {
+        error = "log.toml không hợp lệ";
+        return false;
+    }
+    settings.host.trace = log->play_trace;
+    return true;
+}
+
 [[nodiscard]] std::optional<Settings> load_settings(const Path& config_dir, std::string& error) {
     const io::TextResult cluster_text = io::read_text(config_dir / "cluster.toml");
     const io::TextResult zone_text = io::read_text(config_dir / "zone.toml");
@@ -175,6 +192,7 @@ struct Roots {
     }
     Settings settings;
     if (!tune(*zone, settings, error)) return std::nullopt;
+    if (!load_trace(config_dir, settings, error)) return std::nullopt;
     // Bố cục dev/server và release/server: config, scenes và tables là anh em.
     const Path data_root = (config_dir.has_filename() ? config_dir : config_dir.parent_path()).parent_path();
     if (!load_world(Roots{.data = data_root, .config = config_dir}, settings, zone->language, error)) return std::nullopt;

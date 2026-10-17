@@ -28,6 +28,7 @@
 #include "play/world.hpp"
 #include "zone/content.hpp"
 #include "zone/scene.hpp"
+#include "zone/trace.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -51,6 +52,8 @@ public:
         // Dữ liệu chơi (hội thoại, nhiệm vụ). Con trỏ rỗng thì Host không có gameplay: chỉ ai thấy ai. World sống lâu hơn Host.
         const play::World* world = nullptr;
         play::Gameplay::Settings play{};
+        // true: ghi log kiểm theo việc người chơi (zone/trace.hpp); false thì không tốn gì.
+        bool trace = false;
     };
 
     explicit Host(Config config);
@@ -77,6 +80,13 @@ private:
     class Around;
     [[nodiscard]] const Scene* scene_of(std::uint64_t session) const noexcept;
     void deliver(play::Output& output, Outbox& out);
+    // Output mới cho một lượt gameplay; bật traced khi log kiểm bật để các nơi xử lý ghi Note.
+    [[nodiscard]] play::Output fresh_output() const;
+    // Chỗ đứng hiện tại của phiên cho dòng kiểm; scene = -1 khi phiên không còn ở cảnh nào.
+    [[nodiscard]] TraceSpot spot_of(std::uint64_t session) const;
+    // Log kiểm của một bước đi: `pulled` là zone đã hoàn bước lại (kéo), ngược lại là đi.
+    void trace_step(std::uint64_t session, const ipc::Moved& step, bool pulled);
+    void trace_notes(const play::Output& output);
     void clock_play() noexcept;
     void attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out);
     void detach(std::uint64_t session, Outbox& out);
@@ -106,6 +116,7 @@ private:
     std::uint32_t ticks_ = 0;
     std::int64_t unix_seconds_ = 0;
     std::unique_ptr<play::Gameplay> play_;
+    Trace trace_;
 };
 
 } // namespace game::zone

@@ -154,6 +154,8 @@ private:
     // Dịch sự kiện của đấu trường thành tin, chia thưởng khi có ai chết, rồi dọn hàng đợi. `from_cast`: hồi sinh lực trong lúc ra
     // chiêu là hồi của chiêu (hiện số bay); ngoài ra là hồi tự nhiên (không hiện).
     void drain(const Env& env, bool from_cast);
+    // Log kiểm: đòn trúng của người chơi (ra đòn hay bị trúng).
+    void note_hit(Output& out, const combat::Event& event) const;
     void on_monster_death(const combat::Event& event, const Env& env);
     void on_player_death(const combat::Event& event, const Env& env);
     void reward(Member& killer, std::uint64_t session, const combat::Fighter& monster, const Surroundings::Unit& unit,

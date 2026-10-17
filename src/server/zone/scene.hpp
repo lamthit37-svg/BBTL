@@ -185,10 +185,11 @@ public:
     // cảnh qua phiên khác thì phiên cũ bị đóng (kLoginElsewhere) và rời trước.
     [[nodiscard]] std::optional<protocol::ErrorCode> attach(std::uint64_t session, const ipc::Attach& arrival,
         Outbox& out);
-    // Vị trí gate đã chấp nhận. Phiên lạ thì bỏ. Có luật đi (Config::walkable) mà bước rơi vào chỗ không đi được từ
-    // chỗ đi được thì không dời người chơi mà gửi kPlace về vị trí cũ; người đang đứng ngoài lưới (điểm lưu cũ, lưới
-    // đổi) vẫn đi ra được, để không ai bị nhốt.
-    void moved(std::uint64_t session, const ipc::Moved& step, Outbox& out);
+    // Vị trí gate đã chấp nhận. Phiên lạ thì bỏ. Có luật đi (Config::walkable) mà bước rơi vào chỗ
+    // không đi được từ chỗ đi được thì không dời người chơi mà gửi kPlace về vị trí cũ; người đang
+    // đứng ngoài lưới (điểm lưu cũ, lưới đổi) vẫn đi ra được, để không ai bị nhốt. Trả true khi
+    // bước bị hoàn lại (người chết cũng bị hoàn): log kiểm ghi việc "kéo".
+    bool moved(std::uint64_t session, const ipc::Moved& step, Outbox& out);
     // Người chơi rời. Phiên lạ thì bỏ.
     void detach(std::uint64_t session, Outbox& out);
 
