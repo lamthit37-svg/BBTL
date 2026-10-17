@@ -1,14 +1,29 @@
-// Thiết bị Vulkan: cài đặt gpu::Device — Vulkan.c của _Ref, vulkan/device.cpp của Platium. Lớp và
-// các kiểu ở đây là nội bộ của backend; cài đặt chia theo việc ra device.cpp (vòng đời, hàng đợi,
-// nộp lệnh), resources.cpp (buffer, texture, view, sampler, truy vấn, bộ nhớ) và programs.cpp
-// (shader, bố cục, pipeline, nhóm gắn). Khác gốc:
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/vulkan/device.hpp
+ *  PHÂN HỆ   : Gpu / Vulkan / Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thiết bị Vulkan, cài đặt gpu::Device; các kiểu ở đây là nội bộ backend.
+ *    Cài đặt chia ra device.cpp (vòng đời, hàng đợi, nộp lệnh), resources.cpp
+ *    (tài nguyên, bộ nhớ) và programs.cpp (shader, pipeline, nhóm gắn).
+ *  - Nguồn: Forge2 src/gpu/vulkan/device.hpp@d7fcd76, Vulkan.c của _Ref,
+ *    vulkan/device.cpp của Platium. Khác gốc: ghi ngay dưới khung.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc:
 // - bộ nhớ chia từ khối lớn (gpu/memory.hpp) thay vì mỗi tài nguyên một vkAllocateMemory;
-// - mỗi hàng đợi đếm lần nộp bằng fence (không dùng timeline semaphore: thiết bị Vulkan 1.1 không có),
-//   làm mốc cho huỷ hoãn và thu hồi command list; Timeline của chỗ gọi là bộ đếm phía CPU, tiến lên
-//   khi fence của lần nộp mang tín hiệu của nó xong;
-// - descriptor set layout và pipeline layout dựng từ phản chiếu shader, dùng chung theo băm.
-// Nguồn: Forge2 src/gpu/vulkan/device.hpp@d7fcd76. Khác gốc (so với Forge2): enumerator mang tiền
-// tố k.
+// - mỗi hàng đợi đếm lần nộp bằng fence (không dùng timeline semaphore: thiết bị Vulkan 1.1 không
+//   có), làm mốc cho huỷ hoãn và thu hồi command list; Timeline của chỗ gọi là bộ đếm phía CPU,
+//   tiến lên khi fence của lần nộp mang tín hiệu của nó xong;
+// - descriptor set layout và pipeline layout dựng từ phản chiếu shader, dùng chung theo băm;
+// - enumerator mang tiền tố k (so với Forge2).
+
 #pragma once
 
 #include "gpu/check.hpp"
@@ -149,8 +164,18 @@ struct Traits {
     // VK_KHR_present_id và VK_KHR_present_wait cùng bật (cả phần mở rộng lẫn tính năng): swapchain gắn số cho
     // mỗi lần present và chờ được tới lúc nó lên màn.
     bool present_wait = false;
-    // VK_ATTACHMENT_STORE_OP_NONE (lõi 1.3 hay VK_EXT_load_store_op_none): độ sâu chỉ đọc khỏi ghi lại.
+    // VK_GOOGLE_display_timing (Android, MoltenVK): swapchain hẹn lúc trình và đọc lại mốc trình
+    // thật.
+    bool display_timing = false;
+    // VK_ATTACHMENT_STORE_OP_NONE (lõi 1.3 hay VK_EXT_load_store_op_none): độ sâu chỉ đọc khỏi ghi
+    // lại.
     bool store_none = false;
+};
+
+// Hai hàm của VK_GOOGLE_display_timing; cả hai null khi traits().display_timing sai.
+struct DisplayTimingApi {
+    PFN_vkGetRefreshCycleDurationGOOGLE refresh_cycle = nullptr;
+    PFN_vkGetPastPresentationTimingGOOGLE past_timing = nullptr;
 };
 
 // Giá trị đã đạt của một Timeline của chỗ gọi. Chia sẻ với các lần nộp còn bay: Timeline bị huỷ trước
@@ -192,6 +217,10 @@ struct Queue {
 
 // Adapter đạt mức tối thiểu của backend, theo thứ tự ưu tiên (gpu::enumerate_adapters).
 [[nodiscard]] Result<std::vector<AdapterInfo>> adapters();
+
+// Kiểu bộ nhớ mà MemoryDomain::kUpload sẽ chọn là DEVICE_LOCAL: thiết bị bộ nhớ hợp nhất
+// (DeviceCaps::has_unified_memory). Cài đặt cạnh pick_type để hai bên không lệch nhau.
+[[nodiscard]] bool upload_is_device_local(const VkPhysicalDeviceMemoryProperties& memory) noexcept;
 
 class VulkanDevice final : public Device {
 public:
@@ -253,7 +282,12 @@ public:
     [[nodiscard]] const Instance& instance() const noexcept { return *instance_; }
     [[nodiscard]] const DebugApi& debug() const noexcept { return debug_; }
     // vkWaitForPresentKHR; nullptr khi traits().present_wait sai.
-    [[nodiscard]] PFN_vkWaitForPresentKHR wait_for_present() const noexcept { return wait_for_present_; }
+    [[nodiscard]] PFN_vkWaitForPresentKHR wait_for_present() const noexcept {
+        return wait_for_present_;
+    }
+    [[nodiscard]] const DisplayTimingApi& display_timing() const noexcept {
+        return display_timing_;
+    }
     [[nodiscard]] Queue& queue(QueueType type) noexcept {
         return queues_.at(queue_index_.at(std::to_underlying(type)));
     }
@@ -304,6 +338,8 @@ private:
     [[nodiscard]] Status pick_queues();
     [[nodiscard]] Status create_device();
     [[nodiscard]] Status create_queues();
+    // Lấy hai hàm của VK_GOOGLE_display_timing; thiếu một thì tắt traits_.display_timing.
+    void load_display_timing() noexcept;
     void read_caps(const VkPhysicalDeviceVulkan12Properties& indexing);
     void create_cache(std::span<const std::byte> data);
     [[nodiscard]] QueueMarks completed();
@@ -366,7 +402,9 @@ private:
     DeviceCaps caps_{};
     DebugApi debug_{};
     PFN_vkWaitForPresentKHR wait_for_present_ = nullptr;
-    // vkGetBufferDeviceAddress (lõi 1.2): xin qua device vì bộ nạp Android không xuất tĩnh; null khi thiếu.
+    DisplayTimingApi display_timing_{};
+    // vkGetBufferDeviceAddress (lõi 1.2): xin qua device vì bộ nạp Android không xuất tĩnh; null
+    // khi thiếu.
     PFN_vkGetBufferDeviceAddress buffer_address_ = nullptr;
     bool is_raw_color_ = false;
     // Phiên bản chức năng lõi dùng được: nhỏ hơn trong phiên bản thiết bị và instance.

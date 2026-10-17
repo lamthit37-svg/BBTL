@@ -117,6 +117,14 @@ struct Argument {
     return true;
 }
 
+// --impact: id hiệu ứng. 0 là id thật, cùng luật với --skill.
+[[nodiscard]] bool set_impact(Options& options, std::string_view text) noexcept {
+    const core::OptionalUnsigned parsed = core::parse_unsigned(text, 10);
+    if (!parsed || parsed->length != text.size()) return false;
+    options.impact_id = parsed->value;
+    return true;
+}
+
 // Số mẫu tối đa của --creature: lưới tám cột bốn hàng trước mặt nhân vật.
 constexpr std::size_t kMostDemoCreatures = 32;
 
@@ -210,6 +218,7 @@ constexpr std::size_t kMostDemoCreatures = 32;
     if (argument.key == "--mount") return set_ride(options, argument.value);
     if (argument.key == "--gem") return set_gem(options, argument.value);
     if (argument.key == "--skill") return set_skill(options, argument.value);
+    if (argument.key == "--impact") return set_impact(options, argument.value);
     if (argument.key == "--auto-strike") return set_auto_strike(options, argument.value);
     if (argument.key == "--scene") options.scene_name = argument.value;
     if (argument.key == "--data") options.data_folder = io::path_from_utf8(argument.value);

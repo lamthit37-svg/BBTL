@@ -1,7 +1,23 @@
+::==============================================================================
+::  THIENLONG  |  TOOLS
+::------------------------------------------------------------------------------
+::  TỆP       : TOOLS/port/rea/start_server.cmd
+::  PHÂN HỆ   : Port / Rea / Start Server
+::  CHUẨN     : Batch
+::------------------------------------------------------------------------------
+::  CHỨC NĂNG
+::  - Khởi động rea_server.mjs (giữ một phiên REA/Ghidra), chạy ẩn qua
+::    Start-Process cmd.exe -ArgumentList '/c','<tệp này>' -WindowStyle Hidden.
+::  - REA_GHIDRA_STARTUP_TIMEOUT_MS phải lớn: nạp nguội Game.exe ~308 giây.
+::  - Ghidra ở đường dẫn ASCII C:\dev\ghidra; Desktop\ghidra không còn từ
+::    2026-10-16, bản trong "CÔNG CỤ DỊCH NGƯỢC" có dấu và dấu cách.
+::------------------------------------------------------------------------------
+::  TÁC GIẢ   : HiepHoon
+::  TELEGRAM  : @Hoon9xx
+::==============================================================================
 @echo off
-rem Khởi động rea_server.mjs (giữ một phiên REA/Ghidra). Chạy ẩn: Start-Process cmd.exe -ArgumentList '/c','<đường dẫn tệp này>' -WindowStyle Hidden
-rem REA_GHIDRA_STARTUP_TIMEOUT_MS phải lớn: lần nạp nguội Game.exe mất ~308 giây, mặc định của REA chỉ 330000.
-set "GHIDRA_INSTALL_DIR=C:\Users\myhea\Desktop\ghidra\ghidra_12.1.4_PUBLIC"
+
+set "GHIDRA_INSTALL_DIR=C:\dev\ghidra\ghidra_12.1.4_PUBLIC"
 set "JAVA_HOME=C:\Program Files\Eclipse Adoptium\jdk-21.0.12.101-hotspot"
 set "REA_ANALYSIS_PROVIDER=ghidra"
 set "REA_GHIDRA_STARTUP_TIMEOUT_MS=1800000"

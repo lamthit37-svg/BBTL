@@ -366,8 +366,11 @@ mục ở mục 11.
 - `math.random` trong script (bảng tạo nhân vật gieo bộ đồ tân thủ): kịch bản trọng tài thay nó
   bằng một dãy số đưa sẵn, test của bản port đưa cùng dãy qua hàm gieo tiêm vào; để nguyên
   `math.random` thì số vàng không lặp lại được.
-- REA (`D:\rea`, bản clone của github.com/morluto/rea ở tag `rea-agents-6.4.0`, đã `npm install` và `npm run build`): chạy
-  `GHIDRA_INSTALL_DIR=C:\Users\myhea\Desktop\ghidra\ghidra_12.1.4_PUBLIC JAVA_HOME=<JDK 21> REA_ANALYSIS_PROVIDER=ghidra node
+- REA (`D:\rea`, bản clone của github.com/morluto/rea ở tag `rea-agents-6.4.0`, đã `npm install` và `npm run build`; dựng lại
+  2026-10-18 sau khi `D:\rea` mất: clone tag, `npm install`, `npm run build`, rồi chép `native/windows/build` từ `npm pack
+  rea-agents@6.4.0`, `doctor` báo ghidra lành. `open_binary` đòi `snapshot_path` là tệp đã có, lấy tệp `--snapshot` của một lần
+  `inspect`. Đo: nạp Render.dll 145 s, OgreMain 110 s, sau đó mỗi truy vấn vài ms): chạy
+  `GHIDRA_INSTALL_DIR=C:\dev\ghidra\ghidra_12.1.4_PUBLIC JAVA_HOME=<JDK 21> REA_ANALYSIS_PROVIDER=ghidra node
   scripts/rea.mjs inspect|function <Game.exe> [địa chỉ] --snapshot <tệp>`. Addon Windows native (`native/windows/build`, bị ignore) chỉ có
   trong gói npm phát hành và phải khớp tag: bản `main` đòi trường `privateBridgeDescriptorAccess` mà addon 6.4.0 không có (doctor báo
   `runtime_failure`), và dựng addon từ nguồn cần Linux + MinGW. `Game.exe` 2026 không còn trên đĩa (`F:\tl 2026\2026\Bin64` bị xoá

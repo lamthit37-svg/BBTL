@@ -34,6 +34,7 @@
 #include <vector>
 
 namespace game::gpu {
+class CommandList;
 class Device;
 }
 
@@ -126,6 +127,7 @@ public:
 
 private:
     friend core::Result<Uploaded> place(gpu::Device& device, const Model& model, bool wait, Baked baked);
+    friend class UploadBatch;
     friend core::Result<Uploaded> upload(gpu::Device& device, const Model& model);
     friend core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model);
     void adopt(gpu::Device& device, std::vector<GpuMesh> meshes, std::vector<GpuImage> images,
@@ -149,6 +151,43 @@ private:
 
 // Như trên, với chuỗi mip đã nướng sẵn ở luồng nạp: baked có đúng một chuỗi cho mỗi ảnh của model,
 // lệch số là lỗi kInvalidArgument. Luồng gọi không còn nướng mip.
-[[nodiscard]] core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model, Baked baked);
+[[nodiscard]] core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model,
+    Baked baked);
+
+// Gom nhiều lần nạp liền nhau thành MỘT lần nộp. Mỗi lần nộp riêng của upload_queued chặn luồng gọi
+// hàng chục ms trên GPU tile (đo 2026-10-17 trên PowerVR GE8320: 151 lần nộp của một lần nạp cảnh,
+// trung vị 25 ms, tổng 3,6 s), nên nạp N mesh có ảnh tốn N lần chặn. Ở đây lệnh chép ảnh của mọi
+// mesh ghi vào một danh sách chung, buffer trung chuyển của chúng sống tới flush, và flush nộp một
+// lần rồi trả chúng. Chỉ có tác dụng khi thiết bị có bộ nhớ hợp nhất
+// (DeviceCaps::has_unified_memory: lưới đã ghi thẳng, chỉ ảnh cần lệnh chép); thiết bị khác thì
+// place đi thẳng upload_queued. Luồng gọi của một batch là luồng ghi lệnh của thiết bị. Ràng buộc
+// người gọi: mọi Uploaded do batch trả ra chưa có byte ảnh cho tới flush, nên phải flush trước khi
+// vẽ bằng chúng và trước khi huỷ chúng; và không gọi end_frame giữa place và flush vì end_frame thu
+// hồi danh sách chưa nộp.
+class UploadBatch {
+public:
+    explicit UploadBatch(gpu::Device& device) noexcept : device_(&device) {}
+    // Quên flush thì destructor nộp nốt; lỗi lúc ấy không báo được, nên chỗ gọi nên flush và đọc
+    // lỗi.
+    ~UploadBatch();
+    UploadBatch(const UploadBatch&) = delete;
+    UploadBatch& operator=(const UploadBatch&) = delete;
+    UploadBatch(UploadBatch&&) = delete;
+    UploadBatch& operator=(UploadBatch&&) = delete;
+
+    // Như upload_queued(device, model, baked) nhưng lệnh chép ảnh chờ ở flush.
+    [[nodiscard]] core::Result<Uploaded> place(const Model& model, Baked baked);
+    // Nộp danh sách chung bằng một lần nộp rồi trả buffer trung chuyển. Không có gì chờ thì không
+    // làm gì.
+    [[nodiscard]] core::Status flush();
+    [[nodiscard]] bool has_pending() const noexcept { return commands_ != nullptr; }
+
+private:
+    gpu::Device* device_ = nullptr;
+    // Danh sách lệnh mở của lượt; rỗng tới khi có mesh đầu tiên cần chép ảnh.
+    gpu::CommandList* commands_ = nullptr;
+    // Buffer trung chuyển của các ảnh đã ghi vào commands_.
+    std::vector<gpu::BufferHandle> staging_;
+};
 
 } // namespace game::resource

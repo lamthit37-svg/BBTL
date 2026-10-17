@@ -101,6 +101,10 @@ struct DeviceCaps {
     // Thiết bị màu thô (DeviceDesc::is_raw_color; GLES luôn thô): định dạng sRGB không mã hoá giải mã gì, màu xoá
     // tuyến tính được mã hoá ở CPU, và shader phải tính thẳng trên số gamma.
     bool is_raw_color = false;
+    // Bộ nhớ hợp nhất: buffer MemoryDomain::kUpload nằm ngay trong bộ nhớ GPU đọc với tốc độ đầy
+    // (GPU điện thoại, Apple, GPU tích hợp), nên buffer chỉ đọc ghi thẳng từ CPU vào đó, không cần
+    // buffer trung chuyển và lệnh chép. Card rời (kể cả có ReBAR) là false: đọc qua PCIe.
+    bool has_unified_memory = false;
 };
 
 enum class FormatSupport : std::uint8_t {
@@ -269,6 +273,20 @@ public:
     // đã lên màn. kTimeout khi hết hạn, kInvalidState khi bề mặt đã đổi (phải resize), kInvalidArgument
     // khi count ngoài [1, presents()], kUnsupported khi không reports_shown().
     [[nodiscard]] virtual Status wait_shown(std::uint64_t count, std::chrono::nanoseconds timeout);
+
+    // Bề mặt giữ được mỗi ảnh trên màn đúng một số nhịp quét, hẹn theo mốc trình thật (Vulkan:
+    // VK_GOOGLE_display_timing, có trên Android và MoltenVK). Sai thì set_present_interval không
+    // làm gì: chỗ gọi giữ nhịp bằng đồng hồ CPU.
+    [[nodiscard]] virtual bool paces_present() const noexcept { return false; }
+    // Bề mặt đang thật sự hẹn được lúc trình: đã nhận mốc trình thật gần đây. Có tiện ích mà
+    // driver không trả mốc thì paces_present đúng còn cái này sai, và chỗ gọi vẫn phải giữ nhịp
+    // bằng đồng hồ CPU.
+    [[nodiscard]] virtual bool holds_cadence() const noexcept { return false; }
+    // Từ lần present kế, mỗi ảnh lên màn không sớm hơn refreshes nhịp quét sau ảnh trước (1 là mọi
+    // nhịp quét; 2 là 30 khung trên màn 60 Hz). Giữ qua resize.
+    virtual void set_present_interval(std::uint32_t refreshes) noexcept {
+        static_cast<void>(refreshes);
+    }
 };
 
 enum class QueryKind : std::uint8_t {

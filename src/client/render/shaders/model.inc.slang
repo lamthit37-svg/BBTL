@@ -128,7 +128,40 @@ struct Varying {
     float3 light : TEXCOORD2;
     // Chỉ số đèn điểm của vật thể (Draw::lamp, hoặc của bản sao instanced); cả tam giác một số.
     nointerpolation uint lamp : TEXCOORD3;
+    // Pháp tuyến của đỉnh trong tệp, chưa skin (params.no của CalcPos.inc): UV của luồng sáng.
+    // Pixel shader địa hình không đọc nó nên không khai: Slang bỏ đầu vào không dùng ở SPIR-V mà giữ
+    // ở DXIL, hai bản lệch nhau. Trường đứng cuối nên vertex shader ghi thừa vẫn khớp chữ ký.
+#ifndef TL_TERRAIN
+    float3 object_normal : TEXCOORD4;
+#endif
 };
+
+// Luồng sáng và viền sáng của chất liệu (resource::Flow), khớp FlowWords ở render/forward.cpp.
+// Mỗi chất liệu một khối tĩnh; chất liệu không có thì khối chung với mode 0.
+struct FlowBlock {
+    // flowFactor: xy nhân UV của ảnh luồng, zw nhân time_0_x rồi 0,1.
+    float4 factor;
+    // outlineColor: rgb màu viền, a cường độ.
+    float4 outline_color;
+    // xy: outlinePow. zw không dùng.
+    float4 outline_pow;
+    // x: bit kFlow*. yzw không dùng.
+    uint4 mode;
+};
+#ifndef F2_DXBC
+ConstantBuffer<FlowBlock> flow_block : register(b2, space1);
+#else
+cbuffer FlowCB : register(b2) { FlowBlock flow_block; }
+#endif
+
+static const uint kFlowOn = 1u;
+// FLOW_LIGHT_TYPE khác 0: UV của luồng là UV đỉnh thay cho pháp tuyến đối tượng.
+static const uint kFlowByUv = 2u;
+// FLOW_TEX_TYPE 0: hệ số luồng lấy từ alpha ảnh nền thay cho kênh r của ảnh ctl.
+static const uint kFlowAlpha = 4u;
+static const uint kRimOn = 8u;
+// USE_OUTLINE_CTRL_TEX: rgb·a của ảnh viền nhân màu viền.
+static const uint kRimMap = 16u;
 
 // Đèn điểm thứ which của khung: suy giảm (1 - d / tầm) mũ số mũ, như CalcLight.inc của bản gốc.
 float3 lamp_light(float3 normal, float3 place, uint which) {

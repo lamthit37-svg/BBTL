@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/display/fx_view.cpp
+ *  PHÂN HỆ   : Client / Display / Fx View
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vẽ hiệu ứng hạt: gom quad billboard và dải theo vật liệu, ghi vào bộ đệm
+ *    đỉnh của khung rồi vẽ theo lô.
+ *  - Hệ có cầu bao nằm hẳn ngoài khung nhìn thì bỏ trước khi dựng quad
+ *    (fx::grain_sphere).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/display/fx_view.hpp"
 
 #include "client/stage/stage.hpp"
@@ -27,6 +44,7 @@
 #include <array>
 #include <bit>
 #include <chrono>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
@@ -36,7 +54,6 @@
 #include <functional>
 #include <iterator>
 #include <map>
-#include <unordered_map>
 #include <memory>
 #include <optional>
 #include <print>
@@ -44,6 +61,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -134,12 +152,37 @@ static_assert(offsetof(FxVertex, red) == render::kFxColour);
     return axes;
 }
 
+// Hệ không có cầu bao (ribbon, mesh, billboard theo hướng hạt) luôn được vẽ như trước.
+[[nodiscard]] bool is_seen(const render::Frustum& frustum, const fx::Field* field) {
+    if (field == nullptr) return false;
+    const std::optional<fx::GrainSphere> sphere = fx::grain_sphere(*field);
+    if (!sphere) return true;
+    const math::Vector3 centre(sphere->centre.x, sphere->centre.y, sphere->centre.z);
+    return render::sphere_in_view(frustum, centre, sphere->radius);
+}
+
+// Bỏ hệ hạt nằm hẳn ngoài khung nhìn trước khi dựng quad: dựng quad là phần nặng của luồng vẽ.
+[[nodiscard]] std::vector<const fx::Field*> seen_fields(std::span<const fx::Field* const> fields,
+    const render::Camera& camera) {
+    const math::Matrix4 clip = camera.projection * camera.view;
+    const render::Frustum frustum = render::frustum_of(clip);
+    std::vector<const fx::Field*> seen;
+    seen.reserve(fields.size());
+    for (const fx::Field* field : fields) {
+        if (is_seen(frustum, field)) seen.push_back(field);
+    }
+    return seen;
+}
+
 [[nodiscard]] float unit(float value) noexcept {
     return std::clamp(value, 0.0F, 1.0F);
 }
 
 // Gain nhân sau khi kẹp rgb về 0..1, đúng vertex shader gốc (saturate rồi mới nhân BLEND_OP).
-// Alpha không kẹp ở đây: mốc opacity đo được tới 2, shader kẹp sau khi nhân alpha của ảnh.
+// Alpha cũng kẹp: BillboardSet::genVertices gói màu qua ColourValue::getAsABGR_SSE (OgreMain
+// 0x18005ff70: nhân 255, CVTPS2DQ, PACKUSWB bão hoà), nên opacity 2 của dữ liệu tới shader là 1.
+// Log Fairy của client gốc trên máy này báo SSE, MMX, MMXEXT có, đúng nhánh SSE (đọc bằng REA
+// 2026-10-18). Khác gốc: không lượng tử về 8 bit.
 [[nodiscard]] FxVertex vertex_of(const fx::BillboardVertex& source, float gain) noexcept {
     FxVertex vertex;
     vertex.x = source.x;
@@ -150,14 +193,27 @@ static_assert(offsetof(FxVertex, red) == render::kFxColour);
     vertex.red = unit(source.red) * gain;
     vertex.green = unit(source.green) * gain;
     vertex.blue = unit(source.blue) * gain;
-    vertex.alpha = source.alpha;
+    vertex.alpha = unit(source.alpha);
     return vertex;
+}
+
+// TextureUnitState::recalcTextureMatrix (OgreMain 0x1801acf60): scale chia quanh tâm 0,5 rồi cộng
+// scroll. scroll_anim là bộ cuộn của createTextureUVScroller: tốc độ đổi dấu (0x18007f75f, cuộn
+// ảnh chứ không cuộn toạ độ), cộng dồn trong [0, 1) và thay scroll tĩnh của trục ấy.
+// Khác gốc: scale 0 coi như 1, gốc chia cho 0 ra toạ độ vô cực.
+[[nodiscard]] float place_axis(float source, float scale, float shift, float anim,
+    float age) noexcept {
+    const float divisor = scale != 0.0F ? scale : 1.0F;
+    const float centred = ((source - 0.5F) / divisor) + 0.5F;
+    if (anim == 0.0F) return centred + shift;
+    const float travel = -anim * age;
+    return centred + (travel - std::floor(travel));
 }
 
 void place_uv(float& across, float& down, float source_u, float source_v, float scale_u,
     float scale_v, float shift_u, float shift_v, float anim_u, float anim_v, float age) noexcept {
-    across = (source_u * scale_u) + shift_u + (anim_u * age);
-    down = (source_v * scale_v) + shift_v + (anim_v * age);
+    across = place_axis(source_u, scale_u, shift_u, anim_u, age);
+    down = place_axis(source_v, scale_v, shift_v, anim_v, age);
 }
 
 void append_kind(std::string& text, std::string_view kind, std::uint32_t count) {
@@ -627,7 +683,8 @@ void FxView::draw(gpu::CommandList& list, std::uint32_t slot, const render::Came
     if (!body_->cast) return;
     const std::vector<const fx::Field*> fields = body_->cast->live();
     const fx::CameraAxes axes = axes_of(camera);
-    std::vector<fx::BillboardBatch> batches = fx::billboards_of(fields, axes);
+    const std::vector<const fx::Field*> seen = seen_fields(fields, camera);
+    std::vector<fx::BillboardBatch> batches = fx::billboards_of(seen, axes);
     std::vector<fx::BillboardBatch> strips = body_->cast->strips(axes);
     std::ranges::move(strips, std::back_inserter(batches));
     batches.insert(batches.end(), extra.begin(), extra.end());

@@ -1,8 +1,23 @@
-// Thư viện hiệu ứng (script hệ hạt, script effect, bảng material) và các hệ đang chạy. Particle thành
-// Field. Beam, NewRibbonTrail và Projector thành dải quad trong strips().
-// Thứ module hoặc pipeline cộng sáng của client chưa vẽ đúng được thì KHÔNG dựng mà đếm theo lý do
-// (Skip, Tally): hạt vẽ sai trông như lỗi dữ liệu, hạt thiếu thì dòng log nói rõ thiếu gì.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/place/fx/cast.hpp
+ *  PHÂN HỆ   : Place / Fx / Cast
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thư viện hiệu ứng (script hệ hạt, script effect, bảng material) và các hệ
+ *    đang chạy. Particle thành Field. Beam, NewRibbonTrail và Projector thành
+ *    dải quad trong strips(). Thứ module hoặc pipeline cộng sáng của client
+ *    chưa vẽ đúng được thì KHÔNG dựng mà đếm theo lý do (Skip, Tally): hạt vẽ
+ *    sai trông như lỗi dữ liệu, hạt thiếu thì dòng log nói rõ thiếu gì.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Bảng material là effect/materials.tsv do TOOLS/content/collect_fx.py ghi từ script của kho gốc.
+
 #pragma once
 
 #include "fx/billboard.hpp"
@@ -41,6 +56,11 @@ enum class Blend : std::uint8_t {
 
 // Số kiểu trộn có pipeline, đúng các enumerator đứng trước kOther.
 inline constexpr std::size_t kDrawnBlends = static_cast<std::size_t>(Blend::kOther);
+
+// Hạt mesh vẽ như model: chỉ có pipeline trộn alpha và cộng one/one.
+[[nodiscard]] constexpr bool has_mesh_pipeline(Blend blend) noexcept {
+    return blend == Blend::kAlpha || blend == Blend::kAdd;
+}
 
 // Một dòng của bảng material: material hạt sau kế thừa.
 struct Paint {
@@ -136,7 +156,7 @@ public:
     [[nodiscard]] std::optional<Skip> refuse_system(std::string_view name);
     // Lý do pipeline cộng sáng không vẽ đúng material; rỗng khi vẽ được.
     [[nodiscard]] std::optional<Skip> refuse_material(std::string_view material) const;
-    // Hạt mesh: nhận khi có ảnh và trộn alpha. Cộng sáng vẫn bỏ, vì model không có PSO One+One.
+    // Hạt mesh: nhận khi có ảnh và kiểu trộn có pipeline model (has_mesh_pipeline).
     [[nodiscard]] std::optional<Skip> refuse_mesh(std::string_view material) const;
     // Loại affector của hệ name mà bộ đọc không dựng được, theo thứ tự trong script.
     [[nodiscard]] std::span<const std::string> lost_affectors(std::string_view name);

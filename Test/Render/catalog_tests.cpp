@@ -1,5 +1,20 @@
-// Bảng catalog không cần GPU: ui ở tầng 0, bốn biến thể model ở nhóm Character tầng 1, mặt đất lớp cọ và hai model
-// đục không discard ở nhóm World tầng 1, fx ở tầng 2. Tên không trùng. Thêm dòng mà quên nhóm hoặc tầng thì ca nhóm trống hoặc ca tầng đỏ.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Render/catalog_tests.cpp
+ *  PHÂN HỆ   : Render / Catalog Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng catalog không cần GPU: ui ở tầng 0, bốn biến thể model ở nhóm
+ *    Character tầng 1, mặt đất lớp cọ và hai model đục không discard ở nhóm
+ *    World tầng 1, fx ở tầng 2. Tên không trùng. Thêm dòng mà quên nhóm hoặc
+ *    tầng thì ca nhóm trống hoặc ca tầng đỏ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/check.hpp"
 #include "gpu/device.hpp"
 #include "render/catalog.hpp"
@@ -7,8 +22,10 @@
 
 #include <array>
 #include <cstddef>
+#include <cstdint>
 #include <span>
 #include <string_view>
+#include <utility>
 
 namespace game::test {
 namespace {
@@ -52,25 +69,41 @@ void names_are_unique(Context& context) {
     context.expect(!clash, "tên PSO trùng");
 }
 
+// Cộng sáng và ghi độ sâu dùng chung model.vs, model.ps nhưng nằm sau bốn biến thể model.
+enum class ModelKind : std::uint8_t { kVariant, kAdd, kDepth };
+
+[[nodiscard]] ModelKind model_kind(Pso pso) noexcept {
+    const bool is_add = pso == Pso::kModelAdd || pso == Pso::kModelAddTwoSided;
+    if (is_add) return ModelKind::kAdd;
+    const bool is_depth = pso == Pso::kModelDepth || pso == Pso::kModelDepthTwoSided;
+    if (is_depth) return ModelKind::kDepth;
+    return ModelKind::kVariant;
+}
+
+void expect_character(Context& context, const Entry& entry) {
+    context.expect(entry.tier == Tier::kEssential, "nhân vật thuộc tầng 1");
+    context.expect(same(entry.vertex, "model.vs"), "model dùng model.vs");
+    context.expect(same(entry.pixel, "model.ps"), "model dùng model.ps");
+    context.expect(entry.is_required, "model là bắt buộc");
+    context.expect(entry.frame_bytes == render::kModelFrameBytes, "khối khung của model");
+    context.expect(entry.draw_bytes == render::kModelDrawBytes, "khối lệnh vẽ của model");
+}
+
 void model_variants_are_character(Context& context) {
-    std::size_t models = 0;
-    std::size_t additive = 0;
+    std::array<std::size_t, 3> counts{};
     for (const Entry& entry : render::entries()) {
         if (entry.group != Group::kCharacter) continue;
-        context.expect(entry.tier == Tier::kEssential, "nhân vật thuộc tầng 1");
-        context.expect(same(entry.vertex, "model.vs"), "model dùng model.vs");
-        context.expect(same(entry.pixel, "model.ps"), "model dùng model.ps");
-        context.expect(entry.is_required, "model là bắt buộc");
-        context.expect(entry.frame_bytes == render::kModelFrameBytes, "khối khung của model");
-        context.expect(entry.draw_bytes == render::kModelDrawBytes, "khối lệnh vẽ của model");
+        expect_character(context, entry);
+        const ModelKind kind = model_kind(entry.pso);
         const auto index = static_cast<std::size_t>(entry.pso);
-        const bool is_add = entry.pso == Pso::kModelAdd || entry.pso == Pso::kModelAddTwoSided;
-        if (is_add) ++additive;
-        if (!is_add) context.expect(index < render::kModelVariants, "biến thể model nằm ở bốn ô đầu");
-        if (!is_add) ++models;
+        const bool in_front = kind != ModelKind::kVariant || index < render::kModelVariants;
+        context.expect(in_front, "biến thể model nằm ở bốn ô đầu");
+        ++counts.at(std::to_underlying(kind));
     }
-    context.expect(models == render::kModelVariants, "đúng bốn biến thể model");
-    context.expect(additive == 2, "hai pipeline cộng sáng của model");
+    const auto count = [&counts](ModelKind kind) { return counts.at(std::to_underlying(kind)); };
+    context.expect(count(ModelKind::kVariant) == render::kModelVariants, "đúng bốn biến thể model");
+    context.expect(count(ModelKind::kAdd) == 2, "hai pipeline cộng sáng của model");
+    context.expect(count(ModelKind::kDepth) == 2, "hai pipeline ghi độ sâu của model");
 }
 
 void fx_waits_for_the_scene(Context& context) {

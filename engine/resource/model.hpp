@@ -217,19 +217,38 @@ struct Scatter {
     TexSlot color_map{};
 };
 
-// Mặt đất lớp cọ (FairyTerrain của bản gốc): màu mỗi điểm là cọ nền và cọ phủ chọn theo ô của lưới
-// địa hình, nhân lightmap; shader tự lấy mẫu từ ảnh cọ gốc nên không có ảnh nướng nào. Cả bốn ảnh là
-// dữ liệu thô (RGBA8, không giải mã sRGB): bản gốc lọc và nhân màu thẳng trên số của texture.
-// uv của đỉnh là toạ độ thế giới chuẩn hoá trên cả địa hình, (0, 0) ở ô đầu tiên.
+// Mặt đất lớp cọ (FairyTerrain của bản gốc): màu mỗi điểm là cọ nền và cọ phủ, nhân lightmap. Toạ
+// độ atlas của hai lớp nằm ở đỉnh (mỗi ô có bốn đỉnh riêng): uv là toạ độ atlas của cọ nền,
+// color.xy của cọ phủ (x âm là ô không có lớp phủ) và color.zw là toạ độ lightmap, nên shader chỉ
+// lấy mẫu hai ảnh dưới đây. Cả hai là dữ liệu thô (RGBA8, không giải mã sRGB): bản gốc lọc và nhân
+// màu thẳng trên số của texture.
 struct Splat {
     // Mọi ảnh cọ ghép một tấm, màu đã nhân alpha, mỗi ảnh có viền đệm lặp mép để lọc không rỉ sang ảnh kề.
     TexSlot atlas{};
-    // Một texel mỗi ô: pixmap nền và phủ (10 bit mỗi cái), orientation (4 bit mỗi lớp), cờ đường chéo.
-    TexSlot cells{};
     // Lightmap phủ cả địa hình, hàng trên cùng là biên z lớn. Không có thì trắng.
     TexSlot light{};
-    // Hàng 0: bốn góc theo orientation và cờ đường chéo. Từ hàng 1: hộp pixmap và phép đổi sang atlas.
-    TexSlot table{};
+};
+
+// Luồng sáng (Model_Flow_ps.hlsl) và viền sáng (USE_OUTLINE) của chất liệu nhân vật client 2026,
+// theo Material/programs.tsv. Ba ảnh là số thô (không giải mã sRGB): bản gốc nhân thẳng số texel.
+struct Flow {
+    // flowFactor: xy nhân UV của ảnh luồng, zw nhân giây (chu kỳ 100) rồi 0,1.
+    math::Float4 factor{.x = 1.0F, .y = 1.0F, .z = 1.0F, .w = 1.0F};
+    // outlinePow: x là số mũ, y là số mũ của |N·V| nhân vào x.
+    math::Float2 outline_pow{};
+    // outlineColor: rgb màu viền, a cường độ.
+    math::Float4 outline_color{};
+    bool has_flow = false;
+    // FLOW_LIGHT_TYPE khác 0: UV của luồng là UV đỉnh; 0 là pháp tuyến đối tượng tư thế bind.
+    bool flows_by_uv = false;
+    // FLOW_TEX_TYPE 0: hệ số luồng lấy từ alpha ảnh nền, (a·255 − 5)/255; khác 0 là kênh r của ctl.
+    bool mask_in_alpha = false;
+    bool has_outline = false;
+    // USE_OUTLINE_CTRL_TEX: rgb·a của outline_map nhân màu viền.
+    bool uses_outline_map = false;
+    TexSlot ctl{};
+    TexSlot flow_map{};
+    TexSlot outline_map{};
 };
 
 struct Material {
@@ -282,6 +301,10 @@ struct Material {
     std::optional<Pass> pass;
     // Có thì vẽ bằng pipeline địa hình và bỏ qua mọi khe ảnh ở trên.
     std::optional<Splat> splat;
+    std::optional<Flow> flow;
+    // Pass ghi depth (colour_write off) vẽ ngay trước pass màu của cùng lệnh; giá trị là ngưỡng cắt
+    // alpha của nó, 0 là không cắt. Mẫu Mtl_Char_FLTrans, Mtl_Outline* của client 2026.
+    std::optional<float> depth_prepass;
 };
 
 // Tịnh tiến, xoay, tỉ lệ đúng như tệp khai. Mặc định là đơn vị của glTF.

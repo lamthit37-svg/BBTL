@@ -76,6 +76,8 @@ struct CreatureTemplate {
     float shadow_size = 0.0F;
     // Hệ số tỉ lệ đều của mô hình (CharModelEx cột 5), nhân với Scale của mẫu.
     float scale = 1.0F;
+    // Tốc độ gốc, phần nghìn mét mỗi giây (MonsterAttrEx). 0 khi bảng không có cột.
+    std::int32_t move_speed = 0;
     CreatureKind kind = CreatureKind::kMonster;
 };
 

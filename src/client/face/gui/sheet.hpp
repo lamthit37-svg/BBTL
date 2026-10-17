@@ -399,6 +399,9 @@ public:
     [[nodiscard]] std::uint64_t still_stamp() const noexcept;
     [[nodiscard]] std::uint64_t live_stamp() const noexcept;
     [[nodiscard]] std::uint64_t text_stamp() const noexcept;
+    // Số lần dàn lại bố cục từ khi dựng. Override chỉ đổi chữ, ảnh hay màu thì vẽ lại trang tĩnh mà
+    // không dàn lại, nên số này không tăng.
+    [[nodiscard]] std::uint64_t layout_count() const noexcept;
     // Cửa sổ trên cùng chứa điểm mà loại dò probe chạm được: bỏ qua MouseHollow, nút trái bỏ qua
     // thêm MouseLButtonHollow. nullopt khi trượt hết.
     [[nodiscard]] std::optional<std::string_view> hit(float across, float down, Probe probe) const;

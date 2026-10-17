@@ -1,8 +1,24 @@
-// Thiết bị giả cho test của resource/upload. Nó giữ sổ các tay nắm còn sống, nhớ thứ tự trả tay
-// nắm và thứ tự lệnh đã ghi, đếm từng loại lời gọi, và hỏng theo kế hoạch ở lời gọi thứ n. Chỉ các
-// hàm mà upload.cpp gọi mới có thân thật; mọi hàm khác của gpu::Device và gpu::CommandList ghi một
-// lần "lạc" để test bắt được lời gọi ngoài hợp đồng. Viết tay: giao diện gpu thêm hàm thuần ảo thì
-// trình dịch báo thiếu ngay ở đây, thêm một dòng "lạc" cho hàm ấy là xong.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Resource/resource_upload_device.hpp
+ *  PHÂN HỆ   : Resource / Resource Upload Device
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Thiết bị giả cho test của resource/upload. Nó giữ sổ các tay nắm còn sống,
+ *    nhớ thứ tự trả tay nắm và thứ tự lệnh đã ghi, đếm từng loại lời gọi, và
+ *    hỏng theo kế hoạch ở lời gọi thứ n. Chỉ các hàm mà upload.cpp gọi mới có
+ *    thân thật; mọi hàm khác của gpu::Device và gpu::CommandList ghi một lần
+ *    "lạc" để test bắt được lời gọi ngoài hợp đồng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Viết tay: giao diện gpu thêm hàm thuần ảo thì trình dịch báo thiếu ngay ở đây, thêm một dòng "lạc" cho hàm ấy là
+// xong.
+
 #pragma once
 
 #include "core/error.hpp"
@@ -74,6 +90,8 @@ struct Plan {
     bool fail_end_frame = false;
     // Thiết bị báo đã mất ngay từ đầu.
     bool is_lost = false;
+    // Thiết bị báo bộ nhớ hợp nhất (DeviceCaps::has_unified_memory).
+    bool is_unified = false;
 };
 
 // Mọi điều thiết bị giả đã thấy trong một lượt thử.
@@ -92,12 +110,16 @@ struct Seen {
     std::optional<Call> tripped;
     // Số lời gọi thành công theo loại.
     std::uint32_t buffers = 0;
+    // Phần của buffers nằm ở MemoryDomain::kUpload.
+    std::uint32_t upload_buffers = 0;
     std::uint32_t textures = 0;
     std::uint32_t views = 0;
     std::uint32_t samplers = 0;
     std::uint32_t writes = 0;
     std::uint32_t begins = 0;
     std::uint32_t submits = 0;
+    // Số tay nắm đã trả vào lúc lần nộp gần nhất: buffer trung chuyển chưa nộp mà trả là hỏng.
+    std::uint32_t released_at_submit = 0;
     std::uint32_t waits = 0;
     std::uint32_t end_frames = 0;
     // Lệnh theo thứ tự ghi; tổng số vùng của các lệnh chép ảnh; tổng số rào buffer và rào texture.
@@ -191,7 +213,9 @@ private:
 class FakeDevice final : public gpu::Device {
 public:
     FakeDevice() noexcept : commands_(seen_) {}
-    explicit FakeDevice(Plan plan) noexcept : plan_(plan), commands_(seen_) {}
+    explicit FakeDevice(Plan plan) noexcept : plan_(plan), commands_(seen_) {
+        caps_.has_unified_memory = plan.is_unified;
+    }
 
     [[nodiscard]] const Seen& seen() const noexcept { return seen_; }
 
@@ -199,9 +223,10 @@ public:
         return plan_.is_lost ? gpu::DeviceLoss::kRemoved : gpu::DeviceLoss::kNone;
     }
 
-    [[nodiscard]] gpu::Result<gpu::BufferHandle> create_buffer(const gpu::BufferDesc&) override {
+    [[nodiscard]] gpu::Result<gpu::BufferHandle> create_buffer(const gpu::BufferDesc& desc) override {
         if (trip(Call::kCreateBuffer)) return broken();
         ++seen_.buffers;
+        if (desc.memory == gpu::MemoryDomain::kUpload) ++seen_.upload_buffers;
         return open<gpu::BufferHandle>(Kind::kBuffer);
     }
 
@@ -244,6 +269,7 @@ public:
         if (trip(Call::kSubmit)) return broken();
         const bool is_ours = desc.lists.size() == 1 && desc.lists.front() == &commands_;
         if (!is_ours) return stray();
+        seen_.released_at_submit = count_of(seen_.released.size());
         ++seen_.submits;
         return core::ok();
     }

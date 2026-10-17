@@ -200,7 +200,17 @@ float Cast::chase(Actor& shown, const Goal& goal, float seconds) noexcept {
     return distance;
 }
 
+void Cast::copy_pin(Actor& shown, Goal& goal) noexcept {
+    shown.x = goal.x;
+    shown.z = goal.z;
+    shown.facing = goal.facing;
+    shown.pose = goal.pose;
+    goal.pinned = false;
+    goal.idle_for = 0.0F;
+}
+
 void Cast::step(Actor& shown, Goal& goal, float seconds) noexcept {
+    if (goal.pinned) return copy_pin(shown, goal);
     if (goal.pose == Pose::kDead) {
         shown.x = goal.x;
         shown.z = goal.z;
@@ -219,6 +229,26 @@ void Cast::step(Actor& shown, Goal& goal, float seconds) noexcept {
     const float gap = wrap(goal.facing - shown.facing);
     const float turn = kTurnRate * seconds;
     shown.facing = wrap(std::abs(gap) <= turn ? goal.facing : shown.facing + std::copysign(turn, gap));
+}
+
+void Cast::place_actor(Actor& shown, Goal& goal, const Placed& note) noexcept {
+    shown.x = note.x;
+    shown.z = note.z;
+    shown.facing = wrap(note.facing);
+    shown.pose = note.pose;
+    goal.x = shown.x;
+    goal.z = shown.z;
+    goal.facing = shown.facing;
+    goal.pose = note.pose;
+    goal.idle_for = 0.0F;
+    goal.pinned = true;
+}
+
+void Cast::on(const Placed& note) {
+    if (!finite(note.x, note.z, note.facing)) return;
+    const auto found = index_.find(note.id);
+    if (found == index_.end()) return;
+    place_actor(actors_[found->second], goals_[found->second], note);
 }
 
 void Cast::erase_at(std::size_t index) {

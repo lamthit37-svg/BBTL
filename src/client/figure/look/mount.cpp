@@ -59,6 +59,8 @@ constexpr std::array<std::string_view, 5> kEffectColumns{
 constexpr std::array<std::string_view, 5> kEntityColumns{
     "object", "slot", "file", "materials", "condition"};
 constexpr std::int32_t kEntitySlotMax = 64;
+constexpr std::array<std::string_view, 2> kSkeletonColumns{"model", "skeleton"};
+constexpr std::array<std::string_view, 4> kClipColumns{"model", "action", "anim", "clip"};
 constexpr std::array<std::string_view, 6> kAnchorNames{
     "anchor_0", "anchor_1", "anchor_2", "anchor_3", "anchor_4", "anchor_5"};
 constexpr std::array<std::string_view, 6> kExtraNames{
@@ -68,6 +70,12 @@ struct TableSpec {
     std::string_view name;
     std::span<const std::string_view> columns;
 };
+
+// ride_locators và ride_anims tự kiểm cột trong bộ đọc dòng, nên không khai cột ở đây.
+constexpr TableSpec kLocatorSpec{.name = "ride_locators", .columns = {}};
+constexpr TableSpec kRideAnimSpec{.name = "ride_anims", .columns = {}};
+constexpr TableSpec kSkeletonSpec{.name = "ride_skeletons", .columns = kSkeletonColumns};
+constexpr TableSpec kClipSpec{.name = "ride_model_clips", .columns = kClipColumns};
 
 [[nodiscard]] std::optional<std::string_view> absent_column(const table::Tsv& table,
     std::string_view column) {
@@ -367,6 +375,45 @@ using EntityRows = std::expected<std::vector<RideEntity>, std::string>;
     return &*found;
 }
 
+// Ô skeleton của dòng khi dòng thuộc model; dòng khác mô hình hay hỏng thì rỗng.
+[[nodiscard]] std::string skeleton_cell(table::RowReader& reader, std::int32_t model) {
+    const auto id = reader.integer("model", 0, kIntMax);
+    if (reader.error() || id != model) return {};
+    return std::string(reader.text("skeleton"));
+}
+
+[[nodiscard]] std::string first_skeleton(const table::Tsv& table, std::int32_t model) {
+    for (std::size_t row = 0; row < table.rows.size(); ++row) {
+        table::RowReader reader(table, row);
+        std::string name = skeleton_cell(reader, model);
+        if (!name.empty()) return name;
+    }
+    return {};
+}
+
+[[nodiscard]] std::optional<Clip>* clip_slot(MountClips& clips, std::string_view action) noexcept {
+    if (action == "idle") return &clips.idle;
+    if (action == "idle_alt") return &clips.idle_alt;
+    if (action == "idle_alt2") return &clips.idle_alt2;
+    if (action == "run") return &clips.run;
+    if (action == "jump_stand") return &clips.jump_stand;
+    if (action == "jump_run") return &clips.jump_run;
+    return nullptr;
+}
+
+void read_clip_row(MountClips& clips, table::RowReader& reader, std::int32_t model) {
+    const auto id = reader.integer("model", 0, kIntMax);
+    if (reader.error() || id != model) return;
+    Clip clip;
+    clip.anim = std::string(reader.text("anim"));
+    clip.name = std::string(reader.text("clip"));
+    const std::string action(reader.text("action"));
+    if (reader.error()) return;
+    std::optional<Clip>* slot = clip_slot(clips, action);
+    if (slot == nullptr) return;
+    *slot = std::move(clip);
+}
+
 } // namespace
 
 const RideRow* RideTables::find_ride(std::int32_t id) const noexcept {
@@ -413,6 +460,37 @@ std::expected<std::vector<RideEffect>, std::string> parse_ride_effects(std::stri
 
 std::expected<std::vector<RideEntity>, std::string> parse_ride_entities(std::string_view text) {
     return read_entities(text);
+}
+
+Rows<LocatorRow> parse_ride_locators(std::string_view text) {
+    const auto table = parse_named(kLocatorSpec, text);
+    if (!table) return std::unexpected(table.error());
+    return read_locators(*table);
+}
+
+Rows<RacedAnimRow> parse_ride_anims(std::string_view text) {
+    const auto table = parse_named(kRideAnimSpec, text);
+    if (!table) return std::unexpected(table.error());
+    return read_raced_anims(*table);
+}
+
+std::expected<std::string, std::string> parse_ride_skeleton(std::string_view text,
+    std::int32_t model) {
+    const auto table = parse_named(kSkeletonSpec, text);
+    if (!table) return std::unexpected(table.error());
+    return first_skeleton(*table, model);
+}
+
+std::expected<MountClips, std::string> parse_mount_clips(std::string_view text,
+    std::int32_t model) {
+    const auto table = parse_named(kClipSpec, text);
+    if (!table) return std::unexpected(table.error());
+    MountClips clips;
+    for (std::size_t row = 0; row < table->rows.size(); ++row) {
+        table::RowReader reader(*table, row);
+        read_clip_row(clips, reader, model);
+    }
+    return clips;
 }
 
 std::vector<const RideEffect*> effects_of(std::span<const RideEffect> rows,

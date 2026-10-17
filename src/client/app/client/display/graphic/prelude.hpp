@@ -21,24 +21,24 @@
 #elif defined(__GNUC__) && defined(__x86_64__)
 #pragma GCC target("sse4.1")
 #endif
+#include "client/cast/cast.hpp"
 #include "client/display/assets.hpp"
 #include "client/display/display.hpp"
 #include "client/display/frame_fit.hpp"
 #include "client/display/fx_view.hpp"
-#include "client/display/sky_view.hpp"
 #include "client/display/lighting.hpp"
 #include "client/display/login_data.hpp"
 #include "client/display/policy.hpp"
 #include "client/display/sky_mesh.hpp"
+#include "client/display/sky_view.hpp"
 #include "client/display/water_mesh.hpp"
+#include "client/fight/combat.hpp"
 #include "client/map/gates.hpp"
 #include "client/map/ground.hpp"
 #include "client/map/picture.hpp"
 #include "client/map/sheet.hpp"
 #include "client/map/splat.hpp"
 #include "client/map/terrain.hpp"
-#include "client/cast/cast.hpp"
-#include "client/fight/combat.hpp"
 #include "client/world/world.hpp"
 #include "control/char_camera.hpp"
 #include "fx/cast.hpp"
@@ -185,8 +185,11 @@ inline void nap(core::Clock::time_point& previous) noexcept {
 }
 
 // Một khung dài: nạp (đọc và đưa GPU), vẽ (xin ảnh, ghi lệnh, nộp), chờ nhịp (ngủ tới tick).
+// interval là khoảng màn giữ khung trước (Display::State::shown_interval); loop_ms là khoảng vòng
+// lặp, cho biết vòng lặp đã trễ bao nhiêu trước khi hàng chờ trình hết đệm.
 struct SpikeParts {
     double interval = 0.0;
+    double loop_ms = 0.0;
     double load_ms = 0.0;
     double render_ms = 0.0;
     double pace_ms = 0.0;
@@ -208,6 +211,7 @@ inline void report_spike(const SpikeParts& parts) {
     const double budget = parts.budget_ms > 0.0 ? parts.budget_ms : kSixtyHertzMs;
     if (parts.interval <= budget * kSpikeSlack) return;
     const std::string interval = std::format("{:.1f}", parts.interval);
+    const std::string loop_ms = std::format("{:.1f}", parts.loop_ms);
     const std::string load_ms = std::format("{:.1f}", parts.load_ms);
     const std::string render_ms = std::format("{:.1f}", parts.render_ms);
     const std::string pace_ms = std::format("{:.1f}", parts.pace_ms);
@@ -215,8 +219,9 @@ inline void report_spike(const SpikeParts& parts) {
     const std::string draw_ms = std::format("{:.1f}", parts.draw_ms);
     const std::string submit_ms = std::format("{:.1f}", parts.submit_ms);
     const std::string prepare_ms = std::format("{:.1f}", parts.prepare_ms);
-    const std::string head = "Khung chậm #" + std::to_string(parts.frame) + " " + interval + " ms: nạp " + load_ms +
-        " ms, dựng UI ";
+    const std::string frame = "Khung chậm #" + std::to_string(parts.frame) + " " + interval;
+    const std::string loop = " ms (vòng " + loop_ms + " ms)";
+    const std::string head = frame + loop + ": nạp " + load_ms + " ms, dựng UI ";
     const std::string body = prepare_ms + " ms, vẽ " + render_ms + " ms (xin " + acquire_ms;
     const std::string tail = ", ghi " + draw_ms + ", nộp " + submit_ms + "), chờ nhịp " + pace_ms;
     std::println("{}{}{} ms, GPU còn {} khung", head, body, tail, parts.gpu_behind);
@@ -347,11 +352,28 @@ struct Arrival {
     std::vector<std::size_t> loaded;
     // Chỉ số đám trong crowds, theo chỉ số mesh đã nằm trong kept.
     std::vector<std::size_t> crowd_of;
-    std::size_t cursor = 0;
+    // Mesh đã xong (đã đặt vật thể, hay hỏng) theo chỉ số bảng; settled đếm số mục đúng. Thứ tự
+    // xong theo hạng thấy trước (stream.cpp), không theo bảng.
+    std::vector<bool> is_settled;
+    std::size_t settled = 0;
     // Epoch của Feed: kết quả đọc của lần nạp khác bị bỏ.
     std::uint64_t epoch = 0;
     // Ô trong Feed cho mesh chưa có trong nhớ. kMissing là mesh đã có, loaded đã ghi chỉ số.
     std::vector<std::size_t> feed_slot;
+    // Ô Feed sang chỉ số mesh của bảng.
+    std::vector<std::size_t> slot_mesh;
+    // Mesh đã có trong nhớ (không đọc đĩa) theo hạng; kept_next là mục kế tiếp chưa đặt.
+    std::vector<std::size_t> kept_queue;
+    std::size_t kept_next = 0;
+    // Gốc phép đặt của từng vật thể ở thế giới, để xếp mesh theo khung nhìn.
+    std::vector<math::Vector3> spots;
+    // Lần xếp hạng theo khung nhìn gần nhất. is_seen: mesh có vật thể trong khung nhìn lúc ấy;
+    // seen_left: số mesh như thế chưa xong. Về 0 lần đầu thì ghi mốc "khung nhìn đủ mesh".
+    core::Clock::time_point ranked_at;
+    std::vector<bool> is_seen;
+    std::size_t seen_left = 0;
+    bool has_view_rank = false;
+    bool is_seen_marked = false;
     core::Clock::time_point started;
     // Số đo của lần nạp, in một dòng lúc xong. Ba phần này giải thích trọn thời gian nạp: chờ luồng
     // đọc trả mesh (stall_ms), dựng tài nguyên GPU cho mesh (place_ms) và đặt vật thể vào danh sách
@@ -431,11 +453,15 @@ inline constexpr std::uint32_t kFrameSlots = 3;
     pass.lights_at_vertices = policy.lights_at_vertices || device.adapter().backend == gpu::Backend::kGles;
     pass.triangle_cap = policy.triangle_cap;
     pass.shader_dir = std::move(shaders);
-    const std::array solid{catalog.get(render::Pso::kModelSolid), catalog.get(render::Pso::kModelSolidTwoSided)};
+    const std::array solid{
+        catalog.get(render::Pso::kModelSolid), catalog.get(render::Pso::kModelSolidTwoSided)};
     const auto terrain = catalog.get(render::Pso::kTerrain);
     const std::array additive{
         catalog.get(render::Pso::kModelAdd), catalog.get(render::Pso::kModelAddTwoSided)};
-    return render::Forward::create(device, pass, catalog.models(), terrain, solid, additive);
+    const std::array depth{
+        catalog.get(render::Pso::kModelDepth), catalog.get(render::Pso::kModelDepthTwoSided)};
+    const auto models = catalog.models();
+    return render::Forward::create(device, pass, models, terrain, solid, additive, depth);
 }
 
 // Lượt vẽ 2D của giao diện: cùng đích vẽ và thư mục shader với Forward.
@@ -740,8 +766,8 @@ struct BakeRules {
 // trộn ảnh cọ kề nhau (map/splat.hpp).
 inline constexpr float kAtlasMaxLod = 4.0F;
 
-// Ảnh của mặt đất lớp cọ: atlas, bảng ô, bảng tra do cọ dựng ra, và lightmap đọc nguyên. Không có cọ nào dùng được
-// thì splat rỗng và địa hình tô màu theo độ cao.
+// Ảnh của mặt đất lớp cọ: atlas và hộp pixmap do cọ dựng ra, và lightmap đọc nguyên. Không có cọ
+// nào dùng được thì splat rỗng và địa hình tô màu theo độ cao.
 struct GroundPaint {
     game::client::map::SplatImages splat;
     resource::Image light;
@@ -768,31 +794,120 @@ struct GroundPaint {
     return paint;
 }
 
-struct LayJob {
-    resource::Primitive* primitive = nullptr;
-    const MapGround* ground = nullptr;
+// Khung thế giới của lightmap: nó phủ cả địa hình, nên toạ độ của một góc là vị trí chia cho cỡ địa
+// hình.
+struct LightFrame {
+    float origin_x = 0.0F;
+    float origin_z = 0.0F;
     float span_x = 0.0F;
     float span_z = 0.0F;
 };
 
-inline void lay_vertex(LayJob job, std::size_t index) {
-    resource::Vertex& vertex = job.primitive->vertices[index];
-    const game::client::map::Corner& corner = job.ground->sheet.corners[index];
-    const game::client::map::TerrainFile& file = job.ground->file;
-    if (job.span_x != 0.0F) vertex.uv.x = (corner.x - file.origin.x) / job.span_x;
-    if (job.span_z != 0.0F) vertex.uv.y = (corner.z - file.origin.z) / job.span_z;
-    vertex.color = {.x = 1.0F, .y = 1.0F, .z = 1.0F, .w = 1.0F};
+[[nodiscard]] inline LightFrame light_frame_of(const map::TerrainFile& file) noexcept {
+    LightFrame frame;
+    frame.origin_x = file.origin.x;
+    frame.origin_z = file.origin.z;
+    frame.span_x = file.scale.x * static_cast<float>(file.x_size);
+    frame.span_z = file.scale.z * static_cast<float>(file.z_size);
+    return frame;
 }
 
-inline void lay_paint(resource::Primitive& primitive, const MapGround& ground) {
-    const game::client::map::TerrainFile& file = ground.file;
-    LayJob job;
-    job.primitive = &primitive;
-    job.ground = &ground;
-    job.span_x = file.scale.x * static_cast<float>(file.x_size);
-    job.span_z = file.scale.z * static_cast<float>(file.z_size);
-    for (std::size_t index = 0; index < primitive.vertices.size(); ++index) {
-        lay_vertex(job, index);
+// Ô không có lớp phủ: x âm báo cho terrain.ps bỏ lần lấy mẫu thứ hai.
+inline constexpr map::AtlasUv kNoCover{.u = -1.0F, .v = -1.0F};
+
+struct PaintedVertex {
+    const map::Corner* corner = nullptr;
+    const LightFrame* light = nullptr;
+    map::AtlasUv base;
+    map::AtlasUv cover;
+};
+
+// Một đỉnh của ô. Vị trí và pháp tuyến lấy từ góc lưới; uv là toạ độ atlas của cọ nền, color.xy của
+// cọ phủ và color.zw là toạ độ lightmap (trục v lật vì hàng đầu ảnh là biên z lớn). Chất liệu mặt
+// đất không tô theo màu đỉnh (không cờ kVertexColor), nên color là chỗ chứa dữ liệu của terrain.ps.
+inline void push_painted(resource::Primitive& primitive, const PaintedVertex& source) {
+    const map::Corner& corner = *source.corner;
+    const LightFrame& light = *source.light;
+    resource::Vertex vertex;
+    vertex.position = {.x = corner.x, .y = corner.y, .z = corner.z};
+    vertex.normal = {.x = corner.normal_x, .y = corner.normal_y, .z = corner.normal_z};
+    vertex.uv = {.x = source.base.u, .y = source.base.v};
+    const float along_x = light.span_x != 0.0F ? (corner.x - light.origin_x) / light.span_x : 0.0F;
+    const float along_z = light.span_z != 0.0F ? (corner.z - light.origin_z) / light.span_z : 0.0F;
+    vertex.color = {.x = source.cover.u, .y = source.cover.v, .z = along_x, .w = 1.0F - along_z};
+    primitive.vertices.push_back(vertex);
+}
+
+struct PaintBuild {
+    resource::Primitive* primitive = nullptr;
+    const MapGround* ground = nullptr;
+    const map::SplatImages* splat = nullptr;
+    LightFrame light{};
+};
+
+struct CellSpot {
+    int column = 0;
+    int row = 0;
+    bool is_flipped = false;
+};
+
+// Bốn đỉnh riêng của ô (toạ độ atlas khác nhau từng ô nên không dùng chung với ô kề) rồi sáu chỉ số
+// theo đúng thứ tự tam giác của sheet (cell_order).
+inline void push_cell_quad(const PaintBuild& build, CellSpot spot, const map::CellUv& paint) {
+    resource::Primitive& primitive = *build.primitive;
+    const int stride = build.ground->file.x_size + 1;
+    const auto first = static_cast<std::uint32_t>(primitive.vertices.size());
+    for (int slot = 0; slot < 4; ++slot) {
+        const int across = spot.column + (slot & 1);
+        const int down = spot.row + (slot >> 1);
+        PaintedVertex source;
+        const auto joint = static_cast<std::size_t>((down * stride) + across);
+        const auto corner = static_cast<std::size_t>(slot);
+        source.corner = &build.ground->sheet.corners[joint];
+        source.light = &build.light;
+        source.base = paint.base.corner.at(corner);
+        source.cover = paint.cover.is_set ? paint.cover.corner.at(corner) : kNoCover;
+        push_painted(primitive, source);
+    }
+    for (const std::uint8_t slot : map::cell_order(spot.is_flipped)) {
+        primitive.indices.push_back(first + slot);
+    }
+}
+
+[[nodiscard]] inline bool is_flipped_cell(const map::Cell& cell) noexcept {
+    return (cell.flags & map::kFlipDiagonal) != 0;
+}
+
+// Lưới mặt đất lớp cọ: mỗi ô có cọ nền là bốn đỉnh và hai tam giác. Ô lỗ (không cọ nền dùng được)
+// không sinh mặt: terrain.ps không discard (xem chú thích đầu terrain.ps.slang) nên lỗ phải nằm
+// ngoài lưới.
+inline void build_painted(resource::Primitive& primitive, const MapGround& ground,
+    const map::SplatImages& splat) {
+    const int columns = ground.file.x_size;
+    const auto count =
+        static_cast<std::size_t>(columns) * static_cast<std::size_t>(ground.file.z_size);
+    const auto points =
+        static_cast<std::size_t>(columns + 1) * static_cast<std::size_t>(ground.file.z_size + 1);
+    const bool is_whole =
+        ground.grid.cells.size() >= count && ground.sheet.corners.size() >= points;
+    if (!is_whole) return;
+    PaintBuild build;
+    build.primitive = &primitive;
+    build.ground = &ground;
+    build.splat = &splat;
+    build.light = light_frame_of(ground.file);
+    primitive.vertices.reserve(count * 4U);
+    primitive.indices.reserve(count * 6U);
+    for (std::size_t index = 0; index < count; ++index) {
+        const map::Cell& cell = ground.grid.cells[index];
+        const map::CellUv paint = map::cell_uv(splat, cell);
+        if (!paint.base.is_set) continue;
+        const int cell_index = static_cast<int>(index);
+        CellSpot spot;
+        spot.column = cell_index % columns;
+        spot.row = cell_index / columns;
+        spot.is_flipped = is_flipped_cell(cell);
+        push_cell_quad(build, spot, paint);
     }
 }
 
@@ -825,8 +940,6 @@ inline void attach_paint(resource::Model& model, GroundPaint& paint) {
     model.samplers.push_back(clamped_sampler("dia-hinh-coc", kAtlasMaxLod));
     splat.atlas.sampler = static_cast<std::uint32_t>(model.samplers.size() - 1U);
     splat.atlas.image = add_picture(model, "dia-hinh-coc", paint.splat.atlas);
-    splat.cells.image = add_picture(model, "dia-hinh-o", paint.splat.cells);
-    splat.table.image = add_picture(model, "dia-hinh-bang", paint.splat.table);
     if (!paint.light.rgba.empty()) {
         paint.light.name = "dia-hinh-sang";
         model.images.push_back(std::move(paint.light));
@@ -839,46 +952,17 @@ inline void attach_paint(resource::Model& model, GroundPaint& paint) {
     material.pass = classic::pass_of(classic::Classic{.lit = classic::Lit::kTerrain});
 }
 
-inline void push_height_vertex(resource::Primitive& primitive, const game::client::map::Corner& corner,
-    bool has_paint) {
-    resource::Vertex vertex;
-    vertex.position = {.x = corner.x, .y = corner.y, .z = corner.z};
-    vertex.normal = {.x = corner.normal_x, .y = corner.normal_y, .z = corner.normal_z};
-    if (!has_paint) vertex.color = {.x = corner.red, .y = corner.green, .z = corner.blue, .w = 1.0F};
-    primitive.vertices.push_back(vertex);
-}
-
-// Bỏ tam giác của ô không có cọ nền (lỗ địa hình): terrain.ps không discard (xem chú thích đầu terrain.ps.slang) nên lỗ
-// phải nằm ngoài lưới. Bố cục texel ô: R là 8 bit thấp của pixmap nền, B bit 0-1 là 2 bit cao. Mỗi ô là hai tam giác nằm
-// trọn trong ô, nên trọng tâm tam giác cho biết ô của nó.
-inline void drop_holes(resource::Primitive& primitive, const game::client::map::Picture& cells) {
-    const std::size_t width = cells.width;
-    const std::size_t height = cells.height;
-    if (width == 0 || height == 0 || cells.rgba.size() < width * height * 4U) return;
-    const auto cell_of = [](float along, std::size_t count) {
-        if (!(along > 0.0F)) return std::size_t{0};
-        return std::min(static_cast<std::size_t>(along), count - 1U);
-    };
-    std::vector<std::uint32_t> kept;
-    kept.reserve(primitive.indices.size());
-    for (std::size_t corner = 0; corner + 2 < primitive.indices.size(); corner += 3) {
-        float u = 0.0F;
-        float v = 0.0F;
-        for (std::size_t k = 0; k < 3; ++k) {
-            const std::uint32_t index = primitive.indices[corner + k];
-            if (index >= primitive.vertices.size()) return;
-            u += primitive.vertices[index].uv.x;
-            v += primitive.vertices[index].uv.y;
-        }
-        const std::size_t column = cell_of(u / 3.0F * static_cast<float>(width), width);
-        const std::size_t row = cell_of(v / 3.0F * static_cast<float>(height), height);
-        const std::size_t texel = ((row * width) + column) * 4U;
-        const std::uint32_t base_id = cells.rgba[texel] | ((std::uint32_t{cells.rgba[texel + 2]} & 3U) << 8U);
-        if (base_id == 0U) continue;
-        kept.insert(kept.end(), primitive.indices.begin() + static_cast<std::ptrdiff_t>(corner),
-            primitive.indices.begin() + static_cast<std::ptrdiff_t>(corner + 3));
+// Không có cọ: lưới góc dùng chung, màu đỉnh theo độ cao.
+inline void build_height(resource::Primitive& primitive, const MapGround& ground) {
+    primitive.vertices.reserve(ground.sheet.corners.size());
+    for (const game::client::map::Corner& corner : ground.sheet.corners) {
+        resource::Vertex vertex;
+        vertex.position = {.x = corner.x, .y = corner.y, .z = corner.z};
+        vertex.normal = {.x = corner.normal_x, .y = corner.normal_y, .z = corner.normal_z};
+        vertex.color = {.x = corner.red, .y = corner.green, .z = corner.blue, .w = 1.0F};
+        primitive.vertices.push_back(vertex);
     }
-    primitive.indices = std::move(kept);
+    primitive.indices = ground.sheet.indices;
 }
 
 // Số ô mỗi cạnh của một khối địa hình khi vẽ.
@@ -892,14 +976,9 @@ inline constexpr float kTerrainTileCells = 16.0F;
     resource::Primitive primitive;
     primitive.topology = resource::Topology::kTriangles;
     primitive.material = 0;
-    primitive.vertices.reserve(ground.sheet.corners.size());
     const bool has_paint = !paint.splat.empty();
-    for (const game::client::map::Corner& corner : ground.sheet.corners) {
-        push_height_vertex(primitive, corner, has_paint);
-    }
-    if (has_paint) lay_paint(primitive, ground);
-    primitive.indices = ground.sheet.indices;
-    if (has_paint) drop_holes(primitive, paint.splat.cells);
+    if (has_paint) build_painted(primitive, ground, paint.splat);
+    if (!has_paint) build_height(primitive, ground);
     // Khối 16 ô mỗi cạnh: Forward bỏ khối ngoài khung nhìn thay vì vẽ cả bản đồ mỗi khung (như TerrainTile của OGRE).
     resource::build_tiles(primitive, kTerrainTileCells * ground.file.scale.x);
     mesh.primitives.push_back(std::move(primitive));
@@ -946,17 +1025,31 @@ inline constexpr float kTerrainTileCells = 16.0F;
     return &*found;
 }
 
-[[nodiscard]] inline bool mesh_waiting(const Arrival& arrival, core::Clock::time_point deadline) noexcept {
-    if (core::Clock::now() >= deadline) return false;
-    return arrival.cursor < arrival.table.meshes.size();
+[[nodiscard]] inline bool is_streamed(const Arrival& arrival) noexcept {
+    return arrival.settled >= arrival.table.meshes.size();
 }
 
-// Luồng đọc chưa xong mesh đang chờ: ghi mốc để đo quãng bị đói dữ liệu (không phải công việc).
-[[nodiscard]] inline bool note_waiting(Arrival& loading) noexcept {
+[[nodiscard]] inline bool mesh_waiting(const Arrival& arrival,
+    core::Clock::time_point deadline) noexcept {
+    if (core::Clock::now() >= deadline) return false;
+    return !is_streamed(arrival);
+}
+
+// Luồng đọc chưa xong mesh nào: ghi mốc để đo quãng bị đói dữ liệu (không phải công việc). Trả
+// rỗng để pull_mesh báo "chưa có mesh".
+[[nodiscard]] inline std::optional<std::size_t> note_waiting(Arrival& loading) noexcept {
     if (!loading.is_stalled) loading.stall_started = core::Clock::now();
     loading.is_stalled = true;
-    return false;
+    return std::nullopt;
 }
+
+// Chỗ xếp hạng nạp: mắt và khung nhìn của khung vừa vẽ, hay chỗ đứng dự đoán khi cảnh chưa hiện
+// (is_flat: chỉ đo trên mặt phẳng ngang, vì chưa biết độ cao mặt đất, và chưa có khung nhìn).
+struct LoadFocus {
+    math::Vector3 eye{0.0F, 0.0F, 0.0F};
+    std::optional<render::Frustum> frustum;
+    bool is_flat = false;
+};
 
 inline void note_user(Arrival& loading, std::size_t prop_index) {
     const std::size_t mesh = loading.table.props.at(prop_index).mesh;
@@ -976,8 +1069,8 @@ inline void grow_slots(std::vector<std::size_t>& slots, std::size_t count) {
     slots.resize(count, kMissing);
 }
 
-// Một ô mesh do luồng đọc đĩa ghi. kWait là chưa xong.
-enum class SlotMark : std::uint8_t { kWait, kFailed, kReady, kTaken };
+// Một ô mesh do luồng đọc đĩa ghi. kWait là chưa đầu đọc nào nhận, kRead là đang đọc.
+enum class SlotMark : std::uint8_t { kWait, kRead, kFailed, kReady, kTaken };
 
 // Một mesh đã qua luồng nạp: model kèm chuỗi mip đã nướng của các ảnh của nó. Nướng mip là phần đắt
 // nhất của việc nạp (đo 2026-10-08 ở cảnh erengu_DL, 153 ảnh: 2,5 giây khi làm tuần tự trên luồng
@@ -990,9 +1083,13 @@ struct ReadMesh {
 
 // with_lods: lưới tĩnh của vật thể cảnh, nhận mức chi tiết thấp khi rules.builds_lods. Mặt đất, trời, nước, hạt và nhân
 // vật không dùng: chúng không giản lược được theo từng vật. Texture thu về rules.texture_edge (display/policy.hpp).
-[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model, const BakeRules& rules, bool with_lods = false) {
+[[nodiscard]] inline ReadMesh baked_mesh(resource::Model model, const BakeRules& rules,
+    bool with_lods = false) {
     classic::note(model);
-    if (rules.builds_lods && with_lods) resource::build_lods(model);
+    const bool wants_lods = rules.builds_lods && with_lods;
+    // Cache .tlms bản 2 mang sẵn mức chi tiết (resource::LodUse): chỉ giản lược khi nó không có.
+    if (!wants_lods) resource::drop_lods(model);
+    if (wants_lods && !model.has_lods) resource::build_lods(model);
     ReadMesh read;
     auto baked = resource::stage_images(model, rules.texture_edge);
     if (baked) read.baked = std::move(*baked);
@@ -1032,14 +1129,14 @@ struct SlotBox {
     std::size_t bytes = 0;
 };
 
+// Need thứ i nằm ở ô i của Feed.
 struct Need {
-    std::size_t slot = 0;
     std::string name;
 };
 
-// Kết quả take_mesh. is_ready sai khi ô chưa đọc xong. Đúng mà model rỗng là file hỏng.
-struct MeshReady {
-    bool is_ready = false;
+// Một mesh luồng vẽ lấy khỏi Feed: ô của nó và kết quả đọc (rỗng là file hỏng).
+struct MeshTake {
+    std::size_t slot = 0;
     std::optional<ReadMesh> mesh;
 };
 
@@ -1050,12 +1147,29 @@ struct FeedJob {
     std::shared_ptr<const world::ShownScene> scene;
     bool bake_ground = false;
     std::vector<Need> needs;
+    // Ô theo hạng, hạng cao trước (stream.cpp xếp theo khung nhìn). Rỗng hay thiếu ô thì ô còn
+    // lại đi theo thứ tự bảng.
+    std::vector<std::size_t> order;
     resource::TextureTier tier = resource::TextureTier::kBc;
     BakeRules bake;
     // Trần byte của mesh đã đọc mà luồng vẽ chưa lấy (GraphicsPolicy::pending_bytes); đầu đọc chờ khi hàng đợi đầy.
     std::size_t pending_limit = std::size_t{1} << 30U;
 };
 
+// Ô hạng cao (rank nhỏ) trước; hạng bằng nhau thì ô nhỏ trước, để thứ tự luôn xác định.
+struct RankFirst {
+    std::span<const std::size_t> rank_of;
+
+    [[nodiscard]] bool operator()(std::size_t left, std::size_t right) const noexcept {
+        const std::size_t left_rank = rank_of[left];
+        const std::size_t right_rank = rank_of[right];
+        if (left_rank != right_rank) return left_rank < right_rank;
+        return left < right;
+    }
+};
+
+// Hàng đọc theo hạng: đầu đọc nhận ô chưa đọc có hạng cao nhất, luồng vẽ lấy ô đã đọc có hạng cao
+// nhất. Luồng vẽ xếp lại hạng khi khung nhìn đổi (rank), nên thứ đang thấy luôn đi trước.
 struct Feed {
     std::mutex mu;
     std::condition_variable cv;
@@ -1064,10 +1178,15 @@ struct Feed {
     std::uint64_t epoch = 0;
     std::optional<FeedJob> job;
     std::vector<SlotBox> slots;
-    // Byte ảnh của các ô kReady chưa kTaken, và ô đầu tiên chưa kTaken (luồng vẽ lấy ô theo thứ tự). Cả hai dưới mu.
+    // Mọi trường dưới đây nằm dưới mu. queue: mọi ô theo hạng lúc xếp, đầu đọc lấy từ queue_head;
+    // done: ô đã đọc (kReady, kFailed) chưa bị lấy; rank_of: hạng của từng ô, nhỏ là cao.
+    std::vector<std::size_t> queue;
+    std::size_t queue_head = 0;
+    std::vector<std::size_t> done;
+    std::vector<std::size_t> rank_of;
+    // Byte ảnh của các ô trong done.
     std::size_t pending_bytes = 0;
-    std::size_t next_untaken = 0;
-    // FeedJob::pending_limit của việc đang chạy, dưới mu.
+    // FeedJob::pending_limit của việc đang chạy.
     std::size_t pending_limit = std::size_t{1} << 30U;
     std::optional<ReadMesh> ground;
     bool ground_ready = false;
@@ -1081,14 +1200,28 @@ struct Feed {
     Feed(Feed&&) = delete;
     Feed& operator=(Feed&&) = delete;
 
+    using Pick = std::optional<std::size_t>;
+
     std::uint64_t post(FeedJob next);
     void cancel();
+    // Xếp lại hạng theo order (ô, hạng cao trước). Ô đang đọc hay đã đọc giữ nguyên; ô order bỏ
+    // sót giữ hạng cũ, nên không ô nào bị rơi khỏi hàng.
+    void rank(std::uint64_t current, std::span<const std::size_t> order);
     [[nodiscard]] std::optional<ReadMesh> take_ground(std::uint64_t current);
-    [[nodiscard]] MeshReady take_mesh(std::uint64_t current, std::size_t slot);
+    // Ô đã đọc có hạng cao nhất; rỗng khi chưa ô nào xong hay việc đã đổi.
+    [[nodiscard]] std::optional<MeshTake> take_best(std::uint64_t current);
+    // Ô chưa đọc có hạng cao nhất cho một đầu đọc; chờ khi hàng đợi đầy. Rỗng khi hết ô, đổi việc
+    // hay dừng.
+    [[nodiscard]] Pick claim(const std::stop_token& stop, std::uint64_t current);
     [[nodiscard]] std::optional<FeedJob> wait_job(const std::stop_token& stop);
-    [[nodiscard]] bool wait_room(const std::stop_token& stop, std::uint64_t current, std::size_t index);
     [[nodiscard]] bool serve_next(const std::stop_token& stop);
     void run(const std::stop_token& stop);
+
+private:
+    void start_queue(std::span<const std::size_t> order);
+    void apply_rank(std::span<const std::size_t> order);
+    void set_rank(std::size_t slot, std::size_t position) noexcept;
+    [[nodiscard]] bool has_room(std::uint64_t current) const noexcept;
 };
 
 inline void bake_job(const FeedJob& job, Feed& feed) {
@@ -1110,49 +1243,38 @@ inline void bake_job(const FeedJob& job, Feed& feed) {
     std::println("Địa hình resid {} đã dựng trong {} ms (ảnh cọ {} ms)", scene_id, millis, painted);
 }
 
-[[nodiscard]] inline std::size_t slot_span(const std::vector<Need>& needs) {
-    std::size_t count = 0;
-    for (const Need& need : needs) {
-        count = std::max(count, need.slot + 1);
-    }
-    return count;
-}
-
-inline void store_read(Feed& feed, const FeedJob& job, const Need& need) {
-    auto loaded = resource::load_named_model(need.name, io::utf8_of(job.root), job.tier);
-    if (!loaded) std::println(stderr, "Bỏ mesh {}: {}", need.name, loaded.error());
+inline void store_read(Feed& feed, const FeedJob& job, std::size_t slot) {
+    const std::string& name = job.needs.at(slot).name;
+    const std::string root = io::utf8_of(job.root);
+    using resource::LodUse;
+    const LodUse lods = job.bake.builds_lods ? LodUse::kKeep : LodUse::kDrop;
+    auto loaded = resource::load_named_model(name, root, job.tier, lods);
+    if (!loaded) std::println(stderr, "Bỏ mesh {}: {}", name, loaded.error());
     std::optional<ReadMesh> read;
     if (loaded) read = baked_mesh(std::move(*loaded), job.bake, true);
     const std::size_t bytes = read ? held_bytes(*read) : 0;
     const std::scoped_lock<std::mutex> lock(feed.mu);
     if (feed.epoch != job.epoch) return;
-    SlotBox& box = feed.slots.at(need.slot);
+    SlotBox& box = feed.slots.at(slot);
     box.mark = read ? SlotMark::kReady : SlotMark::kFailed;
     box.mesh = std::move(read);
     box.bytes = bytes;
     feed.pending_bytes += bytes;
+    feed.done.push_back(slot);
 }
 
-// Con trỏ việc đang đọc. Nhiều luồng lấy chỉ số qua next, không chia nhau một Model.
+// Việc đang đọc. Nhiều luồng nhận ô qua Feed::claim, không chia nhau một Model.
 struct ReadCursor {
     const FeedJob* job = nullptr;
     Feed* feed = nullptr;
     std::stop_token stop;
-    std::atomic<std::size_t> next{0};
 };
 
-[[nodiscard]] inline bool next_need(ReadCursor& cursor, std::size_t& index) {
-    if (cursor.stop.stop_requested()) return false;
-    const std::size_t upcoming = cursor.next.load(std::memory_order_relaxed);
-    if (!cursor.feed->wait_room(cursor.stop, cursor.job->epoch, upcoming)) return false;
-    index = cursor.next.fetch_add(1, std::memory_order_relaxed);
-    return index < cursor.job->needs.size();
-}
-
 inline void read_need(ReadCursor& cursor) {
-    std::size_t index = 0;
-    while (next_need(cursor, index)) {
-        store_read(*cursor.feed, *cursor.job, cursor.job->needs.at(index));
+    std::optional<std::size_t> slot = cursor.feed->claim(cursor.stop, cursor.job->epoch);
+    while (slot) {
+        store_read(*cursor.feed, *cursor.job, *slot);
+        slot = cursor.feed->claim(cursor.stop, cursor.job->epoch);
     }
 }
 
@@ -1210,10 +1332,10 @@ inline std::uint64_t Feed::post(FeedJob next) {
     const std::scoped_lock<std::mutex> lock(mu);
     ++epoch;
     next.epoch = epoch;
-    slots.assign(slot_span(next.needs), {});
+    slots.assign(next.needs.size(), {});
     pending_bytes = 0;
     pending_limit = next.pending_limit;
-    next_untaken = 0;
+    start_queue(next.order);
     ground.reset();
     ground_ready = false;
     job = std::move(next);
@@ -1230,9 +1352,40 @@ inline void Feed::cancel() {
     ground_ready = false;
     slots.clear();
     pending_bytes = 0;
-    next_untaken = 0;
+    start_queue({});
     cv.notify_all();
     room.notify_all();
+}
+
+// Gọi dưới mu, sau khi slots đã đúng cỡ của việc mới.
+inline void Feed::start_queue(std::span<const std::size_t> order) {
+    rank_of.resize(slots.size());
+    for (std::size_t slot = 0; slot < rank_of.size(); ++slot)
+        rank_of[slot] = slot;
+    queue = rank_of;
+    queue_head = 0;
+    done.clear();
+    apply_rank(order);
+}
+
+inline void Feed::set_rank(std::size_t slot, std::size_t position) noexcept {
+    if (slot >= rank_of.size()) return;
+    rank_of[slot] = position;
+}
+
+// Gọi dưới mu. Chỉ phần queue chưa nhận được xếp lại; phần đầu đọc đã nhận giữ nguyên.
+inline void Feed::apply_rank(std::span<const std::size_t> order) {
+    for (std::size_t position = 0; position < order.size(); ++position)
+        set_rank(order[position], position);
+    const RankFirst is_first{.rank_of = rank_of};
+    const std::span<std::size_t> waiting = std::span(queue).subspan(queue_head);
+    std::ranges::sort(waiting, is_first);
+}
+
+inline void Feed::rank(std::uint64_t current, std::span<const std::size_t> order) {
+    const std::scoped_lock<std::mutex> lock(mu);
+    if (epoch != current) return;
+    apply_rank(order);
 }
 
 inline std::optional<ReadMesh> Feed::take_ground(std::uint64_t current) {
@@ -1242,31 +1395,38 @@ inline std::optional<ReadMesh> Feed::take_ground(std::uint64_t current) {
     return std::exchange(ground, std::nullopt);
 }
 
-inline MeshReady Feed::take_mesh(std::uint64_t current, std::size_t slot) {
+inline std::optional<MeshTake> Feed::take_best(std::uint64_t current) {
     const std::scoped_lock<std::mutex> lock(mu);
-    MeshReady ready;
-    if (epoch != current || slot >= slots.size()) return ready;
+    if (epoch != current || done.empty()) return std::nullopt;
+    const RankFirst is_first{.rank_of = rank_of};
+    const auto best = std::ranges::min_element(done, is_first);
+    const std::size_t slot = *best;
+    *best = done.back();
+    done.pop_back();
     SlotBox& box = slots.at(slot);
-    if (box.mark == SlotMark::kWait || box.mark == SlotMark::kTaken) return ready;
-    ready.is_ready = true;
-    ready.mesh = std::move(box.mesh);
     box.mark = SlotMark::kTaken;
     pending_bytes -= std::min(pending_bytes, box.bytes);
     box.bytes = 0;
-    while (next_untaken < slots.size() && slots.at(next_untaken).mark == SlotMark::kTaken) {
-        ++next_untaken;
-    }
     room.notify_all();
-    return ready;
+    return MeshTake{.slot = slot, .mesh = std::exchange(box.mesh, std::nullopt)};
 }
 
-// Cổng của đầu đọc: qua khi hàng đợi còn chỗ, hoặc khi ô sắp đọc đã là ô luồng vẽ đang chờ (index <= next_untaken), nên
-// đầu đọc không bao giờ nghẽn luồng vẽ: luồng vẽ lấy ô theo thứ tự và đầu đọc nhận ô theo thứ tự. Sai khi đổi việc hay dừng.
-inline bool Feed::wait_room(const std::stop_token& stop, std::uint64_t current, std::size_t index) {
+// Cổng của đầu đọc: qua khi hàng đợi còn chỗ. Hàng đầy nghĩa là done có ô, luồng vẽ sẽ lấy và
+// đánh thức, nên đầu đọc không chờ nhau mãi. Ô được nhận theo hạng, không theo bảng.
+// Gọi dưới mu: việc đã đổi (để đầu đọc thoát) hoặc hàng đợi còn chỗ.
+inline bool Feed::has_room(std::uint64_t current) const noexcept {
+    return epoch != current || pending_bytes < pending_limit;
+}
+
+inline Feed::Pick Feed::claim(const std::stop_token& stop, std::uint64_t current) {
     std::unique_lock<std::mutex> lock(mu);
-    const bool is_open = room.wait(
-        lock, stop, [&] { return epoch != current || pending_bytes < pending_limit || index <= next_untaken; });
-    return is_open && epoch == current;
+    const auto is_open = [this, current] { return has_room(current); };
+    if (!room.wait(lock, stop, is_open)) return std::nullopt;
+    if (epoch != current || queue_head >= queue.size()) return std::nullopt;
+    const std::size_t slot = queue.at(queue_head);
+    ++queue_head;
+    slots.at(slot).mark = SlotMark::kRead;
+    return slot;
 }
 
 inline std::optional<FeedJob> Feed::wait_job(const std::stop_token& stop) {
@@ -1370,13 +1530,22 @@ struct SeatTarget {
     KeptMesh* slot = nullptr;
     gpu::Device* device = nullptr;
     render::Forward* forward = nullptr;
+    // Khác rỗng thì lệnh chép ảnh gom vào batch này (nộp một lần ở flush của người giữ nó) thay vì
+    // một lần nộp mỗi mesh. Người gọi phải flush trước khi vẽ mesh vừa nạp.
+    resource::UploadBatch* batch = nullptr;
 };
+
+[[nodiscard]] inline core::Result<resource::Uploaded> upload_model(const SeatTarget& target,
+    const resource::Model& model, resource::Baked baked) {
+    if (target.batch != nullptr) return target.batch->place(model, baked);
+    return resource::upload_queued(*target.device, model, baked);
+}
 
 // Nộp vào phần tử đã nằm trong deque. prepare giữ con trỏ vào model của chính phần tử đó.
 [[nodiscard]] inline bool seat_model(SeatTarget target, ReadMesh mesh) {
     target.slot->loaded.model = std::move(mesh.model);
     LoadedMesh& loaded = target.slot->loaded;
-    auto uploaded = resource::upload_queued(*target.device, loaded.model, mesh.baked);
+    auto uploaded = upload_model(target, loaded.model, mesh.baked);
     if (!uploaded) {
         std::println(stderr, "Bỏ nội dung (tải lên GPU): {}", uploaded.error());
         return false;

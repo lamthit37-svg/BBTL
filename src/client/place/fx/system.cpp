@@ -1,7 +1,22 @@
-// Đọc khối hệ hạt và effect. Khoá lạ bị bỏ, như OGRE. Góc trong script là độ.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/place/fx/system.cpp
+ *  PHÂN HỆ   : Place / Fx / System
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc khối hệ hạt và effect. Khoá lạ bị bỏ, như OGRE. Góc trong script là
+ *    độ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fx/system.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <optional>
 #include <string_view>
@@ -16,6 +31,14 @@ using ogre::Vec3;
     if (index >= property.args.size()) return fallback;
     const std::optional<float> value = parse_float(property.args[index]);
     return value ? *value : fallback;
+}
+
+// StringConverter::parseVector2 (OgreMain 0x18019a710): đúng hai token, khác thì (0, 0).
+[[nodiscard]] Pair pair_of(const ScriptProperty& property) {
+    if (property.args.size() != 2) return Pair{};
+    const float first = number_of(property, 0.0F, 0);
+    const float second = number_of(property, 0.0F, 1);
+    return Pair{.x = first, .y = second};
 }
 
 [[nodiscard]] Vec3 vec3_of(const ScriptProperty& property) {
@@ -87,6 +110,16 @@ void finish_emitter(EmitterDef& emitter) {
     return std::nullopt;
 }
 
+// Khoá riêng của EllipsoidEmitter và CylinderEmitter bản TLBB; doSet là phép ghi trần, không kẹp.
+void set_shape(EmitterDef& emitter, const ScriptProperty& property) {
+    const std::string_view key = property.key;
+    if (key == "angle_range") emitter.angle_range = pair_of(property);
+    if (key == "height_range") emitter.height_range = pair_of(property);
+    if (key == "topdown_ratio") emitter.topdown = pair_of(property);
+    if (key == "curve") emitter.curve = number_of(property, 0.0F, 0);
+    if (key == "bend_angle") emitter.bend = number_of(property, 0.0F, 0);
+}
+
 void set_emitter(EmitterDef& emitter, const ScriptProperty& property) {
     const std::string_view key = property.key;
     if (key == "angle") emitter.angle = number_of(property, 0.0F, 0) * kDegree;
@@ -113,6 +146,7 @@ void set_emitter(EmitterDef& emitter, const ScriptProperty& property) {
     if (key == "inner_width") emitter.inner.x = number_of(property, emitter.inner.x, 0);
     if (key == "inner_height") emitter.inner.y = number_of(property, emitter.inner.y, 0);
     if (key == "inner_depth") emitter.inner.z = number_of(property, emitter.inner.z, 0);
+    set_shape(emitter, property);
     if (key == "radius_start") emitter.radius_start = number_of(property, 0.0F, 0);
     if (key == "radius_step") emitter.radius_step = number_of(property, 0.0F, 0);
     if (key == "radius_end") emitter.radius_end = number_of(property, 0.0F, 0);
@@ -128,10 +162,28 @@ void set_emitter(EmitterDef& emitter, const ScriptProperty& property) {
     if (key == "reset_radius_count") emitter.reset_count = static_cast<int>(number_of(property, 0.0F, 0));
 }
 
+// AreaEmitter::initDefaults (Plugin_ParticleFX 0x180001f40) đặt hướng UNIT_Y trước khi đọc script.
+// Point và PolarEmitter giữ UNIT_X của hàm dựng ParticleEmitter.
+[[nodiscard]] constexpr bool is_area(EmitterKind kind) noexcept {
+    switch (kind) {
+    case EmitterKind::kBox:
+    case EmitterKind::kRing:
+    case EmitterKind::kEllipsoid:
+    case EmitterKind::kHollowEllipsoid:
+    case EmitterKind::kCylinder: return true;
+    case EmitterKind::kPoint:
+    case EmitterKind::kPolar: return false;
+    }
+    return false;
+}
+
 [[nodiscard]] EmitterDef read_emitter(const ScriptBlock& block) {
     const std::optional<EmitterKind> kind = emitter_kind(block.word(1));
     EmitterDef emitter;
     if (kind) emitter.kind = *kind;
+    if (is_area(emitter.kind)) emitter.direction = Vec3{.x = 0.0F, .y = 1.0F, .z = 0.0F};
+    // Hàm dựng EllipsoidEmitter (0x180007d40) để inner 0; các emitter vành để 0,5.
+    if (emitter.kind == EmitterKind::kEllipsoid) emitter.inner = Vec3{};
     for (const ScriptProperty& property : block.properties)
         set_emitter(emitter, property);
     finish_emitter(emitter);
@@ -347,6 +399,42 @@ template <class Kind, void (*Set)(Kind&, const ScriptProperty&)>
     return BillboardKind::kPoint;
 }
 
+struct NamedOrigin {
+    std::string_view name;
+    Origin origin;
+};
+
+// BillboardSet::getParametricOffsets: trái, phải, trên, dưới theo billboard_origin, đơn vị cỡ hạt.
+constexpr Origin kTopLeft{.left = 0.0F, .right = 1.0F, .top = 0.0F, .bottom = -1.0F};
+constexpr Origin kTopCenter{.left = -0.5F, .right = 0.5F, .top = 0.0F, .bottom = -1.0F};
+constexpr Origin kTopRight{.left = -1.0F, .right = 0.0F, .top = 0.0F, .bottom = -1.0F};
+constexpr Origin kCenterLeft{.left = 0.0F, .right = 1.0F, .top = 0.5F, .bottom = -0.5F};
+constexpr Origin kCenter{.left = -0.5F, .right = 0.5F, .top = 0.5F, .bottom = -0.5F};
+constexpr Origin kCenterRight{.left = -1.0F, .right = 0.0F, .top = 0.5F, .bottom = -0.5F};
+constexpr Origin kBottomLeft{.left = 0.0F, .right = 1.0F, .top = 1.0F, .bottom = 0.0F};
+constexpr Origin kBottomCenter{.left = -0.5F, .right = 0.5F, .top = 1.0F, .bottom = 0.0F};
+constexpr Origin kBottomRight{.left = -1.0F, .right = 0.0F, .top = 1.0F, .bottom = 0.0F};
+
+constexpr std::array kOrigins{
+    NamedOrigin{.name = "top_left", .origin = kTopLeft},
+    NamedOrigin{.name = "top_center", .origin = kTopCenter},
+    NamedOrigin{.name = "top_right", .origin = kTopRight},
+    NamedOrigin{.name = "center_left", .origin = kCenterLeft},
+    NamedOrigin{.name = "center", .origin = kCenter},
+    NamedOrigin{.name = "center_right", .origin = kCenterRight},
+    NamedOrigin{.name = "bottom_left", .origin = kBottomLeft},
+    NamedOrigin{.name = "bottom_center", .origin = kBottomCenter},
+    NamedOrigin{.name = "bottom_right", .origin = kBottomRight},
+};
+
+// Tên lạ thì giữ gốc đang có, như bộ đọc script của OGRE bỏ qua giá trị không nhận ra.
+void set_origin(SystemDef& system, const ScriptProperty& property) {
+    if (property.args.empty()) return;
+    const std::string_view name = property.args.front();
+    const auto found = std::ranges::find(kOrigins, name, &NamedOrigin::name);
+    if (found != kOrigins.end()) system.origin = found->origin;
+}
+
 void set_system(SystemDef& system, const ScriptProperty& property) {
     const std::string_view key = property.key;
     if (key == "quota") system.quota = static_cast<std::size_t>(std::max(0.0F, number_of(property, 10.0F, 0)));
@@ -371,8 +459,9 @@ void set_system(SystemDef& system, const ScriptProperty& property) {
     if (key == "local_space") system.local_space = parse_bool(property.args.empty() ? "true" : property.args.front());
     if (key == "sorted") system.sorted = parse_bool(property.args.empty() ? "" : property.args.front());
     if (key == "billboard_type" && !property.args.empty()) system.billboard = billboard_of(property.args.front());
-    if (key == "billboard_rotation_type")
-        system.rotate_texcoord = !property.args.empty() && property.args.front() == "texcoord";
+    const bool by_texcoord = !property.args.empty() && property.args.front() == "texcoord";
+    if (key == "billboard_rotation_type") system.rotate_texcoord = by_texcoord;
+    if (key == "billboard_origin") set_origin(system, property);
     if (key == "common_direction") system.common_direction = vec3_of(property);
     if (key == "common_up_vector") system.common_up = vec3_of(property);
     if (key == "speed_relatived_size_factor") system.speed_factor = number_of(property, system.speed_factor, 0);

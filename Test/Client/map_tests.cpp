@@ -1,4 +1,18 @@
-// Test map: XML .Terrain theo serializer gốc, byte FEHM/FEGI, ảnh minimap và chiều tam giác +Y.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Client/map_tests.cpp
+ *  PHÂN HỆ   : Client / Map Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test map: XML .Terrain theo serializer gốc, byte FEHM/FEGI, ảnh minimap và
+ *    chiều tam giác +Y.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/map/book.hpp"
 #include "client/map/gates.hpp"
 #include "client/map/ground.hpp"
@@ -300,11 +314,6 @@ void book_reads_scene_music(Context& context) {
     context.expect(minus->music == 0, "số âm: không có nhạc");
 }
 
-// Số 16 bit từ hai kênh (cao, thấp) của một texel, đúng như word16 của terrain.ps.slang.
-[[nodiscard]] float word16(std::uint8_t high, std::uint8_t low) noexcept {
-    return static_cast<float>((static_cast<std::uint32_t>(high) << 8U) | low) / 65535.0F;
-}
-
 [[nodiscard]] bool near_to(float left, float right, float tolerance) noexcept {
     return left - right < tolerance && right - left < tolerance;
 }
@@ -351,7 +360,7 @@ struct SplatFixture {
     }
 };
 
-void splat_table_decodes_like_the_shader(Context& context) {
+void splat_cell_uv_follows_the_corner_table(Context& context) {
     SplatFixture fixture(255);
     client::map::Cell tile;
     tile.base.pixmap = 1;
@@ -361,35 +370,46 @@ void splat_table_decodes_like_the_shader(Context& context) {
     fixture.grid.cells.emplace_back();
     const client::map::SplatImages splat = client::map::build_splat(fixture.file, fixture.grid, fixture.brushes, 2048);
     context.expect(!splat.empty(), "có cọ dùng được thì dựng được");
-    if (splat.empty() || splat.cells.rgba.size() < 8 || splat.table.rgba.size() < 4128) return;
+    if (splat.empty() || splat.boxes.size() != 3) return;
     context.expect(splat.atlas.width % 16 == 0 && splat.atlas.height % 16 == 0, "atlas là bội của 16");
-    context.expect(splat.cells.width == 2 && splat.cells.height == 1, "một texel mỗi ô");
-    context.expect(splat.cells.rgba[0] == 1 && splat.cells.rgba[1] == 0, "ô 0: nền là pixmap 1, không phủ");
-    context.expect(splat.cells.rgba[2] == 16, "bit 4 là cờ đường chéo");
-    context.expect(splat.cells.rgba[3] == 1, "orientation nền ở nibble thấp");
-    context.expect(splat.cells.rgba[4] == 0 && splat.cells.rgba[5] == 0, "ô 1 không lớp nào là lỗ");
-    // Hàng 0: bốn góc theo (lật * 16 + orientation). Orientation 8 lật: ba góc cuối khác bản thẳng.
-    context.expect(splat.table.rgba[0] == 0x01 && splat.table.rgba[1] == 0x21 && splat.table.rgba[2] == 0x03 &&
-            splat.table.rgba[3] == 0x23,
-        "bản thẳng orientation 0");
-    const std::size_t flipped_at = (std::size_t{16} + 8U) * 4U;
-    context.expect(splat.table.rgba[flipped_at] == 0x01 && splat.table.rgba[flipped_at + 2U] == 0x21 &&
-            splat.table.rgba[flipped_at + 3U] == 0x23,
-        "bản lật đường chéo orientation 8");
-    // Pixmap 1 chiếm texel 4..7 của hàng 1.
-    const std::size_t entry = ((std::size_t{1} * client::map::kSplatTableWidth) + 4U) * 4U;
-    const std::span<const std::uint8_t> row(splat.table.rgba);
-    context.expect(near_to(word16(row[entry], row[entry + 1]), 0.25F, 1.0e-4F), "cạnh trái");
-    context.expect(near_to(word16(row[entry + 2], row[entry + 3]), 0.10F, 1.0e-4F), "cạnh trên");
-    context.expect(near_to(word16(row[entry + 4], row[entry + 5]), 0.75F, 1.0e-4F), "cạnh phải");
-    context.expect(near_to(word16(row[entry + 6], row[entry + 7]), 0.90F, 1.0e-4F), "cạnh dưới");
-    // Cọ nằm ở (0, 0) của atlas, đệm 16: gốc (16, 16), tỉ lệ cỡ cọ.
+    context.expect(splat.boxes[1].is_ready && !splat.boxes[2].is_ready, "pixmap 2 thuộc cọ không có ảnh");
+    // Cọ nằm ở (0, 0) của atlas, đệm 16: gốc (16, 16), tỉ lệ cỡ cọ; hộp pixmap 1 là 0,25 0,10 0,75 0,90 của cọ.
     const auto across = static_cast<float>(splat.atlas.width);
     const auto down = static_cast<float>(splat.atlas.height);
-    context.expect(near_to(word16(row[entry + 8], row[entry + 9]), 16.0F / across, 1.0e-4F), "gốc x trong atlas");
-    context.expect(near_to(word16(row[entry + 10], row[entry + 11]), 16.0F / down, 1.0e-4F), "gốc y trong atlas");
-    context.expect(near_to(word16(row[entry + 12], row[entry + 13]), 64.0F / across, 1.0e-4F), "tỉ lệ x");
-    context.expect(near_to(word16(row[entry + 14], row[entry + 15]), 32.0F / down, 1.0e-4F), "tỉ lệ y");
+    const float left = (16.0F + (0.25F * 64.0F)) / across;
+    const float top = (16.0F + (0.10F * 32.0F)) / down;
+    const float right = (16.0F + (0.75F * 64.0F)) / across;
+    const float bottom = (16.0F + (0.90F * 32.0F)) / down;
+    context.expect(near_to(splat.boxes[1].edge[0], left, 1.0e-6F), "cạnh trái trong atlas");
+    context.expect(near_to(splat.boxes[1].edge[1], top, 1.0e-6F), "cạnh trên trong atlas");
+    context.expect(near_to(splat.boxes[1].edge[2], right, 1.0e-6F), "cạnh phải trong atlas");
+    context.expect(near_to(splat.boxes[1].edge[3], bottom, 1.0e-6F), "cạnh dưới trong atlas");
+    // Bản lật đường chéo, orientation 1: 0x21 0x01 0x23 0x03, nibble cao là cạnh U và nibble thấp là cạnh V.
+    const client::map::CellUv first = client::map::cell_uv(splat, fixture.grid.cells[0]);
+    context.expect(first.base.is_set && !first.cover.is_set, "ô 0: nền, không phủ");
+    context.expect(near_to(first.base.corner[0].u, right, 1.0e-6F) && near_to(first.base.corner[0].v, top, 1.0e-6F),
+        "góc trái-trên: phải, trên");
+    context.expect(near_to(first.base.corner[1].u, left, 1.0e-6F) && near_to(first.base.corner[1].v, top, 1.0e-6F),
+        "góc phải-trên: trái, trên");
+    context.expect(near_to(first.base.corner[2].u, right, 1.0e-6F) &&
+            near_to(first.base.corner[2].v, bottom, 1.0e-6F),
+        "góc trái-dưới: phải, dưới");
+    context.expect(near_to(first.base.corner[3].u, left, 1.0e-6F) &&
+            near_to(first.base.corner[3].v, bottom, 1.0e-6F),
+        "góc phải-dưới: trái, dưới");
+    context.expect(!client::map::cell_uv(splat, fixture.grid.cells[1]).base.is_set, "ô 1 không lớp nào là lỗ");
+    // Orientation 8 có góc lặp (không phải hình bình hành): góc trái-dưới là (phải, trên) khi lật, (trái, dưới)
+    // khi thẳng.
+    client::map::Cell repeated = tile;
+    repeated.base.orientation = 8;
+    const client::map::CellUv flipped = client::map::cell_uv(splat, repeated);
+    repeated.flags = 0;
+    const client::map::CellUv straight = client::map::cell_uv(splat, repeated);
+    context.expect(near_to(flipped.base.corner[2].u, right, 1.0e-6F) && near_to(flipped.base.corner[2].v, top, 1.0e-6F),
+        "bản lật orientation 8");
+    context.expect(near_to(straight.base.corner[2].u, left, 1.0e-6F) &&
+            near_to(straight.base.corner[2].v, bottom, 1.0e-6F),
+        "bản thẳng orientation 8");
     // Texel đầu của cọ ở (16, 16); đệm lặp mép nên góc (0, 0) của atlas cùng màu.
     const std::size_t inside = byte_at(splat.atlas, 16, 16);
     context.expect(splat.atlas.rgba[inside] == 200 && splat.atlas.rgba[inside + 1U] == 100 &&
@@ -406,17 +426,37 @@ void splat_drops_layers_without_a_brush(Context& context) {
     with_cover.cover.pixmap = 2;
     client::map::Cell broken;
     broken.base.pixmap = 2;
+    broken.cover.pixmap = 1;
     fixture.grid.cells = {with_cover, broken};
     const std::vector<std::uint8_t> used = client::map::brushes_in_use(fixture.file, fixture.grid);
     context.expect(used.size() == 2 && used[0] == 1 && used[1] == 1, "cả hai cọ có ô tham chiếu");
     const client::map::SplatImages splat = client::map::build_splat(fixture.file, fixture.grid, fixture.brushes, 2048);
-    context.expect(!splat.empty() && splat.cells.rgba.size() >= 8, "vẫn dựng với cọ còn lại");
-    if (splat.empty() || splat.cells.rgba.size() < 8) return;
-    context.expect(splat.cells.rgba[0] == 1 && splat.cells.rgba[1] == 0, "lớp phủ thiếu cọ bị bỏ");
-    context.expect(splat.cells.rgba[4] == 0, "nền thiếu cọ là lỗ");
+    context.expect(!splat.empty(), "vẫn dựng với cọ còn lại");
+    if (splat.empty()) return;
+    const client::map::CellUv covered = client::map::cell_uv(splat, fixture.grid.cells[0]);
+    context.expect(covered.base.is_set && !covered.cover.is_set, "lớp phủ thiếu cọ bị bỏ");
+    const client::map::CellUv hole = client::map::cell_uv(splat, fixture.grid.cells[1]);
+    context.expect(!hole.base.is_set && !hole.cover.is_set, "nền thiếu cọ là lỗ, lớp phủ không còn nghĩa");
     // Cọ có alpha 128 được nhân sẵn vào màu: 200 * 128 / 255 làm tròn.
     const std::size_t inside = byte_at(splat.atlas, 16, 16);
     context.expect(splat.atlas.rgba[inside] == 100 && splat.atlas.rgba[inside + 3U] == 128, "màu nhân alpha");
+}
+
+void splat_cover_uses_its_own_orientation(Context& context) {
+    SplatFixture fixture(255);
+    client::map::Cell layered;
+    layered.base.pixmap = 1;
+    layered.cover.pixmap = 1;
+    layered.cover.orientation = 2;
+    fixture.grid.cells = {layered, layered};
+    const client::map::SplatImages splat = client::map::build_splat(fixture.file, fixture.grid, fixture.brushes, 2048);
+    context.expect(!splat.empty(), "có cọ dùng được thì dựng được");
+    if (splat.empty()) return;
+    const client::map::CellUv uv = client::map::cell_uv(splat, layered);
+    context.expect(uv.base.is_set && uv.cover.is_set, "ô có cả nền lẫn phủ");
+    // Nền orientation 0 (0x01 ...) và phủ orientation 2 (0x03 ...): góc trái-trên khác nhau.
+    const bool is_apart = !near_to(uv.base.corner[0].v, uv.cover.corner[0].v, 1.0e-6F);
+    context.expect(is_apart, "orientation của lớp phủ độc lập với lớp nền");
 }
 
 void liquid_covers_the_pool_and_stays_flat(Context& context) {
@@ -847,8 +887,9 @@ constexpr std::array kCases{
         .body = &book_keeps_active_rows_and_skips_spares},
     Case{.name = "book_reads_radar_token", .body = &book_reads_radar_token},
     Case{.name = "book_reads_clip_planes", .body = &book_reads_clip_planes},
-    Case{.name = "splat_table_decodes_like_the_shader", .body = &splat_table_decodes_like_the_shader},
+    Case{.name = "splat_cell_uv_follows_the_corner_table", .body = &splat_cell_uv_follows_the_corner_table},
     Case{.name = "splat_drops_layers_without_a_brush", .body = &splat_drops_layers_without_a_brush},
+    Case{.name = "splat_cover_uses_its_own_orientation", .body = &splat_cover_uses_its_own_orientation},
     Case{.name = "liquid_covers_the_pool_and_stays_flat",
         .body = &liquid_covers_the_pool_and_stays_flat},
     Case{.name = "liquid_look_matches_the_named_material",

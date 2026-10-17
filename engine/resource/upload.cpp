@@ -39,6 +39,7 @@
 #include <cstring>
 #include <limits>
 #include <ranges>
+#include <tuple>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -221,6 +222,13 @@ public:
         return &fresh_;
     }
 
+    // Giao buffer trung chuyển cho chỗ gọi: chúng phải sống tới khi GPU chạy lệnh chép đã ghi chưa
+    // nộp.
+    void hand_over(std::vector<gpu::BufferHandle>& sink) {
+        sink.insert(sink.end(), handles_.begin(), handles_.end());
+        handles_.clear();
+    }
+
     void release() noexcept {
         if (device_ == nullptr) return;
         for (const gpu::BufferHandle handle : handles_) {
@@ -250,8 +258,27 @@ struct ImageCopy {
     std::vector<gpu::BufferTextureCopy> regions;
 };
 
-[[nodiscard]] core::Status stage_buffer(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    std::span<const std::byte> bytes, gpu::BufferUsage usage, std::string_view name, gpu::BufferHandle& out) {
+// Bộ nhớ hợp nhất: buffer nằm ở Upload, chính là bộ nhớ GPU đọc, và nhận byte thẳng từ CPU. Bộ nhớ
+// HOST_COHERENT nên lần nộp kế của khung vẽ là mốc để GPU thấy phép ghi, không cần rào. out có tay
+// nắm trước khi ghi để ghi hỏng thì chỗ gọi vẫn trả được buffer.
+[[nodiscard]] core::Status write_direct(gpu::Device& device, std::span<const std::byte> bytes,
+    gpu::BufferUsage usage, std::string_view name, gpu::BufferHandle& out) {
+    gpu::BufferDesc desc;
+    desc.name = name;
+    desc.size = bytes.size();
+    desc.usage = usage;
+    desc.memory = gpu::MemoryDomain::kUpload;
+    auto buffer = device.create_buffer(desc);
+    if (!buffer) return std::unexpected(buffer.error());
+    out = *buffer;
+    return device.write_buffer(out, 0, bytes);
+}
+
+// commands rỗng là bộ nhớ hợp nhất: ghi thẳng (write_direct), không buffer trung chuyển.
+[[nodiscard]] core::Status stage_buffer(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, std::span<const std::byte> bytes, gpu::BufferUsage usage,
+    std::string_view name, gpu::BufferHandle& out) {
+    if (commands == nullptr) return write_direct(device, bytes, usage, name, out);
     gpu::BufferDesc stage;
     stage.name = name;
     stage.size = bytes.size();
@@ -272,26 +299,24 @@ struct ImageCopy {
     out = *buffer;
     gpu::BufferCopy region;
     region.size = bytes.size();
-    commands.copy_buffer(*upload, out, region);
+    commands->copy_buffer(*upload, out, region);
     return core::ok();
 }
 
-// Một đích morph: byte của nó thành buffer riêng trên thiết bị.
-[[nodiscard]] core::Status stage_morph(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const MorphTarget& target, GpuPrimitive& out) {
+// Một đích morph: byte của nó thành buffer riêng trên thiết bị. Ô có trước khi tạo buffer để tay
+// nắm luôn nằm trong out: đường ghi thẳng tạo buffer rồi mới ghi, ghi hỏng thì chỗ gọi trả nó.
+[[nodiscard]] core::Status stage_morph(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const MorphTarget& target, GpuPrimitive& out) {
     auto bytes = byte_view(target.vertices.data(), target.vertices.size(), sizeof(MorphVertex));
     if (!bytes) return std::unexpected(bytes.error());
-    gpu::BufferHandle handle;
     const gpu::BufferUsage usage =
         gpu::BufferUsage::kVertex | gpu::BufferUsage::kCopyDest | gpu::BufferUsage::kCopySource;
-    const core::Status staged = stage_buffer(device, commands, scratch, *bytes, usage, "morph", handle);
-    if (!staged) return staged;
-    out.morphs.push_back(handle);
-    return core::ok();
+    gpu::BufferHandle& handle = out.morphs.emplace_back();
+    return stage_buffer(device, commands, scratch, *bytes, usage, "morph", handle);
 }
 
-[[nodiscard]] core::Status stage_morphs(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Primitive& source, GpuPrimitive& out) {
+[[nodiscard]] core::Status stage_morphs(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Primitive& source, GpuPrimitive& out) {
     const auto one = [&](const MorphTarget& target) { return stage_morph(device, commands, scratch, target, out); };
     return each_status(source.targets, one);
 }
@@ -312,8 +337,8 @@ struct ImageCopy {
     return joined;
 }
 
-[[nodiscard]] core::Status stage_indices(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Primitive& source, GpuPrimitive& out) {
+[[nodiscard]] core::Status stage_indices(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Primitive& source, GpuPrimitive& out) {
     std::size_t total = source.indices.size();
     for (const std::vector<std::uint32_t>& level : source.lods) {
         total += level.size();
@@ -332,8 +357,8 @@ struct ImageCopy {
     return core::ok();
 }
 
-[[nodiscard]] core::Status stage_primitive(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Primitive& source, GpuPrimitive& out) {
+[[nodiscard]] core::Status stage_primitive(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Primitive& source, GpuPrimitive& out) {
     const core::Status vertices_fit = fit_count(source.vertices.size());
     if (!vertices_fit) return vertices_fit;
     const core::Status indices_fit = fit_count(source.indices.size());
@@ -353,14 +378,14 @@ struct ImageCopy {
 }
 
 // Một hình nguyên thuỷ: đỉnh, chỉ số và các đích morph của nó.
-[[nodiscard]] core::Status stage_one_primitive(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Primitive& source, GpuMesh& out) {
+[[nodiscard]] core::Status stage_one_primitive(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Primitive& source, GpuMesh& out) {
     out.primitives.emplace_back();
     return stage_primitive(device, commands, scratch, source, out.primitives.back());
 }
 
-[[nodiscard]] core::Status stage_mesh(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Mesh& source, GpuMesh& out) {
+[[nodiscard]] core::Status stage_mesh(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Mesh& source, GpuMesh& out) {
     const auto one = [&](const Primitive& primitive) {
         return stage_one_primitive(device, commands, scratch, primitive, out);
     };
@@ -368,13 +393,13 @@ struct ImageCopy {
 }
 
 // Một mắt lưới của model vào đúng ô của nó trong owned.
-[[nodiscard]] core::Status stage_one_mesh(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Model& model, Owned& owned, std::size_t index) {
+[[nodiscard]] core::Status stage_one_mesh(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Model& model, Owned& owned, std::size_t index) {
     return stage_mesh(device, commands, scratch, model.meshes.at(index), owned.meshes.at(index));
 }
 
-[[nodiscard]] core::Status stage_meshes(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
-    const Model& model, Owned& owned) {
+[[nodiscard]] core::Status stage_meshes(gpu::Device& device, gpu::CommandList* commands,
+    Scratch& scratch, const Model& model, Owned& owned) {
     owned.meshes.resize(model.meshes.size());
     const auto one = [&](std::size_t index) { return stage_one_mesh(device, commands, scratch, model, owned, index); };
     return each_status(std::views::iota(std::size_t{0}, model.meshes.size()), one);
@@ -597,10 +622,11 @@ constexpr std::uint32_t kModelAnisotropy = 16;
     return each_status(std::views::iota(std::size_t{0}, model.samplers.size()), one);
 }
 
-[[nodiscard]] core::Status fill(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch, const Model& model,
-    Owned& owned) {
-    const core::Status meshes = stage_meshes(device, commands, scratch, model, owned);
-    if (!meshes) return meshes;
+// Ảnh, sampler và rào cuối. Lưới chép qua buffer trung chuyển thì rào cuối đưa buffer của nó về
+// đọc; lưới ghi thẳng (bộ nhớ hợp nhất, cùng điều kiện chọn đường ở place) thì không có rào buffer.
+[[nodiscard]] core::Status fill_images(gpu::Device& device, gpu::CommandList& commands,
+    Scratch& scratch, const Model& model, Owned& owned) {
+    const bool copied_meshes = !device.caps().has_unified_memory;
     std::vector<ImageCopy> copies;
     const core::Status images = prepare_images(device, scratch, model, owned, copies);
     if (!images) return images;
@@ -612,10 +638,17 @@ constexpr std::uint32_t kModelAnisotropy = 16;
     record_image_copies(commands, copies);
     std::vector<gpu::BufferBarrier> buffers;
     std::vector<gpu::TextureBarrier> to_sample;
-    collect_buffer_barriers(owned, buffers);
+    if (copied_meshes) collect_buffer_barriers(owned, buffers);
     collect_shader_barriers(owned, to_sample);
     issue(commands, buffers, to_sample);
     return core::ok();
+}
+
+[[nodiscard]] core::Status fill(gpu::Device& device, gpu::CommandList& commands, Scratch& scratch,
+    const Model& model, Owned& owned) {
+    const core::Status meshes = stage_meshes(device, &commands, scratch, model, owned);
+    if (!meshes) return meshes;
+    return fill_images(device, commands, scratch, model, owned);
 }
 
 // Nộp hỏng: phải đóng khung trước khi trả, lỗi của end_frame thắng lỗi nộp.
@@ -641,6 +674,37 @@ constexpr std::uint32_t kModelAnisotropy = 16;
     const core::Status filled = fill(device, **commands, scratch, model, owned);
     if (!filled) return end_frame_after(device, filled);
     return submit(device, *commands, wait);
+}
+
+// Bộ nhớ hợp nhất (DeviceCaps::has_unified_memory): lưới ghi thẳng trước, rồi chỉ ảnh mới cần danh
+// sách lệnh, vì texture có bố cục riêng của GPU nên vẫn chép qua buffer trung chuyển. Model chỉ có
+// lưới thì không mở danh sách, không nộp, không chờ: byte đã nằm sẵn chỗ GPU đọc.
+[[nodiscard]] core::Status record_direct(gpu::Device& device, const Model& model, Scratch& scratch,
+    Owned& owned, bool wait) {
+    const core::Status meshes = stage_meshes(device, nullptr, scratch, model, owned);
+    if (!meshes) return meshes;
+    if (model.images.empty()) return core::ok();
+    auto commands = device.begin_commands(gpu::QueueType::kGraphics);
+    if (!commands) return std::unexpected(commands.error());
+    const core::Status filled = fill_images(device, **commands, scratch, model, owned);
+    if (!filled) return end_frame_after(device, filled);
+    return submit(device, *commands, wait);
+}
+
+// Như record_direct, nhưng ảnh ghi vào danh sách chung của batch và không nộp. Hỏng thì danh sách
+// chung không có lệnh nào của model này: fill_images chỉ ghi lệnh sau khi mọi ảnh và sampler đã tạo
+// xong.
+[[nodiscard]] core::Status record_batched(gpu::Device& device, gpu::CommandList*& shared,
+    const Model& model, Scratch& scratch, Owned& owned) {
+    const core::Status meshes = stage_meshes(device, nullptr, scratch, model, owned);
+    if (!meshes) return meshes;
+    if (model.images.empty()) return core::ok();
+    if (shared == nullptr) {
+        auto commands = device.begin_commands(gpu::QueueType::kGraphics);
+        if (!commands) return std::unexpected(commands.error());
+        shared = *commands;
+    }
+    return fill_images(device, *shared, scratch, model, owned);
 }
 
 [[nodiscard]] bool is_blocked(const Image& image) noexcept {
@@ -1106,26 +1170,47 @@ void Uploaded::release() noexcept {
     device_ = nullptr;
 }
 
-// baked rỗng thì chuỗi mip nướng tại chỗ; có thì phải đủ một chuỗi cho mỗi ảnh của model.
-core::Result<Uploaded> place(gpu::Device& device, const Model& model, bool wait, Baked baked) {
+namespace {
+
+// Điều kiện chung của mọi đường nạp: thiết bị còn sống, và baked rỗng (nướng tại chỗ) hoặc đủ một
+// chuỗi mip cho mỗi ảnh của model.
+[[nodiscard]] core::Status check_placeable(const gpu::Device& device, const Model& model,
+    Baked baked) {
     if (device.loss() != gpu::DeviceLoss::kNone) {
         return core::fail(core::ErrorCode::kDeviceLost, "thiết bị đã mất");
     }
-    const bool is_matched = baked.empty() || baked.size() == model.images.size();
-    if (!is_matched) return core::fail(core::ErrorCode::kInvalidArgument, "số chuỗi mip nướng sẵn khác số ảnh");
+    if (baked.empty() || baked.size() == model.images.size()) return core::ok();
+    return core::fail(core::ErrorCode::kInvalidArgument, "số chuỗi mip nướng sẵn khác số ảnh");
+}
+
+// Nạp hỏng: trả hết tay nắm đã tạo (buffer trung chuyển do Scratch trả).
+void release_owned(gpu::Device& device, Owned& owned) {
+    release_meshes(device, owned.meshes);
+    release_images(device, owned.images);
+    release_samplers(device, owned.samplers, owned.fallback);
+}
+
+} // namespace
+
+// baked rỗng thì chuỗi mip nướng tại chỗ; có thì phải đủ một chuỗi cho mỗi ảnh của model.
+core::Result<Uploaded> place(gpu::Device& device, const Model& model, bool wait, Baked baked) {
+    const core::Status placeable = check_placeable(device, model, baked);
+    if (!placeable) return std::unexpected(placeable.error());
     if (!has_work(model)) return Uploaded{};
     Scratch scratch(device, baked);
     Owned owned;
-    const core::Status status = record(device, model, scratch, owned, wait);
+    const auto way = device.caps().has_unified_memory ? &record_direct : &record;
+    const core::Status status = way(device, model, scratch, owned, wait);
     if (!status) {
-        release_meshes(device, owned.meshes);
-        release_images(device, owned.images);
-        release_samplers(device, owned.samplers, owned.fallback);
+        release_owned(device, owned);
         return std::unexpected(status.error());
     }
     Uploaded loaded;
-    loaded.adopt(device, std::move(owned.meshes), std::move(owned.images), std::move(owned.samplers), owned.fallback);
-    owned.fallback = {};
+    std::vector<GpuMesh> meshes = std::move(owned.meshes);
+    std::vector<GpuImage> images = std::move(owned.images);
+    std::vector<gpu::SamplerHandle> samplers = std::move(owned.samplers);
+    const gpu::SamplerHandle fallback = std::exchange(owned.fallback, {});
+    loaded.adopt(device, std::move(meshes), std::move(images), std::move(samplers), fallback);
     return loaded;
 }
 
@@ -1139,6 +1224,45 @@ core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model) {
 
 core::Result<Uploaded> upload_queued(gpu::Device& device, const Model& model, Baked baked) {
     return place(device, model, false, baked);
+}
+
+UploadBatch::~UploadBatch() {
+    // Không có chỗ báo lỗi trong destructor; xem chú thích của lớp.
+    std::ignore = flush();
+}
+
+core::Result<Uploaded> UploadBatch::place(const Model& model, Baked baked) {
+    if (!device_->caps().has_unified_memory) return upload_queued(*device_, model, baked);
+    const core::Status placeable = check_placeable(*device_, model, baked);
+    if (!placeable) return std::unexpected(placeable.error());
+    if (!has_work(model)) return Uploaded{};
+    Scratch scratch(*device_, baked);
+    Owned owned;
+    const core::Status status = record_batched(*device_, commands_, model, scratch, owned);
+    if (!status) {
+        release_owned(*device_, owned);
+        return std::unexpected(status.error());
+    }
+    scratch.hand_over(staging_);
+    Uploaded loaded;
+    std::vector<GpuMesh> meshes = std::move(owned.meshes);
+    std::vector<GpuImage> images = std::move(owned.images);
+    std::vector<gpu::SamplerHandle> samplers = std::move(owned.samplers);
+    const gpu::SamplerHandle fallback = std::exchange(owned.fallback, {});
+    loaded.adopt(*device_, std::move(meshes), std::move(images), std::move(samplers), fallback);
+    return loaded;
+}
+
+core::Status UploadBatch::flush() {
+    gpu::CommandList* const commands = std::exchange(commands_, nullptr);
+    if (commands == nullptr) return core::ok();
+    const core::Status sent = submit(*device_, commands, false);
+    // Huỷ hoãn tính từ lần nộp vừa rồi: buffer trung chuyển sống tới khi GPU chạy xong lệnh chép.
+    for (const gpu::BufferHandle handle : staging_) {
+        device_->destroy(handle);
+    }
+    staging_.clear();
+    return sent;
 }
 
 } // namespace game::resource

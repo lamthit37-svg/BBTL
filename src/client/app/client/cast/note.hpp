@@ -138,6 +138,17 @@ struct Died {
     std::uint32_t killer = 0;
 };
 
-using Note = std::variant<Arrive, Spawn, Vanish, Moved, Hurt, Pulled, Flagged, Casting, CastEnded, Struck, Died>;
+// Ghim vị trí do chính client tính (thú demo đi theo). Không phải tin giao thức.
+// advance một khung kế chép điểm này lên người, không đuổi như Moved.
+struct Placed {
+    std::uint32_t id = 0;
+    float x = 0.0F;
+    float z = 0.0F;
+    float facing = 0.0F;
+    Pose pose = Pose::kIdle;
+};
+
+using Note = std::variant<Arrive, Spawn, Vanish, Moved, Hurt, Pulled, Flagged, Casting, CastEnded,
+    Struck, Died, Placed>;
 
 } // namespace game::client::cast

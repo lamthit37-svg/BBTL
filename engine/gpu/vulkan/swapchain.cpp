@@ -128,7 +128,8 @@ constexpr ErrorCode kState = ErrorCode::kInvalidState;
 }
 
 // maxImageCount bằng 0 là không có trần.
-[[nodiscard]] std::uint32_t pick_count(const VkSurfaceCapabilitiesKHR& caps, std::uint32_t wanted) noexcept {
+[[nodiscard]] std::uint32_t pick_count(const VkSurfaceCapabilitiesKHR& caps,
+    std::uint32_t wanted) noexcept {
     const std::uint32_t count = std::max(wanted, caps.minImageCount);
     return caps.maxImageCount == 0 ? count : std::min(count, caps.maxImageCount);
 }
@@ -208,6 +209,55 @@ struct Picked {
 [[nodiscard]] VkResult present_locked(Queue& queue, const VkPresentInfoKHR& info) {
     const std::scoped_lock lock(queue.mutex);
     return vkQueuePresentKHR(queue.handle, &info);
+}
+
+// pNext của một lần present: số thứ tự (VK_KHR_present_id) và lúc hẹn (VK_GOOGLE_display_timing).
+// Các con trỏ trỏ vào chính đối tượng: dựng tại chỗ trong present, không chép hay dời.
+struct PresentExtras {
+    std::uint64_t id = 0;
+    VkPresentIdKHR numbered{};
+    VkPresentTimeGOOGLE when{};
+    VkPresentTimesInfoGOOGLE times{};
+
+    PresentExtras() = default;
+    ~PresentExtras() = default;
+    PresentExtras(const PresentExtras&) = delete;
+    PresentExtras& operator=(const PresentExtras&) = delete;
+    PresentExtras(PresentExtras&&) = delete;
+    PresentExtras& operator=(PresentExtras&&) = delete;
+};
+
+struct ExtrasAsk {
+    std::uint64_t id = 0;
+    // Lúc hẹn, ns theo đồng hồ của bề mặt; 0 là không ràng buộc.
+    std::uint64_t desired = 0;
+    bool reports_shown = false;
+    bool is_paced = false;
+};
+
+// Điền extras và trả đầu chuỗi pNext. Android chỉ ghi mốc trình thật cho lần present mang
+// VkPresentTimeGOOGLE, nên khi hẹn lúc trình thì mọi lần đều mang nó, kể cả lần chưa hẹn được.
+[[nodiscard]] const void* link_extras(PresentExtras& extras, const ExtrasAsk& ask) noexcept {
+    extras.id = ask.id;
+    extras.numbered.sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR;
+    extras.numbered.swapchainCount = 1;
+    extras.numbered.pPresentIds = &extras.id;
+    extras.when.presentID = static_cast<std::uint32_t>(ask.id);
+    extras.when.desiredPresentTime = ask.desired;
+    extras.times.sType = VK_STRUCTURE_TYPE_PRESENT_TIMES_INFO_GOOGLE;
+    extras.times.swapchainCount = 1;
+    extras.times.pTimes = &extras.when;
+    const void* const head = ask.reports_shown ? &extras.numbered : nullptr;
+    if (!ask.is_paced) return head;
+    extras.times.pNext = head;
+    return &extras.times;
+}
+
+void note_timings(PresentPacer& pacer,
+    std::span<const VkPastPresentationTimingGOOGLE> got) noexcept {
+    for (const VkPastPresentationTimingGOOGLE& timing : got) {
+        pacer.note_shown({.id = timing.presentID, .shown_ns = timing.actualPresentTime});
+    }
 }
 
 // Khác gốc: lambda huỷ semaphore trong thân hai vòng lặp của drop_images tách ra đây.
@@ -291,6 +341,7 @@ Status SwapchainVk::take(VkResult made, VkSwapchainKHR created) {
     if (swapchain_ != VK_NULL_HANDLE) vkDestroySwapchainKHR(device_->handle(), swapchain_, nullptr);
     swapchain_ = created;
     presents_ = 0;
+    pacer_.reset();
     if (made != VK_SUCCESS) return device_->failed(made, "không tạo được swapchain");
     return is_hidden() ? ok() : adopt_images(usage_);
 }
@@ -494,11 +545,13 @@ Status SwapchainVk::present() {
     info.pImageIndices = &current_;
     // presentId tăng ngặt theo swapchain: số thứ tự của lần present này.
     const std::uint64_t id = presents_ + 1;
-    VkPresentIdKHR numbered{};
-    numbered.sType = VK_STRUCTURE_TYPE_PRESENT_ID_KHR;
-    numbered.swapchainCount = 1;
-    numbered.pPresentIds = &id;
-    if (reports_shown()) info.pNext = &numbered;
+    const bool is_paced = paces_present() && pacer_.interval() > 1;
+    const std::uint64_t desired = is_paced ? plan_present(static_cast<std::uint32_t>(id)) : 0;
+    ExtrasAsk ask{.id = id, .desired = desired};
+    ask.reports_shown = reports_shown();
+    ask.is_paced = is_paced;
+    PresentExtras extras;
+    info.pNext = link_extras(extras, ask);
     presents_ = id;
     const VkResult presented = present_locked(device_->queue(QueueType::kGraphics), info);
     is_acquired_ = false;
@@ -512,9 +565,41 @@ Status SwapchainVk::present() {
     return device_->failed(presented, "present thất bại");
 }
 
-// Android 10 trả VK_SUBOPTIMAL_KHR ở mọi khung khi màn xoay mà swapchain không xoay sẵn (pick_transform):
-// dựng lại mỗi lần là ~85 ms mỗi khung (đo trên TB-X306F). Dựng lại một lần để bắt thay đổi thật; còn
-// suboptimal sau đó thì hệ điều hành tự xoay ảnh, vẽ tiếp. Cỡ đổi vẫn tới qua OUT_OF_DATE và posted_size.
+std::uint64_t SwapchainVk::plan_present(std::uint32_t id) noexcept {
+    read_refresh();
+    read_shown();
+    return pacer_.desired(id);
+}
+
+// Chu kỳ quét đọc một lần cho mỗi swapchain_; driver không trả được thì lần present sau đọc lại.
+void SwapchainVk::read_refresh() noexcept {
+    if (pacer_.refresh_ns() != 0) return;
+    VkRefreshCycleDurationGOOGLE cycle{};
+    const auto ask = device_->display_timing().refresh_cycle;
+    const VkResult asked = ask(device_->handle(), swapchain_, &cycle);
+    if (asked == VK_SUCCESS) pacer_.set_refresh(cycle.refreshDuration);
+}
+
+// Nhận mọi mốc trình thật bề mặt đã có. Mỗi mốc chỉ trả một lần; INCOMPLETE là còn mốc chưa lấy.
+// Số vòng có trần để driver lỗi không giữ luồng vẽ mãi.
+void SwapchainVk::read_shown() noexcept {
+    constexpr std::size_t kBatch = 8;
+    constexpr int kMostRounds = 8;
+    const auto past = device_->display_timing().past_timing;
+    std::array<VkPastPresentationTimingGOOGLE, kBatch> got{};
+    VkResult read = VK_INCOMPLETE;
+    for (int round = 0; round < kMostRounds && read == VK_INCOMPLETE; ++round) {
+        auto count = static_cast<std::uint32_t>(got.size());
+        read = past(device_->handle(), swapchain_, &count, got.data());
+        const std::size_t kept = std::min<std::size_t>(count, got.size());
+        note_timings(pacer_, std::span(got).first(kept));
+    }
+}
+
+// Android 10 trả VK_SUBOPTIMAL_KHR ở mọi khung khi màn xoay mà swapchain không xoay sẵn
+// (pick_transform): dựng lại mỗi lần là ~85 ms mỗi khung (đo trên TB-X306F). Dựng lại một lần để
+// bắt thay đổi thật; còn suboptimal sau đó thì hệ điều hành tự xoay ảnh, vẽ tiếp. Cỡ đổi vẫn tới
+// qua OUT_OF_DATE và posted_size.
 void SwapchainVk::note_suboptimal() noexcept {
     if (has_rebuilt_for_suboptimal_) return;
     has_rebuilt_for_suboptimal_ = true;

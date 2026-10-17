@@ -22,7 +22,6 @@
 
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <limits>
@@ -44,7 +43,6 @@ constexpr std::uint32_t kStartEdge = 256;
 // Ảnh cọ của bản gốc tối đa 512 cạnh; trần này chỉ để tính toán uint32 không tràn với dữ liệu hỏng.
 constexpr std::uint32_t kMaxBrushEdge = 16384;
 constexpr int kMaxShrink = 8;
-constexpr std::size_t kPixmapTexels = 4;
 
 // Mỗi dòng một orientation, bốn góc: trái-trên, phải-trên, trái-dưới, phải-dưới.
 constexpr std::array<std::uint8_t, kTurnCount * kCornerCount> kStraight{
@@ -324,94 +322,73 @@ void blit_brush(Picture& atlas, const Brush& brush, const Slot& slot) {
 [[nodiscard]] std::uint32_t usable_id(const TerrainFile& file, std::span<const std::uint8_t> ready,
     Layer layer) noexcept {
     const std::size_t id = layer.pixmap;
-    if (id == 0 || id > file.pixmaps.size() || id > kSplatMaxPixmap) return 0;
+    if (id == 0 || id > file.pixmaps.size()) return 0;
     const std::size_t texture = file.pixmaps[id - 1U].texture;
     if (texture >= ready.size() || ready[texture] == 0) return 0;
     return static_cast<std::uint32_t>(id);
-}
-
-[[nodiscard]] std::uint32_t quantised(float value) noexcept {
-    return static_cast<std::uint32_t>(std::lround(std::clamp(value, 0.0F, 1.0F) * 65535.0F));
-}
-
-// Hai số 16 bit vào một texel RGBA8: (cao, thấp) của số thứ nhất rồi của số thứ hai.
-void put_pair(std::span<std::uint8_t> texel, float first, float second) noexcept {
-    const std::uint32_t one = quantised(first);
-    const std::uint32_t two = quantised(second);
-    texel[0] = static_cast<std::uint8_t>(one >> 8U);
-    texel[1] = static_cast<std::uint8_t>(one & 0xFFU);
-    texel[2] = static_cast<std::uint8_t>(two >> 8U);
-    texel[3] = static_cast<std::uint8_t>(two & 0xFFU);
-}
-
-[[nodiscard]] std::size_t table_rows(const TerrainFile& file) noexcept {
-    const std::size_t ids = std::min<std::size_t>(file.pixmaps.size(), kSplatMaxPixmap) + 1U;
-    const std::size_t texels = ids * kPixmapTexels;
-    return 1U + ((texels + kSplatTableWidth - 1U) / kSplatTableWidth);
-}
-
-void write_pixmap(Picture& table, const Pixmap& pixmap, const Brush& brush, const Slot& slot, std::size_t id,
-    const Arrangement& layout) {
-    const auto across = static_cast<float>(layout.width);
-    const auto down = static_cast<float>(layout.height);
-    const std::size_t first = id * kPixmapTexels;
-    const std::size_t base = ((1U + (first / kSplatTableWidth)) * kSplatTableWidth) + (first % kSplatTableWidth);
-    const std::span<std::uint8_t> texels = std::span<std::uint8_t>(table.rgba).subspan(base * 4U, kPixmapTexels * 4U);
-    put_pair(texels.subspan(0, 4), pixmap.left, pixmap.top);
-    put_pair(texels.subspan(4, 4), pixmap.right, pixmap.bottom);
-    put_pair(texels.subspan(8, 4), static_cast<float>(slot.x + kPad) / across, static_cast<float>(slot.y + kPad) / down);
-    put_pair(texels.subspan(12, 4), static_cast<float>(brush.width) / across, static_cast<float>(brush.height) / down);
-}
-
-// Hàng 0 là bốn góc theo (lật đường chéo * 16 + orientation); từ hàng 1, pixmap id chiếm bốn texel liền nhau từ
-// vị trí 4 * id: hộp (trái, trên | phải, dưới) rồi phép đổi (gốc x, gốc y | tỉ lệ x, tỉ lệ y) sang atlas.
-[[nodiscard]] Picture table_image(const TerrainFile& file, const std::vector<Brush>& brushes, const Arrangement& layout,
-    std::span<const std::uint8_t> ready) {
-    Picture table;
-    table.width = kSplatTableWidth;
-    table.height = static_cast<std::uint32_t>(table_rows(file));
-    table.rgba.assign(static_cast<std::size_t>(table.width) * table.height * 4U, 0);
-    for (std::size_t flip = 0; flip < 2U; ++flip) {
-        const std::array<std::uint8_t, kTurnCount * kCornerCount>& corners = flip == 0 ? kStraight : kFlipped;
-        std::ranges::copy(corners, table.rgba.begin() + static_cast<std::ptrdiff_t>(flip * kTurnCount * kCornerCount));
-    }
-    const std::size_t ids = std::min<std::size_t>(file.pixmaps.size(), kSplatMaxPixmap);
-    for (std::size_t id = 1; id <= ids; ++id) {
-        const Pixmap& pixmap = file.pixmaps[id - 1U];
-        const bool is_ready = pixmap.texture < ready.size() && ready[pixmap.texture] != 0;
-        if (!is_ready) continue;
-        write_pixmap(table, pixmap, brushes[pixmap.texture], layout.slots[pixmap.texture], id, layout);
-    }
-    return table;
 }
 
 [[nodiscard]] std::uint8_t turn_of(Layer layer) noexcept {
     return layer.orientation < kTurnCount ? layer.orientation : std::uint8_t{0};
 }
 
-// R, G: 8 bit thấp của pixmap nền và phủ. B: bit 0-1 và 2-3 là hai bit cao của chúng, bit 4 là cờ đường chéo.
-// A: orientation nền ở nibble thấp, phủ ở nibble cao.
-[[nodiscard]] Picture cell_image(const TerrainFile& file, const GridField& grid, std::span<const std::uint8_t> ready) {
-    Picture cells;
-    cells.width = static_cast<std::uint32_t>(file.x_size);
-    cells.height = static_cast<std::uint32_t>(file.z_size);
-    const std::size_t count = static_cast<std::size_t>(cells.width) * cells.height;
-    cells.rgba.assign(count * 4U, 0);
-    for (std::size_t index = 0; index < count; ++index) {
-        const Cell& cell = grid.cells[index];
-        const std::uint32_t base = usable_id(file, ready, cell.base);
-        // Ô không có nền là lỗ: lớp phủ không còn nghĩa.
-        const std::uint32_t cover = base != 0 ? usable_id(file, ready, cell.cover) : 0U;
-        const std::uint32_t flip = (cell.flags & kFlipDiagonal) != 0 ? 1U : 0U;
-        const std::uint32_t high = ((base >> 8U) & 3U) | (((cover >> 8U) & 3U) << 2U) | (flip << 4U);
-        const std::uint32_t turns = turn_of(cell.base) | (static_cast<std::uint32_t>(turn_of(cell.cover)) << 4U);
-        const std::size_t offset = index * 4U;
-        cells.rgba[offset] = static_cast<std::uint8_t>(base & 0xFFU);
-        cells.rgba[offset + 1U] = static_cast<std::uint8_t>(cover & 0xFFU);
-        cells.rgba[offset + 2U] = static_cast<std::uint8_t>(high);
-        cells.rgba[offset + 3U] = static_cast<std::uint8_t>(turns);
+// Hộp của pixmap trong atlas: ảnh cọ đặt ở slot, cách mép slot kPad điểm ảnh đệm, và hộp pixmap là
+// phần của ảnh cọ.
+[[nodiscard]] PixmapBox box_of(const Pixmap& pixmap, const Brush& brush, const Slot& slot,
+    const Arrangement& layout) noexcept {
+    const auto across = static_cast<float>(layout.width);
+    const auto down = static_cast<float>(layout.height);
+    const float origin_u = static_cast<float>(slot.x + kPad) / across;
+    const float origin_v = static_cast<float>(slot.y + kPad) / down;
+    const float scale_u = static_cast<float>(brush.width) / across;
+    const float scale_v = static_cast<float>(brush.height) / down;
+    PixmapBox box;
+    box.edge.at(0) = origin_u + (pixmap.left * scale_u);
+    box.edge.at(1) = origin_v + (pixmap.top * scale_v);
+    box.edge.at(2) = origin_u + (pixmap.right * scale_u);
+    box.edge.at(3) = origin_v + (pixmap.bottom * scale_v);
+    box.is_ready = true;
+    return box;
+}
+
+[[nodiscard]] std::vector<PixmapBox> boxes_of(const TerrainFile& file,
+    const std::vector<Brush>& brushes, const Arrangement& layout,
+    std::span<const std::uint8_t> ready) {
+    std::vector<PixmapBox> boxes(file.pixmaps.size() + 1U);
+    for (std::size_t id = 1; id < boxes.size(); ++id) {
+        const Pixmap& pixmap = file.pixmaps[id - 1U];
+        const bool is_ready = pixmap.texture < ready.size() && ready[pixmap.texture] != 0;
+        if (!is_ready) continue;
+        boxes[id] = box_of(pixmap, brushes[pixmap.texture], layout.slots[pixmap.texture], layout);
     }
-    return cells;
+    return boxes;
+}
+
+[[nodiscard]] bool is_box_ready(const SplatImages& splat, std::size_t id) noexcept {
+    if (id == 0 || id >= splat.boxes.size()) return false;
+    return splat.boxes[id].is_ready;
+}
+
+[[nodiscard]] std::uint8_t corner_code(bool is_flipped, std::size_t index) noexcept {
+    if (is_flipped) return kFlipped.at(index);
+    return kStraight.at(index);
+}
+
+// Bốn góc của một lớp: mỗi byte của bảng là (cạnh U << 4) | cạnh V, tra vào bốn cạnh của hộp.
+[[nodiscard]] LayerUv layer_uv(const SplatImages& splat, Layer layer, bool is_flipped) noexcept {
+    LayerUv made;
+    const std::size_t id = layer.pixmap;
+    if (!is_box_ready(splat, id)) return made;
+    const PixmapBox& box = splat.boxes[id];
+    const std::size_t first = static_cast<std::size_t>(turn_of(layer)) * kCornerCount;
+    for (std::size_t corner = 0; corner < kCornerCount; ++corner) {
+        const std::uint8_t code = corner_code(is_flipped, first + corner);
+        const float across = box.edge.at(code >> 4U);
+        const float down = box.edge.at(code & 15U);
+        made.corner.at(corner) = AtlasUv{.u = across, .v = down};
+    }
+    made.is_set = true;
+    return made;
 }
 
 [[nodiscard]] bool grid_ok(const TerrainFile& file, const GridField& grid) noexcept {
@@ -459,9 +436,18 @@ SplatImages build_splat(const TerrainFile& file, const GridField& grid, std::spa
     const std::optional<Arrangement> layout = arrange(sources, max_edge);
     if (!layout) return images;
     images.atlas = render_atlas(sources, *layout);
-    images.table = table_image(file, sources, *layout, ready);
-    images.cells = cell_image(file, grid, ready);
+    images.boxes = boxes_of(file, sources, *layout, ready);
     return images;
+}
+
+CellUv cell_uv(const SplatImages& splat, const Cell& cell) noexcept {
+    CellUv cell_paint;
+    const bool is_flipped = (cell.flags & kFlipDiagonal) != 0;
+    cell_paint.base = layer_uv(splat, cell.base, is_flipped);
+    // Ô không có nền là lỗ: lớp phủ không còn nghĩa.
+    if (!cell_paint.base.is_set) return cell_paint;
+    cell_paint.cover = layer_uv(splat, cell.cover, is_flipped);
+    return cell_paint;
 }
 
 } // namespace game::client::map

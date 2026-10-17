@@ -30,6 +30,7 @@
 #include "client/mobile.hpp"
 #include "control/input.hpp"
 #include "control/touch.hpp"
+#include "core/number.hpp"
 #include "io/file.hpp"
 
 #include <android/asset_manager.h>
@@ -324,8 +325,23 @@ void arm_desc(const Shell& shell, game::client::DisplayDesc& desc) {
     return length > 0 && value[0] == '1';
 }
 
+// Chẩn đoán đi kèm direct: `adb shell setprop debug.thienlong.scene 2` vào resid đó thay cho
+// Config/startup.id, như --scene-id của bản PC, để PC và máy này đo cùng một cảnh ở cùng chỗ đứng
+// mặc định. Không đặt thì giữ startup.id.
+[[nodiscard]] std::optional<int> direct_scene() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.scene", value);
+    if (length <= 0) return std::nullopt;
+    const std::string_view text(value, static_cast<std::size_t>(length));
+    const std::optional<int> resid = game::core::parse_whole_int(text);
+    if (!resid) log_error("debug.thienlong.scene: phải là resid, số nguyên không âm");
+    return resid;
+}
+
 void enter_directly(Shell& shell) {
     if (shell.is_playing || !wants_direct_entry()) return;
+    const std::optional<int> scene = direct_scene();
+    if (scene) shell.boot.first_scene = scene;
     const game::client::Request request{.kind = game::client::RequestKind::kEnterGame};
     const game::client::HostStep step = game::client::host_step(shell.boot, shell.is_playing, request);
     if (!step.detail.empty()) log_error("Vào thẳng: " + step.detail);
@@ -343,8 +359,17 @@ void enter_directly(Shell& shell) {
     return quality;
 }
 
-// Công cụ thử: `adb shell setprop debug.thienlong.account <tên>` đăng nhập tự động vào máy chủ thật đầu bảng cổng
-// (display/auto_login.hpp), như biến THIENLONG_ACCOUNT của bản PC. Không đặt thì đăng nhập bằng tay như thường.
+// Chẩn đoán: `adb shell setprop debug.thienlong.walk 1` cho nhân vật tự chạy vòng như --walk của
+// bản PC, để đo nhịp khung lúc di chuyển trên máy thật mà không chạm màn hình. Mặc định tắt.
+[[nodiscard]] bool wants_auto_walk() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.walk", value);
+    return length > 0 && value[0] == '1';
+}
+
+// Công cụ thử: `adb shell setprop debug.thienlong.account <tên>` đăng nhập tự động vào máy chủ thật
+// đầu bảng cổng (display/auto_login.hpp), như biến THIENLONG_ACCOUNT của bản PC. Không đặt thì đăng
+// nhập bằng tay như thường.
 [[nodiscard]] std::optional<std::string> auto_account_override() {
     char value[PROP_VALUE_MAX] = {};
     const int length = __system_property_get("debug.thienlong.account", value);
@@ -372,6 +397,7 @@ void start_display(android_app* app) {
         .height = static_cast<std::uint32_t>(ANativeWindow_getHeight(app->window))};
     arm_desc(*shell, desc);
     desc.auto_account = auto_account_override();
+    desc.is_auto_walk = wants_auto_walk();
     desc.uses_phone_layout = is_phone_screen(app);
     log_line(desc.uses_phone_layout ? "giao diện: layout điện thoại" : "giao diện: layout PC (máy tính bảng)");
     fit_gestures(app, *shell);

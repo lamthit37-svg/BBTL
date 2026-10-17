@@ -21,6 +21,8 @@
 #include "ui/panel/online.hpp"
 
 #include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <cstdint>
 #include <iterator>
 #include <limits>
@@ -112,6 +114,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     arm_auto_login(desc);
     creature_demo = desc.creatures;
     pet_demo = desc.pets;
+    impact_demo = desc.impact_id;
     peer_demo = desc.peer_count;
     // Bảng quái đọc vài chục ms. Bắt đầu ngay để khung đầu của --pet/--creature đã có mẫu.
     if ((!creature_demo.empty() || !pet_demo.empty()) && !data_root.empty() && !creature_job.valid()) {
@@ -463,9 +466,9 @@ std::optional<ui::SceneLoad> Display::State::scene_load() const {
     ui::SceneLoad load;
     load.name = arrival->scene->name;
     const std::size_t total = arrival->table.meshes.size();
-    if (arrival->ground_done && total > 0) {
-        load.percent = static_cast<std::int32_t>((std::min(arrival->cursor, total) * 100U) / total);
-    }
+    if (!arrival->ground_done || total == 0) return load;
+    const std::size_t settled = std::min(arrival->settled, total);
+    load.percent = static_cast<std::int32_t>((settled * 100U) / total);
     return load;
 }
 
@@ -559,7 +562,6 @@ void Display::State::paint_ride_switch() {
     ride_buttons_live = true;
 }
 
-
 void Display::State::fill_pace_board() {
     pace_board.vertices.clear();
     pace_board.batches.clear();
@@ -609,18 +611,48 @@ void Display::State::ensure_clock() {
 void Display::State::govern_rate(double interval_ms) {
     const double refresh = refresh_hz.load(std::memory_order_relaxed);
     if (refresh <= 0.0) return;
-    if (!governor || governed_refresh != refresh || governed_ceiling != render_hz) {
+    const bool is_changed = governed_refresh != refresh || governed_ceiling != render_hz;
+    if (!governor || is_changed) {
         governed_refresh = refresh;
         governed_ceiling = render_hz;
         governor.emplace(core::GovernorConfig{.refresh_hz = refresh, .ceiling_hz = render_hz});
         governed_deadline = core::Clock::now();
+        pace_swapchain();
         return;
     }
-    // Việc thật của khung: nạp, dựng bảng, ghi lệnh. Không gồm xin ảnh và trình bày, chỗ khung chờ nhịp quét.
-    const double busy_ms = last_load_ms + last_prepare_ms + static_cast<double>(pace_last.draw_ms);
-    if (governor->note_frame({.interval_ms = interval_ms, .busy_ms = busy_ms})) {
-        governed_deadline = core::Clock::now();
-    }
+    // Khung nạp cảnh dài theo thiết kế (mesh vào dần), không nói gì về sức máy: không vào cửa sổ.
+    // Đo 2026-10-17: cửa sổ đầu trùng lúc nạp (trễ 92%) và đẩy máy về 30 ngay khi vào cảnh.
+    if (arrival.has_value()) return;
+    // Việc thật của khung: nạp, dựng bảng, ghi lệnh và nộp. Nộp tính vào vì ở mức đầy nhịp quét
+    // driver chặn ở đó khi GPU tụt lại. Không chờ GPU để đo: chờ là bắt CPU và GPU chạy nối nhau
+    // (đo 2026-10-17 trên TB-X306F: CPU 15 ms cộng GPU 24 ms thành khung 40 ms, rớt nhịp đều đặn).
+    const double cpu_ms = last_load_ms + last_prepare_ms + static_cast<double>(pace_last.draw_ms);
+    const double busy_ms = cpu_ms + static_cast<double>(pace_last.submit_ms);
+    if (!governor->note_frame({.interval_ms = interval_ms, .busy_ms = busy_ms})) return;
+    governed_deadline = core::Clock::now();
+    const double ceiling = governor->target_hz();
+    std::println(stderr, "Điều tốc: trần {:.0f} Hz trên màn {:.0f} Hz", ceiling, refresh);
+    pace_swapchain();
+}
+
+// Trần thấp hơn nhịp quét trên bề mặt hẹn được lúc trình: mỗi ảnh nằm đúng refresh / trần nhịp
+// quét, tính theo mốc trình thật nên không trôi khỏi nhịp như đồng hồ CPU (gpu/pacer.hpp).
+void Display::State::pace_swapchain() {
+    if (!governor || governed_refresh <= 0.0) return;
+    gpu::Swapchain& chain = *screen->swapchain();
+    if (!chain.paces_present()) return;
+    const double ratio = governed_refresh / governor->target_hz();
+    const long rounded = std::lround(ratio);
+    const auto refreshes = static_cast<std::uint32_t>(std::max(rounded, 1L));
+    chain.set_present_interval(refreshes);
+}
+
+// Trần đang thấp hơn nhịp quét và swapchain đang giữ nhịp theo mốc trình thật. Có tiện ích mà
+// driver không báo mốc (TB-X306F) thì sai: đồng hồ CPU giữ nhịp như khi không có tiện ích.
+bool Display::State::is_display_paced() const noexcept {
+    if (!governor || !policy.adapts_rate) return false;
+    const bool is_below = governor->target_hz() < governed_refresh * 0.99;
+    return is_below && screen->swapchain()->holds_cadence();
 }
 
 // Điện thoại: chi tiết hình học của cảnh theo sức máy. Khung chậm hơn 30 khung/giây thì Forward chuyển lưới sang mức thô
@@ -631,11 +663,13 @@ void Display::State::adapt_detail(double interval_ms) {
     if (detail->note_frame(interval_ms)) forward->set_triangle_cap(detail->cap());
 }
 
-// Trần thấp hơn nhịp quét thì ngủ tới mốc kế tiếp (lưới đều, không trôi); bằng nhịp quét thì để Fifo khoá nhịp.
+// Trần thấp hơn nhịp quét: hoặc swapchain giữ nhịp (acquire chặn tới khi màn nhả ảnh), hoặc ngủ
+// tới mốc kế tiếp theo đồng hồ CPU (lưới đều, không trôi). Bằng nhịp quét thì để Fifo khoá nhịp.
 void Display::State::hold_governed_rate() {
     if (!governor) return;
     const double target = governor->target_hz();
     if (target >= governed_refresh * 0.99) return;
+    if (is_display_paced()) return;
     const core::Clock::time_point now = core::Clock::now();
     const auto period = std::chrono::duration_cast<core::Clock::duration>(std::chrono::duration<double>(1.0 / target));
     governed_deadline += period;
@@ -675,11 +709,50 @@ float Display::State::frame_budget_ms() const noexcept {
     return render_hz > 0 ? 1000.0F / static_cast<float>(render_hz) : 0.0F;
 }
 
+// Điện thoại trình Fifo: hàng chờ trình nuốt dao động của vòng lặp (đo 2026-10-17 trên TB-X306F:
+// 64 ms từ lúc nộp tới lúc lên màn), nên khoảng vòng lặp báo 16% khung trễ trong khi màn không lặp
+// ảnh nào, và điều tốc đẩy máy về 30 Hz oan. Lưới nhịp trình (core/cadence.hpp) khớp SurfaceFlinger
+// từng cửa sổ 10 giây. PC giữ khoảng vòng lặp: chưa đối chiếu acquire ở đó có chờ ảnh nhả không.
+double Display::State::shown_interval(double loop_ms) {
+    const double refresh = refresh_hz.load(std::memory_order_relaxed);
+    const bool is_fifo = screen->swapchain()->present_mode() == gpu::PresentMode::kFifo;
+    const bool is_modeled = policy.adapts_rate && is_fifo && refresh > 0.0;
+    shown_step_ms.reset();
+    if (!is_modeled) return loop_ms;
+    const double nominal_ms = 1000.0 / refresh;
+    const bool is_other_rate = cadence && std::abs(cadence->nominal_ms() - nominal_ms) > 1e-6;
+    if (!cadence || is_other_rate) cadence.emplace(refresh);
+    shown_step_ms = cadence->note(acquire_note).interval_ms;
+    return *shown_step_ms;
+}
+
+void Display::State::rest(core::Clock::time_point& previous) {
+    nap(previous);
+    if (cadence) cadence->reset();
+    shown_step_ms.reset();
+    paced.reset();
+}
+
+// Fifo mà bề mặt không báo lúc trình (TB-X306F): luồng vẽ thức lệch ±6 ms quanh nhịp quét trong
+// khi màn vẫn đổi ảnh đều 16,7 ms (đo 2026-10-17: khoảng vòng lặp p95 22,7 ms, SurfaceFlinger p95
+// 16,77 ms). Hoạt hoạ theo lúc thức làm camera, nhân vật, mây nhích lúc ngắn lúc dài dù không lặp
+// ảnh nào. Bề mặt báo lúc trình thì await_shown đã thức theo nhịp màn: không có bước lưới, đồng hồ
+// neo vào lúc thức.
+core::Clock::time_point Display::State::pace_frame(core::Clock::time_point woke) {
+    const bool is_reported = screen->swapchain()->reports_shown();
+    const std::optional<double> step = is_reported ? std::nullopt : shown_step_ms;
+    const double woke_ms = std::chrono::duration<double, std::milli>(woke - started).count();
+    const double paced_ms = paced.next(woke_ms, step);
+    const std::chrono::duration<double, std::milli> since{paced_ms};
+    return started + std::chrono::duration_cast<core::Clock::duration>(since);
+}
+
 void Display::State::record_interval(IntervalNote note) {
     frame_ms.push_back(note.interval);
     note_pace(note.interval);
     SpikeParts spike;
     spike.interval = note.interval;
+    spike.loop_ms = note.loop_ms;
     spike.load_ms = last_load_ms;
     spike.render_ms = note.render_ms;
     spike.pace_ms = note.pace_ms;
@@ -693,18 +766,44 @@ void Display::State::record_interval(IntervalNote note) {
     report_spike(spike);
 }
 
+// Trung bình bốn chặng trên các khung đã có trong cửa sổ; rỗng thì toàn số không.
+Display::State::StageSample Display::State::stage_mean() const noexcept {
+    const std::span<const StageSample> window(stage_ring.data(), pace_filled);
+    StageSample sum;
+    for (const StageSample& item : window) {
+        sum.acquire_ms += item.acquire_ms;
+        sum.draw_ms += item.draw_ms;
+        sum.submit_ms += item.submit_ms;
+        sum.prepare_ms += item.prepare_ms;
+    }
+    if (window.empty()) return sum;
+    const auto count = static_cast<float>(window.size());
+    sum.acquire_ms /= count;
+    sum.draw_ms /= count;
+    sum.submit_ms /= count;
+    sum.prepare_ms /= count;
+    return sum;
+}
+
 void Display::State::note_pace(double interval) {
     constexpr std::size_t kPaceWindow = 90;
     pace_ring.at(pace_cursor) = static_cast<float>(interval);
+    StageSample now_stages;
+    now_stages.acquire_ms = pace_last.acquire_ms;
+    now_stages.draw_ms = pace_last.draw_ms;
+    now_stages.submit_ms = pace_last.submit_ms;
+    now_stages.prepare_ms = static_cast<float>(last_prepare_ms);
+    stage_ring.at(pace_cursor) = now_stages;
     pace_cursor = (pace_cursor + 1) % kPaceWindow;
     if (pace_filled < kPaceWindow) ++pace_filled;
+    const StageSample mean = stage_mean();
     ui::PaceNumbers phases;
-    phases.acquire_ms = pace_last.acquire_ms;
-    phases.draw_ms = pace_last.draw_ms;
-    phases.submit_ms = pace_last.submit_ms;
+    phases.acquire_ms = mean.acquire_ms;
+    phases.draw_ms = mean.draw_ms;
+    phases.submit_ms = mean.submit_ms;
     phases.draws = pace_last.draws;
     phases.ui_quads = pace_last.quads;
-    phases.prepare_ms = static_cast<float>(last_prepare_ms);
+    phases.prepare_ms = mean.prepare_ms;
     phases.budget_ms = frame_budget_ms();
     phases.output_width = screen->width();
     phases.output_height = screen->height();

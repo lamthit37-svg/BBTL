@@ -83,6 +83,20 @@ struct BarTick {
     float seconds = 0.0F;
 };
 
+// Điểm dò trên màn hình (toạ độ của trang).
+struct ProbeSpot {
+    float across = 0.0F;
+    float down = 0.0F;
+};
+
+// Kết quả của một lần dò cửa sổ dưới spot, dò ở lần dàn trang stamp.
+struct ProbeMemo {
+    bool is_set = false;
+    ProbeSpot spot;
+    std::uint64_t stamp = 0;
+    std::optional<std::size_t> found;
+};
+
 } // namespace
 
 struct Hub::Body {
@@ -134,6 +148,20 @@ struct Hub::Body {
     bool is_down = false;
     // Ô phím dưới chuột mà trang động đang vẽ, khi cửa sổ nóng là bàn phím ảo.
     std::optional<std::size_t> hot_key;
+    // Đổi mỗi lần relayout hay Override đổi. Dò cửa sổ dưới điểm đọc placed, order và Override
+    // (is_locked), nên cùng điểm cùng mốc là cùng kết quả. Đo 2026-10-17 trên TB-X306F: hit và
+    // hot_button quét mọi cửa sổ ba lần mỗi khung, 10% luồng vẽ.
+    std::uint64_t probe_stamp = 0;
+    // Số lần relayout, để biết Override chỉ đổi chữ không dựng lại trang.
+    std::uint64_t layout_count = 0;
+    // Khoá (detail::read_key, đã sắp, không lặp) của mọi thuộc tính mà lần relayout gần nhất tra
+    // qua effective. Override ngoài tập này và không phải thuộc tính hình học thì không đổi được bố
+    // cục.
+    detail::ReadKeys layout_reads;
+    // Lần dò gần nhất của hit theo từng Probe, và của hot_button. Chỉ luồng gọi Hub chạm; hit là
+    // const nên các ô này mutable.
+    mutable std::array<ProbeMemo, 2> hit_memo{};
+    mutable ProbeMemo hot_memo{};
 };
 
 namespace {
@@ -204,10 +232,14 @@ bool is_hot_kind(detail::Kind kind) noexcept {
 }
 
 // Cửa sổ window có đang nằm dưới con trỏ của input và nhận nó không.
+// Hộp trước, thuộc tính sau: tra thuộc tính là so chuỗi, còn hộp loại gần hết cửa sổ. Cả bốn phép
+// thử đều thuần nên đổi thứ tự không đổi kết quả.
 bool is_button_hot(const GuiAsset& asset, const Placed& window, const Place& input) {
-    if (!input.pointer || !window.is_visible || !is_hot_kind(window.kind)) return false;
-    if (is_hollow(asset, window) || is_locked(asset, window, input)) return false;
-    return contains(shown_box(window), input.pointer->x, input.pointer->y);
+    if (!input.pointer) return false;
+    const bool is_candidate = window.is_visible && is_hot_kind(window.kind);
+    if (!is_candidate) return false;
+    if (!contains(shown_box(window), input.pointer->x, input.pointer->y)) return false;
+    return !is_hollow(asset, window) && !is_locked(asset, window, input);
 }
 
 // Cửa sổ đang hiện và ô của nó chứa điểm.
@@ -528,15 +560,48 @@ struct HubOps {
         return is_changed;
     }
 
+    static bool same_override(const std::array<std::string, 3>& kept, const Override& now) {
+        return kept[0] == now.window && kept[1] == now.name && kept[2] == now.value;
+    }
+
     static bool forced_same(const Hub::Body& body, const Place& input) {
         if (body.strings != input.strings) return false;
         if (body.forced.size() != input.overrides.size()) return false;
         const auto same = [&](std::size_t index) {
-            const Override& now = input.overrides[index];
-            const std::array<std::string, 3>& kept = body.forced[index];
-            return kept[0] == now.window && kept[1] == now.name && kept[2] == now.value;
+            return same_override(body.forced[index], input.overrides[index]);
         };
-        return std::ranges::all_of(std::views::iota(std::size_t{0}, input.overrides.size()), same);
+        const auto indices = std::views::iota(std::size_t{0}, input.overrides.size());
+        return std::ranges::all_of(indices, same);
+    }
+
+    // Layout đọc thuộc tính của item: hình học áp cho mọi cửa sổ, còn lại theo tập đã tra.
+    static bool is_layout_key(const Hub::Body& body, const Override& item) {
+        if (detail::is_geometry_property(item.name)) return true;
+        const std::uint64_t key = detail::read_key(item.window, item.name);
+        return std::ranges::binary_search(body.layout_reads, key);
+    }
+
+    // Vị trí index của bản chép và danh sách mới: giống hệt thì không đổi gì; lệch thì xét khoá của
+    // cả hai bên (dòng bị thay, dòng mới thêm, dòng đã bỏ).
+    static bool touches_at(const Hub::Body& body, const Place& input, std::size_t index) {
+        const bool has_kept = index < body.forced.size();
+        const bool has_given = index < input.overrides.size();
+        const bool has_both = has_kept && has_given;
+        if (has_both && same_override(body.forced[index], input.overrides[index])) return false;
+        // forced_views cùng chỉ số với forced.
+        if (has_kept && is_layout_key(body, body.forced_views[index])) return true;
+        return has_given && is_layout_key(body, input.overrides[index]);
+    }
+
+    // Override đổi có chạm bố cục không. Giá trị hiệu lực của một khoá chỉ đổi khi có vị trí mang
+    // khoá ấy đổi, nên xét khoá ở mọi vị trí lệch là đủ; thừa thì chỉ dàn lại thừa một lần. Đo
+    // 2026-10-17 trên TB-X306F: toạ độ minimap đổi khi đi bộ, mỗi lần dàn lại cả trang ~40 ms.
+    static bool touches_layout(const Hub::Body& body, const Place& input) {
+        if (body.strings != input.strings) return true;
+        const std::size_t count = std::max(body.forced.size(), input.overrides.size());
+        const auto touches = [&](std::size_t index) { return touches_at(body, input, index); };
+        const auto indices = std::views::iota(std::size_t{0}, count);
+        return std::ranges::any_of(indices, touches);
     }
 
     static void store_forced(Hub::Body& body, const Place& input) {
@@ -555,6 +620,7 @@ struct HubOps {
             const Override item{.window = kept[0], .name = kept[1], .value = kept[2]};
             body.forced_views.push_back(item);
         }
+        ++body.probe_stamp;
     }
 
     // Vector đổi chủ nhưng từng chuỗi nằm yên trong bộ đệm của nó, nên dòng chữ vẫn đúng.
@@ -577,7 +643,11 @@ struct HubOps {
     }
 
     static void relayout(Hub::Body& body, const Place& input) {
-        body.placed = detail::layout(*body.asset, input);
+        body.layout_reads.clear();
+        body.placed = detail::layout(*body.asset, input, &body.layout_reads);
+        std::ranges::sort(body.layout_reads);
+        const auto repeats = std::ranges::unique(body.layout_reads);
+        body.layout_reads.erase(repeats.begin(), repeats.end());
         const Tree tree{.placed = body.placed, .roots = input.roots};
         body.order = draw_order(tree);
         body.layers = layers_of(tree, body.order);
@@ -589,6 +659,42 @@ struct HubOps {
         body.has_meter = input.meter != nullptr;
         store_names(body.roots, input.roots);
         store_names(body.hidden, input.hidden);
+        ++body.probe_stamp;
+        ++body.layout_count;
+    }
+
+    using Memo = ProbeMemo;
+
+    [[nodiscard]] static bool memo_holds(const Memo& memo, const Hub::Body& body, ProbeSpot spot) {
+        const bool is_same_spot = memo.spot.across == spot.across && memo.spot.down == spot.down;
+        return memo.is_set && memo.stamp == body.probe_stamp && is_same_spot;
+    }
+
+    static void keep_memo(Memo& memo, const Hub::Body& body, ProbeSpot spot) {
+        memo.is_set = true;
+        memo.spot = spot;
+        memo.stamp = body.probe_stamp;
+    }
+
+    [[nodiscard]] static bool is_hit(const Hub::Body& body, std::size_t index, ProbeSpot spot,
+        Probe probe) {
+        const Placed& window = body.placed.at(index);
+        if (!is_under(window, spot.across, spot.down)) return false;
+        return !is_pierced(*body.asset, window, probe);
+    }
+
+    // Cửa sổ trên cùng dưới điểm mà nhận loại dò probe; nhớ theo điểm và mốc dàn trang.
+    static std::optional<std::size_t> hit_window(const Hub::Body& body, ProbeSpot spot,
+        Probe probe) {
+        Memo& memo = body.hit_memo.at(static_cast<std::size_t>(probe));
+        if (memo_holds(memo, body, spot)) return memo.found;
+        const auto takes = [&](std::size_t index) { return is_hit(body, index, spot, probe); };
+        const auto backwards = body.order | std::views::reverse;
+        const auto found = std::ranges::find_if(backwards, takes);
+        keep_memo(memo, body, spot);
+        memo.found = std::nullopt;
+        if (found != backwards.end()) memo.found = *found;
+        return memo.found;
     }
 
     // Một lượt vẽ: trang tĩnh (live false) hay trang động.
@@ -637,14 +743,22 @@ struct HubOps {
         std::optional<std::size_t> key;
     };
 
-    // Chỉ số cửa sổ nút ở trên cùng dưới chuột.
+    // Chỉ số cửa sổ nút ở trên cùng dưới chuột. Nhớ theo điểm và mốc dàn trang: is_button_hot đọc
+    // thêm input.overrides, mà override đổi thì update đã dàn lại trang.
     static std::optional<std::size_t> hot_button(const Hub::Body& body, const Place& input) {
         if (!input.pointer) return std::nullopt;
-        const auto is_hot = [&](std::size_t index) { return is_button_hot(*body.asset, body.placed[index], input); };
+        const ProbeSpot spot{.across = input.pointer->x, .down = input.pointer->y};
+        Memo& memo = body.hot_memo;
+        if (memo_holds(memo, body, spot)) return memo.found;
+        const auto is_hot = [&](std::size_t index) {
+            return is_button_hot(*body.asset, body.placed[index], input);
+        };
         const auto backwards = body.order | std::views::reverse;
         const auto found = std::ranges::find_if(backwards, is_hot);
-        if (found == backwards.end()) return std::nullopt;
-        return *found;
+        keep_memo(memo, body, spot);
+        memo.found = std::nullopt;
+        if (found != backwards.end()) memo.found = *found;
+        return memo.found;
     }
 
     // Ô phím dưới chuột khi cửa sổ nóng button là bàn phím ảo, nút phần tử dưới chuột khi nó là cửa
@@ -684,6 +798,8 @@ struct HubOps {
     // Những gì đã đổi từ lần update trước, để refresh biết dựng lại trang nào.
     struct Dirt {
         bool is_relaid = false;
+        // Override đổi mà bố cục giữ nguyên (chữ, ảnh, màu): trang tĩnh vẽ lại, không dàn lại.
+        bool is_restyled = false;
         bool is_bars_moved = false;
     };
 
@@ -692,7 +808,7 @@ struct HubOps {
     // nóng nằm ở trang động, nên trang tĩnh không phải dựng lại).
     static void refresh(Hub::Body& body, const Place& input, const HotState& hot, Dirt dirt) {
         const bool is_changed = hot.index != body.hot || hot.is_down != body.is_down;
-        const bool is_still_dirty = dirt.is_relaid || is_changed;
+        const bool is_still_dirty = dirt.is_relaid || dirt.is_restyled || is_changed;
         const bool is_moved = dirt.is_bars_moved || !world_same(body, input) || hot.key != body.hot_key;
         if (is_still_dirty) refresh_still(body, input, hot);
         if (is_still_dirty || is_moved) refresh_live(body, input, hot);
@@ -757,15 +873,18 @@ Hub& Hub::operator=(Hub&&) noexcept = default;
 void Hub::update(const Place& given) {
     Body& body = *body_;
     const bool is_forced_dirty = !HubOps::forced_same(body, given);
+    // So với bản chép cũ nên phải xét trước store_forced.
+    const bool is_forced_relaid = is_forced_dirty && HubOps::touches_layout(body, given);
     if (is_forced_dirty) HubOps::store_forced(body, given);
     // Từ đây chỉ dùng bản chép: dòng chữ dựng ra không còn mượn chuỗi của người gọi.
     Place input = given;
     input.overrides = body.forced_views;
-    const bool is_layout_dirty = is_forced_dirty || !HubOps::layout_same(body, input);
+    const bool is_layout_dirty = is_forced_relaid || !HubOps::layout_same(body, input);
     if (is_layout_dirty) HubOps::relayout(body, input);
     const BarTick tick{.bars = input.bars, .seconds = HubOps::seconds_since(body, input.clock)};
     HubOps::Dirt dirt;
     dirt.is_relaid = is_layout_dirty;
+    dirt.is_restyled = is_forced_dirty;
     dirt.is_bars_moved = HubOps::glide_bars(body, tick);
     HubOps::refresh(body, input, HubOps::hot_state(body, input), dirt);
 }
@@ -822,15 +941,15 @@ std::uint64_t Hub::text_stamp() const noexcept {
     return body_->text_stamp;
 }
 
+std::uint64_t Hub::layout_count() const noexcept {
+    return body_->layout_count;
+}
+
 std::optional<std::string_view> Hub::hit(float across, float down, Probe probe) const {
     const Body& body = *body_;
-    const auto is_hit = [&](std::size_t index) {
-        const Placed& window = body.placed.at(index);
-        return is_under(window, across, down) && !is_pierced(*body.asset, window, probe);
-    };
-    const auto backwards = body.order | std::views::reverse;
-    const auto found = std::ranges::find_if(backwards, is_hit);
-    if (found == backwards.end()) return std::nullopt;
+    const ProbeSpot spot{.across = across, .down = down};
+    const std::optional<std::size_t> found = HubOps::hit_window(body, spot, probe);
+    if (!found) return std::nullopt;
     return std::string_view(body.placed.at(*found).window->name);
 }
 

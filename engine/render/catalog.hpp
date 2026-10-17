@@ -1,8 +1,22 @@
-// Catalog pipeline: mỗi PSO một nhóm và một tầng. Nhóm là chỗ quản lý, tầng là lúc prepare.
-// Forward, UiPass và FxView mượn handle; catalog huỷ chúng. prepare tạo mục của tầng chưa có.
-// Model hỏng thì prepare trả lỗi. Giao diện và hiệu ứng hỏng thì handle rỗng, lỗi nằm ở fault.
-// Đường vẽ không tạo PSO. Vật có ngưỡng cắt alpha vẽ bằng họ model của nhóm Character; vật đục không cắt vẽ bằng
-// model_solid.ps của nhóm World khi gói có mặt.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/catalog.hpp
+ *  PHÂN HỆ   : Render / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Catalog pipeline: mỗi PSO một nhóm và một tầng. Nhóm là chỗ quản lý, tầng
+ *    là lúc prepare. Forward, UiPass và FxView mượn handle; catalog huỷ chúng.
+ *    prepare tạo mục của tầng chưa có. Model hỏng thì prepare trả lỗi. Giao
+ *    diện và hiệu ứng hỏng thì handle rỗng, lỗi nằm ở fault. Đường vẽ không tạo
+ *    PSO. Vật có ngưỡng cắt alpha vẽ bằng họ model của nhóm Character; vật đục
+ *    không cắt vẽ bằng model_solid.ps của nhóm World khi gói có mặt.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "core/error.hpp"
@@ -92,6 +106,11 @@ enum class Pso : std::uint8_t {
     // make_model nhận riêng hai giá trị này. Không chen trước kModelSolid.
     kModelAdd = 19,
     kModelAddTwoSided = 20,
+    // Pass ghi depth của chất liệu hai pass (Material::depth_prepass): model.ps cắt alpha, không
+    // ghi màu (colour_write off của bản gốc), ghi độ sâu. Bắt buộc như cặp cộng sáng: cùng
+    // shader với model, chỉ khác mặt nạ ghi màu.
+    kModelDepth = 21,
+    kModelDepthTwoSided = 22,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -101,7 +120,7 @@ inline constexpr std::uint32_t kModelFrameBytes = 2896;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
 inline constexpr std::size_t kPackageCount = 12;
-inline constexpr std::size_t kSlotCount = 21;
+inline constexpr std::size_t kSlotCount = 23;
 // Cỡ khối hằng của sky.inc.slang: SkyBlock (32 lệnh, mỗi lệnh 16 float4) và push constant (một uvec4).
 inline constexpr std::uint32_t kSkyFrameBytes = 8192;
 inline constexpr std::uint32_t kSkyDrawBytes = 16;
@@ -239,6 +258,9 @@ constexpr auto body = sky_entry("render.sky.body", Pso::kSkyBody, "sky.vs", "sky
 constexpr auto star = sky_entry("render.sky.star", Pso::kSkyStar, "star.vs", "star.ps");
 constexpr auto add = character_entry("render.model.add", Pso::kModelAdd);
 constexpr auto add_two = character_entry("render.model.add_two_sided", Pso::kModelAddTwoSided);
+constexpr auto depth = character_entry("render.model.depth", Pso::kModelDepth);
+constexpr auto depth_two =
+    character_entry("render.model.depth_two_sided", Pso::kModelDepthTwoSided);
 } // namespace row
 
 inline constexpr std::array<Entry, kSlotCount> kEntries{{
@@ -263,6 +285,8 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
     row::star,
     row::add,
     row::add_two,
+    row::depth,
+    row::depth_two,
 }};
 
 static_assert(std::to_underlying(Pso::kModelTwoSided) == kModelTwoSided);

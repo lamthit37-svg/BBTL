@@ -282,6 +282,17 @@ void options_take_creature_list(Context& context) {
     context.expect(!client::parse_options(too_many).has_value(), "quá ba mươi hai id bị từ chối");
 }
 
+void options_take_impact(Context& context) {
+    constexpr std::array<Text, 2> kOne{"--impact", "1"};
+    const std::optional<client::Options> one = client::parse_options(kOne);
+    context.expect(one.has_value() && one->impact_id == 1U, "--impact giữ id");
+    constexpr std::array<Text, 2> kZero{"--impact", "0"};
+    const std::optional<client::Options> zero = client::parse_options(kZero);
+    context.expect(zero.has_value() && zero->impact_id == 0U, "id 0 vẫn hợp lệ");
+    constexpr std::array<Text, 2> kBad{"--impact", "-1"};
+    context.expect(!client::parse_options(kBad).has_value(), "id âm bị từ chối");
+}
+
 void options_take_pet_list(Context& context) {
     constexpr std::array<Text, 2> kList{"--pet", "339,11158"};
     const std::optional<client::Options> list = client::parse_options(kList);
@@ -476,6 +487,7 @@ constexpr std::array kCases{
     Case{.name = "options_take_bare_flag", .body = &options_take_bare_flag},
     Case{.name = "options_take_creature_list", .body = &options_take_creature_list},
     Case{.name = "options_take_pet_list", .body = &options_take_pet_list},
+    Case{.name = "options_take_impact", .body = &options_take_impact},
     Case{.name = "options_take_peer_count", .body = &options_take_peer_count},
     Case{.name = "policy_desktop_is_full_detail", .body = &policy_desktop_is_full_detail},
     Case{.name = "policy_mobile_keeps_measured_limits", .body = &policy_mobile_keeps_measured_limits},

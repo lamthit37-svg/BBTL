@@ -1,8 +1,22 @@
-// Buffer, texture, view, sampler, truy vấn và bộ nhớ của backend Vulkan.
-// Nguồn: Forge2 src/gpu/vulkan/resources.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; thân
-// vòng lặp có nhánh của find_type, format_support, memory_budget đổi thành điều kiện lặp hoặc phép
-// chọn (ghi tại chỗ); kSupport và VkExtent3D ghi tên trường; lambda của retire_from bỏ () rỗng;
-// include trực tiếp header của mọi tên dùng tới, bỏ core/log.hpp không dùng.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/vulkan/resources.cpp
+ *  PHÂN HỆ   : Gpu / Vulkan / Resources
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Buffer, texture, view, sampler, truy vấn và bộ nhớ của backend Vulkan.
+ *    Nguồn: Forge2 src/gpu/vulkan/resources.cpp@d7fcd76. Khác gốc: enumerator
+ *    mang tiền tố k; thân vòng lặp có nhánh của find_type, format_support,
+ *    memory_budget đổi thành điều kiện lặp hoặc phép chọn (ghi tại chỗ);
+ *    kSupport và VkExtent3D ghi tên trường; lambda của retire_from bỏ () rỗng;
+ *    include trực tiếp header của mọi tên dùng tới, bỏ core/log.hpp không dùng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/error.hpp"
 #include "gpu/check.hpp"
 #include "gpu/device.hpp"
@@ -164,6 +178,17 @@ struct BlockPlan {
 }
 
 } // namespace
+
+// Card rời: Upload tránh được DEVICE_LOCAL nên chọn RAM hệ thống. Bộ nhớ hợp nhất (mọi kiểu đều
+// DEVICE_LOCAL, như PowerVR GE8320 và Apple) thì kUpload rơi vào kiểu DEVICE_LOCAL | HOST_VISIBLE.
+bool upload_is_device_local(const VkPhysicalDeviceMemoryProperties& memory) noexcept {
+    constexpr std::uint32_t kEveryType = ~std::uint32_t{0};
+    const std::uint32_t type = pick_type(memory, kEveryType, MemoryDomain::kUpload, false);
+    if (type >= memory.memoryTypeCount) return false;
+    const std::span types(memory.memoryTypes);
+    const VkMemoryPropertyFlags flags = types.subspan(type, 1).front().propertyFlags;
+    return (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) != 0;
+}
 
 Pool& VulkanDevice::pool_at(std::uint32_t index) {
     const std::scoped_lock lock(memory_mutex_);

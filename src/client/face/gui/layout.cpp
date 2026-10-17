@@ -184,11 +184,24 @@ std::optional<UVector> pair_vector(std::string_view text, bool is_absolute) noex
     return UVector{.x = GuiUDim{.scale = pair->scale, .offset = 0.0F}, .y = GuiUDim{.scale = pair->offset, .offset = 0.0F}};
 }
 
+// Cờ của Window mà layout đọc từ thuộc tính (kể cả Override), và chỗ ghi nó trong Metrics. Một bảng
+// cho cả apply_flag lẫn is_geometry_property, để Hub không bỏ sót cờ nào khi xét có phải dàn lại.
+struct FlagRule {
+    std::string_view name;
+    bool Metrics::* field = nullptr;
+};
+
+constexpr std::array<FlagRule, 4> kFlags = {{
+    {.name = "Visible", .field = &Metrics::is_visible},
+    {.name = "FrameEnabled", .field = &Metrics::has_frame},
+    {.name = "BackgroundEnabled", .field = &Metrics::has_background},
+    {.name = "AlwaysOnTop", .field = &Metrics::is_on_top},
+}};
+
 void apply_flag(Metrics& metrics, const Setting& setting) noexcept {
-    if (setting.name == "Visible") metrics.is_visible = parse_bool(setting.value);
-    if (setting.name == "FrameEnabled") metrics.has_frame = parse_bool(setting.value);
-    if (setting.name == "BackgroundEnabled") metrics.has_background = parse_bool(setting.value);
-    if (setting.name == "AlwaysOnTop") metrics.is_on_top = parse_bool(setting.value);
+    for (const FlagRule& rule : kFlags) {
+        if (setting.name == rule.name) metrics.*(rule.field) = parse_bool(setting.value);
+    }
 }
 
 // UnifiedPosition, UnifiedSize: chuỗi "{{s,o},{s,o}}"; hỏng thì giữ nguyên.
@@ -654,7 +667,23 @@ std::optional<std::string_view> forced(const Place& input, const Placed& placed,
     return (*found).value;
 }
 
-std::optional<std::string_view> effective(const Ctx& ctx, const Placed& placed, std::string_view name) {
+std::uint64_t read_key(std::string_view window, std::string_view name) noexcept {
+    const std::uint64_t window_hash = std::hash<std::string_view>{}(window);
+    const std::uint64_t name_hash = std::hash<std::string_view>{}(name);
+    // Trộn như boost::hash_combine bản 64 bit: đổi chỗ cửa sổ và thuộc tính không ra cùng khoá.
+    const std::uint64_t spread = (window_hash << 6U) + (window_hash >> 2U);
+    return window_hash ^ (name_hash + 0x9E3779B97F4A7C15ULL + spread);
+}
+
+bool is_geometry_property(std::string_view name) noexcept {
+    const auto is_rule = [name](const Rule& rule) { return rule.name == name; };
+    const auto is_flag = [name](const FlagRule& rule) { return rule.name == name; };
+    return std::ranges::any_of(kRules, is_rule) || std::ranges::any_of(kFlags, is_flag);
+}
+
+std::optional<std::string_view> effective(const Ctx& ctx, const Placed& placed,
+    std::string_view name) {
+    if (ctx.reads != nullptr) ctx.reads->push_back(read_key(placed.window->name, name));
     const auto set = forced(*ctx.input, placed, name);
     if (set) return set;
     const auto own = last_prop(*ctx.asset, placed.window->properties, name);
@@ -718,7 +747,7 @@ void seat_drop_list(const Ctx& ctx, Placed& placed) {
 
 // Cha luôn đứng trước con, nên một lượt xuôi là đủ; windows đã giữ chỗ đủ nên span của các cửa sổ
 // đã đặt còn đúng trong lúc thêm.
-std::vector<Placed> layout(const GuiAsset& asset, const Place& input) {
+std::vector<Placed> layout(const GuiAsset& asset, const Place& input, ReadKeys* keys) {
     std::vector<Placed> windows;
     windows.reserve(asset.windows.size());
     for (std::size_t index = 0; index < asset.windows.size(); ++index) {
@@ -726,6 +755,7 @@ std::vector<Placed> layout(const GuiAsset& asset, const Place& input) {
         ctx.asset = &asset;
         ctx.input = &input;
         ctx.placed = windows;
+        ctx.reads = keys;
         const bool is_child = is_look_child(asset, index);
         Placed placed = is_child ? place_child(ctx, index) : place_window(asset, input, windows, index);
         if (is_child && placed.kind == Kind::kList && is_drop_list(asset, index)) seat_drop_list(ctx, placed);

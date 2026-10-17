@@ -21,7 +21,7 @@
 #endif
 // Bốn pipeline cùng shader, cùng bố cục gắn, do Catalog tạo: bit 0 của chỉ số là chất liệu hai mặt
 // (không loại mặt sau), bit 1 là trộn alpha (không ghi độ sâu). Pipeline thứ năm (tuỳ chọn) là mặt
-// đất lớp cọ (Pso::kTerrain, terrain.ps): chất liệu có Material::splat dùng nó, với bốn ảnh của
+// đất lớp cọ (Pso::kTerrain, terrain.ps): chất liệu có Material::splat dùng nó, với hai ảnh của
 // chất liệu thay ảnh màu. Register space của shader: 0 là hằng của khung, 1 là chất liệu, 2 là bảng
 // khớp và ma trận instanced; hằng của lệnh vẽ đi bằng push constant. Một khung: gom lệnh vẽ của mọi
 // instance (dựng bảng khớp của từng skin một lần), ghi buffer của slot, xếp lệnh (đục trước, trộn
@@ -78,17 +78,21 @@ namespace game::render {
 namespace {
 
 constexpr std::uint32_t kNone = std::numeric_limits<std::uint32_t>::max();
-// Bốn biến thể model, địa hình ở 4, cộng sáng one one ở 6 và 7, model đục không discard ở 8 và 9.
-// Chỉ số 6 mang bit trộn (bit 1) và không mang bit hai mặt (bit 0): draws_before xếp tấm cộng sáng
-// sau vật đục, cùng cách với lưới trộn alpha. 19 và 20 của catalog không mang các bit ấy.
-constexpr std::size_t kPipelines = 10;
+// Bốn biến thể model, địa hình ở 4, cộng sáng one one ở 6 và 7, model đục không discard ở 8 và 9,
+// pass ghi depth ở 10 và 11. Chỉ số 6 và 10 mang bit trộn (bit 1) và không mang bit hai mặt (bit
+// 0): draws_before xếp tấm cộng sáng và pass ghi depth sau vật đục, cùng cách với lưới trộn alpha.
+// Số của catalog (19, 20, 21, 22) không mang các bit ấy.
+constexpr std::size_t kPipelines = 12;
 constexpr std::uint32_t kTerrainPipeline = static_cast<std::uint32_t>(kModelVariants);
 constexpr std::uint32_t kAddPipeline = 6;
 constexpr std::uint32_t kSolidPipeline = 8;
+constexpr std::uint32_t kDepthPipeline = 10;
 constexpr std::uint32_t kTwoSided = kModelTwoSided;
 constexpr std::uint32_t kBlended = kModelBlended;
 static_assert((kAddPipeline & kBlended) != 0 && (kAddPipeline & kTwoSided) == 0);
 static_assert(kAddPipeline + 1 < kPipelines);
+static_assert((kDepthPipeline & kBlended) != 0 && (kDepthPipeline & kTwoSided) == 0);
+static_assert(std::size_t{kDepthPipeline} + 1 < kPipelines);
 static_assert(kTerrainPipeline < kSolidPipeline && (kSolidPipeline & 3U) == 0);
 static_assert(std::size_t{kSolidPipeline} + 1 < kPipelines);
 // Sức chứa ban đầu của bảng khớp; tăng gấp đôi khi một khung cần nhiều hơn.
@@ -150,6 +154,22 @@ struct DrawBlock {
     std::uint32_t lamp = kDarkLamp;
 };
 static_assert(sizeof(DrawBlock) == kModelDrawBytes);
+
+// Khớp struct FlowBlock của model.inc.slang: khối tĩnh của một chất liệu luồng sáng, viền sáng.
+struct FlowWords {
+    math::Float4 factor{};
+    math::Float4 outline_color{};
+    math::Float4 outline_pow{};
+    std::array<std::uint32_t, 4> mode{};
+};
+static_assert(sizeof(FlowWords) == 64);
+
+// Bit của FlowBlock::mode.x, cùng tên trong model.inc.slang.
+constexpr std::uint32_t kFlowOn = 1;
+constexpr std::uint32_t kFlowByUv = 2;
+constexpr std::uint32_t kFlowAlpha = 4;
+constexpr std::uint32_t kRimOn = 8;
+constexpr std::uint32_t kRimMap = 16;
 
 // Khớp struct Joint của model.vs.slang: ba hàng đầu của ma trận skin.
 struct JointRows {
@@ -223,6 +243,34 @@ struct TexBind {
     gpu::TextureViewHandle view{};
     gpu::SamplerHandle sampler{};
 };
+
+// Ảnh nào thiếu thì sampler D3D9 của bản gốc trả màu đen: luồng thiếu ảnh luồng hay ảnh ctl, và
+// viền điều khiển bằng ảnh mà thiếu ảnh ấy, đều ra 0. Tắt hẳn phép ấy cho cùng kết quả mà không lấy
+// mẫu ảnh trắng thay thế.
+[[nodiscard]] std::uint32_t flow_mode(const resource::Flow& flow) noexcept {
+    const bool has_mask = flow.mask_in_alpha || flow.ctl.image.has_value();
+    const bool has_shine = flow.flow_map.image.has_value();
+    const bool flows = flow.has_flow && has_shine && has_mask;
+    const bool has_map = flow.outline_map.image.has_value();
+    const bool map_ok = !flow.uses_outline_map || has_map;
+    const bool rims = flow.has_outline && map_ok;
+    std::uint32_t mode = 0;
+    if (flows) mode |= kFlowOn;
+    if (flows && flow.flows_by_uv) mode |= kFlowByUv;
+    if (flows && flow.mask_in_alpha) mode |= kFlowAlpha;
+    if (rims) mode |= kRimOn;
+    if (rims && flow.uses_outline_map) mode |= kRimMap;
+    return mode;
+}
+
+[[nodiscard]] FlowWords flow_words(const resource::Flow& flow) noexcept {
+    FlowWords words;
+    words.factor = flow.factor;
+    words.outline_color = flow.outline_color;
+    words.outline_pow = {.x = flow.outline_pow.x, .y = flow.outline_pow.y, .z = 0.0F, .w = 0.0F};
+    words.mode[0] = flow_mode(flow);
+    return words;
+}
 
 [[nodiscard]] TexBind tex_bind(const resource::Uploaded& uploaded, const resource::TexSlot& slot,
     const resource::Uploaded& fallback) {
@@ -552,14 +600,17 @@ struct Forward::State {
         gpu::BufferHandle buffer);
     [[nodiscard]] core::Result<gpu::BindGroupHandle> splat_group(const resource::Uploaded& uploaded,
         const resource::Splat& splat);
-    [[nodiscard]] core::Result<gpu::BindGroupHandle> material_group(const resource::Uploaded& uploaded,
-        const resource::Material* material);
+    [[nodiscard]] core::Result<gpu::BufferHandle> flow_buffer(const FlowWords& words) const;
+    [[nodiscard]] core::Status make_plain_flow();
     struct MaterialPass {
         Drawable* drawable = nullptr;
         const resource::Uploaded* uploaded = nullptr;
         const resource::Material* material = nullptr;
         core::Status* status = nullptr;
     };
+    using GroupResult = core::Result<gpu::BindGroupHandle>;
+    [[nodiscard]] GroupResult material_group(const MaterialPass& pass, gpu::BufferHandle flow);
+    [[nodiscard]] core::Result<gpu::BufferHandle> material_flow(const MaterialPass& pass);
     void add_material(MaterialPass pass);
 
     struct Take {
@@ -582,6 +633,7 @@ struct Forward::State {
     [[nodiscard]] bool is_node_seen(const Pass& pass, std::size_t index, Skinning skinning) const;
     [[nodiscard]] bool is_part_seen(const Pass& pass, const Placed& placed, std::size_t part) const;
     void add_item(const Pass& pass, const Placed& placed, std::size_t part);
+    void push_depth(const Item& item, const Placed& placed, bool is_copied, float cutoff);
     void push_item(const Item& item, const Placed& placed, bool is_copied);
     void push_tile_run(const Item& item, const resource::IndexRange& run);
     [[nodiscard]] float budget_of(const Pass& pass, const Placed& placed, const math::Vector3& center,
@@ -610,6 +662,8 @@ struct Forward::State {
     std::vector<Slot> slots;
     // Ảnh trắng 1x1 và sampler mặc định, cho chất liệu không có texture màu nền.
     resource::Uploaded fallback;
+    // FlowBlock mode 0 cho mọi chất liệu không có luồng sáng hay viền sáng.
+    gpu::BufferHandle plain_flow{};
     // Vùng làm việc của một lần draw, giữ lại giữa các khung để không cấp phát lại.
     std::vector<Item> items;
     std::vector<JointRows> palette;
@@ -637,6 +691,7 @@ struct Forward::State {
 
 Forward::State::~State() {
     if (device == nullptr) return;
+    device->destroy(plain_flow);
     for (const Slot& slot : slots) {
         device->destroy(slot.frame_group);
         device->destroy(slot.palette_group);
@@ -786,22 +841,18 @@ core::Status Forward::State::make_fallback() {
     return core::ok();
 }
 
-// Bốn ảnh của mặt đất lớp cọ ở space 1 của pipeline địa hình: atlas t0 + s0, bảng ô t1, lightmap t2 + s2
-// (sampler theo slot của ảnh để GLES dùng chung texture unit), bảng tra t3. Bảng ô và bảng tra đọc bằng
-// Load nên không có sampler. Thiếu lightmap thì ảnh trắng: nhân với 1.
+// Hai ảnh của mặt đất lớp cọ ở space 1 của pipeline địa hình: atlas t0 + s0 và lightmap t2 + s2
+// (sampler theo slot của ảnh để GLES dùng chung texture unit). Thiếu lightmap thì ảnh trắng: nhân
+// với 1.
 core::Result<gpu::BindGroupHandle> Forward::State::splat_group(const resource::Uploaded& uploaded,
     const resource::Splat& splat) {
     const TexBind atlas = tex_bind(uploaded, splat.atlas, fallback);
-    const TexBind cells = tex_bind(uploaded, splat.cells, fallback);
     const TexBind light = tex_bind(uploaded, splat.light, fallback);
-    const TexBind table = tex_bind(uploaded, splat.table, fallback);
-    std::array<gpu::BindEntry, 6> entries{};
+    std::array<gpu::BindEntry, 4> entries{};
     write_bind(entries[0], shader::RegisterType::kResource, 0, atlas.view);
     write_bind(entries[1], shader::RegisterType::kSampler, 0, atlas.sampler);
-    write_bind(entries[2], shader::RegisterType::kResource, 1, cells.view);
-    write_bind(entries[3], shader::RegisterType::kResource, 2, light.view);
-    write_bind(entries[4], shader::RegisterType::kSampler, 2, light.sampler);
-    write_bind(entries[5], shader::RegisterType::kResource, 3, table.view);
+    write_bind(entries[2], shader::RegisterType::kResource, 2, light.view);
+    write_bind(entries[3], shader::RegisterType::kSampler, 2, light.sampler);
     gpu::BindGroupDesc group;
     group.name = "render.forward.terrain";
     group.pipeline = pipelines.at(kTerrainPipeline);
@@ -810,26 +861,88 @@ core::Result<gpu::BindGroupHandle> Forward::State::splat_group(const resource::U
     return device->create_bind_group(group);
 }
 
-core::Result<gpu::BindGroupHandle> Forward::State::material_group(const resource::Uploaded& uploaded,
-    const resource::Material* material) {
-    const bool is_splat = material != nullptr && material->splat && pipelines.at(kTerrainPipeline);
-    if (is_splat) return splat_group(uploaded, *material->splat);
-    const resource::TexSlot none;
-    const resource::TexSlot& color = material != nullptr ? base_slot(*material) : none;
-    const resource::TexSlot& mask = material != nullptr ? material->surface : none;
-    const TexBind base = tex_bind(uploaded, color, fallback);
-    const TexBind cover = tex_bind(uploaded, mask, fallback);
-    std::array<gpu::BindEntry, 4> entries{};
-    write_bind(entries[0], shader::RegisterType::kResource, 0, base.view);
-    write_bind(entries[1], shader::RegisterType::kSampler, 0, base.sampler);
-    write_bind(entries[2], shader::RegisterType::kResource, 1, cover.view);
-    write_bind(entries[3], shader::RegisterType::kSampler, 1, cover.sampler);
+namespace {
+
+// Năm cặp ảnh và sampler của space 1 (nền, mặt nạ, ctl, ảnh luồng, ảnh viền), rồi FlowBlock b2.
+constexpr std::size_t kMaterialImages = 5;
+constexpr std::uint32_t kFlowRegister = 2;
+using MaterialEntries = std::array<gpu::BindEntry, (kMaterialImages * 2) + 1>;
+
+void bind_pair(MaterialEntries& entries, std::uint32_t slot, const TexBind& bound) {
+    const std::size_t at = std::size_t{slot} * 2;
+    write_bind(entries.at(at), shader::RegisterType::kResource, slot, bound.view);
+    write_bind(entries.at(at + 1), shader::RegisterType::kSampler, slot, bound.sampler);
+}
+
+// Ảnh thiếu là ảnh trắng; flow_mode tắt mọi phép thiếu ảnh nên ảnh trắng ấy không hiện ra.
+[[nodiscard]] std::array<const resource::TexSlot*, kMaterialImages> material_slots(
+    const resource::Material& material, const resource::Flow& flow) noexcept {
+    const resource::TexSlot* base = &base_slot(material);
+    const resource::TexSlot* mask = &material.surface;
+    return {base, mask, &flow.ctl, &flow.flow_map, &flow.outline_map};
+}
+
+} // namespace
+
+Forward::State::GroupResult Forward::State::material_group(const MaterialPass& pass,
+    gpu::BufferHandle flow) {
+    const resource::Uploaded& uploaded = *pass.uploaded;
+    const resource::Material none;
+    const resource::Material& material = pass.material != nullptr ? *pass.material : none;
+    const bool has_terrain = static_cast<bool>(pipelines.at(kTerrainPipeline));
+    const bool is_splat = material.splat.has_value() && has_terrain;
+    if (is_splat) return splat_group(uploaded, *material.splat);
+    const resource::Flow plain;
+    const resource::Flow& glint = material.flow ? *material.flow : plain;
+    const auto images = material_slots(material, glint);
+    MaterialEntries entries{};
+    for (std::uint32_t slot = 0; slot < kMaterialImages; ++slot) {
+        const TexBind bound = tex_bind(uploaded, *images.at(slot), fallback);
+        bind_pair(entries, slot, bound);
+    }
+    const gpu::BufferRange block{.buffer = flow};
+    write_bind(entries.back(), shader::RegisterType::kConstant, kFlowRegister, block);
     gpu::BindGroupDesc group;
     group.name = "render.forward.material";
     group.pipeline = pipelines.front();
     group.space = 1;
     group.entries = entries;
     return device->create_bind_group(group);
+}
+
+core::Result<gpu::BufferHandle> Forward::State::flow_buffer(const FlowWords& words) const {
+    gpu::BufferDesc buffer;
+    buffer.name = "render.forward.flow";
+    const std::uint64_t bytes{sizeof(FlowWords)};
+    buffer.size = core::align_up(bytes, std::uint64_t{gpu::kUniformAlignment});
+    buffer.usage = gpu::BufferUsage::kUniform;
+    buffer.memory = gpu::MemoryDomain::kUpload;
+    const core::Result<gpu::BufferHandle> made = device->create_buffer(buffer);
+    if (!made) return made;
+    const auto block = std::as_bytes(std::span(&words, 1));
+    const core::Status written = device->write_buffer(*made, 0, block);
+    if (written) return made;
+    device->destroy(*made);
+    return std::unexpected(written.error());
+}
+
+core::Status Forward::State::make_plain_flow() {
+    const core::Result<gpu::BufferHandle> made = flow_buffer(FlowWords{});
+    if (!made) return std::unexpected(made.error());
+    plain_flow = *made;
+    return core::ok();
+}
+
+// Chất liệu có luồng hay viền: khối riêng, Drawable giữ và huỷ. Còn lại dùng khối chung mode 0.
+core::Result<gpu::BufferHandle> Forward::State::material_flow(const MaterialPass& pass) {
+    const resource::Material* material = pass.material;
+    const bool has_flow = material != nullptr && material->flow.has_value();
+    if (!has_flow) return plain_flow;
+    const FlowWords words = flow_words(*material->flow);
+    if (words.mode[0] == 0) return plain_flow;
+    const core::Result<gpu::BufferHandle> made = flow_buffer(words);
+    if (made) pass.drawable->flow_blocks_.push_back(*made);
+    return made;
 }
 
 void Forward::State::add_matrix(const math::Matrix4& matrix) {
@@ -1056,7 +1169,23 @@ void Forward::State::add_item(const Pass& pass, const Placed& placed, std::size_
     } else {
         item.block.lamp = lamp_slot(pass.lamp);
     }
+    const bool has_prepass = material != nullptr && material->depth_prepass.has_value();
+    if (has_prepass) push_depth(item, placed, pass.is_copied, *material->depth_prepass);
     push_item(item, placed, pass.is_copied);
+}
+
+// Pass WriteDepth của Mtl_Char_FLTrans, Mtl_Outline*: cùng lưới, cùng khoảng cách, vào danh sách
+// ngay trước pass màu. stable_sort giữ thứ tự hai lệnh bằng khoảng cách nên chúng vẽ liền nhau như
+// Ogre vẽ các pass của một renderable trong hàng trong suốt. Pass màu đục đã tự ghi độ sâu.
+void Forward::State::push_depth(const Item& item, const Placed& placed, bool is_copied,
+    float cutoff) {
+    if ((item.pipeline & kBlended) == 0) return;
+    const std::uint32_t depth = kDepthPipeline | (item.pipeline & kTwoSided);
+    if (!pipelines.at(depth)) return;
+    Item only = item;
+    only.pipeline = depth;
+    only.block.diffuse.w = cutoff;
+    push_item(only, placed, is_copied);
 }
 
 // Primitive chia khối chỉ vẽ khối chạm khung nhìn; khối liên tiếp trong thứ tự lưu thì chỉ số liền nhau nên gộp thành một
@@ -1380,6 +1509,7 @@ Drawable::Drawable(Drawable&& other) noexcept
       model_(std::exchange(other.model_, nullptr)),
       uploaded_(std::exchange(other.uploaded_, nullptr)),
       materials_(std::move(other.materials_)),
+      flow_blocks_(std::move(other.flow_blocks_)),
       rest_(std::move(other.rest_)),
       is_rest_neutral_(other.is_rest_neutral_),
       radius_(other.radius_),
@@ -1395,6 +1525,7 @@ Drawable& Drawable::operator=(Drawable&& other) noexcept {
     model_ = std::exchange(other.model_, nullptr);
     uploaded_ = std::exchange(other.uploaded_, nullptr);
     materials_ = std::move(other.materials_);
+    flow_blocks_ = std::move(other.flow_blocks_);
     rest_ = std::move(other.rest_);
     is_rest_neutral_ = other.is_rest_neutral_;
     radius_ = other.radius_;
@@ -1415,6 +1546,10 @@ void Drawable::release() noexcept {
         device_->destroy(group);
     }
     materials_.clear();
+    for (const gpu::BufferHandle block : flow_blocks_) {
+        device_->destroy(block);
+    }
+    flow_blocks_.clear();
     device_ = nullptr;
 }
 
@@ -1425,7 +1560,8 @@ Forward::~Forward() = default;
 
 core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& desc,
     std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain,
-    std::array<gpu::PipelineHandle, 2> solid, std::array<gpu::PipelineHandle, 2> additive) {
+    std::array<gpu::PipelineHandle, 2> solid, std::array<gpu::PipelineHandle, 2> additive,
+    std::array<gpu::PipelineHandle, 2> depth) {
     if (desc.slots == 0) return bad("renderer cần ít nhất một slot");
     for (const gpu::PipelineHandle pipeline : pipelines) {
         if (!pipeline) return bad("pipeline model chưa chuẩn bị");
@@ -1439,6 +1575,8 @@ core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& de
     state->pipelines.at(kSolidPipeline | kTwoSided) = solid[1];
     state->pipelines.at(kAddPipeline) = additive[0];
     state->pipelines.at(kAddPipeline | kTwoSided) = additive[1];
+    state->pipelines.at(kDepthPipeline) = depth[0];
+    state->pipelines.at(kDepthPipeline | kTwoSided) = depth[1];
     state->slots.resize(desc.slots);
     core::Status filled = core::ok();
     for (Slot& slot : state->slots) {
@@ -1447,6 +1585,8 @@ core::Result<Forward> Forward::create(gpu::Device& device, const ForwardDesc& de
     if (!filled) return std::unexpected(filled.error());
     const core::Status fallback = state->make_fallback();
     if (!fallback) return std::unexpected(fallback.error());
+    const core::Status flow = state->make_plain_flow();
+    if (!flow) return std::unexpected(flow.error());
     return Forward(std::move(state));
 }
 
@@ -1498,7 +1638,12 @@ core::Result<Drawable> Forward::prepare(const resource::Model& model, const reso
 
 void Forward::State::add_material(MaterialPass pass) {
     if (!*pass.status) return;
-    const auto group = material_group(*pass.uploaded, pass.material);
+    const core::Result<gpu::BufferHandle> flow = material_flow(pass);
+    if (!flow) {
+        *pass.status = std::unexpected(flow.error());
+        return;
+    }
+    const auto group = material_group(pass, *flow);
     if (!group) *pass.status = std::unexpected(group.error());
     if (group) pass.drawable->materials_.push_back(*group);
 }

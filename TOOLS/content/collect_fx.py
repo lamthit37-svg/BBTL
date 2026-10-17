@@ -6,9 +6,11 @@
 # - Chỉ mục khối theo đúng luật của client (SRC/fx/script.cpp): khối cấp cao là từ dòng mang tên tới
 #   dấu } khép; tên trùng giữ khối đầu. Nhờ vậy tên client tra được cũng là tên bộ gom chép.
 # - Chỉ gom tên cảnh gọi, tên effect mà khối AnimEffect của skill gọi (Table/skill_events.tsv do export_skills.py
-#   sinh; chưa có tệp thì bỏ qua; tên mẫu có "<" là hiệu ứng đi đường của LogicModel, chưa phát) và tên effect của hiệu
-#   ứng đồ (Table/weapon_effects.tsv do export_weapons.py sinh) và hạt thú cưỡi (cột effect của
-#   Table/ride_effects.tsv do export_rides.py sinh): cả thư viện là 73 MB, client nạp trọn tệp lúc mở.
+#   sinh; chưa có tệp thì bỏ qua; tên mẫu có "<" là hiệu ứng đi đường của LogicModel, chưa phát), tên effect của hiệu
+#   ứng đồ (Table/weapon_effects.tsv do export_weapons.py sinh), hạt thú cưỡi (cột effect của
+#   Table/ride_effects.tsv do export_rides.py sinh), hạt impact (trigger_effect và continuous_effect của
+#   Table/impacts.tsv) và hạt đạn (flight_effect và explosion_effect của Table/bullets.tsv): cả thư viện là
+#   73 MB, client nạp trọn tệp lúc mở.
 # - Material giải kế thừa bằng TOOLS/glb/ogre_material.py; bảng ghi thứ client cần để quyết có vẽ
 #   được không (ảnh, chế độ trộn, hệ số màu, ảnh thứ hai, cuộn, shader, thiết lập khác). Cột
 #   shader là "fixed" (không shader, lighting off), "particle" (Particle_ps.hlsl thường) hoặc tên
@@ -229,6 +231,23 @@ def add_rides(wanted: Wanted, target: str) -> None:
         if len(row) <= column or not row[column]:
             continue
         wanted.effects[row[column]] += 1
+
+
+# Tên effect của impact và đạn. Hai bảng do export_actor_fx.py sinh; chưa có tệp thì bỏ qua.
+def add_actor_fx(wanted: Wanted, target: str, file_name: str, columns: tuple[str, ...]) -> None:
+    path = os.path.join(target, "Table", file_name)
+    if not os.path.isfile(path):
+        return
+    with open(path, encoding="utf-8") as stream:
+        lines = [line.rstrip("\n").split("\t") for line in stream if line.strip() and not line.startswith("#")]
+    if not lines:
+        return
+    header, rows = lines[0], lines[1:]
+    indexes = [header.index(name) for name in columns]
+    for row in rows:
+        for index in indexes:
+            if index < len(row) and row[index]:
+                wanted.effects[row[index]] += 1
 
 
 def values_of(block: str, keyword: str) -> list[str]:
@@ -546,6 +565,8 @@ def collect(collector: Collector, scenes: list[str]) -> tuple[Wanted, list[Row],
     add_skills(wanted, collector.target)
     add_equipment(wanted, collector.target)
     add_rides(wanted, collector.target)
+    add_actor_fx(wanted, collector.target, "impacts.tsv", ("trigger_effect", "continuous_effect"))
+    add_actor_fx(wanted, collector.target, "bullets.tsv", ("flight_effect", "explosion_effect"))
     effects = read_script(collector.raw_root, "all.effect", 1)
     particles = read_script(collector.raw_root, "all.particle", 0)
     follow(wanted, effects, particles)

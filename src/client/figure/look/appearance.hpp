@@ -81,6 +81,12 @@ struct AnimRow {
     std::string clip;
 };
 
+// Dòng clip có giới: bộ động tác mà hai giới cùng dùng ra clip khác nhau trên skeleton mỗi giới.
+struct RacedAnimRow {
+    Race race = Race::kFemale;
+    AnimRow anim;
+};
+
 // Câu lỗi tiếng Việt kèm số dòng; mỗi bộ đọc dừng ở dòng sai đầu tiên.
 template <typename Row>
 using Rows = std::expected<std::vector<Row>, std::string>;
@@ -102,6 +108,9 @@ using Rows = std::expected<std::vector<Row>, std::string>;
 // blade, dual_short, short, fan, ring), anim, clip. Khoá (set, action, weapon). Ít nhất một dòng.
 [[nodiscard]] Rows<AnimRow> read_anim_sets(const table::Tsv& table);
 
+// Cột của read_anim_sets thêm race (0, 1). Khoá (race, set, action, weapon). Ít nhất một dòng.
+[[nodiscard]] Rows<RacedAnimRow> read_raced_anims(const table::Tsv& table);
+
 // Loại vũ khí theo tên trong bảng (none, spear, blade, dual_short, short, fan, ring); nullopt khi tên lạ.
 [[nodiscard]] std::optional<Weapon> weapon_named(std::string_view name);
 
@@ -110,6 +119,9 @@ using Rows = std::expected<std::vector<Row>, std::string>;
 [[nodiscard]] const FaceRow* find_face(std::span<const FaceRow> rows, std::uint16_t id, Race race);
 [[nodiscard]] const HairRow* find_hair(std::span<const HairRow> rows, std::uint16_t id, Race race);
 [[nodiscard]] const OutfitRow* find_outfit(std::span<const OutfitRow> rows, std::uint16_t id, Race race);
-[[nodiscard]] const AnimRow* find_anim(std::span<const AnimRow> rows, std::uint32_t set, Action action, Weapon weapon);
+[[nodiscard]] const AnimRow* find_anim(std::span<const AnimRow> rows, std::uint32_t set,
+    Action action, Weapon weapon);
+[[nodiscard]] const AnimRow* find_raced_anim(std::span<const RacedAnimRow> rows, Race race,
+    std::uint32_t set, Action action, Weapon weapon);
 
 } // namespace game::look

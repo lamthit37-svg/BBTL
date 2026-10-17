@@ -24,6 +24,7 @@
 #include "resource/dds.hpp"
 #include "resource/image.hpp"
 #include "resource/lod.hpp"
+#include "resource/ogre_program.hpp"
 
 #include <meshoptimizer.h>
 
@@ -36,6 +37,7 @@
 #include <memory>
 #include <mutex>
 #include <optional>
+#include <print>
 #include <span>
 #include <string>
 #include <unordered_map>
@@ -899,12 +901,70 @@ void apply_look(Material& material, const MaterialLook& look) {
     return stored;
 }
 
+// Material/programs.tsv của root. Thiếu hay hỏng thì bảng rỗng và một dòng báo: chất liệu vẫn vẽ
+// theo all.material, chỉ mất luồng sáng, viền sáng và pass ghi depth.
+[[nodiscard]] ProgramTable read_programs(std::string_view root) {
+    const std::string path = fs::join(fs::join(root, "Material"), "programs.tsv");
+    auto bytes = fs::read_file(path);
+    if (!bytes) {
+        std::println(stderr, "Chất liệu: không đọc {}: luồng sáng tắt", path);
+        return {};
+    }
+    const std::span<const std::byte> raw = bytes->span();
+    const std::string text(reinterpret_cast<const char*>(raw.data()), raw.size());
+    core::Result<ProgramTable> parsed = parse_programs(text);
+    if (!parsed) {
+        std::println(stderr, "Chất liệu: {}: luồng sáng tắt", parsed.error());
+        return {};
+    }
+    return std::move(*parsed);
+}
+
+// Dựng một lần cho mỗi root, cùng cách table_of: luồng đọc mesh tra không cần khoá.
+[[nodiscard]] std::shared_ptr<const ProgramTable> programs_of(std::string_view root) {
+    static std::mutex gate;
+    static std::string loaded;
+    static std::shared_ptr<const ProgramTable> table;
+    const std::scoped_lock<std::mutex> lock(gate);
+    if (table && loaded == root) return table;
+    table = std::make_shared<const ProgramTable>(read_programs(root));
+    loaded = std::string(root);
+    return table;
+}
+
+void attach_flow(Model& model, Flow& flow, const ProgramLook& look, std::string_view root,
+    TextureTier tier) {
+    static_cast<void>(attach_slot(model, flow.ctl, root, look.ctl, tier));
+    static_cast<void>(attach_slot(model, flow.flow_map, root, look.flow_map, tier));
+    static_cast<void>(attach_slot(model, flow.outline_map, root, look.outline_map, tier));
+}
+
+// Chất liệu luồng sáng, viền sáng: pass hiện màu và ba ảnh lấy từ programs.tsv, thắng luật đọc
+// từng dòng của all.material (luật ấy lấy alpha_rejection của pass ghi depth làm của pass màu).
+void apply_program(Model& model, Material& material, std::string_view root, TextureTier tier) {
+    if (root.empty()) return;
+    const std::shared_ptr<const ProgramTable> table = programs_of(root);
+    const auto found = table->find(utf8_path(material.name));
+    if (found == table->end()) return;
+    const ProgramLook& look = found->second;
+    material.alpha = look.alpha;
+    material.alpha_cutoff = look.cutoff;
+    if (look.double_sided) material.double_sided = *look.double_sided;
+    material.depth_prepass = look.depth_prepass;
+    Flow flow = look.flow;
+    attach_flow(model, flow, look, root, tier);
+    material.flow = std::move(flow);
+}
+
 [[nodiscard]] bool bind_look(Model& model, Material& material, std::string_view root,
     const MaterialLook& look, const std::string& color, TextureTier tier) {
     apply_look(material, look);
     const bool color_ok = attach_slot(model, material.color, root, color, tier);
     if (!color_ok) return false;
-    return attach_slot(model, material.surface, root, look.mask, tier);
+    const bool mask_ok = attach_slot(model, material.surface, root, look.mask, tier);
+    if (!mask_ok) return false;
+    apply_program(model, material, root, tier);
+    return true;
 }
 
 void shift_uv(std::vector<Vertex>& vertices, float along_u, float along_v) {

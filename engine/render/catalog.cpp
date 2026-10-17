@@ -1,5 +1,19 @@
-// Dựng PSO của bảng catalog từ gói .f2s. Mỗi cặp shader nạp một lần cho mọi biến thể của nó.
-// Bốn biến thể model khác nhau ở cull và blend; chỉ số ô trùng bit mà forward chọn chất liệu.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/render/catalog.cpp
+ *  PHÂN HỆ   : Render / Catalog
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dựng PSO của bảng catalog từ gói .f2s. Mỗi cặp shader nạp một lần cho mọi
+ *    biến thể của nó. Bốn biến thể model khác nhau ở cull và blend; chỉ số ô
+ *    trùng bit mà forward chọn chất liệu.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "render/catalog.hpp"
 
 #include "core/clock.hpp"
@@ -92,8 +106,14 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
 
 // Bit chất liệu của PSO model; địa hình là đục hai mặt (như chất liệu "dia-hinh" của nó), model đục không discard
 // giữ bit hai mặt của chỉ số và không bao giờ trộn.
+[[nodiscard]] constexpr bool is_depth_only(Pso pso) noexcept {
+    return pso == Pso::kModelDepth || pso == Pso::kModelDepthTwoSided;
+}
+
 [[nodiscard]] constexpr std::uint32_t model_kind(Pso pso) noexcept {
     if (pso == Pso::kTerrain) return kModelTwoSided;
+    if (pso == Pso::kModelDepthTwoSided) return kModelTwoSided;
+    if (pso == Pso::kModelDepth) return 0;
     const bool is_solid = pso == Pso::kModelSolid || pso == Pso::kModelSolidTwoSided;
     if (is_solid) return static_cast<std::uint32_t>(pso) & kModelTwoSided;
     const bool is_add = pso == Pso::kModelAdd || pso == Pso::kModelAddTwoSided;
@@ -103,6 +123,8 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
 static_assert(model_kind(Pso::kModelSolid) == 0 &&
     model_kind(Pso::kModelSolidTwoSided) == kModelTwoSided);
 static_assert(model_kind(Pso::kModelAdd) == 0 && model_kind(Pso::kModelAddTwoSided) == 0);
+static_assert(model_kind(Pso::kModelDepth) == 0 &&
+    model_kind(Pso::kModelDepthTwoSided) == kModelTwoSided);
 
 [[nodiscard]] core::Result<gpu::PipelineHandle> make_model(gpu::Device& device, const CatalogDesc& desc,
     const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
@@ -118,6 +140,8 @@ static_assert(model_kind(Pso::kModelAdd) == 0 && model_kind(Pso::kModelAddTwoSid
     if (is_add) blend = fx_factors(one, one);
     const bool uses_alpha = !is_add && is_blended;
     if (uses_alpha) blend = alpha_blend();
+    // colour_write off: chỉ ghi độ sâu, màu đích giữ nguyên.
+    if (is_depth_only(entry.pso)) blend.write_mask = 0;
     const gpu::VertexBufferLayout layout{.stride = sizeof(resource::Vertex)};
     gpu::GraphicsPipelineDesc pipeline;
     pipeline.name = entry.name;
@@ -353,7 +377,9 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelSolid:
     case Pso::kModelSolidTwoSided:
     case Pso::kModelAdd:
-    case Pso::kModelAddTwoSided: return make_model(*device_, desc_, entry, shaders);
+    case Pso::kModelAddTwoSided:
+    case Pso::kModelDepth:
+    case Pso::kModelDepthTwoSided: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);
     case Pso::kFx: return build_fx(*device_, desc_, shaders, one, one, entry.name);
     case Pso::kFxAlphaAdd: return build_fx(*device_, desc_, shaders, src_alpha, one, entry.name);

@@ -95,6 +95,7 @@ void lookups(Context& context) {
     const look::CreatureTemplate* quai = tables->find_template(10);
     context.expect(quai != nullptr && quai->name == "Quái" && quai->kind == CreatureKind::kMonster, "tra theo khoá dù bảng không xếp");
     context.expect(quai != nullptr && near_value(quai->plate_height, 2.5F) && near_value(quai->scale, 1.5F), "ô số thực");
+    context.expect(quai != nullptr && quai->move_speed == 0, "thiếu cột tốc độ thì 0");
     context.expect(tables->find_template(11) == nullptr && tables->find_template(0) == nullptr, "khoá lạ không có");
     context.expect(tables->find_model(5) != nullptr && tables->find_model(6) == nullptr, "tra mô hình");
     const look::CreatureMaterial* da2 = tables->find_material("da2");
@@ -254,8 +255,23 @@ void loads_from_a_folder(Context& context) {
     context.expect(!lost && lost.error().find("creature_clips.tsv") != std::string::npos, "thiếu tệp thì lỗi nêu tên tệp");
 }
 
+void template_speed_is_optional(Context& context) {
+    Fixture fast = good();
+    const std::string head = "template\tname\tmodel\tplate_height\tring_size\tshadow_size\tscale\tkind\tmove_speed\n";
+    fast.templates = head + row({"10", "Quái", "5", "2.5", "100", "100", "1.5", "monster", "1800"});
+    const auto tables = look::parse_creature_tables(fast.texts());
+    context.expect(tables.has_value(), "có cột tốc độ vẫn đọc được");
+    if (!tables) return;
+    const look::CreatureTemplate* quai = tables->find_template(10);
+    context.expect(quai != nullptr && quai->move_speed == 1800, "tốc độ mẫu là 1800");
+    Fixture bad = good();
+    bad.templates = head + row({"10", "Quái", "5", "2.5", "100", "100", "1.5", "monster", "x"});
+    context.expect(!look::parse_creature_tables(bad.texts()), "tốc độ không phải số thì lỗi");
+}
+
 constexpr std::array kCases{
     Case{.name = "lookups", .body = &lookups},
+    Case{.name = "template_speed_is_optional", .body = &template_speed_is_optional},
     Case{.name = "kinds_do_not_mix", .body = &kinds_do_not_mix},
     Case{.name = "animated_figure", .body = &animated_figure},
     Case{.name = "default_clip_and_overlay", .body = &default_clip_and_overlay},

@@ -70,6 +70,8 @@ struct ViewerDesc {
     std::vector<std::uint32_t> creatures;
     // --pet: id mẫu trân thú (DisplayDesc::pets).
     std::vector<std::uint32_t> pets;
+    // --impact: id hiệu ứng bật ở khung đầu (DisplayDesc::impact_id). 0 là id thật.
+    std::optional<std::uint32_t> impact_id;
     // --peer: số người chơi khác đứng trước mặt (DisplayDesc::peer_count).
     std::uint32_t peer_count = 0;
     // --talk-demo: NPC của --creature bấm được, hộp thoại đáp bằng kịch bản có sẵn (DisplayDesc::talk_demo).

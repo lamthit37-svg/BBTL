@@ -36,6 +36,7 @@ using client::cast::Cast;
 using client::cast::Hurt;
 using client::cast::Kind;
 using client::cast::Moved;
+using client::cast::Placed;
 using client::cast::Pose;
 using client::cast::Pulled;
 using client::cast::Spawn;
@@ -248,6 +249,34 @@ void turns_the_short_way(Context& context) {
     context.expect(std::fabs(cast.find(1)->facing) <= std::numbers::pi_v<float>, "hướng luôn trong (-π, π]");
 }
 
+void placed_does_not_chase(Context& context) {
+    Cast cast;
+    cast.apply(Arrive{});
+    cast.apply(monster(1, {.x = 0.0F, .z = 0.0F}));
+    const Placed pin{.id = 1, .x = 3.0F, .z = 0.0F, .facing = 1.0F, .pose = Pose::kWalk};
+    cast.apply(pin);
+    cast.advance(1.0F);
+    const Actor* actor = cast.find(1);
+    context.expect(actor != nullptr, "còn thực thể");
+    context.expect(near_value(actor->x, 3.0F) && near_value(actor->z, 0.0F), "đứng đúng điểm ghim");
+    context.expect(actor->pose == Pose::kWalk, "giữ dáng đi, không chớp về đứng");
+}
+
+void placed_unknown_is_ignored(Context& context) {
+    Cast cast;
+    cast.apply(Arrive{});
+    cast.apply(Placed{.id = 9, .x = 3.0F, .z = 1.0F, .pose = Pose::kWalk});
+    context.expect(cast.actors().empty(), "id lạ không sinh thực thể");
+}
+
+void placed_rejects_nan(Context& context) {
+    Cast cast;
+    cast.apply(Arrive{});
+    cast.apply(monster(1, {.x = 1.0F, .z = 2.0F}));
+    cast.apply(Placed{.id = 1, .x = std::numeric_limits<float>::quiet_NaN(), .z = 0.0F});
+    context.expect(near_value(cast.find(1)->x, 1.0F), "NaN không ghi đè");
+}
+
 void pulled_is_not_cast_business(Context& context) {
     Cast cast;
     cast.apply(Arrive{});
@@ -271,6 +300,9 @@ constexpr std::array kCases{
     Case{.name = "dead_stays", .body = &dead_stays},
     Case{.name = "turns_the_short_way", .body = &turns_the_short_way},
     Case{.name = "pulled_is_not_cast_business", .body = &pulled_is_not_cast_business},
+    Case{.name = "placed_does_not_chase", .body = &placed_does_not_chase},
+    Case{.name = "placed_unknown_is_ignored", .body = &placed_unknown_is_ignored},
+    Case{.name = "placed_rejects_nan", .body = &placed_rejects_nan},
 };
 
 } // namespace

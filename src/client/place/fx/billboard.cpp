@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/place/fx/billboard.cpp
+ *  PHÂN HỆ   : Place / Fx / Billboard
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dựng đỉnh quad billboard và dải ribbon của hạt đang sống, đỉnh ở thế giới;
+ *    hệ không gian cục bộ đổi qua node của hệ.
+ *  - grain_sphere cho cầu bao mọi đỉnh của hệ billboard kiểu điểm để FxView bỏ
+ *    hệ ngoài khung nhìn trước khi dựng quad; kiểu khác luôn được vẽ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fx/billboard.hpp"
 
 #include "fx/field.hpp"
@@ -7,9 +24,11 @@
 #include "ogre/vec3.hpp"
 
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <utility>
 #include <variant>
@@ -150,17 +169,35 @@ struct TexFrame {
     return frame;
 }
 
-void push_grain(BillboardBatch& batch, const Field& field, const SequenceFrame* sequence, const Grain& grain,
-    CameraAxes camera) {
+// Bốn góc theo thứ tự trái trên, phải trên, trái dưới, phải dưới như genVertOffsets.
+using Offsets = std::array<Vec3, 4>;
+
+// BillboardSet::genVertices kiểu BBR_VERTEX, kiểu mặc định của bản gốc (OgreMain 0x18004e680 để
+// 0): bốn góc quay quanh trục (o3 − o0) × (o2 − o1) một góc bằng rotation của hạt.
+[[nodiscard]] Offsets spin_offsets(const Offsets& offsets, float rotation) {
+    const Vec3 across = ogre::sub_vec3(offsets[3], offsets[0]);
+    const Vec3 down = ogre::sub_vec3(offsets[2], offsets[1]);
+    const Vec3 normal = ogre::cross_vec3(across, down);
+    const Vec3 axis = ogre::normalize_vec3(normal);
+    const ogre::Quat turn = ogre::quat_from_angle_axis(rotation, axis);
+    Offsets turned{};
+    for (std::size_t index = 0; index < offsets.size(); ++index)
+        turned.at(index) = ogre::quat_rotate(turn, offsets.at(index));
+    return turned;
+}
+
+void push_grain(BillboardBatch& batch, const Field& field, const SequenceFrame* sequence,
+    const Grain& grain, CameraAxes camera) {
     const SystemDef& definition = field.definition();
     const float width = grain.own ? grain.width : definition.width;
     const float height = grain.own ? grain.height : definition.height;
     const Vec3 center = world_point(field, grain.position);
     const Axes axes = axes_of(definition, field, grain.direction, camera);
-    const Vec3 left = ogre::scale_vec3(axes.x, definition.origin.left * width);
-    const Vec3 right = ogre::scale_vec3(axes.x, definition.origin.right * width);
-    const Vec3 top = ogre::scale_vec3(axes.y, definition.origin.top * height);
-    const Vec3 bottom = ogre::scale_vec3(axes.y, definition.origin.bottom * height);
+    // Phần của bốn góc trên trục x (thấp, cao) và trục y (cao, thấp) theo billboard_origin.
+    const Vec3 x_low = ogre::scale_vec3(axes.x, definition.origin.left * width);
+    const Vec3 x_high = ogre::scale_vec3(axes.x, definition.origin.right * width);
+    const Vec3 y_high = ogre::scale_vec3(axes.y, definition.origin.top * height);
+    const Vec3 y_low = ogre::scale_vec3(axes.y, definition.origin.bottom * height);
     const Colour colour = grain.colour;
     const TexFrame frame = frame_of(definition, sequence, grain);
     Uv top_left{.u = frame.left, .v = frame.top};
@@ -175,12 +212,17 @@ void push_grain(BillboardBatch& batch, const Field& field, const SequenceFrame* 
         low_left = spin_uv(low_left, grain.rotation, middle);
         low_right = spin_uv(low_right, grain.rotation, middle);
     }
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(left, top)), top_left.u, top_left.v, colour);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(right, top)), top_right.u, top_right.v, colour);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(left, bottom)), low_left.u, low_left.v, colour);
-    push_corner(batch, ogre::add_vec3(center, ogre::add_vec3(right, bottom)), low_right.u, low_right.v, colour);
-    if (grain.rotation == 0.0F || definition.rotate_texcoord) return;
-    static_cast<void>(grain.rotation);
+    const Vec3 left_top = ogre::add_vec3(x_low, y_high);
+    const Vec3 right_top = ogre::add_vec3(x_high, y_high);
+    const Vec3 left_bottom = ogre::add_vec3(x_low, y_low);
+    const Vec3 right_bottom = ogre::add_vec3(x_high, y_low);
+    Offsets offsets{left_top, right_top, left_bottom, right_bottom};
+    const bool turns = !definition.rotate_texcoord && grain.rotation != 0.0F;
+    if (turns) offsets = spin_offsets(offsets, grain.rotation);
+    push_corner(batch, ogre::add_vec3(center, offsets[0]), top_left.u, top_left.v, colour);
+    push_corner(batch, ogre::add_vec3(center, offsets[1]), top_right.u, top_right.v, colour);
+    push_corner(batch, ogre::add_vec3(center, offsets[2]), low_left.u, low_left.v, colour);
+    push_corner(batch, ogre::add_vec3(center, offsets[3]), low_right.u, low_right.v, colour);
 }
 
 // Chuỗi luôn ở không gian node. Mắt đưa về không gian đó rồi nhân nửa bề rộng, như BillboardChain.
@@ -323,6 +365,42 @@ void append_chain_span(BillboardBatch& batch, std::span<const ChainSample> point
     return ogre::add_vec3(node.position, turned);
 }
 
+// Phần cầu bao hạt: hộp Field::extent (đo một lần mỗi bước mô phỏng) đổi sang thế giới, cầu ngoại
+// tiếp hộp, cộng tầm với lớn nhất của một quad. Cầu này chứa cầu dựng từ hộp thế giới của từng tâm
+// hạt, nên vẫn bao mọi đỉnh.
+
+// Quad theo trục camera (kPoint) mới có tầm với không đổi theo hướng nhìn; các kiểu còn lại luôn
+// được vẽ.
+[[nodiscard]] bool is_point_quad(const SystemDef& definition) noexcept {
+    if (definition.renderer == RendererKind::kRibbon) return false;
+    if (definition.renderer == RendererKind::kMesh) return false;
+    return definition.billboard == BillboardKind::kPoint;
+}
+
+// Đỉnh cách tâm hạt không quá hypot(across * bề rộng, up * bề cao) vì hai trục camera trực chuẩn;
+// bề rộng, bề cao lớn nhất của hộp chặn trên mọi hạt. Quad không nhân scale của node.
+[[nodiscard]] float quad_reach(const Origin& origin, const Field::Extent& extent) noexcept {
+    const float across = std::max(std::fabs(origin.left), std::fabs(origin.right));
+    const float upward = std::max(std::fabs(origin.top), std::fabs(origin.bottom));
+    return std::hypot(across * extent.widest, upward * extent.tallest);
+}
+
+// Hệ cục bộ: node kéo dài một đoạn tối đa |scale| lớn nhất lần, phép quay giữ độ dài.
+[[nodiscard]] float stretch_of(const Field& field) noexcept {
+    if (!field.definition().local_space) return 1.0F;
+    const Vec3 scale = field.node().scale;
+    const float flat = std::max(std::fabs(scale.x), std::fabs(scale.y));
+    return std::max(flat, std::fabs(scale.z));
+}
+
+// Số không hữu hạn (hạt hỏng) thì không bao được gì: để hệ được vẽ như cũ.
+[[nodiscard]] std::optional<GrainSphere> sphere_of(Vec3 middle, float radius) noexcept {
+    const bool is_flat_finite = std::isfinite(middle.x) && std::isfinite(middle.y);
+    const bool is_finite = is_flat_finite && std::isfinite(middle.z) && std::isfinite(radius);
+    if (!is_finite) return std::nullopt;
+    return GrainSphere{.centre = middle, .radius = radius};
+}
+
 } // namespace
 
 void append_chain(BillboardBatch& batch, std::span<const ChainSample> points, CameraAxes camera, bool full_width) {
@@ -336,6 +414,19 @@ void append_deck(BillboardBatch& batch, const Node& node, float size, Colour col
     push_corner(batch, deck_corner(node, half, -half), 1.0F, 0.0F, colour);
     push_corner(batch, deck_corner(node, -half, half), 0.0F, 1.0F, colour);
     push_corner(batch, deck_corner(node, half, half), 1.0F, 1.0F, colour);
+}
+
+std::optional<GrainSphere> grain_sphere(const Field& field) {
+    if (!is_point_quad(field.definition())) return std::nullopt;
+    const Field::Extent& extent = field.extent();
+    if (extent.is_empty) return std::nullopt;
+    const Vec3 diagonal = ogre::sub_vec3(extent.high, extent.low);
+    const Vec3 sum = ogre::add_vec3(extent.low, extent.high);
+    const Vec3 local_middle = ogre::scale_vec3(sum, 0.5F);
+    const Vec3 middle = world_point(field, local_middle);
+    const float spread = ogre::length_vec3(diagonal) * 0.5F * stretch_of(field);
+    const float radius = spread + quad_reach(field.definition().origin, extent);
+    return sphere_of(middle, radius);
 }
 
 std::vector<BillboardBatch> billboards_of(std::span<const Field* const> fields, CameraAxes camera) {

@@ -1,10 +1,25 @@
-// Bộ đọc .mesh: một tam giác ba đỉnh, chỉ số hẹp, và lần nạp theo tên không gắn .glb.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Resource/ogre_mesh_tests.cpp
+ *  PHÂN HỆ   : Resource / Ogre Mesh Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ đọc .mesh: một tam giác ba đỉnh, chỉ số hẹp, và lần nạp theo tên không
+ *    gắn .glb.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "core/check.hpp"
 #include "core/error.hpp"
 #include "fs/disk.hpp"
 #include "fs/file.hpp"
 #include "resource/lod.hpp"
 #include "resource/ogre_mesh.hpp"
+#include "resource/ogre_program.hpp"
 #include "test.hpp"
 
 #include <algorithm>
@@ -14,6 +29,8 @@
 #include <cstdint>
 #include <cstring>
 #include <filesystem>
+#include <optional>
+#include <span>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -544,6 +561,117 @@ void painted_utf8_finds_gbk_material(Context& context) {
     std::filesystem::remove_all(root);
 }
 
+constexpr std::string_view kProgramHeader =
+    "material\tprogram\tflow\tflow_light_type\tflow_tex_type\toutline\toutline_ctrl\tdissolve\t"
+    "blend\tdepth_write\talpha_ref\tcull\tdepth_pass\tdepth_ref\temissive\tdiffuse\tflow_factor\t"
+    "outline_pow\toutline_color\tbase\tctl\treflection\toutline_ctrl_texture\n";
+
+// Mtl_OutlineCtrl_FlowLight: luồng theo alpha ảnh nền, viền có ảnh điều khiển, pass ghi depth.
+constexpr std::string_view kRimRow =
+    "bo\tModel_OutlineCtrl_FlowLight_PS\t1\t0\t0\t1\t1\t0\talpha_blend\toff\tgreater 220\tnone\t"
+    "1\tgreater 180\t\t\t0.5 0.5 1 2\t3 0.5\t1 0.8 0 1.5\tbo.dds\t\tluong.dds\tvien.dds\n";
+
+// Character_FlowLight (FLOW_TEX_TYPE 2): hệ số luồng ở kênh r của ctl, pass đục có cắt alpha.
+constexpr std::string_view kFlowRow =
+    "kiem\tCharacter_FlowLight\t1\t0\t2\t0\t0\t0\t\t\tgreater 128\t\t0\t\t\t\t2.0 2.0 0 5\t\t\t"
+    "kiem.dds\tkiem_ctl.dds\tkiem_luong.dds\t\n";
+
+[[nodiscard]] bool is_near(float left, float right) {
+    return std::abs(left - right) < 1.0e-6F;
+}
+
+void expect_rim_row(Context& context, const resource::ProgramLook& look) {
+    const resource::Flow& flow = look.flow;
+    context.expect(flow.has_flow && !flow.flows_by_uv, "luồng theo pháp tuyến");
+    context.expect(flow.mask_in_alpha, "FLOW_TEX_TYPE 0 lấy alpha ảnh nền");
+    context.expect(flow.has_outline && flow.uses_outline_map, "viền có ảnh điều khiển");
+    context.expect(look.alpha == resource::Alpha::kBlend, "alpha_blend là trộn");
+    context.expect(is_near(look.cutoff, 220.5F / 255.0F), "greater 220 của pass màu");
+    context.expect(look.double_sided == std::optional<bool>{true}, "cull none là hai mặt");
+    const bool has_prepass = look.depth_prepass.has_value();
+    context.expect(has_prepass, "có pass ghi depth");
+    if (has_prepass) context.expect(is_near(*look.depth_prepass, 180.5F / 255.0F), "greater 180");
+    const bool factor = is_near(flow.factor.x, 0.5F) && is_near(flow.factor.w, 2.0F);
+    context.expect(factor, "flowFactor đủ bốn số");
+    const bool power = is_near(flow.outline_pow.x, 3.0F) && is_near(flow.outline_pow.y, 0.5F);
+    context.expect(power, "outlinePow");
+    context.expect(is_near(flow.outline_color.w, 1.5F), "cường độ viền giữ trên 1");
+    context.expect(look.ctl.empty() && look.flow_map == "luong.dds", "ảnh luồng, không ctl");
+    context.expect(look.outline_map == "vien.dds", "ảnh viền");
+}
+
+void expect_flow_row(Context& context, const resource::ProgramLook& look) {
+    const resource::Flow& flow = look.flow;
+    context.expect(flow.has_flow && !flow.mask_in_alpha, "FLOW_TEX_TYPE 2 lấy kênh r của ctl");
+    context.expect(!flow.has_outline, "không viền");
+    context.expect(look.alpha == resource::Alpha::kMask, "đục có cắt là mặt nạ");
+    context.expect(is_near(look.cutoff, 128.5F / 255.0F), "greater 128");
+    context.expect(!look.double_sided && !look.depth_prepass, "không khai cull, không pass depth");
+    context.expect(look.ctl == "kiem_ctl.dds", "ảnh ctl");
+}
+
+void programs_read_flow_and_rim(Context& context) {
+    std::string text(kProgramHeader);
+    text += kRimRow;
+    text += kFlowRow;
+    const auto table = resource::parse_programs(text);
+    context.expect(table.has_value(), "bảng hai dòng đọc được");
+    if (!table) return;
+    context.expect(table->size() == 2, "hai chất liệu");
+    const auto rim = table->find("bo");
+    const auto flow = table->find("kiem");
+    const bool found = rim != table->end() && flow != table->end();
+    context.expect(found, "tra theo tên chất liệu");
+    if (!found) return;
+    expect_rim_row(context, rim->second);
+    expect_flow_row(context, flow->second);
+}
+
+// Bảng lệch công cụ là lỗi cả bảng, không đoán cột.
+void programs_reject_bad_table(Context& context) {
+    std::string renamed(kProgramHeader);
+    renamed.replace(renamed.find("ctl\t"), 3, "xyz");
+    context.expect(!resource::parse_programs(renamed).has_value(), "tiêu đề lạ");
+    std::string short_row(kProgramHeader);
+    short_row += "bo\tModel_Outline_PS\t0\n";
+    context.expect(!resource::parse_programs(short_row).has_value(), "thiếu cột");
+    std::string bad_number(kProgramHeader);
+    bad_number += kFlowRow;
+    bad_number.replace(bad_number.find("2.0 2.0"), 7, "2.0 x.0");
+    context.expect(!resource::parse_programs(bad_number).has_value(), "số hỏng");
+    context.expect(!resource::parse_programs("").has_value(), "bảng rỗng");
+}
+
+void rejection_cutoff_rounds_like_ogre(Context& context) {
+    const auto greater = resource::rejection_cutoff("greater 128");
+    const auto equal = resource::rejection_cutoff("greater_equal 128");
+    context.expect(greater && is_near(*greater, 128.5F / 255.0F), "greater N là N + 0,5");
+    context.expect(equal && is_near(*equal, 127.5F / 255.0F), "greater_equal N là N - 0,5");
+    context.expect(!resource::rejection_cutoff("less 5"), "hàm khác thì không đoán");
+    context.expect(!resource::rejection_cutoff("greater"), "thiếu số");
+}
+
+// Bảng thật của công cụ (export_material_programs.py) phải đọc trọn.
+void shipped_programs_parse(Context& context) {
+#ifdef GAME_CLIENT_DATA
+    const std::string path = std::string(GAME_CLIENT_DATA) + "/Material/programs.tsv";
+    if (!fs::is_file(path)) return;
+    const auto bytes = fs::read_file(path);
+    context.expect(bytes.has_value(), "đọc programs.tsv");
+    if (!bytes) return;
+    const std::span<const std::byte> raw = bytes->span();
+    const std::string text(reinterpret_cast<const char*>(raw.data()), raw.size());
+    const auto table = resource::parse_programs(text);
+    if (!table) {
+        context.expect(false, table.error().message());
+        return;
+    }
+    context.expect(table->size() > 3000, "đủ chất liệu luồng và viền");
+#else
+    static_cast<void>(context);
+#endif
+}
+
 constexpr std::array kCases{
     Case{.name = "reads_triangle_positions", .body = &reads_triangle_positions},
     Case{.name = "cache_carries_lods", .body = &cache_carries_lods},
@@ -556,6 +684,10 @@ constexpr std::array kCases{
     Case{.name = "trailing_spaces_keep_the_texture", .body = &trailing_spaces_keep_the_texture},
     Case{.name = "additive_sheet_uses_scroll_and_mask", .body = &additive_sheet_uses_scroll_and_mask},
     Case{.name = "painted_utf8_finds_gbk_material", .body = &painted_utf8_finds_gbk_material},
+    Case{.name = "programs_read_flow_and_rim", .body = &programs_read_flow_and_rim},
+    Case{.name = "programs_reject_bad_table", .body = &programs_reject_bad_table},
+    Case{.name = "rejection_cutoff_rounds_like_ogre", .body = &rejection_cutoff_rounds_like_ogre},
+    Case{.name = "shipped_programs_parse", .body = &shipped_programs_parse},
 };
 
 } // namespace

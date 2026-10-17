@@ -231,6 +231,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.ui_events = options.ui_events;
     viewer.creatures = options.creatures;
     viewer.pets = options.pets;
+    viewer.impact_id = options.impact_id;
     viewer.peer_count = options.peer_count;
     viewer.talk_demo = options.talk_demo;
     viewer.weapon_item = options.weapon_item;

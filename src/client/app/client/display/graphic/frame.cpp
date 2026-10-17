@@ -17,9 +17,15 @@
 
 #include "client/display/display.hpp"
 #include "client/display/graphic/prelude.hpp"
+#include "core/cores.hpp"
 #include "ui/panel/online.hpp"
 
+#include <cstddef>
+#include <cstdint>
+#include <string>
+#include <string_view>
 #include <utility>
+
 namespace game::client {
 
 SceneTitle scene_title_lookup(const std::filesystem::path& data_root) {
@@ -352,6 +358,8 @@ core::Status Display::State::launch(const DisplayDesc& desc) {
 }
 
 void Display::State::run(Launch& handshake, const DisplayDesc& desc, const std::stop_token& stop) {
+    // Khởi tạo và nạp cảnh đầu cũng chạy trên lõi mạnh, trước lượt đầu của vòng khung.
+    hold_fast_cores(0);
     const core::Status made = launch(desc);
     {
         const std::scoped_lock<std::mutex> locked(handshake.mutex);
@@ -378,7 +386,9 @@ void Display::State::spin(const std::stop_token& stop) {
 }
 
 [[nodiscard]] bool Display::State::turn_one(core::Clock::time_point& previous) {
-    turn_count.fetch_add(1, std::memory_order_relaxed);
+    const std::uint64_t serial = turn_count.fetch_add(1, std::memory_order_relaxed);
+    // Lượt 0 là lần gọi ở đầu run().
+    hold_fast_cores(serial + 1);
     adopt();
     const TimePoint load_began = core::Clock::now();
     pump_load();
@@ -386,10 +396,56 @@ void Display::State::spin(const std::stop_token& stop) {
     const PixelSize size = unpack(posted_size.load(std::memory_order_relaxed));
     const bool is_hidden = size.width == 0 || size.height == 0;
     if (is_hidden) {
-        nap(previous);
+        rest(previous);
         return true;
     }
     return turn(previous);
+}
+
+namespace {
+
+// Acquire chờ từ 2 ms là đã chờ ảnh được nhả, nên mốc trả về trùng lúc màn thay ảnh. Đo 2026-10-17
+// trên TB-X306F: lần không chờ mất 0,5 tới 2 ms (IPC tới SurfaceFlinger); ngưỡng 1 ms lẫn các lần
+// ấy vào và chu kỳ đo lệch 0,5%, ngưỡng 2 ms ra 16,703 ms đúng như SurfaceFlinger.
+[[nodiscard]] core::AcquireNote acquire_of(TimePoint asked, TimePoint handed, TimePoint origin) {
+    constexpr double kWaitedMs = 2.0;
+    const bool is_waited = millis_between(asked, handed) >= kWaitedMs;
+    return {.at_ms = millis_between(origin, handed), .waited = is_waited};
+}
+
+// Chỉ số CPU cách nhau một dấu cách; rỗng là không ghim.
+[[nodiscard]] std::string cpu_list(const core::CpuSet& cpus) {
+    if (cpus.none()) return "mọi lõi";
+    std::string listed;
+    for (std::size_t i = 0; i < cpus.size(); ++i) {
+        if (!cpus[i]) continue;
+        listed += std::to_string(i);
+        listed += ' ';
+    }
+    listed.pop_back();
+    return listed;
+}
+
+// Một dòng lúc khởi động: log thiết bị cho biết luồng vẽ được giữ ở lõi nào.
+void say_fast_cores(bool is_held) {
+    const std::string listed = cpu_list(core::fast_cores());
+    const std::string_view held = is_held ? "giữ được" : "không giữ được";
+    std::println("Luồng vẽ: lõi mạnh {}, {}", listed, held);
+}
+
+} // namespace
+
+// Bộ lập lịch MediaTek dời luồng vẽ sang cụm chậm khi tải giảm, rồi khung chậm gấp đôi giữ máy ở
+// 30 khung (core/cores.cpp). Android đặt lại affinity mỗi lần đổi cpuset (ra nền rồi vào lại) nên
+// kiểm lại định kỳ; lượt đúng thì chỉ tốn một syscall.
+void Display::State::hold_fast_cores(std::uint64_t turn) {
+    constexpr std::uint64_t kCoreCheckTurns = 120;
+    if (turn % kCoreCheckTurns != 0) return;
+    const bool is_held = core::prefer_fast_cores();
+    if (turn == 0) say_fast_cores(is_held);
+    if (is_held || has_warned_cores) return;
+    has_warned_cores = true;
+    std::println(stderr, "Luồng vẽ: hệ điều hành không cho giữ lõi mạnh");
 }
 
 bool Display::State::turn(core::Clock::time_point& previous) {
@@ -397,7 +453,7 @@ bool Display::State::turn(core::Clock::time_point& previous) {
     const Refit state = wants_fit ? refit() : Refit::kDone;
     if (state == Refit::kFailed) return false;
     if (state == Refit::kRetry) {
-        nap(previous);
+        rest(previous);
         return true;
     }
     const TimePoint render_began = core::Clock::now();
@@ -407,10 +463,10 @@ bool Display::State::turn(core::Clock::time_point& previous) {
     const double spent_ms = last_load_ms + render_ms;
     if (frame && !stale_flag) hold_pace(spent_ms);
     const double pace_ms = millis_between(pace_began, core::Clock::now());
-    const core::Clock::time_point now = frame_time;
+    const core::Clock::time_point now = loop_time;
     if (frame && wait_flag) {
         wait_flag = false;
-        nap(previous);
+        rest(previous);
         return true;
     }
     const bool is_stale = frame && stale_flag;
@@ -418,11 +474,12 @@ bool Display::State::turn(core::Clock::time_point& previous) {
         // Bề mặt đã đổi cỡ giữa chừng: chờ cỡ mới tới rồi dựng lại, không quay cứng chờ nó.
         ++stale_frames;
         is_resize_pending.store(true, std::memory_order_relaxed);
-        nap(previous);
+        rest(previous);
         return true;
     }
     IntervalNote note;
-    note.interval = std::chrono::duration<double, std::milli>(now - previous).count();
+    note.loop_ms = std::chrono::duration<double, std::milli>(now - previous).count();
+    note.interval = shown_interval(note.loop_ms);
     note.render_ms = render_ms;
     note.pace_ms = pace_ms;
     if (policy.adapts_rate) govern_rate(note.interval);
@@ -494,8 +551,9 @@ core::Status Display::State::present_drawn(PresentAsk ask) const {
 core::Status Display::State::render() {
     stale_flag = false;
     wait_flag = false;
-    frame_time = await_shown();
-    const core::Clock::time_point asked = frame_time;
+    loop_time = await_shown();
+    frame_time = pace_frame(loop_time);
+    const core::Clock::time_point asked = loop_time;
     prepare_board();
     last_prepare_ms = millis_between(asked, core::Clock::now());
     const core::Clock::time_point drawing = core::Clock::now();
@@ -507,7 +565,9 @@ core::Status Display::State::render() {
     // Mốc GPU đầu nằm ngoài lượt vẽ màn hình: GPU chia ô chỉ cho tổng khung đúng khi hai mốc bao
     // trọn lượt vẽ.
     if (gpu_clock) gpu_clock->start(**list);
+    const core::Clock::time_point asking = core::Clock::now();
     const core::Result<std::uint32_t> image = screen->begin(**list);
+    acquire_note = acquire_of(asking, core::Clock::now(), started);
     // Bề mặt đổi cỡ giữa chừng: bỏ khung này, spin() dựng lại ở khung kế.
     const bool is_wait = !image && image.error().code() == core::ErrorCode::kTimeout;
     if (is_wait) {
@@ -521,6 +581,11 @@ core::Status Display::State::render() {
     const core::Status free = wait_slot();
     if (!free) return free;
     const core::Clock::time_point acquired = core::Clock::now();
+    // Swapchain giữ nhịp theo mốc trình thật: acquire nhả đúng lúc màn thay ảnh, nên mốc sau
+    // acquire đều theo nhịp quét; mốc lúc thức thì sớm muộn theo lúc khung trước nộp xong.
+    const bool is_paced = is_display_paced();
+    if (is_paced) frame_time = acquired;
+    if (is_paced) loop_time = acquired;
     const auto slot = static_cast<std::uint32_t>((frame_serial + 1) % kFrameSlots);
     const core::Status shown = draw_world(**list, slot);
     if (!shown) return shown;
@@ -589,6 +654,7 @@ core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t sl
     ask.size = render::ViewSize{.width = screen->width(), .height = screen->height()};
     render::Camera camera = ask.size.height > 0 ? frame_camera(ask) : render::Camera{};
     camera.pixels_high = static_cast<float>(ask.size.height);
+    if (ask.size.height > 0) note_view(camera);
     follow_sky_effects(camera);
     advance_fx(elapsed);
     advance_sky(elapsed);
@@ -849,7 +915,10 @@ void Display::State::report_frames() const {
     const std::string spent = std::format("tổng {:.2f} ms", gpu_wait_ms);
     const std::string peak = std::format("lâu nhất {:.2f} ms", gpu_wait_peak);
     std::println("Khung phải chờ GPU nhả bộ đệm: {} ({}), {}, {}", waits, longs, spent, peak);
-    std::println("Khung bắt đầu theo lúc ảnh lên màn: {} lần chờ được, {} lần hỏng", shown_waits, shown_failures);
+    const std::string fails = std::format("{} lần hỏng", shown_failures);
+    std::println("Khung bắt đầu theo lúc ảnh lên màn: {} lần chờ được, {}", shown_waits, fails);
+    const std::string anchors = std::format("{} lần neo lại", paced.anchors());
+    std::println("Mốc hoạt hoạ theo lưới nhịp màn: {} khung, {}", paced.steps(), anchors);
     if (phase_ms.frames == 0) return;
     const auto frames = static_cast<double>(phase_ms.frames);
     const std::string acquire_ms = std::format("{:.2f}", phase_ms.acquire / frames);

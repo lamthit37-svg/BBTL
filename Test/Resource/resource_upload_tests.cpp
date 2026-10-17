@@ -1,10 +1,26 @@
-// Test đường tải lên GPU của resource/upload trên thiết bị giả (resource_upload_device.hpp): số và
-// thứ tự lời gọi của đường thành công, mỗi tay nắm được trả đúng một lần và theo thứ tự lưới, ảnh
-// (view trước texture), sampler; tiêm lỗi vào từng lời gọi có thể hỏng thì không rò và không trả
-// hai lần; và byte của chuỗi mip so với bảng băm vàng. Không đụng GPU thật, không đọc tệp.
-// Sinh lại bảng vàng: resource_upload_tests.exe --golden rồi dán các dòng in ra vào kGolden. Chỉ
-// làm thế khi đã chứng minh byte mới là đúng: bảng hiện tại sinh ngày 2026-10-08 từ bản mà bộ thử
-// vi sai đã so trùng từng byte với bản chép từ Forge2.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Resource/resource_upload_tests.cpp
+ *  PHÂN HỆ   : Resource / Resource Upload Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test đường tải lên GPU của resource/upload trên thiết bị giả
+ *    (resource_upload_device.hpp): số và thứ tự lời gọi của đường thành công,
+ *    mỗi tay nắm được trả đúng một lần và theo thứ tự lưới, ảnh (view trước
+ *    texture), sampler; tiêm lỗi vào từng lời gọi có thể hỏng thì không rò và
+ *    không trả hai lần; và byte của chuỗi mip so với bảng băm vàng. Không đụng
+ *    GPU thật, không đọc tệp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Sinh lại bảng vàng: resource_upload_tests.exe --golden rồi dán các dòng in ra vào kGolden. Chỉ làm thế khi đã chứng
+// minh byte mới là đúng: bảng hiện tại sinh ngày 2026-10-08 từ bản mà bộ thử vi sai đã so trùng từng byte với bản
+// chép từ Forge2.
+
 #include "core/check.hpp"
 #include "core/error.hpp"
 #include "gpu/device.hpp"
@@ -281,11 +297,16 @@ void moving_keeps_one_owner(Context& context) {
     context.expect(device.seen().released.size() == all_handles, "mỗi tay nắm trả đúng một lần");
 }
 
-// Lỗi mà một lượt tiêm phải trả: end_frame hỏng thì lỗi của nó thắng, trừ khi lỗi tiêm rơi vào
-// begin_commands hay wait_idle, là hai chỗ không đóng khung.
+// Lỗi tiêm có đóng khung không: chỉ khi danh sách lệnh đã mở (begin_commands đã thành công) và lỗi
+// không rơi vào wait_idle. Bộ nhớ hợp nhất ghi lưới trước khi mở danh sách, nên hỏng ở đó thì không
+// có khung nào để đóng.
+[[nodiscard]] bool closes_frame(const Seen& seen) noexcept {
+    return seen.begins > 0 && seen.tripped != Call::kWaitIdle;
+}
+
+// Lỗi mà một lượt tiêm phải trả: end_frame hỏng thì lỗi của nó thắng khi lượt đó đóng khung.
 [[nodiscard]] core::ErrorCode expected_error(const Seen& seen, Plan plan) noexcept {
-    const bool closes_frame = seen.tripped != Call::kBeginCommands && seen.tripped != Call::kWaitIdle;
-    if (plan.fail_end_frame && closes_frame) return core::ErrorCode::kDeviceLost;
+    if (plan.fail_end_frame && closes_frame(seen)) return core::ErrorCode::kDeviceLost;
     return core::ErrorCode::kCorrupt;
 }
 
@@ -300,23 +321,27 @@ void check_failure(Context& context, Way way, Plan plan) {
     context.expect(loaded.error().code() == expected_error(seen, plan), "lỗi trả về là lỗi tiêm hoặc lỗi end_frame");
     context.expect(seen.live.empty(), "không tay nắm nào rò sau khi hỏng");
     context.expect(seen.double_frees == 0 && seen.strays == 0, "không tay nắm nào bị trả hai lần");
-    const bool closes_frame = seen.tripped != Call::kBeginCommands && seen.tripped != Call::kWaitIdle;
-    context.expect(seen.end_frames == (closes_frame ? 1U : 0U), "hỏng giữa lúc ghi hay nộp thì đóng khung một lần");
+    const std::uint32_t closed = closes_frame(seen) ? 1U : 0U;
+    context.expect(seen.end_frames == closed, "hỏng giữa lúc ghi hay nộp thì đóng khung một lần");
 }
 
-[[nodiscard]] std::uint32_t fallible_calls(Way way) {
-    FakeDevice device;
+[[nodiscard]] std::uint32_t fallible_calls(Way way, Plan plan) {
+    FakeDevice device(plan);
     const resource::Model model = full_model();
     const auto loaded = run_upload(device, model, way);
     return loaded.has_value() ? device.seen().fallible : 0;
 }
 
 // Tiêm lỗi lần lượt vào từng lời gọi có thể hỏng của một lối vào, có và không kèm end_frame hỏng.
-void check_every_failure(Context& context, Way way) {
-    const std::uint32_t calls = fallible_calls(way);
-    const std::uint32_t expected = (2 * kStagingBuffers) + kMeshBuffers + (2 * kImages) + kSamplers + 3;
+// Bộ nhớ hợp nhất bớt đúng phần buffer trung chuyển của lưới: không tạo, không ghi chúng.
+void check_every_failure(Context& context, Way way, bool is_unified) {
+    const Plan base{.is_unified = is_unified};
+    const std::uint32_t calls = fallible_calls(way, base);
+    const std::uint32_t staged = (2 * kStagingBuffers) + kMeshBuffers + (2 * kImages) + kSamplers + 3;
+    const std::uint32_t direct = staged - kMeshBuffers;
+    const std::uint32_t expected = is_unified ? direct : staged;
     context.expect(calls == (way == Way::kWait ? expected + 1 : expected), "số lời gọi có thể hỏng theo đúng model");
-    Plan plan;
+    Plan plan = base;
     for (plan.fail_at = 1; plan.fail_at <= calls; ++plan.fail_at) {
         plan.fail_end_frame = false;
         check_failure(context, way, plan);
@@ -327,8 +352,186 @@ void check_every_failure(Context& context, Way way) {
 
 void every_failure_releases_everything(Context& context) {
     for (const Way way : kWays) {
-        check_every_failure(context, way);
+        check_every_failure(context, way, false);
+        check_every_failure(context, way, true);
     }
+}
+
+// Bộ nhớ hợp nhất (DeviceCaps::has_unified_memory), model chỉ có lưới: buffer tạo thẳng ở Upload
+// và ghi từ CPU; không buffer trung chuyển, không danh sách lệnh, không nộp, không chờ.
+void check_unified_mesh(Context& context, Way way) {
+    FakeDevice device(Plan{.is_unified = true});
+    const resource::Model model = mesh_model();
+    auto loaded = run_upload(device, model, way);
+    context.expect(loaded.has_value(), "bộ nhớ hợp nhất: model chỉ có lưới vẫn tải được");
+    if (!loaded) return;
+    const Seen& seen = device.seen();
+    context.expect(seen.begins == 0 && seen.submits == 0, "không mở danh sách lệnh, không nộp");
+    context.expect(seen.waits == 0 && seen.end_frames == 0, "không chờ GPU, không đóng khung");
+    context.expect(seen.buffers == kMeshBuffers, "không buffer trung chuyển nào");
+    context.expect(seen.upload_buffers == kMeshBuffers, "buffer của lưới nằm ở Upload");
+    context.expect(seen.writes == kMeshBuffers, "mỗi buffer ghi thẳng một lần");
+    context.expect(seen.commands.empty(), "không lệnh chép, không rào");
+    *loaded = resource::Uploaded{};
+    context.expect(is_clean(seen) && seen.released.size() == kMeshBuffers, "trả hết, mỗi cái một lần");
+}
+
+void unified_mesh_model_needs_no_commands(Context& context) {
+    for (const Way way : kWays) {
+        check_unified_mesh(context, way);
+    }
+}
+
+// Lệnh của một lần tải đủ model trên bộ nhớ hợp nhất: chỉ phần ảnh, rào cuối không có buffer.
+[[nodiscard]] std::vector<Command> unified_commands() {
+    std::vector<Command> commands{Command::kToCopyDest};
+    commands.insert(commands.end(), kImages, Command::kCopyImage);
+    commands.push_back(Command::kToRead);
+    return commands;
+}
+
+// Bộ nhớ hợp nhất, đủ model: lưới ghi thẳng, ảnh vẫn qua buffer trung chuyển và lệnh chép vì
+// texture có bố cục riêng của GPU.
+void check_unified_full(Context& context, Way way) {
+    FakeDevice device(Plan{.is_unified = true});
+    const resource::Model model = full_model();
+    const auto loaded = run_upload(device, model, way);
+    context.expect(loaded.has_value(), "bộ nhớ hợp nhất: tải đủ model phải thành công");
+    if (!loaded) return;
+    const Seen& seen = device.seen();
+    context.expect(seen.begins == 1 && seen.submits == 1, "một danh sách lệnh cho ảnh, nộp một lần");
+    context.expect(seen.waits == (way == Way::kWait ? 1U : 0U), "chỉ upload chờ GPU");
+    context.expect(seen.buffers == kMeshBuffers + kImages, "lưới cộng một buffer trung chuyển mỗi ảnh");
+    context.expect(seen.upload_buffers == seen.buffers, "mọi buffer đều nằm ở Upload");
+    context.expect(seen.writes == kMeshBuffers + kImages, "mỗi buffer ghi một lần");
+    context.expect(seen.commands == unified_commands(), "chỉ rào CopyDest, chép ảnh, rào về đọc");
+    context.expect(seen.buffer_barriers == 0, "buffer ghi thẳng không cần rào");
+    context.expect(seen.texture_barriers == 2 * kImages, "mỗi texture hai rào");
+    const std::vector<Slot> owned = owned_slots(*loaded);
+    context.expect(std::ranges::is_permutation(seen.live, owned), "tay nắm còn sống đều thuộc Uploaded");
+    context.expect(seen.released.size() == kImages, "buffer trung chuyển của ảnh đã trả hết");
+}
+
+void unified_full_model_copies_only_images(Context& context) {
+    for (const Way way : kWays) {
+        check_unified_full(context, way);
+    }
+}
+
+// UploadBatch: nhiều lần nạp, một lần nộp.
+constexpr std::uint32_t kBatched = 3;
+
+[[nodiscard]] bool place_many(resource::UploadBatch& batch, std::vector<resource::Uploaded>& out,
+    std::uint32_t count) {
+    const resource::Model model = full_model();
+    for (std::uint32_t index = 0; index < count; ++index) {
+        auto loaded = batch.place(model, {});
+        if (!loaded) return false;
+        out.push_back(std::move(*loaded));
+    }
+    return true;
+}
+
+[[nodiscard]] std::vector<Command> batched_commands() {
+    std::vector<Command> commands;
+    for (std::uint32_t index = 0; index < kBatched; ++index) {
+        const std::vector<Command> one = unified_commands();
+        commands.insert(commands.end(), one.begin(), one.end());
+    }
+    return commands;
+}
+
+void check_batch_flow(Context& context, FakeDevice& device, resource::UploadBatch& batch) {
+    const Seen& seen = device.seen();
+    std::vector<resource::Uploaded> loaded;
+    context.expect(place_many(batch, loaded, kBatched), "ba lần nạp vào một batch đều thành công");
+    context.expect(seen.begins == 1 && seen.submits == 0, "một danh sách chung, chưa nộp lần nào");
+    context.expect(batch.has_pending() && seen.released.empty(), "lệnh chờ, buffer trung chuyển còn sống");
+    const core::Status sent = batch.flush();
+    context.expect(sent.has_value(), "flush thành công");
+    context.expect(seen.submits == 1 && seen.waits == 0 && seen.end_frames == 0, "đúng một lần nộp, không chờ");
+    context.expect(seen.released_at_submit == 0, "buffer trung chuyển chỉ trả sau lần nộp");
+    context.expect(seen.released.size() == kBatched * kImages, "mỗi ảnh một buffer trung chuyển, trả hết");
+    context.expect(!batch.has_pending(), "flush xong thì hết chờ");
+    context.expect(seen.commands == batched_commands(), "lệnh của ba model nối liền trong một danh sách");
+    const core::Status again = batch.flush();
+    context.expect(again.has_value() && seen.submits == 1, "flush lần nữa không nộp thêm");
+}
+
+void batch_submits_once_for_many_models(Context& context) {
+    FakeDevice device(Plan{.is_unified = true});
+    {
+        resource::UploadBatch batch(device);
+        check_batch_flow(context, device, batch);
+    }
+    context.expect(is_clean(device.seen()), "huỷ hết thì không rò, không dùng tay nắm chết");
+}
+
+void batch_without_unified_memory_submits_each_model(Context& context) {
+    FakeDevice device;
+    {
+        resource::UploadBatch batch(device);
+        std::vector<resource::Uploaded> loaded;
+        context.expect(place_many(batch, loaded, kBatched), "ba lần nạp thành công");
+        context.expect(!batch.has_pending(), "bộ nhớ không hợp nhất: không gom");
+        context.expect(device.seen().submits == kBatched, "mỗi model một lần nộp như upload_queued");
+        const core::Status sent = batch.flush();
+        context.expect(sent.has_value() && device.seen().submits == kBatched, "flush không nộp thêm");
+    }
+    context.expect(is_clean(device.seen()), "không rò");
+}
+
+void batch_destructor_submits_what_is_pending(Context& context) {
+    FakeDevice device(Plan{.is_unified = true});
+    std::vector<resource::Uploaded> loaded;
+    {
+        resource::UploadBatch batch(device);
+        context.expect(place_many(batch, loaded, 1), "nạp một model");
+        context.expect(device.seen().submits == 0, "chưa nộp");
+    }
+    context.expect(device.seen().submits == 1, "destructor nộp nốt lệnh chờ");
+    context.expect(device.seen().released.size() == kImages, "và trả buffer trung chuyển");
+    loaded.clear();
+    context.expect(is_clean(device.seen()), "không rò");
+}
+
+// Model thứ hai hỏng giữa chừng: model đầu vẫn nằm trong danh sách chung và flush nộp được; phần dở của model hỏng
+// đã trả hết, không dính vào danh sách.
+void batch_failure_keeps_earlier_models(Context& context) {
+    FakeDevice probe(Plan{.is_unified = true});
+    {
+        resource::UploadBatch batch(probe);
+        std::vector<resource::Uploaded> one;
+        context.expect(place_many(batch, one, 1), "đo số lời gọi của model đầu");
+    }
+    const std::uint32_t first_calls = probe.seen().fallible;
+    FakeDevice device(Plan{.fail_at = first_calls + 5, .is_unified = true});
+    std::vector<resource::Uploaded> loaded;
+    {
+        resource::UploadBatch batch(device);
+        context.expect(!place_many(batch, loaded, kBatched), "lần nạp thứ hai hỏng");
+        context.expect(loaded.size() == 1, "model đầu vẫn có");
+        context.expect(batch.has_pending() && device.seen().submits == 0, "lệnh của model đầu còn chờ");
+        const core::Status sent = batch.flush();
+        context.expect(sent.has_value() && device.seen().submits == 1, "flush nộp phần của model đầu");
+        context.expect(device.seen().commands == unified_commands(), "danh sách chỉ có lệnh của model đầu");
+    }
+    loaded.clear();
+    context.expect(is_clean(device.seen()), "không rò, không trả hai lần, không dùng tay nắm chết");
+}
+
+void batch_refuses_bad_input_without_recording(Context& context) {
+    FakeDevice device(Plan{.is_unified = true});
+    resource::UploadBatch batch(device);
+    const resource::Model model = full_model();
+    const std::vector<resource::StagedImage> short_chain(1);
+    const auto mismatched = batch.place(model, short_chain);
+    context.expect(!mismatched && mismatched.error().code() == core::ErrorCode::kInvalidArgument,
+        "số chuỗi mip nướng sẵn lệch thì từ chối");
+    const auto bare = batch.place(resource::Model{}, {});
+    context.expect(bare.has_value(), "model rỗng vẫn qua");
+    context.expect(device.seen().begins == 0 && !batch.has_pending(), "không mở danh sách nào");
+    context.expect(device.seen().fallible == 0, "không đụng thiết bị");
 }
 
 // Model chỉ có lưới: không ảnh thì không sampler mặc định, không rào texture, và huỷ vẫn sạch dù
@@ -529,6 +732,14 @@ constexpr std::array kCases{
     Case{.name = "moving_keeps_one_owner", .body = &moving_keeps_one_owner},
     Case{.name = "every_failure_releases_everything", .body = &every_failure_releases_everything},
     Case{.name = "mesh_only_model_has_no_samplers", .body = &mesh_only_model_has_no_samplers},
+    Case{.name = "unified_mesh_model_needs_no_commands", .body = &unified_mesh_model_needs_no_commands},
+    Case{.name = "unified_full_model_copies_only_images", .body = &unified_full_model_copies_only_images},
+    Case{.name = "batch_submits_once_for_many_models", .body = &batch_submits_once_for_many_models},
+    Case{.name = "batch_without_unified_memory_submits_each_model",
+        .body = &batch_without_unified_memory_submits_each_model},
+    Case{.name = "batch_destructor_submits_what_is_pending", .body = &batch_destructor_submits_what_is_pending},
+    Case{.name = "batch_failure_keeps_earlier_models", .body = &batch_failure_keeps_earlier_models},
+    Case{.name = "batch_refuses_bad_input_without_recording", .body = &batch_refuses_bad_input_without_recording},
     Case{.name = "refused_models_touch_nothing", .body = &refused_models_touch_nothing},
     Case{.name = "bad_content_fails_cleanly", .body = &bad_content_fails_cleanly},
     Case{.name = "mip_bytes_match_golden", .body = &mip_bytes_match_golden},

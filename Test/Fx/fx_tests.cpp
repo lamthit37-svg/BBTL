@@ -1,3 +1,19 @@
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Fx/fx_tests.cpp
+ *  PHÂN HỆ   : Fx / Fx Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Test hệ hạt: sinh và cập nhật hạt, billboard, ribbon, mesh, cầu bao
+ *    grain_sphere, thư viện và Cast.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+#include "fx/area.hpp"
 #include "fx/billboard.hpp"
 #include "fx/cast.hpp"
 #include "fx/field.hpp"
@@ -14,6 +30,7 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <optional>
 #include <span>
 #include <string>
 #include <string_view>
@@ -186,6 +203,37 @@ direction 1 0 0
 }
 )";
 
+// Hạt billboard kiểu điểm ở không gian cục bộ, có cả hạt riêng (Rotator, ScaleInterpolator) để cầu bao
+// phải tính theo bề rộng từng hạt chứ không theo bề rộng mặc định của hệ.
+constexpr std::string_view kLocalPoint = R"(local
+{
+quota 20
+material white
+particle_width 4
+particle_height 6
+renderer billboard
+local_space true
+emitter Point
+{
+emission_rate 60
+time_to_live 1
+velocity_min 5
+velocity_max 30
+}
+affector Rotator
+{
+rotation_range_end 360
+}
+affector ScaleInterpolator
+{
+width_range_start 3
+width_range_end 40
+height_range_start 2
+height_range_end 30
+}
+}
+)";
+
 constexpr std::string_view kIce = R"(ice
 {
 quota 1
@@ -338,7 +386,7 @@ velocity 0
 )";
 
 // flame và fog dựng được (fog trộn alpha). card và falls là hạt mesh trộn alpha, falls có mặt nạ.
-// plane là hạt mesh cộng sáng, vẫn bỏ. candle có affector bộ đọc không biết; scrolled là
+// plane là hạt mesh src_alpha one, chưa có pipeline nên bỏ. candle có affector bộ đọc không biết; scrolled là
 // Particle_TwoTex, được nhận. bare dùng material ngoài bảng.
 constexpr std::string_view kGateParticles = R"(flame
 {
@@ -363,7 +411,7 @@ time_to_live 5
 plane
 {
 quota 1
-material fire
+material glow
 renderer mesh
 mesh_name plane.mesh
 emitter Point
@@ -590,6 +638,143 @@ constexpr std::array<std::string_view, 9> kGateNames{
 [[nodiscard]] bool dim_alpha(const fx::Field& field) {
     const auto is_dim = [&field](std::uint32_t index) { return field.grain(index).colour[3] < 0.99F; };
     return std::ranges::any_of(field.order(), is_dim);
+}
+
+// Emitter vùng của bản TLBB, cỡ 2 (bán kính 1) để toạ độ đọc thẳng được. Hướng mặc định +Y nên
+// xRange theo +X, yRange theo −Z, zRange theo +Y.
+constexpr std::string_view kAreas = R"(ring
+{
+quota 1
+material white
+emitter Ring
+{
+width 2
+height 2
+depth 0
+inner_width 0.8
+inner_height 0.8
+}
+}
+tube
+{
+quota 1
+material white
+emitter Cylinder
+{
+width 2
+height 2
+depth 2
+}
+}
+egg
+{
+quota 1
+material white
+emitter Ellipsoid
+{
+width 2
+height 2
+depth 2
+inner_width 0.8
+inner_height 0.77
+inner_depth 0.77
+angle_range 140 40
+height_range 0.4 0.8
+}
+}
+shell
+{
+quota 1
+material white
+emitter HollowEllipsoid
+{
+width 2
+height 2
+depth 2
+inner_width 1
+inner_height 1
+inner_depth 1
+}
+}
+)";
+
+constexpr float kAreaSlack = 1.0e-4F;
+
+[[nodiscard]] std::vector<ogre::Vec3> area_samples(fx::Library& library, std::string_view name) {
+    std::vector<ogre::Vec3> points;
+    const fx::SystemDef* system = library.system(name);
+    if (system == nullptr || system->emitters.empty()) return points;
+    fx::Field field(*system, 7);
+    for (int index = 0; index < 500; ++index)
+        points.push_back(fx::area_point(field, system->emitters.front()));
+    return points;
+}
+
+[[nodiscard]] float flat_radius(ogre::Vec3 point) {
+    return std::sqrt((point.x * point.x) + (point.z * point.z));
+}
+
+// Ring (0x18000d680): bán kính trong [inner, 1], depth 0 thì nằm trên mặt phẳng.
+void ring_keeps_its_rim(Context& context) {
+    fx::Library library = particles_only(kAreas);
+    const fx::SystemDef* system = library.system("ring");
+    const bool has_up = system != nullptr && system->emitters.front().direction.y == 1.0F;
+    context.expect(has_up, "emitter vùng mặc định hướng +Y");
+    const std::vector<ogre::Vec3> points = area_samples(library, "ring");
+    context.expect(points.size() == 500, "đủ điểm");
+    const auto off_rim = [](ogre::Vec3 point) {
+        const float radius = flat_radius(point);
+        const bool inside = radius >= 0.8F - kAreaSlack && radius <= 1.0F + kAreaSlack;
+        return !inside || std::fabs(point.y) > kAreaSlack;
+    };
+    context.expect(std::ranges::none_of(points, off_rim), "mọi điểm trên vành 0,8..1");
+}
+
+// Cylinder không khoá riêng: vành khuyên 0,5..1, chiều sâu −1..1 dọc +Y.
+void cylinder_is_an_annulus(Context& context) {
+    fx::Library library = particles_only(kAreas);
+    const std::vector<ogre::Vec3> points = area_samples(library, "tube");
+    context.expect(points.size() == 500, "đủ điểm");
+    const auto outside = [](ogre::Vec3 point) {
+        const float radius = flat_radius(point);
+        const bool ring = radius >= 0.5F - kAreaSlack && radius <= 1.0F + kAreaSlack;
+        return !ring || std::fabs(point.y) > 1.0F + kAreaSlack;
+    };
+    context.expect(std::ranges::none_of(points, outside), "vành 0,5..1, cao −1..1");
+}
+
+// Ellipsoid rỗng (qc_2026呆呆牛_身体_飘带_1): mọi điểm trong cầu đơn vị, ngoài lõi, cao trong
+// height_range đổi sang −0,2..0,6. Dải này buộc nghiệm Cardano. Dải nội suy giữa mặt ngoài ở góc θ
+// và mặt lõi co theo ix, iy, nên góc thấy được nằm trong atan(tan 40° · iy/ix) = 38,92° tới 141,08°.
+void ellipsoid_band_stays_in_range(Context& context) {
+    fx::Library library = particles_only(kAreas);
+    const std::vector<ogre::Vec3> points = area_samples(library, "egg");
+    context.expect(points.size() == 500, "đủ điểm");
+    const auto wrong = [](ogre::Vec3 point) {
+        const float across = point.x / 0.8F;
+        const float along = -point.z / 0.77F;
+        const float up = point.y / 0.77F;
+        const float core = (across * across) + (along * along) + (up * up);
+        const float outer = (point.x * point.x) + (point.y * point.y) + (point.z * point.z);
+        const bool in_shell = core >= 1.0F - 1.0e-3F && outer <= 1.0F + kAreaSlack;
+        const bool in_height = point.y >= -0.2F - kAreaSlack && point.y <= 0.6F + kAreaSlack;
+        const float degrees = std::atan2(-point.z, point.x) * 57.2957795F;
+        const bool in_angle = degrees >= 38.91F && degrees <= 141.09F;
+        return !in_shell || !in_height || !in_angle;
+    };
+    context.expect(std::ranges::none_of(points, wrong), "trong vỏ, đúng dải cao và góc");
+}
+
+// HollowEllipsoid inner 1: mọi điểm trên mặt cầu đơn vị.
+void hollow_inner_one_is_surface(Context& context) {
+    fx::Library library = particles_only(kAreas);
+    const std::vector<ogre::Vec3> points = area_samples(library, "shell");
+    context.expect(points.size() == 500, "đủ điểm");
+    const auto off_surface = [](ogre::Vec3 point) {
+        const float length = std::sqrt(ogre::dot_vec3(point, point));
+        return std::fabs(length - 1.0F) > kAreaSlack;
+    };
+    context.expect(std::ranges::none_of(points, off_surface), "mặt cầu bán kính 1");
 }
 
 void fade_out_dims(Context& context) {
@@ -872,6 +1057,30 @@ void trail_follows(Context& context) {
     context.expect(wide_head && points.back().width < 1.0F, "đầu rộng, đuôi hẹp, không dài hơn TrailLength");
 }
 
+// Render.dll 0x180158970 (đọc bằng REA): mốc đầu tiên có time > tuổi, quá năm mốc thì màu mốc 4
+// (Black của ctor khi dữ liệu không đặt), rồi saturate ở 0x180158fa0. Ba điểm tuổi 0, 0,5 và 2.
+void trail_colour_matches_render(Context& context) {
+    fx::ElementDef element;
+    element.fade_time = {0.0F, 1.0F, 0.0F, 0.0F, 0.0F};
+    element.fade_colour[0] = fx::Colour{2.0F, 0.5F, 0.0F, 1.0F};
+    element.fade_colour[1] = fx::Colour{1.0F, 0.0F, 0.0F, 1.0F};
+    const fx::TrailMark fresh{.position = {}, .age = 0.0F};
+    const fx::TrailMark half{.position = {.x = 1.0F}, .age = 0.5F};
+    const fx::TrailMark old{.position = {.x = 2.0F}, .age = 2.0F};
+    fx::TrailRun run;
+    run.marks = {fresh, half, old};
+    const std::vector<fx::ChainSample> points = fx::trail_points(run, element);
+    context.expect(points.size() == 3, "ba điểm");
+    if (points.size() != 3) return;
+    const fx::Colour head = points[0].colour;
+    context.expect(is_tiny(head[0] - 1.0F) && is_tiny(head[1] - 0.5F), "màu mốc 0 kẹp về 1");
+    const fx::Colour middle = points[1].colour;
+    context.expect(is_tiny(middle[0] - 1.0F) && is_tiny(middle[1] - 0.25F), "nửa đường nội suy rồi kẹp");
+    const fx::Colour tail = points[2].colour;
+    const bool is_black = is_tiny(tail[0]) && is_tiny(tail[1]) && is_tiny(tail[3] - 1.0F);
+    context.expect(is_black, "quá mọi mốc thì màu mốc 4, Black của ctor");
+}
+
 void projector_deck(Context& context) {
     fx::LibraryText text;
     text.effects = std::string(kRune);
@@ -891,6 +1100,52 @@ void projector_deck(Context& context) {
     const float left = batches.front().vertices[0].x;
     const float right = batches.front().vertices[1].x;
     context.expect(is_small((right - left) - 800.0F), "quad rộng bằng ProjectionSize");
+}
+
+// Cầu bao hạt dùng để bỏ cả hệ ngoài khung nhìn: một đỉnh lọt ra ngoài là quad bị cắt oan.
+[[nodiscard]] bool covers_every_vertex(const fx::GrainSphere& sphere, const fx::Field& field) {
+    const fx::Field* view = &field;
+    const std::vector<fx::BillboardBatch> batches = fx::billboards_of(std::span{&view, 1}, fx::CameraAxes{});
+    for (const fx::BillboardBatch& batch : batches) {
+        for (const fx::BillboardVertex& vertex : batch.vertices) {
+            const float across = vertex.x - sphere.centre.x;
+            const float up = vertex.y - sphere.centre.y;
+            const float depth = vertex.z - sphere.centre.z;
+            const float distance = std::sqrt((across * across) + (up * up) + (depth * depth));
+            if (distance > sphere.radius + 1.0e-3F) return false;
+        }
+    }
+    return true;
+}
+
+void grain_sphere_covers_quads(Context& context) {
+    fx::Library library = particles_only(kLocalPoint);
+    const fx::SystemDef* system = library.system("local");
+    context.expect(system != nullptr, "có hệ local");
+    if (system == nullptr) return;
+    fx::Field field(*system, 7);
+    fx::Node node;
+    node.position = {.x = 100.0F, .y = -20.0F, .z = 55.0F};
+    node.scale = {.x = 2.0F, .y = 3.0F, .z = 0.5F};
+    node.orientation = ogre::quat_from_angle_axis(70.0F * fx::kDegree, ogre::Vec3{.y = 1.0F});
+    for (int step = 0; step < 20; ++step) {
+        field.update(0.033F, node);
+    }
+    context.expect(field.order().size() > 3, "đã có nhiều hạt");
+    const std::optional<fx::GrainSphere> sphere = fx::grain_sphere(field);
+    context.expect(sphere.has_value(), "hạt billboard kiểu điểm có cầu bao");
+    if (!sphere) return;
+    context.expect(covers_every_vertex(*sphere, field), "cầu bao mọi đỉnh của quad");
+}
+
+void grain_sphere_skips_ribbons(Context& context) {
+    fx::Library library = particles_only(kRibbon);
+    const fx::SystemDef* system = library.system("trail");
+    context.expect(system != nullptr, "có hệ trail");
+    if (system == nullptr) return;
+    fx::Field field(*system, 1);
+    field.update(0.2F, fx::Node{});
+    context.expect(!fx::grain_sphere(field).has_value(), "ribbon luôn được vẽ, không có cầu");
 }
 
 void texcoord_frame(Context& context) {
@@ -957,7 +1212,17 @@ void palette_survives_odd_table(Context& context) {
 }
 
 // Mỗi lý do bỏ phải đếm đúng một lần cho mỗi hệ. Trộn alpha một ảnh được nhận. Billboad
-// Particle_TwoTex được nhận. Hạt mesh trộn alpha thì nhận, kể cả khi có mặt nạ. Hạt mesh cộng sáng vẫn bỏ.
+// Particle_TwoTex được nhận. Hạt mesh trộn alpha thì nhận, kể cả khi có mặt nạ. Hạt mesh src_alpha one vẫn bỏ.
+// Hạt mesh vẽ như model: one one vào pipeline cộng, trộn alpha vào pipeline trộn; src_alpha one
+// chưa có pipeline nào.
+void mesh_blends_with_pipeline(Context& context) {
+    const fx::Library library = gate_library();
+    context.expect(!library.refuse_mesh("fire"), "one one được nhận");
+    context.expect(!library.refuse_mesh("mist"), "trộn alpha được nhận");
+    const std::optional<fx::Skip> glow = library.refuse_mesh("glow");
+    context.expect(glow == fx::Skip::kMeshRenderer, "src_alpha one chưa có pipeline");
+}
+
 void cast_skips_by_reason(Context& context) {
     fx::Library library = gate_library();
     fx::Cast cast(&library);
@@ -972,7 +1237,7 @@ void cast_skips_by_reason(Context& context) {
     context.expect(cast.live().size() == 7, "bảy Field có hạt");
     context.expect(cast.strips(fx::CameraAxes{}).size() == 1, "projector trộn alpha thành một dải");
     context.expect(tally.count(fx::Skip::kBlend) == 0, "trộn alpha một ảnh không bị bỏ");
-    context.expect(tally.count(fx::Skip::kMeshRenderer) == 1, "plane: hạt mesh cộng sáng");
+    context.expect(tally.count(fx::Skip::kMeshRenderer) == 1, "plane: hạt mesh src_alpha one");
     context.expect(tally.count(fx::Skip::kUnknownAffector) == 1, "candle: affector lạ");
     context.expect(tally.count(fx::Skip::kShading) == 0, "scrolled: Particle_TwoTex được nhận");
     context.expect(tally.count(fx::Skip::kNoMaterial) == 1, "bare: material ngoài bảng");
@@ -1122,11 +1387,14 @@ void field_tint_defaults_white(Context& context) {
 
 constexpr std::array kCases{
     Case{.name = "mesh_yaw", .body = &mesh_yaw},
+    Case{.name = "grain_sphere_covers_quads", .body = &grain_sphere_covers_quads},
+    Case{.name = "grain_sphere_skips_ribbons", .body = &grain_sphere_skips_ribbons},
     Case{.name = "ribbon_grows", .body = &ribbon_grows},
     Case{.name = "ribbon_faces", .body = &ribbon_faces},
     Case{.name = "beam_line", .body = &beam_line},
     Case{.name = "beam_sway", .body = &beam_sway},
     Case{.name = "trail_follows", .body = &trail_follows},
+    Case{.name = "trail_colour_matches_render", .body = &trail_colour_matches_render},
     Case{.name = "projector_deck", .body = &projector_deck},
     Case{.name = "mesh_places", .body = &mesh_places},
     Case{.name = "mesh_carries_colour", .body = &mesh_carries_colour},
@@ -1138,10 +1406,15 @@ constexpr std::array kCases{
     Case{.name = "polar_places", .body = &polar_places},
     Case{.name = "increment_grows", .body = &increment_grows},
     Case{.name = "fade_out_dims", .body = &fade_out_dims},
+    Case{.name = "ring_keeps_its_rim", .body = &ring_keeps_its_rim},
+    Case{.name = "cylinder_is_an_annulus", .body = &cylinder_is_an_annulus},
+    Case{.name = "ellipsoid_band_stays_in_range", .body = &ellipsoid_band_stays_in_range},
+    Case{.name = "hollow_inner_one_is_surface", .body = &hollow_inner_one_is_surface},
     Case{.name = "torch_emits", .body = &torch_emits},
     Case{.name = "palette_reads_columns", .body = &palette_reads_columns},
     Case{.name = "palette_survives_odd_table", .body = &palette_survives_odd_table},
     Case{.name = "cast_skips_by_reason", .body = &cast_skips_by_reason},
+    Case{.name = "mesh_blends_with_pipeline", .body = &mesh_blends_with_pipeline},
     Case{.name = "cast_clear_resets", .body = &cast_clear_resets},
     Case{.name = "field_runs_its_duration", .body = &field_runs_its_duration},
     Case{.name = "field_stop_drains", .body = &field_stop_drains},

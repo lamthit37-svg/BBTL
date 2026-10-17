@@ -16,16 +16,20 @@
 #include "client/display/auto_login.hpp"
 #include "client/display/frame_fit.hpp"
 #include "client/display/graphic/prelude.hpp"
+#include "core/cadence.hpp"
 #include "core/governor.hpp"
 #include "core/stages.hpp"
+#include "look/bullet.hpp"
+#include "look/impact.hpp"
 #include "motion/jump.hpp"
+#include "motion/motion.hpp"
 #include "render/gpu_clock.hpp"
 #include "ui/panel/skill_bar.hpp"
 
 #include <array>
+#include <cstdint>
 #include <random>
 #include <string>
-#include <string_view>
 namespace game::client {
 
 // Ô bấm đổi thú, điểm ảnh của frame_rect, gốc trái trên.
@@ -34,6 +38,29 @@ struct RideBox {
     float top = 0.0F;
     float right = 0.0F;
     float bottom = 0.0F;
+};
+
+// Thú do --pet gieo. Thú máy chủ sinh không vào danh sách này.
+struct PetMember {
+    std::uint32_t id = 0;
+    motion::PetPace pace = motion::PetPace::kWalk;
+    bool moving = false;
+};
+
+// Hạt liên tục của một ô impact. Chưa có locator thân nên gắn ở chân.
+struct ImpactHandle {
+    std::uint32_t id = 0;
+    std::string name;
+    std::uint32_t handle = 0;
+};
+
+// Một viên đạn đang bay, đơn vị thế giới. handle 0 là không có hạt bay.
+struct LiveBullet {
+    look::BulletFlight flight{};
+    std::uint32_t target = 0;
+    std::uint32_t handle = 0;
+    std::string explosion;
+    std::string explosion_sound;
 };
 
 // Chặng CPU của draw_world, đúng thứ tự các lần cpu_stages.next() ở frame.cpp. Tên là vùng ATrace.
@@ -74,6 +101,8 @@ struct Display::State {
     void spin(const std::stop_token& stop);
     // Một lượt của luồng vẽ, kể cả lúc cửa sổ bị che; false khi dừng vì lỗi vẽ.
     [[nodiscard]] bool turn_one(core::Clock::time_point& previous);
+    // Giữ luồng vẽ trên lõi mạnh (core/cores.hpp); turn là số lượt, kiểm lại mỗi kCoreCheckTurns.
+    void hold_fast_cores(std::uint64_t turn);
     // Một lượt khi cửa sổ còn hiện: dựng lại nếu vừa đổi cỡ, vẽ một khung, đo nhịp; false khi dừng.
     [[nodiscard]] bool turn(core::Clock::time_point& previous);
     // Dựng lại màn hình vẽ theo cỡ vùng vẽ mới nhất. Cửa sổ thu nhỏ (cỡ 0) thì giữ nguyên cờ.
@@ -131,7 +160,7 @@ struct Display::State {
     void place_at(int scene_id);
     // Chỗ đứng khi vào scene_id: chỗ máy chủ đặt cho đúng cảnh ấy, không thì điểm đến của cổng.
     [[nodiscard]] map::GateStand stand_for(int scene_id, const std::optional<EntryPoint>& entry);
-    // Chỗ vào game máy chủ đã gửi: take lấy ra khỏi hàng (place_at), peek chỉ xem.
+    // Chỗ vào game máy chủ đã gửi: take lấy ra khỏi hàng (place_at), peek chỉ xem (stream.cpp).
     [[nodiscard]] std::optional<EntryPoint> take_entry();
     [[nodiscard]] std::optional<EntryPoint> peek_entry();
     // Áp tin thế giới tới từ phiên mạng: kéo về thì đặt lại chỗ đứng, còn lại cập nhật các thực thể.
@@ -141,7 +170,7 @@ struct Display::State {
     // Ghi chỗ đứng cho luồng cửa sổ báo máy chủ (hoặc xoá khi không có gì để báo).
     void publish_spot(bool is_live);
     [[nodiscard]] render::Camera frame_camera(FrameAsk ask);
-    // Ghi khung nhìn của khung đang vẽ.
+    // Ghi khung nhìn của khung đang vẽ cho rank_arrival.
     void note_view(const render::Camera& camera);
     // Chép mắt và hướng camera sang tai nghe cho luồng cửa sổ. Gọi khi has_lens vừa đúng.
     void publish_ear();
@@ -175,9 +204,11 @@ struct Display::State {
     void dispatch_cues();
     // Cùng pipe hạt, ribbon, tiếng của nhân vật mình. owner 0 là mình.
     void dispatch_actor_cues(PlayerActor& actor, std::uint32_t owner);
-    // Hiệu ứng đồ của người chơi (PlayerActor::gear_effects): dựng khi có, dừng khi hết, dời theo điểm 武器特效点 mỗi khung.
+    // Hiệu ứng đồ của người chơi (PlayerActor::gear_effects): dựng khi có, dừng khi hết, dời theo
+    // điểm 武器特效点 mỗi khung.
     void sync_gear();
-    // Hạt luôn bật của thú (PlayerActor::ride_fx): dựng theo thẻ Effect, dừng khi đổi thú.
+    // Hạt luôn bật của thú (PlayerActor::ride_fx): dựng theo thẻ Effect, dừng khi đổi thú, dời theo
+    // điểm neo mỗi khung.
     void sync_ride();
     // Hiệu ứng bám của đòn (SkillCue::token): dời theo điểm gắn mỗi khung tới khi hiệu ứng hết.
     void sync_follows();
@@ -210,17 +241,28 @@ struct Display::State {
     [[nodiscard]] core::Clock::time_point await_shown();
     struct IntervalNote {
         double interval = 0.0;
+        // Khoảng vòng lặp (mốc đầu khung tới mốc đầu khung kế), để chẩn đoán khung chậm.
+        double loop_ms = 0.0;
         double render_ms = 0.0;
         double pace_ms = 0.0;
     };
     void note_pace(double interval);
     void record_interval(IntervalNote note);
+    // Khoảng mà màn thật giữ khung trước (điện thoại, Fifo); nơi khác là khoảng vòng lặp.
+    [[nodiscard]] double shown_interval(double loop_ms);
+    // Nghỉ một nhịp như nap(); lưới nhịp trình và mốc hoạt hoạ bắt đầu lại ở khung kế.
+    void rest(core::Clock::time_point& previous);
+    // Mốc hoạt hoạ của khung (frame_time) từ lúc luồng vẽ thức: trên Fifo không báo lúc trình thì
+    // tiến đúng số nhịp màn theo lưới (core::PacedClock), nơi khác là chính lúc thức.
+    [[nodiscard]] core::Clock::time_point pace_frame(core::Clock::time_point woke);
     void ensure_clock();
     void hold_pace(double spent_ms);
     // Điện thoại: trần khung theo năng lực đo được (core::RateGovernor). Gọi mỗi khung sau khi có khoảng cách khung.
     void govern_rate(double interval_ms);
     void adapt_detail(double interval_ms);
     void hold_governed_rate();
+    void pace_swapchain();
+    [[nodiscard]] bool is_display_paced() const noexcept;
     // Ngân sách một khung của bảng đo, ms; 0 khi chưa biết gì.
     [[nodiscard]] float frame_budget_ms() const noexcept;
     // --walk: thay phím đi của khung bằng "giữ W" và xoay hướng nhìn theo thời gian khung.
@@ -290,18 +332,25 @@ struct Display::State {
     [[nodiscard]] const std::string& material_script();
     void remember_mesh(Arrival& loading, FeedJob& job, std::size_t index);
     void remember_meshes(Arrival& loading, FeedJob& job);
+    // Thứ tự đọc ban đầu theo chỗ đứng khi vào cảnh; rank_arrival xếp lại theo khung nhìn sau đó.
+    void rank_first(Arrival& loading, FeedJob& job);
+    [[nodiscard]] std::optional<LoadFocus> first_focus(const world::ShownScene& scene);
+    void rank_arrival(Arrival& loading) const;
     [[nodiscard]] bool needs_fresh_ground(const Arrival& loading) const;
     void pump_load();
     // Nạp đồng bộ cảnh đầu tiên: chạy hết phần nạp (mặt đất, mọi mesh, trời, nước) trước khi trình khung đầu,
     // để khung đầu hiện đủ cảnh lẫn giao diện thay vì hiện giao diện rồi cảnh lấp dần.
     void settle_first_scene(const std::stop_token& stop);
+    void settle_meshes(Arrival& loading, const std::stop_token& stop);
     void open_ground(Arrival& loading);
-    [[nodiscard]] bool pull_mesh(Arrival& loading);
+    // Chỉ số bảng của mesh vừa xong (đã đặt vào nhớ, hay hỏng); rỗng khi chưa mesh nào sẵn.
+    [[nodiscard]] std::optional<std::size_t> pull_mesh(Arrival& loading);
     [[nodiscard]] bool step_mesh(Arrival& loading);
     void stream_ground(Arrival& loading);
     void reveal(Arrival& loading);
-    void show_mesh(Arrival& loading);
+    void settle_mesh(Arrival& loading, std::size_t index);
     void publish_mesh(Arrival& loading, std::size_t mesh_slot);
+    void order_instances(std::size_t mesh_slot);
     void seal_mesh(std::size_t index, std::vector<std::size_t>& slots);
     void finish_stream();
     [[nodiscard]] core::Status submit_frame(gpu::CommandList& list) const;
@@ -341,6 +390,43 @@ struct Display::State {
     void seed_creature_demo(int scene_id);
     void seed_peer_demo(int scene_id);
     void seed_pet_demo(int scene_id);
+    // AI_Pet 2008, chỉ id trong pet_herd. Gọi trước people.advance.
+    void step_pet_herd();
+    // State là private của Display: hàm tự do không nhận được nó.
+    void place_pet(PetMember& member, const core::GroundPoint& at, float facing, cast::Pose pose,
+        bool moving);
+    void hold_pet(PetMember& member, const cast::Actor& actor);
+    void warp_pet(PetMember& member, const cast::Actor& actor, core::GroundPoint at);
+    [[nodiscard]] float pet_base(std::uint32_t template_id) const;
+    // goal là điểm Baby_Go của lượt, không phải chỗ đứng của chủ.
+    void walk_pet(PetMember& member, const cast::Actor& actor, core::GroundPoint goal);
+    void step_one_pet(PetMember& member, core::GroundPoint owner);
+    [[nodiscard]] bool herd_gone(const PetMember& member) const;
+    // --impact một lần, khi đã có bộ hạt.
+    void arm_impact();
+    void ensure_actor_fx();
+    void sync_impacts();
+    void launch_bullet(const StrikeCall& call);
+    void step_bullets();
+    void hear_at(std::string name, ogre::Vec3 place);
+    [[nodiscard]] std::uint32_t spawn_tracked(std::string_view name, look::FlightPoint at);
+    [[nodiscard]] fx::Node body_node() const;
+    [[nodiscard]] std::string table_text(const char* file) const;
+    void take_impacts(std::string text);
+    void take_bullets(std::string text);
+    void take_skills(std::string text);
+    void apply_one_cue(const look::ImpactCue& cue);
+    [[nodiscard]] const look::ImpactSlot* impact_slot(std::uint32_t id) const;
+    [[nodiscard]] ImpactHandle* find_impact(std::uint32_t id);
+    [[nodiscard]] bool drop_impact(const ImpactHandle& held);
+    void spawn_impact(const look::ImpactSlot& slot, const fx::Node& node);
+    void keep_impact(const look::ImpactSlot& slot, const fx::Node& node);
+    void release_flight(std::uint32_t handle);
+    void open_bullet(const look::BulletRow& row, std::uint32_t id, look::FlightPoint to);
+    [[nodiscard]] look::FlightPoint bullet_aim(std::uint32_t id) const;
+    void burst_bullet(LiveBullet& live, look::FlightPoint at);
+    void glide_bullet(const LiveBullet& live, const look::BulletStep& step);
+    void step_one_bullet(LiveBullet& live);
     void show_creature(const cast::Actor& actor, std::size_t& budget);
     void show_player(const cast::Actor& actor, std::size_t& budget);
     [[nodiscard]] math::Point3 stand_of(const cast::Actor& actor) const;
@@ -458,6 +544,17 @@ struct Display::State {
         std::uint32_t draws = 0;
         std::uint32_t quads = 0;
     };
+
+    // Bốn chặng của một khung (xin ảnh, ghi lệnh, nộp, dựng UI) để bảng thông số hiện trung bình
+    // cả cửa sổ như các số nhịp: giá trị của riêng khung vừa xong đổi từng khung nên chữ số nhảy
+    // loạn kể cả khi cảnh đứng yên.
+    struct StageSample {
+        float acquire_ms = 0.0F;
+        float draw_ms = 0.0F;
+        float submit_ms = 0.0F;
+        float prepare_ms = 0.0F;
+    };
+    [[nodiscard]] StageSample stage_mean() const noexcept;
 
     // Hộp bao thế giới, cho camera quay khi chưa có mặt đất. Ánh sáng lấy một lần từ stage.
     math::Aabb world;
@@ -704,7 +801,11 @@ struct Display::State {
     // Số ảnh 3D đã gắn vào giao diện: đầu, rồi toàn thân nếu dựng được.
     std::uint8_t view_count = 0;
     std::vector<render::Instance> instances;
-    // Khung nhìn của khung vừa vẽ. note_view ghi.
+    // Chỉ số mesh của bảng cho từng instance khi cảnh chảy vào (cùng cỡ instances, tăng dần):
+    // order_instances chèn đúng chỗ theo nó.
+    std::vector<std::size_t> instance_mesh;
+    // Khung nhìn và mắt của khung vừa vẽ, view_scene là id cảnh lúc ấy (-1 khi chưa vẽ). Chỉ luồng
+    // vẽ đụng.
     render::Frustum view_frustum{};
     math::Vector3 view_eye{0.0F, 0.0F, 0.0F};
     int view_scene = -1;
@@ -723,6 +824,9 @@ struct Display::State {
     std::string reported_description;
     std::deque<KeptMesh> kept;
     std::deque<KeptGround> grounds;
+    // Batch nạp của lượt pump_load đang chạy (null ngoài lượt ấy): keep_model gom lệnh chép ảnh vào
+    // đó, pump_load flush trước khi trả. Chỉ luồng vẽ chạm tới.
+    resource::UploadBatch* load_batch = nullptr;
     // deque: thêm đám mới không kéo đám cũ, span ma trận của lệnh vẽ không đứt.
     std::deque<Crowd> crowds;
     std::vector<SceneModel> scene_models;
@@ -731,6 +835,19 @@ struct Display::State {
     std::optional<core::FixedStep> frame_clock;
     // Điện thoại: bộ chọn trần khung, dựng lại khi tần số quét hay trần hạng máy đổi. Chỉ luồng vẽ đụng.
     std::optional<core::RateGovernor> governor;
+    // Điện thoại: lưới nhịp trình Fifo suy từ acquire (core/cadence.hpp), và mốc acquire của khung
+    // vừa vẽ. Chỉ luồng vẽ đụng.
+    std::optional<core::FifoCadence> cadence;
+    core::AcquireNote acquire_note{};
+    // Khoảng màn giữ khung vừa vẽ theo lưới (bội của chu kỳ quét, ms); rỗng khi không dựng lưới.
+    // pace_frame của khung kế tiến mốc hoạt hoạ đúng chừng ấy. Chỉ luồng vẽ đụng.
+    std::optional<double> shown_step_ms;
+    // Mốc hoạt hoạ theo lưới (ms từ started). Lúc thức chỉ lệch ±6 ms quanh lưới (đo TB-X306F),
+    // nên lệch quá ba nhịp 60 Hz là lưới đếm sai hay luồng vẽ vừa treo: neo lại. Chỉ luồng vẽ đụng.
+    core::PacedClock paced{50.0};
+    // Lúc luồng vẽ thức ở khung này (await_shown, hay acquire khi swapchain giữ nhịp): khoảng vòng
+    // lặp và "Khung chậm" đo theo nó, không theo mốc hoạt hoạ. Chỉ luồng vẽ đụng.
+    core::Clock::time_point loop_time;
     // Điện thoại: trần tam giác của cảnh theo thời gian khung thực. Chỉ luồng vẽ đụng.
     std::optional<render::DetailGovernor> detail;
     double governed_refresh = 0.0;
@@ -743,6 +860,8 @@ struct Display::State {
     std::atomic<double> refresh_hz{0.0};
     // Display::turns: số lượt của vòng vẽ. Luồng vẽ ghi, luồng cửa sổ đọc.
     std::atomic<std::uint64_t> turn_count{0};
+    // hold_fast_cores đã báo hệ điều hành từ chối: chỉ báo một lần. Chỉ luồng vẽ đụng.
+    bool has_warned_cores = false;
     // Số thứ tự khung trên GPU. Lần nộp thứ n của khung báo frame_line lên n. Bộ đệm mỗi khung
     // (khối camera, ma trận vật thể, bảng xương, đỉnh giao diện, quad hạt) là bộ nhớ Upload ánh xạ
     // thẳng, xoay vòng kFrameSlots ô theo số khung, không theo ảnh swapchain. Acquire trả ảnh không
@@ -778,14 +897,26 @@ struct Display::State {
     std::vector<std::uint32_t> creature_demo;
     // --pet còn chưa gieo.
     std::vector<std::uint32_t> pet_demo;
+    // Thú demo đang được client dẫn. Không gồm thú máy chủ sinh.
+    std::vector<PetMember> pet_herd;
+    // --impact còn chưa bật.
+    std::optional<std::uint32_t> impact_demo;
+    look::ImpactBook impacts;
+    look::BulletBook bullets;
+    look::SkillBulletBook skill_bullets;
+    bool actor_fx_ready = false;
+    std::vector<ImpactHandle> impact_handles;
+    std::vector<LiveBullet> live_bullets;
+    // Giây của khung đang mô phỏng, cùng bước với people.advance.
+    float frame_seconds = 0.0F;
     // --peer còn chưa gieo. 0 là không có.
     std::uint32_t peer_demo = 0;
     // DisplayDesc::ui_events đã phân tích, còn chờ khung màn chơi đầu tiên; hud_events là phần HUD nhận ở khung
     // đó (rỗng ở các khung khác).
     std::vector<ui::panel::PostedEvent> posted_events;
     std::vector<ui::panel::PostedEvent> hud_events;
-    // DisplayDesc::weapon_item: vật phẩm khe 0 mà công cụ thử gieo vào hero.equipment như gói trang bị của
-    // máy chủ; ngoại hình đọc từ hero.equipment, không đọc biến này.
+    // DisplayDesc::weapon_item: vật phẩm khe 0 mà công cụ thử gieo vào hero.equipment như gói trang
+    // bị của máy chủ; ngoại hình đọc từ hero.equipment, không đọc biến này.
     std::optional<std::uint32_t> weapon_item;
     // DisplayDesc::ride_id: id CharMount của --mount. Ảnh chân dung không dùng.
     std::optional<std::uint32_t> ride_id;
@@ -875,6 +1006,8 @@ struct Display::State {
     // Thông số nhìn của khung trước, để cần gạt biết mắt.
     control::Lens lens;
     std::array<float, 90> pace_ring{};
+    // Cùng cửa sổ và con trỏ với pace_ring.
+    std::array<StageSample, 90> stage_ring{};
     // Giá trị >= control::kCursorKinds là ẩn. Luồng vẽ ghi, luồng cửa sổ đọc.
     std::atomic<std::uint8_t> cursor_bits{static_cast<std::uint8_t>(control::CursorKind::kNormal)};
     bool is_player_running = false;

@@ -137,6 +137,32 @@ struct RideTexts {
 [[nodiscard]] std::expected<std::vector<RideEntity>, std::string> parse_ride_entities(
     std::string_view text);
 
+// Clip thân thú của một mô hình (ride_model_clips.tsv). Ô trống là bảng không có hành động ấy.
+struct MountClips {
+    std::optional<Clip> idle;
+    std::optional<Clip> idle_alt;
+    std::optional<Clip> idle_alt2;
+    std::optional<Clip> run;
+    std::optional<Clip> jump_stand;
+    std::optional<Clip> jump_run;
+};
+
+// ride_locators.tsv: điểm gắn trên mẫu thú.
+[[nodiscard]] Rows<LocatorRow> parse_ride_locators(std::string_view text);
+
+// ride_anims.tsv: động tác người cưỡi theo giới, bộ CharMount và vũ khí.
+[[nodiscard]] Rows<RacedAnimRow> parse_ride_anims(std::string_view text);
+
+// Tên .skeleton của mô hình trong ride_skeletons.tsv, dòng khớp đầu tiên. Rỗng khi không có dòng.
+// Dòng hỏng thì bỏ qua; bảng hỏng hay thiếu cột là lỗi.
+[[nodiscard]] std::expected<std::string, std::string> parse_ride_skeleton(std::string_view text,
+    std::int32_t model);
+
+// Clip của mô hình trong ride_model_clips.tsv. Dòng hỏng hay hành động lạ thì bỏ qua; hành động
+// lặp thì dòng sau thắng.
+[[nodiscard]] std::expected<MountClips, std::string> parse_mount_clips(std::string_view text,
+    std::int32_t model);
+
 // Dòng của một mẫu, đúng thứ tự tệp. Con trỏ mượn rows.
 [[nodiscard]] std::vector<const RideEffect*> effects_of(std::span<const RideEffect> rows,
     std::string_view object);

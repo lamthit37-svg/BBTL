@@ -1260,6 +1260,37 @@ void hub_follows_overrides(Context& context) {
     context.expect(runs.size() == 1 && runs.front().text == "anh", "chữ không mượn của người gọi");
 }
 
+// Override chỉ đổi chữ (toạ độ minimap đổi liên tục khi đi bộ) vẽ lại trang mà không dàn lại bố cục;
+// Override hình học hay cờ Visible thì dàn lại. Đo 2026-10-17 trên TB-X306F: mỗi lần dàn lại cả
+// trang mất ~40 ms, thành khung lặp mỗi khi toạ độ đổi.
+void text_override_keeps_layout(Context& context) {
+    const GuiAsset asset = front_asset();
+    Hub hub(asset);
+    Place input = screen_of(300.0F, 200.0F);
+    std::array said = {Override{.window = "Label", .name = "Text", .value = "138  163"}};
+    input.overrides = said;
+    hub.update(input);
+    const std::uint64_t laid = hub.layout_count();
+    const std::uint64_t written = hub.text_stamp();
+    said.at(0).value = "139  163";
+    hub.update(input);
+    context.expect(hub.layout_count() == laid, "đổi chữ không dàn lại");
+    context.expect(hub.text_stamp() != written, "nhưng dòng chữ vẽ lại");
+    const bool has_new = std::ranges::contains(hub.texts(), "139  163", &TextRun::text);
+    context.expect(has_new, "chữ mới lên trang");
+    const std::array moved = {Override{.window = "Label", .name = "AbsolutePosition", .value = "x:10 y:40"}};
+    input.overrides = moved;
+    hub.update(input);
+    context.expect(hub.layout_count() == laid + 1, "Override hình học thì dàn lại");
+    const std::optional<Box> box = hub.box("Label");
+    context.expect(box && near_value(box->x, 10.0F) && near_value(box->y, 40.0F), "cửa sổ sang chỗ mới");
+    const std::array hidden = {Override{.window = "Label", .name = "Visible", .value = "False"}};
+    input.overrides = hidden;
+    hub.update(input);
+    context.expect(hub.layout_count() == laid + 2, "cờ Visible cũng dàn lại");
+    context.expect(!hub.box("Label").has_value(), "cửa sổ đã ẩn");
+}
+
 void string_book(Context& context) {
     const gui::StringBook book = book_of("key\ttext\nA\tmột\n# ghi chú\nB\thai\nA\tba\n");
     context.expect(book.size() == 2, "hai ID, dòng chú thích bỏ");
@@ -1546,6 +1577,7 @@ constexpr std::array kCases{
     Case{.name = "simple_text", .body = &simple_text},
     Case{.name = "edit_box", .body = &edit_box},
     Case{.name = "hub_follows_overrides", .body = &hub_follows_overrides},
+    Case{.name = "text_override_keeps_layout", .body = &text_override_keeps_layout},
     Case{.name = "string_book", .body = &string_book},
     Case{.name = "string_overlay", .body = &string_overlay},
     Case{.name = "literal_text_translated", .body = &literal_text_translated},

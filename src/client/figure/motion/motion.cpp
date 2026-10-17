@@ -6,7 +6,8 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Luật đi và tốc độ. Phần trăm cưỡi nhân vào tốc độ chạy, không đổi clip.
+ *  - Luật đi và tốc độ. Phần trăm cưỡi nhân vào tốc độ chạy. Trân thú theo
+ *    nhịp và ngưỡng khoảng cách của server 2008.
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -16,6 +17,7 @@
 // verify_pos chép phép của client 2008 và server: Tick_Move, GetMoveSpeed, TDU_GetYAngle,
 // VerifyPos. mounted_speed nhân tốc độ chạy với phần trăm Exterior_Ride.
 // Khác gốc: else-if của tốc độ tách thành return sớm; một đích nên không có vòng sang nút kế.
+// Baby_Go cộng cos, điểm dịch trừ cos. Hai dấu không gộp. Bảng SinCos không port.
 #include "motion/motion.hpp"
 
 #include <algorithm>
@@ -174,6 +176,91 @@ GroundPoint verify_pos(GroundPoint point, MapLimit limit) noexcept {
     if (point.x > limit.width) point.x = limit.width - 0.1F;
     if (point.z > limit.depth) point.z = limit.depth - 0.1F;
     return point;
+}
+
+namespace {
+
+// Cùng TDU_PI đã dùng cho face_angle. Ngưỡng bình phương mét của AI_PetDef.h.
+constexpr double kPetPi = 3.1415926535;
+constexpr float kPetRunSq = 9.0F;
+constexpr float kPetSprintSq = 64.0F;
+constexpr float kPetWarpSq = 225.0F;
+constexpr float kPetGoSq = 4.1F;
+constexpr float kPetWarpReach = 2.0F;
+
+[[nodiscard]] float pet_dist_sq(GroundPoint pet, GroundPoint owner) noexcept {
+    const float delta_x = owner.x - pet.x;
+    const float delta_z = owner.z - pet.z;
+    return (delta_x * delta_x) + (delta_z * delta_z);
+}
+
+[[nodiscard]] GroundPoint warp_point(const PetAsk& ask) noexcept {
+    GroundPoint at = pet_warp_at(ask.owner, ask.owner_facing);
+    if (ask.has_map) at = verify_pos(at, ask.limit);
+    return at;
+}
+
+// Baby_Go: fDir = getDir - pi/2; x += 2*sin; z += 2*cos. Điểm dịch cùng góc nhưng trừ cos.
+[[nodiscard]] GroundPoint go_point(const PetAsk& ask) noexcept {
+    const double dir = static_cast<double>(ask.owner_facing) - (kPetPi / 2.0);
+    const float sine = static_cast<float>(std::sin(dir));
+    const float cosine = static_cast<float>(std::cos(dir));
+    GroundPoint at;
+    at.x = ask.owner.x + (kPetWarpReach * sine);
+    at.z = ask.owner.z + (kPetWarpReach * cosine);
+    if (ask.has_map) at = verify_pos(at, ask.limit);
+    return at;
+}
+
+[[nodiscard]] PetOrder warp_order(const PetAsk& ask) noexcept {
+    PetOrder order;
+    order.pace = PetPace::kWalk;
+    order.warp = true;
+    order.at = warp_point(ask);
+    return order;
+}
+
+// Quá 15 m mà không dịch được thì giữ nhịp. Trong 3 m thì khập khiễng, trừ khi đang đi bộ.
+// Đang nước rút thì giữ nước rút cho tới khi vào trong 3 m.
+[[nodiscard]] PetPace pace_for(PetPace now, float dist_sq) noexcept {
+    if (dist_sq > kPetWarpSq) return now;
+    if (dist_sq > kPetSprintSq) return PetPace::kSprint;
+    if (dist_sq > kPetRunSq && now != PetPace::kSprint) return PetPace::kRun;
+    if (dist_sq > kPetRunSq) return now;
+    if (now != PetPace::kWalk) return PetPace::kHobble;
+    return now;
+}
+
+} // namespace
+
+float pet_speed(float base_m_per_s, PetPace pace) noexcept {
+    if (!(base_m_per_s > 0.0F)) return 0.0F;
+    if (pace == PetPace::kHobble) return base_m_per_s * 0.5F;
+    if (pace == PetPace::kRun) return base_m_per_s * 1.5F;
+    if (pace == PetPace::kSprint) return base_m_per_s * 5.0F;
+    return base_m_per_s;
+}
+
+GroundPoint pet_warp_at(GroundPoint owner, float owner_facing) noexcept {
+    const double dir = static_cast<double>(owner_facing) - (kPetPi / 2.0);
+    const float sine = static_cast<float>(std::sin(dir));
+    const float cosine = static_cast<float>(std::cos(dir));
+    GroundPoint at;
+    at.x = owner.x + (kPetWarpReach * sine);
+    at.z = owner.z - (kPetWarpReach * cosine);
+    return at;
+}
+
+PetOrder pet_follow(PetAsk ask) noexcept {
+    PetOrder order;
+    order.pace = ask.pace;
+    order.at = go_point(ask);
+    const float dist_sq = pet_dist_sq(ask.pet, ask.owner);
+    const bool warps = dist_sq > kPetWarpSq && ask.can_move;
+    if (warps) return warp_order(ask);
+    order.pace = pace_for(ask.pace, dist_sq);
+    order.go = !ask.moving && dist_sq > kPetGoSq;
+    return order;
 }
 
 } // namespace game::motion

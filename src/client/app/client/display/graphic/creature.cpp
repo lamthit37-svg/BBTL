@@ -24,17 +24,18 @@
 #include "core/error.hpp"
 #include "core/ground_point.hpp"
 
-#include <ranges>
 #include "io/file.hpp"
 #include "look/creature.hpp"
 #include "look/look.hpp"
 #include "math/vector.hpp"
+#include "motion/motion.hpp"
 #include "ogre/vec3.hpp"
 #include "render/forward.hpp"
 #include "resource/image.hpp"
 #include "resource/model.hpp"
 #include "resource/ogre_mesh.hpp"
 #include "resource/tier.hpp"
+#include <ranges>
 
 #include <algorithm>
 #include <chrono>
@@ -368,7 +369,7 @@ void Display::State::seed_peer_demo(int scene_id) {
     }
 }
 
-// Công cụ thử (--pet): mẫu creature đứng như trân thú (EntityKind::kPet), hàng cách nhân vật ba mét rưỡi.
+// Công cụ thử (--pet): mẫu creature là trân thú. step_pet_herd dẫn theo AI_Pet 2008.
 void Display::State::seed_pet_demo(int scene_id) {
     constexpr std::uint32_t kFirstId = 3000;
     constexpr float kSpacing = 2.5F;
@@ -388,8 +389,87 @@ void Display::State::seed_pet_demo(int scene_id) {
         spawn.z = here.z + kAhead;
         spawn.facing = std::numbers::pi_v<float>;
         people.apply(spawn);
+        PetMember member;
+        member.id = spawn.id;
+        pet_herd.push_back(member);
     }
     pet_demo.clear();
+}
+
+void Display::State::place_pet(PetMember& member, const core::GroundPoint& at, float yaw,
+    cast::Pose pose, bool moving) {
+    member.moving = moving;
+    cast::Placed note;
+    note.id = member.id;
+    note.x = at.x;
+    note.z = at.z;
+    note.facing = yaw;
+    note.pose = pose;
+    people.apply(note);
+}
+
+void Display::State::hold_pet(PetMember& member, const cast::Actor& actor) {
+    const core::GroundPoint at{.x = actor.x, .z = actor.z};
+    place_pet(member, at, actor.facing, cast::Pose::kIdle, false);
+}
+
+void Display::State::warp_pet(PetMember& member, const cast::Actor& actor, core::GroundPoint at) {
+    const core::GroundPoint from{.x = actor.x, .z = actor.z};
+    const float yaw = motion::face_angle(from, at);
+    place_pet(member, at, yaw, cast::Pose::kIdle, false);
+}
+
+float Display::State::pet_base(std::uint32_t template_id) const {
+    if (!creature_tables) return 0.0F;
+    const look::CreatureTemplate* row = creature_tables->find_template(template_id);
+    if (row == nullptr || row->move_speed <= 0) return 0.0F;
+    return static_cast<float>(row->move_speed) / 1000.0F;
+}
+
+// Đi thẳng tới điểm Baby_Go. Khác gốc: không IsCanGo; điểm tính lại mỗi khung.
+void Display::State::walk_pet(PetMember& member, const cast::Actor& actor, core::GroundPoint goal) {
+    motion::MoveAsk ask;
+    ask.here = core::GroundPoint{.x = actor.x, .z = actor.z};
+    ask.target = goal;
+    const float base = pet_base(actor.template_id);
+    ask.speed = motion::pet_speed(base, member.pace);
+    ask.seconds = frame_seconds;
+    const motion::MoveStep step = motion::move_tick(ask);
+    const bool moving = step.moved && !step.arrived;
+    const float yaw = step.moved ? step.facing : actor.facing;
+    const cast::Pose pose = moving ? cast::Pose::kWalk : cast::Pose::kIdle;
+    place_pet(member, step.position, yaw, pose, moving);
+}
+
+void Display::State::step_one_pet(PetMember& member, core::GroundPoint owner) {
+    const cast::Actor* actor = people.find(member.id);
+    if (actor == nullptr || actor->pose == cast::Pose::kDead) return;
+    motion::PetAsk ask;
+    ask.pet = core::GroundPoint{.x = actor->x, .z = actor->z};
+    ask.owner = owner;
+    ask.owner_facing = facing;
+    ask.pace = member.pace;
+    ask.moving = member.moving;
+    ask.can_move = true;
+    const motion::PetOrder pet_order = motion::pet_follow(ask);
+    member.pace = pet_order.pace;
+    if (pet_order.warp) return warp_pet(member, *actor, pet_order.at);
+    if (pet_order.go || member.moving) return walk_pet(member, *actor, pet_order.at);
+    hold_pet(member, *actor);
+}
+
+bool Display::State::herd_gone(const PetMember& member) const {
+    return people.find(member.id) == nullptr;
+}
+
+void Display::State::step_pet_herd() {
+    const bool missing = ground == nullptr || !scale_ok(ground->file);
+    if (pet_herd.empty() || missing) return;
+    const core::GroundPoint owner = game_of(ground->file, walk);
+    for (PetMember& member : pet_herd)
+        step_one_pet(member, owner);
+    const auto gone = [this](const PetMember& member) { return herd_gone(member); };
+    std::erase_if(pet_herd, gone);
 }
 
 void Display::State::append_creatures() {

@@ -31,6 +31,7 @@
 #include "client/mobile.hpp"
 #include "control/input.hpp"
 #include "control/touch.hpp"
+#include "core/number.hpp"
 
 #include <os/log.h>
 
@@ -137,6 +138,27 @@ void absorb_requests() {
         log_error("Vào game: " + step.detail);
         if (request.entry && session.online) session.online->abandon(*session.display);
     }
+}
+
+// Biến môi trường của tiến trình; rỗng khi không đặt. Chỉ đọc lúc dựng phần hiển thị, chưa luồng nào đổi môi trường.
+[[nodiscard]] std::string_view env_text(const char* key) noexcept {
+    const char* const value = std::getenv(key); // NOLINT(concurrency-mt-unsafe): xem trên
+    return value == nullptr ? std::string_view{} : std::string_view(value);
+}
+
+// Chẩn đoán, cùng nghĩa với debug.thienlong.direct và debug.thienlong.scene của Android: THIENLONG_DIRECT=1 (Xcode:
+// Scheme, Run, Environment Variables) bỏ màn đăng nhập, vào thẳng cảnh khởi đầu cục bộ; THIENLONG_SCENE=<resid> đổi
+// cảnh đó như --scene-id của bản PC, để ba nền đo cùng một cảnh ở cùng chỗ đứng mặc định. Mặc định tắt.
+void enter_directly() {
+    if (session.is_playing || !env_text("THIENLONG_DIRECT").starts_with('1')) return;
+    const std::string_view scene_text = env_text("THIENLONG_SCENE");
+    const std::optional<int> scene = game::core::parse_whole_int(scene_text);
+    if (scene) session.boot.first_scene = scene;
+    const bool is_bad_scene = !scene_text.empty() && !scene;
+    if (is_bad_scene) log_error("THIENLONG_SCENE: phải là resid, số nguyên không âm");
+    const game::client::Request request{.kind = game::client::RequestKind::kEnterGame};
+    const game::client::HostStep step = game::client::host_step(session.boot, session.is_playing, request);
+    if (!step.detail.empty()) log_error("Vào thẳng: " + step.detail);
 }
 
 void remember_save_root() {
@@ -407,6 +429,7 @@ void open_page(game::client::WebLink link) {
         session.online.emplace(std::move(gates.book));
         session.is_prepared = true;
     }
+    enter_directly();
     start_speaker();
     const CGSize drawable = layer.drawableSize;
     const bool has_pixels = drawable.width > 0.0 && drawable.height > 0.0;

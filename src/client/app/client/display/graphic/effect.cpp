@@ -14,8 +14,13 @@
 
 #include "client/display/graphic/state.hpp"
 
+#include "io/file.hpp"
+#include "look/bullet.hpp"
+#include "look/impact.hpp"
 #include "ogre/quat.hpp"
 #include "ogre/vec3.hpp"
+
+#include <filesystem>
 
 #include <algorithm>
 #include <array>
@@ -471,7 +476,7 @@ std::size_t Display::State::fx_mesh_slot(const fx::Field& field) {
     if (field.definition().renderer != fx::RendererKind::kMesh) return kMissing;
     if (field.definition().mesh_name.empty() || fx_view == nullptr) return kMissing;
     const fx::Paint* paint = fx_view->paint(field.definition().material);
-    if (paint == nullptr || paint->blend != fx::Blend::kAlpha) return kMissing;
+    if (paint == nullptr || !fx::has_mesh_pipeline(paint->blend)) return kMissing;
     return load_painted_mesh(field.definition().mesh_name, field.definition().material, *paint);
 }
 
@@ -544,4 +549,271 @@ void Display::State::draw_fx(const FxAsk& ask) const {
     paint_select_ring(extras);
     fx_view->draw(*ask.list, ask.slot, *ask.camera, extras);
 }
+
+namespace {
+
+constexpr std::size_t kMaxLiveBullets = 32;
+
+// Tên riêng: point_of ở prelude.hpp trả math::Point3.
+[[nodiscard]] look::FlightPoint flight_at(ogre::Vec3 place) {
+    return look::FlightPoint{.x = place.x, .y = place.y, .z = place.z};
+}
+
+[[nodiscard]] ogre::Vec3 vec_of(look::FlightPoint point) {
+    return ogre::Vec3{.x = point.x, .y = point.y, .z = point.z};
+}
+
+[[nodiscard]] ogre::Vec3 up_axis() {
+    return ogre::Vec3{.x = 0.0F, .y = 1.0F, .z = 0.0F};
+}
+
+} // namespace
+
+void Display::State::hear_at(std::string name, ogre::Vec3 place) {
+    if (name.empty()) return;
+    HeardSound due;
+    due.name = std::move(name);
+    due.x = place.x;
+    due.y = place.y;
+    due.z = place.z;
+    due.is_spatial = true;
+    const std::scoped_lock<std::mutex> locked(steer_guard);
+    sounds_due.push_back(std::move(due));
+}
+
+std::uint32_t Display::State::spawn_tracked(std::string_view name, look::FlightPoint at) {
+    if (!fx_view || name.empty()) return 0;
+    fx::Spawn spawn;
+    spawn.name = std::string(name);
+    spawn.is_effect = true;
+    spawn.is_tracked = true;
+    spawn.node.position = vec_of(at);
+    return fx_view->spawn(spawn);
+}
+
+fx::Node Display::State::body_node() const {
+    // Khác gốc: avatar chưa có locator 身体受击点, gắn hạt ở chân.
+    const ogre::Vec3 up = up_axis();
+    fx::Node node;
+    node.position = foot();
+    node.orientation = ogre::quat_from_angle_axis(facing, up);
+    return node;
+}
+
+std::string Display::State::table_text(const char* file) const {
+    const std::filesystem::path path = data_root / "Table" / file;
+    const io::TextResult text = io::read_text(path);
+    if (!text) {
+        std::println(stderr, "Bảng {} không đọc được", file);
+        return {};
+    }
+    return *text;
+}
+
+void Display::State::take_impacts(std::string text) {
+    if (text.empty()) return;
+    look::ImpactRows rows = look::parse_impacts(text);
+    if (!rows) {
+        std::println(stderr, "Bảng impacts: {}", rows.error());
+        return;
+    }
+    impacts.reset(std::move(*rows));
+}
+
+void Display::State::take_bullets(std::string text) {
+    if (text.empty()) return;
+    look::BulletRows rows = look::parse_bullets(text);
+    if (!rows) {
+        std::println(stderr, "Bảng bullets: {}", rows.error());
+        return;
+    }
+    bullets.reset(std::move(*rows));
+}
+
+void Display::State::take_skills(std::string text) {
+    if (text.empty()) return;
+    look::SkillRows rows = look::parse_skill_bullets(text);
+    if (!rows) {
+        std::println(stderr, "Bảng skill_bullets: {}", rows.error());
+        return;
+    }
+    skill_bullets.reset(std::move(*rows));
+}
+
+void Display::State::apply_one_cue(const look::ImpactCue& cue) {
+    const ogre::Vec3 place = foot();
+    const bool is_sound = cue.kind == look::ImpactCueKind::kSound;
+    if (is_sound) hear_at(cue.name, place);
+    if (cue.kind != look::ImpactCueKind::kOnce) return;
+    const look::FlightPoint at = flight_at(place);
+    static_cast<void>(spawn_tracked(cue.name, at));
+}
+
+const look::ImpactSlot* Display::State::impact_slot(std::uint32_t id) const {
+    for (const look::ImpactSlot& slot : impacts.slots()) {
+        if (slot.id == id) return &slot;
+    }
+    return nullptr;
+}
+
+ImpactHandle* Display::State::find_impact(std::uint32_t id) {
+    for (ImpactHandle& item : impact_handles) {
+        if (item.id == id) return &item;
+    }
+    return nullptr;
+}
+
+bool Display::State::drop_impact(const ImpactHandle& item) {
+    const look::ImpactSlot* slot = impact_slot(item.id);
+    const bool same = slot != nullptr && slot->continuous == item.name;
+    // Handle 0 là lần dựng đã hỏng. Giữ ô để khung sau không dựng lại và không xối log.
+    if (same && item.handle == 0) return false;
+    const bool live = item.handle != 0 && fx_view->is_live(item.handle);
+    if (same && live) return false;
+    fx_view->release(item.handle);
+    return true;
+}
+
+void Display::State::spawn_impact(const look::ImpactSlot& slot, const fx::Node& node) {
+    fx::Spawn spawn;
+    spawn.name = slot.continuous;
+    spawn.is_effect = true;
+    spawn.is_tracked = true;
+    spawn.node = node;
+    const std::uint32_t handle = fx_view->spawn(spawn);
+    if (handle == 0) std::println(stderr, "Hiệu ứng {}: không dựng {}", slot.id, slot.continuous);
+    ImpactHandle made;
+    made.id = slot.id;
+    made.name = slot.continuous;
+    made.handle = handle;
+    impact_handles.push_back(std::move(made));
+}
+
+void Display::State::keep_impact(const look::ImpactSlot& slot, const fx::Node& node) {
+    if (slot.continuous.empty()) return;
+    ImpactHandle* known = find_impact(slot.id);
+    if (known != nullptr) return fx_view->move(known->handle, node);
+    spawn_impact(slot, node);
+}
+
+void Display::State::release_flight(std::uint32_t handle) {
+    if (fx_view && handle != 0) fx_view->release(handle);
+}
+
+void Display::State::open_bullet(const look::BulletRow& row, std::uint32_t id,
+    look::FlightPoint to) {
+    if (live_bullets.size() >= kMaxLiveBullets) {
+        release_flight(live_bullets.front().handle);
+        live_bullets.erase(live_bullets.begin());
+    }
+    const ogre::Vec3 place = foot();
+    const look::FlightPoint from = flight_at(place);
+    const float speed = row.speed * ground->file.scale.x;
+    LiveBullet live;
+    live.flight = look::begin_flight(row.trail, speed, 0.0F, from, to);
+    live.target = id;
+    live.explosion = row.explosion;
+    live.explosion_sound = row.explosion_sound;
+    const bool flies = row.trail != look::Trail::kNone && !row.flight.empty();
+    if (flies) live.handle = spawn_tracked(row.flight, from);
+    hear_at(row.flight_sound, place);
+    live_bullets.push_back(std::move(live));
+}
+
+look::FlightPoint Display::State::bullet_aim(std::uint32_t id) const {
+    const cast::Actor* actor = people.find(id);
+    if (actor == nullptr) return look::FlightPoint{.x = -1.0F, .y = -1.0F, .z = -1.0F};
+    const ogre::Vec3 place = world_foot(*actor);
+    return flight_at(place);
+}
+
+void Display::State::burst_bullet(LiveBullet& live, look::FlightPoint at) {
+    release_flight(live.handle);
+    live.handle = 0;
+    const ogre::Vec3 place = vec_of(at);
+    hear_at(live.explosion_sound, place);
+    if (live.explosion.empty()) return;
+    static_cast<void>(spawn_tracked(live.explosion, at));
+}
+
+void Display::State::glide_bullet(const LiveBullet& live, const look::BulletStep& step) {
+    if (live.handle == 0 || !fx_view) return;
+    if (!fx_view->is_live(live.handle)) return;
+    const ogre::Vec3 up = up_axis();
+    fx::Node node;
+    node.position = vec_of(step.at);
+    node.orientation = ogre::quat_from_angle_axis(step.facing, up);
+    fx_view->move(live.handle, node);
+}
+
+void Display::State::step_one_bullet(LiveBullet& live) {
+    const look::FlightPoint aim = bullet_aim(live.target);
+    const look::BulletStep step = look::step_bullet(live.flight, aim, frame_seconds);
+    live.flight.at = step.at;
+    live.flight.hit = step.hit;
+    if (step.hit) return burst_bullet(live, step.at);
+    glide_bullet(live, step);
+}
+
+void Display::State::ensure_actor_fx() {
+    if (actor_fx_ready) return;
+    actor_fx_ready = true;
+    if (data_root.empty()) return;
+    const std::string impacts_text = table_text("impacts.tsv");
+    const std::string bullets_text = table_text("bullets.tsv");
+    const std::string skills_text = table_text("skill_bullets.tsv");
+    take_impacts(impacts_text);
+    take_bullets(bullets_text);
+    take_skills(skills_text);
+}
+
+void Display::State::arm_impact() {
+    if (!impact_demo || !fx_view) return;
+    ensure_actor_fx();
+    const std::uint32_t id = *impact_demo;
+    impact_demo.reset();
+    if (!impacts.known(id)) std::println(stderr, "Hiệu ứng {}: không có dòng", id);
+    const std::vector<look::ImpactCue> cues = impacts.enable(id, true);
+    for (const look::ImpactCue& cue : cues)
+        apply_one_cue(cue);
+}
+
+void Display::State::sync_impacts() {
+    if (!fx_view) return;
+    ensure_actor_fx();
+    const fx::Node node = body_node();
+    const auto drop = [this](const ImpactHandle& held) { return drop_impact(held); };
+    std::erase_if(impact_handles, drop);
+    for (const look::ImpactSlot& slot : impacts.slots())
+        keep_impact(slot, node);
+}
+
+void Display::State::launch_bullet(const StrikeCall& call) {
+    // Khác gốc: chưa có sự kiện logic đạn, chỉ bắn khi đang có mục tiêu.
+    const bool has_ground = ground != nullptr && scale_ok(ground->file);
+    const bool can_fly = fx_view != nullptr && terrain.has_value();
+    if (!has_ground || !can_fly) return;
+    ensure_actor_fx();
+    const look::SkillBullet* skill = skill_bullets.find(call.skill);
+    if (skill == nullptr) return;
+    const look::BulletRow* row = bullets.find(skill->bullet);
+    if (row == nullptr) return;
+    const std::optional<std::uint32_t> aimed = combat.target();
+    if (!aimed) return;
+    const cast::Actor* actor = people.find(*aimed);
+    if (actor == nullptr) return;
+    const ogre::Vec3 place = world_foot(*actor);
+    const look::FlightPoint to = flight_at(place);
+    open_bullet(*row, *aimed, to);
+}
+
+void Display::State::step_bullets() {
+    const bool has_room = ground != nullptr && terrain.has_value();
+    if (live_bullets.empty() || !has_room) return;
+    for (LiveBullet& live : live_bullets)
+        step_one_bullet(live);
+    const auto done = [](const LiveBullet& live) { return live.flight.hit; };
+    std::erase_if(live_bullets, done);
+}
+
 } // namespace game::client

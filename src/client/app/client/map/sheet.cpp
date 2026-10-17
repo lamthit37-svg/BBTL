@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/app/client/map/sheet.cpp
+ *  PHÂN HỆ   : Client / Map / Sheet
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Dựng lưới tam giác của địa hình (Sheet) từ độ cao và lưới ô: góc dùng
+ *    chung có pháp tuyến và màu theo độ cao, sáu chỉ số mỗi ô.
+ *  - Thứ tự sáu góc của một ô (cell_order) là nguồn duy nhất, dùng chung với bộ
+ *    dựng đỉnh theo ô của mặt đất lớp cọ (prelude.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "client/map/sheet.hpp"
 
 #include "client/map/picture.hpp"
@@ -10,6 +27,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace game::client::map {
@@ -122,41 +140,17 @@ void push_corner(Sheet& sheet, const CornerRequest& request) {
     sheet.corners.push_back(corner);
 }
 
-// Bốn góc theo msConnerMap: 0 trái-trên, 1 phải-trên, 2 trái-dưới, 3 phải-dưới.
-void push_plain(std::vector<std::uint32_t>& indices, const std::array<std::uint32_t, 4>& corner) {
-    const std::uint32_t near_left = std::get<0>(corner);
-    const std::uint32_t near_right = std::get<1>(corner);
-    const std::uint32_t far_left = std::get<2>(corner);
-    const std::uint32_t far_right = std::get<3>(corner);
-    indices.push_back(near_right);
-    indices.push_back(near_left);
-    indices.push_back(far_left);
-    indices.push_back(near_right);
-    indices.push_back(far_left);
-    indices.push_back(far_right);
-}
-
-// msConnerMap lật là trái-dưới, trái-trên, phải-dưới, phải-trên. Vẫn ghi [1],[0],[2] rồi
-// [1],[2],[3].
-void push_flipped(std::vector<std::uint32_t>& indices, const std::array<std::uint32_t, 4>& corner) {
-    const std::uint32_t near_left = std::get<0>(corner);
-    const std::uint32_t near_right = std::get<1>(corner);
-    const std::uint32_t far_left = std::get<2>(corner);
-    const std::uint32_t far_right = std::get<3>(corner);
-    indices.push_back(near_left);
-    indices.push_back(far_left);
-    indices.push_back(far_right);
-    indices.push_back(near_left);
-    indices.push_back(far_right);
-    indices.push_back(near_right);
-}
+// Thứ tự sáu góc của hai tam giác một ô, theo chỉ số góc cục bộ của msConnerMap (0 trái-trên, 1
+// phải-trên, 2 trái-dưới, 3 phải-dưới). Không lật ghi [1],[0],[2] rồi [1],[2],[3]; lật (msConnerMap
+// là trái-dưới, trái-trên, phải-dưới, phải-trên) ghi [0],[2],[3] rồi [0],[3],[1].
+constexpr std::array<std::uint8_t, 6> kPlainOrder{1, 0, 2, 1, 2, 3};
+constexpr std::array<std::uint8_t, 6> kFlippedOrder{0, 2, 3, 0, 3, 1};
 
 void push_cell(std::vector<std::uint32_t>& indices, const std::array<std::uint32_t, 4>& corner, bool is_flipped) {
-    if (is_flipped) {
-        push_flipped(indices, corner);
-        return;
+    const std::span<const std::uint8_t, 6> order = cell_order(is_flipped);
+    for (const std::uint8_t slot : order) {
+        indices.push_back(corner.at(slot));
     }
-    push_plain(indices, corner);
 }
 
 void place_cell(Sheet& sheet, const TerrainFile& file, const GridField& grid, int index) {
@@ -176,6 +170,11 @@ void place_cell(Sheet& sheet, const TerrainFile& file, const GridField& grid, in
 }
 
 } // namespace
+
+std::span<const std::uint8_t, 6> cell_order(bool is_flipped) noexcept {
+    if (is_flipped) return kFlippedOrder;
+    return kPlainOrder;
+}
 
 Sheet build_sheet(const TerrainFile& file, const HeightField& heights, const GridField& grid) {
     Sheet sheet;

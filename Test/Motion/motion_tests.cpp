@@ -153,6 +153,77 @@ void tick_steps(Context& context) {
     context.expect(near_point(exact.position, ask.target), "vẫn đứng trên đích");
 }
 
+void pet_paces(Context& context) {
+    motion::PetAsk ask;
+    ask.owner = {};
+    ask.pet = {.x = 0.0F, .z = 2.0F};
+    ask.pace = motion::PetPace::kWalk;
+    const motion::PetOrder near = motion::pet_follow(ask);
+    context.expect(near.pace == motion::PetPace::kWalk && !near.go && !near.warp, "trong 3 m, đang đi bộ thì đứng");
+    ask.pet = {.x = 0.0F, .z = 3.0F};
+    const motion::PetOrder edge = motion::pet_follow(ask);
+    context.expect(edge.pace == motion::PetPace::kWalk && edge.go && !edge.warp, "đúng 3 m vẫn đi bộ và bắt đầu đi");
+    ask.pet = {.x = 0.0F, .z = 5.0F};
+    const motion::PetOrder run = motion::pet_follow(ask);
+    const bool runs = run.pace == motion::PetPace::kRun && run.go;
+    const GroundPoint side{.x = -2.0F, .z = 0.0F};
+    context.expect(runs && near_point(run.at, side), "5 m, hướng 0 chạy tới điểm lệch −x");
+    ask.owner_facing = 1.5707963F;
+    const motion::PetOrder front = motion::pet_follow(ask);
+    const bool front_runs = front.pace == motion::PetPace::kRun && front.go;
+    const GroundPoint nose{.x = 0.0F, .z = 2.0F};
+    context.expect(front_runs && near_point(front.at, nose), "hướng pi/2 thì điểm đi lệch +z");
+    ask.owner_facing = 0.0F;
+    ask.pace = motion::PetPace::kSprint;
+    const motion::PetOrder held = motion::pet_follow(ask);
+    context.expect(held.pace == motion::PetPace::kSprint, "dưới 8 m vẫn giữ nước rút");
+    ask.pace = motion::PetPace::kWalk;
+    ask.pet = {.x = 0.0F, .z = 8.0F};
+    const motion::PetOrder eight = motion::pet_follow(ask);
+    context.expect(eight.pace == motion::PetPace::kRun, "đúng 8 m thì chạy, chưa nước rút");
+    ask.pet = {.x = 0.0F, .z = 10.0F};
+    const motion::PetOrder sprint = motion::pet_follow(ask);
+    context.expect(sprint.pace == motion::PetPace::kSprint && sprint.go, "10 m thì nước rút");
+    ask.pet = {.x = 0.0F, .z = 15.0F};
+    const motion::PetOrder fifteen = motion::pet_follow(ask);
+    context.expect(fifteen.pace == motion::PetPace::kSprint && !fifteen.warp, "đúng 15 m chưa dịch");
+    ask.pet = {.x = 0.0F, .z = 16.0F};
+    ask.owner_facing = 0.0F;
+    const motion::PetOrder warped = motion::pet_follow(ask);
+    context.expect(warped.warp && warped.pace == motion::PetPace::kWalk && !warped.go, "quá 15 m thì dịch và về đi bộ");
+    context.expect(near_point(warped.at, {.x = -2.0F, .z = 0.0F}), "hướng 0 đáp lệch 2 m về −x");
+    ask.can_move = false;
+    const motion::PetOrder stuck = motion::pet_follow(ask);
+    context.expect(!stuck.warp && stuck.go && stuck.pace == motion::PetPace::kWalk, "không đi được thì không dịch");
+    ask.can_move = true;
+    ask.moving = true;
+    ask.pet = {.x = 0.0F, .z = 5.0F};
+    ask.pace = motion::PetPace::kRun;
+    const motion::PetOrder going = motion::pet_follow(ask);
+    context.expect(!going.go && going.pace == motion::PetPace::kRun, "đang đi thì không gọi đi thêm");
+    context.expect(near_point(going.at, side), "đang đi vẫn nhằm điểm Baby_Go");
+    ask.moving = false;
+    ask.pace = motion::PetPace::kRun;
+    ask.pet = {.x = 1.0F, .z = 1.0F};
+    const motion::PetOrder home = motion::pet_follow(ask);
+    context.expect(home.pace == motion::PetPace::kHobble, "vào trong 3 m từ chạy thì khập khiễng");
+    ask.has_map = true;
+    ask.limit = {.width = 1.0F, .depth = 1.0F};
+    ask.pet = {.x = 0.0F, .z = 20.0F};
+    ask.pace = motion::PetPace::kWalk;
+    const motion::PetOrder boxed = motion::pet_follow(ask);
+    context.expect(boxed.warp && near_point(boxed.at, {.x = 0.0F, .z = 0.0F}), "điểm đáp ngoài map bị kéo vào");
+}
+
+void pet_speeds(Context& context) {
+    context.expect(near_value(motion::pet_speed(2.0F, motion::PetPace::kWalk), 2.0F), "đi bộ giữ gốc");
+    context.expect(near_value(motion::pet_speed(2.0F, motion::PetPace::kHobble), 1.0F), "khập khiễng một nửa");
+    context.expect(near_value(motion::pet_speed(2.0F, motion::PetPace::kRun), 3.0F), "chạy 1.5");
+    context.expect(near_value(motion::pet_speed(2.0F, motion::PetPace::kSprint), 10.0F), "nước rút 5");
+    context.expect(near_value(motion::pet_speed(0.0F, motion::PetPace::kRun), 0.0F), "gốc 0 thì không bước");
+    context.expect(near_value(motion::pet_speed(-1.0F, motion::PetPace::kSprint), 0.0F), "gốc âm thì 0");
+}
+
 void stays_inside(Context& context) {
     const motion::MapLimit limit{.width = 10.0F, .depth = 8.0F};
     const GroundPoint west = motion::verify_pos({.x = -1.0F, .z = 5.0F}, limit);
@@ -172,6 +243,8 @@ constexpr std::array kCases{
     Case{.name = "faces", .body = &faces},
     Case{.name = "tick_steps", .body = &tick_steps},
     Case{.name = "stays_inside", .body = &stays_inside},
+    Case{.name = "pet_paces", .body = &pet_paces},
+    Case{.name = "pet_speeds", .body = &pet_speeds},
 };
 
 } // namespace

@@ -123,6 +123,8 @@ struct Options {
     std::vector<std::uint32_t> creatures;
     // --pet: id mẫu trân thú (cùng bảng creature) đứng trước mặt. Công cụ thử, client gốc không có.
     std::vector<std::uint32_t> pets;
+    // --impact: id hiệu ứng bật trên người chơi ở khung đầu. 0 là id thật. Công cụ thử.
+    std::optional<std::uint32_t> impact_id;
     // --peer: số người chơi khác đứng trước mặt (1..4), nữ rồi nam, bộ mặc định. Công cụ thử, client gốc không có.
     std::uint32_t peer_count = 0;
     // --talk-demo <click|menu|offer|turn|fight|fall>: NPC của --creature bấm được và hộp thoại được đáp bằng kịch bản có sẵn thay cho

@@ -879,6 +879,7 @@ private:
     shown.ui_events = desc.ui_events;
     shown.creatures = desc.creatures;
     shown.pets = desc.pets;
+    shown.impact_id = desc.impact_id;
     shown.peer_count = desc.peer_count;
     shown.talk_demo = desc.talk_demo;
     shown.weapon_item = desc.weapon_item;

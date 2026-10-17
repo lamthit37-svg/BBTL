@@ -105,5 +105,6 @@ Varying main(Vertex vertex, uint instance_id : SV_InstanceID) {
     output.place = place;
     output.light = is_lit_here ? diffuse_light(facing, place, lamp) : float3(1.0, 1.0, 1.0);
     output.lamp = lamp;
+    output.object_normal = vertex.normal;
     return output;
 }

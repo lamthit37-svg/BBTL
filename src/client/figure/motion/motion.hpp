@@ -6,8 +6,8 @@
  *  CHUẨN     : C++23
  *------------------------------------------------------------------------------
  *  CHỨC NĂNG
- *  - Đi trên mặt đất theo đơn vị game. Tốc độ người và tốc độ cưỡi theo phần
- *    trăm.
+ *  - Đi trên mặt đất theo đơn vị game. Tốc độ người, tốc độ cưỡi, và nhịp đi
+ *    theo chủ của trân thú (AI_Pet 2008).
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
  *  TELEGRAM  : @Hoon9xx
@@ -94,5 +94,42 @@ struct MapLimit {
 
 // Kéo điểm vào trong bản đồ.
 [[nodiscard]] GroundPoint verify_pos(GroundPoint point, MapLimit limit) noexcept;
+
+// Nhịp của trân thú. Khác MoveMode của người: gốc liệt kê HOBBLE, WALK, RUN, SPRINT.
+// Nguồn: Obj_Pet::GetMoveSpeed và AI_Pet::ChangeMoveMode (server 2008).
+enum class PetPace : std::uint8_t { kHobble, kWalk, kRun, kSprint };
+
+// Một lượt xét khoảng cách tới chủ. owner_facing là getDir của chủ (radian).
+// has_map thì điểm dịch chuyển đi qua verify_pos.
+struct PetAsk {
+    GroundPoint pet;
+    GroundPoint owner;
+    float owner_facing = 0.0F;
+    PetPace pace = PetPace::kWalk;
+    bool moving = false;
+    bool can_move = true;
+    bool has_map = false;
+    MapLimit limit{};
+};
+
+// Lệnh của một lượt: nhịp mới, có dịch tức thì không, có bắt đầu đi không, và điểm đích.
+// warp thì at là điểm đáp (z trừ cos). Còn lại at là điểm Baby_Go (z cộng cos), lệch 2 m.
+struct PetOrder {
+    PetPace pace = PetPace::kWalk;
+    bool warp = false;
+    bool go = false;
+    GroundPoint at{};
+};
+
+// Mét mỗi giây. Gốc là move_speed của mẫu quái chia 1000, rồi nhân nhịp.
+// Gốc không dương thì 0: thú không bước, vẫn dịch được khi quá xa.
+[[nodiscard]] float pet_speed(float base_m_per_s, PetPace pace) noexcept;
+
+// Điểm đáp khi dịch: cùng góc Baby_Go, nhưng z trừ 2*cos. Chưa kẹp vào bản đồ.
+[[nodiscard]] GroundPoint pet_warp_at(GroundPoint owner, float owner_facing) noexcept;
+
+// ChangeMoveMode chọn nhịp và điểm dịch. at còn lại là điểm Baby_Go.
+// Khác gốc: không IsCanGo, không tìm đường; điểm đi tính lại mỗi lần gọi.
+[[nodiscard]] PetOrder pet_follow(PetAsk ask) noexcept;
 
 } // namespace game::motion

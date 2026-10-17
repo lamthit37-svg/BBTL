@@ -26,6 +26,7 @@
 #include "gpu/gles/pick.hpp"
 #include "gpu/gles/probe.hpp"
 #include "gpu/handle.hpp"
+#include "gpu/pacer.hpp"
 #include "gpu/pipeline.hpp"
 #include "gpu/resource.hpp"
 #include "gpu/types.hpp"
@@ -1382,7 +1383,118 @@ void d3d_alpha_blend_has_no_color_factor(Context& context) {
 }
 #endif
 
+// gpu::PresentPacer: logic thuần, không cần thiết bị. Màn 60 Hz, mỗi ảnh hai nhịp quét (30 khung).
+constexpr std::uint64_t kRefreshNs = 16'666'667;
+constexpr std::uint64_t kShownNs = 5'000'000'000;
+
+[[nodiscard]] gpu::PresentPacer paced_pacer() {
+    gpu::PresentPacer pacer;
+    pacer.set_refresh(kRefreshNs);
+    pacer.set_interval(2);
+    pacer.note_shown({.id = 10, .shown_ns = kShownNs});
+    return pacer;
+}
+
+void pacer_spaces_presents_by_interval(Context& context) {
+    const gpu::PresentPacer pacer = paced_pacer();
+    const std::uint64_t half = kRefreshNs / 2;
+    const std::uint64_t next = kShownNs + (2 * kRefreshNs) - half;
+    const std::uint64_t after = kShownNs + (4 * kRefreshNs) - half;
+    context.expect(pacer.desired(11) == next, "lần sau mốc neo hẹn hai nhịp quét, sớm nửa nhịp");
+    context.expect(pacer.desired(12) == after, "lần thứ hai sau mốc neo hẹn bốn nhịp quét");
+    context.expect(pacer.desired(10) == 0, "chính lần làm mốc neo thì không hẹn");
+}
+
+void pacer_is_free_until_it_knows(Context& context) {
+    gpu::PresentPacer pacer;
+    pacer.set_interval(2);
+    pacer.note_shown({.id = 10, .shown_ns = kShownNs});
+    context.expect(pacer.desired(11) == 0, "chưa biết chu kỳ quét thì không hẹn");
+    pacer.set_refresh(kRefreshNs);
+    pacer.set_interval(1);
+    context.expect(pacer.desired(11) == 0, "một nhịp mỗi ảnh thì để Fifo tự lo");
+    gpu::PresentPacer fresh;
+    fresh.set_refresh(kRefreshNs);
+    fresh.set_interval(2);
+    context.expect(fresh.desired(1) == 0, "chưa có mốc trình thật thì không hẹn");
+}
+
+void pacer_follows_late_frame(Context& context) {
+    gpu::PresentPacer pacer = paced_pacer();
+    // Lần 11 trễ một nhịp: lên màn sau ba nhịp quét thay vì hai.
+    const std::uint64_t late_ns = kShownNs + (3 * kRefreshNs);
+    pacer.note_shown({.id = 11, .shown_ns = late_ns});
+    const std::uint64_t expected = late_ns + (2 * kRefreshNs) - (kRefreshNs / 2);
+    context.expect(pacer.desired(12) == expected, "lịch dời theo khung trễ, không đuổi bù");
+}
+
+void pacer_keeps_newest_anchor(Context& context) {
+    gpu::PresentPacer pacer = paced_pacer();
+    pacer.note_shown({.id = 9, .shown_ns = kShownNs - (2 * kRefreshNs)});
+    pacer.note_shown({.id = 10, .shown_ns = kShownNs + kRefreshNs});
+    const std::uint64_t expected = kShownNs + (2 * kRefreshNs) - (kRefreshNs / 2);
+    context.expect(pacer.desired(11) == expected, "mốc cũ hơn hay trùng mốc neo thì bỏ");
+}
+
+void pacer_restarts_on_new_interval(Context& context) {
+    gpu::PresentPacer pacer = paced_pacer();
+    pacer.set_interval(3);
+    context.expect(pacer.desired(11) == 0, "đổi số nhịp thì bỏ mốc neo cũ");
+    pacer.note_shown({.id = 12, .shown_ns = kShownNs});
+    const std::uint64_t expected = kShownNs + (3 * kRefreshNs) - (kRefreshNs / 2);
+    context.expect(pacer.desired(13) == expected, "mốc mới thì hẹn theo số nhịp mới");
+    pacer.reset();
+    context.expect(pacer.desired(13) == 0, "swapchain dựng lại thì bỏ mốc neo và chu kỳ");
+    context.expect(pacer.interval() == 3, "số nhịp giữ qua lần dựng lại");
+}
+
+void pacer_counts_across_wrap(Context& context) {
+    gpu::PresentPacer pacer;
+    pacer.set_refresh(kRefreshNs);
+    pacer.set_interval(2);
+    pacer.note_shown({.id = 0xFFFF'FFFFU, .shown_ns = kShownNs});
+    const std::uint64_t expected = kShownNs + (4 * kRefreshNs) - (kRefreshNs / 2);
+    context.expect(pacer.desired(1) == expected, "presentID quay vòng qua 0 vẫn đếm đúng");
+    context.expect(pacer.desired(17) == 0, "mốc neo cách quá 16 lần trình thì không hẹn");
+    pacer.note_shown({.id = 0xFFFF'FFF0U, .shown_ns = kShownNs});
+    context.expect(pacer.desired(1) == expected, "id đứng trước mốc neo không thay mốc");
+}
+
+// Có tiện ích mà driver không trả mốc trình thật (TB-X306F): không mốc neo thì không khoá, để
+// đồng hồ CPU giữ nhịp thay cho bề mặt.
+void pacer_is_locked_only_with_fresh_anchor(Context& context) {
+    gpu::PresentPacer silent;
+    silent.set_refresh(kRefreshNs);
+    silent.set_interval(2);
+    context.expect(!silent.is_locked(1), "bề mặt không báo mốc thì không khoá");
+    const gpu::PresentPacer pacer = paced_pacer();
+    context.expect(pacer.is_locked(11), "có mốc neo gần thì khoá");
+    context.expect(!pacer.is_locked(10), "chính lần làm mốc neo thì không khoá");
+    context.expect(!pacer.is_locked(27), "mốc neo cách quá 16 lần trình thì mở lại");
+    gpu::PresentPacer every = paced_pacer();
+    every.set_interval(1);
+    context.expect(!every.is_locked(11), "một nhịp mỗi ảnh thì không có gì để khoá");
+}
+
+void pacer_rejects_absurd_refresh(Context& context) {
+    gpu::PresentPacer pacer;
+    pacer.set_refresh(2'000'000'000);
+    context.expect(pacer.refresh_ns() == 0, "chu kỳ quét quá một giây là số hỏng");
+    pacer.set_interval(1'000);
+    context.expect(pacer.interval() == 8, "số nhịp có trần");
+    pacer.set_interval(0);
+    context.expect(pacer.interval() == 1, "0 nhịp coi như 1");
+}
+
 constexpr std::array kCases{
+    Case{.name = "pacer_spaces_presents_by_interval", .body = &pacer_spaces_presents_by_interval},
+    Case{.name = "pacer_is_free_until_it_knows", .body = &pacer_is_free_until_it_knows},
+    Case{.name = "pacer_follows_late_frame", .body = &pacer_follows_late_frame},
+    Case{.name = "pacer_keeps_newest_anchor", .body = &pacer_keeps_newest_anchor},
+    Case{.name = "pacer_restarts_on_new_interval", .body = &pacer_restarts_on_new_interval},
+    Case{.name = "pacer_counts_across_wrap", .body = &pacer_counts_across_wrap},
+    Case{.name = "pacer_is_locked_only_with_fresh_anchor", .body = &pacer_is_locked_only_with_fresh_anchor},
+    Case{.name = "pacer_rejects_absurd_refresh", .body = &pacer_rejects_absurd_refresh},
     Case{.name = "vulkan_device_starts", .body = &vulkan_device_starts},
     Case{.name = "vulkan_buffer_round_trip", .body = &vulkan_buffer_round_trip},
     Case{.name = "vulkan_rejects_duplicate_list", .body = &vulkan_rejects_duplicate_list},

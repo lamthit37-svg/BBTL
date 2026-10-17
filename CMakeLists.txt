@@ -157,7 +157,9 @@ game_reject_foreign("${PROJECT_SOURCE_DIR}/src/server" ${game_engine_names} ${ga
 # thêm biên C. Win32: WaitOnAddress và ntdll. POSIX: futex 4 byte (Android, nhân 4.9 không có
 # futex_waitv) hoặc __ulock_wait (iOS). log của Android là liblog.
 set(game_core_sources
+    engine/core/cadence.cpp
     engine/core/clock.cpp
+    engine/core/cores.cpp
     engine/core/error.cpp
     engine/core/gbk.cpp
     engine/core/governor.cpp
@@ -313,6 +315,7 @@ game_module(fx
     src/client/place/fx/script.cpp
     src/client/place/fx/system.cpp
     src/client/place/fx/field.cpp
+    src/client/place/fx/area.cpp
     src/client/place/fx/billboard.cpp
     src/client/place/fx/mesh.cpp
     src/client/place/fx/strip.cpp
@@ -548,7 +551,9 @@ target_link_libraries(game_classic PUBLIC game_core game_math)
 game_module(look src/client/figure/look/appearance.cpp src/client/figure/look/look.cpp src/client/figure/look/head.cpp src/client/figure/look/sect.cpp
     src/client/figure/look/creature.cpp
     src/client/figure/look/mount.cpp
-    src/client/figure/look/weapon.cpp src/client/figure/look/skill.cpp)
+    src/client/figure/look/weapon.cpp src/client/figure/look/skill.cpp
+    src/client/figure/look/impact.cpp
+    src/client/figure/look/bullet.cpp)
 target_link_libraries(game_look PUBLIC game_table game_core)
 
 # avatar: chọn clip theo trạng thái (gait) và làm mượt hướng mặt (turning), port từ TLBB Dev.
@@ -970,6 +975,7 @@ if(GAME_HAS_GPU)
             engine/resource/dds.cpp
             engine/resource/tier.cpp
             engine/resource/ogre_mesh.cpp
+            engine/resource/ogre_program.cpp
             engine/resource/image.cpp
             engine/resource/lod.cpp
             engine/resource/model.cpp
@@ -1330,6 +1336,26 @@ if(ANDROID)
         COMMENT "Đóng thienlong.apk"
         VERBATIM)
     add_custom_target(thienlong_apk ALL DEPENDS "${game_apk}")
+    # Vòng thử trên máy thật: chỉ đóng assets khác sổ của máy đang cắm rồi cài luôn (ANDROID_SERIAL
+    # khi cắm nhiều máy). Đo 2026-10-17: APK đủ đóng 35 giây và cài 120 giây; sửa mã thì gói delta
+    # chỉ còn .so. Luôn chạy vì máy đổi ngoài hệ dựng; bản phát hành vẫn là thienlong_apk.
+    add_custom_target(thienlong_apk_delta
+        COMMAND ${CMAKE_COMMAND} -E env PYTHONUTF8=1
+            python "${PROJECT_SOURCE_DIR}/android/package_apk.py"
+            --library "$<TARGET_FILE:thienlong_activity>"
+            --abi "${ANDROID_ABI}"
+            --manifest "${PROJECT_SOURCE_DIR}/android/AndroidManifest.xml"
+            --res "${PROJECT_SOURCE_DIR}/android/res"
+            --out "${CMAKE_BINARY_DIR}/thienlong-delta.apk"
+            --delta --install
+            ${game_apk_assets}
+        DEPENDS thienlong_activity thienlong_mobile_textures
+            "${GAME_ANDROID_SHADERS}/model.vs.f2s"
+            "${GAME_ANDROID_SHADERS}/model.ps.f2s"
+            ${GAME_I18N_STAMP}
+            ${GAME_SCRIPTS_STAMP}
+        COMMENT "Đóng và cài thienlong-delta.apk"
+        VERBATIM)
 endif()
 
 # Mỗi header thành một .cpp include nó hai lần (tự đủ + #pragma once, KTR-03).
@@ -1458,6 +1484,7 @@ if(WIN32 OR ANDROID)
     game_test(core game_core)
     game_test(gbk game_core)
     game_test(governor game_core)
+    game_test(cadence game_core)
     game_test(stages game_core)
     game_test(log game_core)
     game_test(thread_slot game_core)
@@ -1599,6 +1626,7 @@ game_test(table_tsv game_table)
 game_test(look game_look)
 game_test(creature game_look)
 game_test(mount game_look)
+game_test(impact game_look)
 game_test(head game_look)
 game_test(avatar game_avatar)
 game_test(control game_control)

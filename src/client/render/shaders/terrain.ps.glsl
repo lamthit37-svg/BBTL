@@ -1,6 +1,5 @@
-// Cùng công thức với terrain.ps.slang (mặt đất lớp cọ); xem chú thích đầu tệp ấy về bốn ảnh. Texture unit theo
-// map_bindings: t0 atlas = 0, t1 ô = 1, t2 lightmap = 2, t3 bảng tra = 3; sampler s0 dùng unit 0, s2 dùng unit 2.
-// Ô và bảng tra chỉ đọc bằng texelFetch nên không có sampler (backend nhả sampler khỏi unit của chúng).
+// Cùng công thức với terrain.ps.slang (mặt đất lớp cọ); xem chú thích đầu tệp ấy về hai ảnh và toạ độ ghép sẵn
+// ở đỉnh. Texture unit theo map_bindings: t0 atlas = 0, t2 lightmap = 2; sampler s0 dùng unit 0, s2 dùng unit 2.
 precision highp sampler2D;
 
 struct FakeLight {
@@ -38,9 +37,7 @@ layout(std140, binding = 0) uniform FrameBlock {
 uniform highp uvec4 tl_push[8];
 
 layout(binding = 0) uniform sampler2D atlas;
-layout(binding = 1) uniform sampler2D cells;
 layout(binding = 2) uniform sampler2D light_map;
-layout(binding = 3) uniform sampler2D table;
 
 layout(location = 0) in vec3 varying_normal;
 layout(location = 1) in vec2 varying_uv;
@@ -52,9 +49,6 @@ layout(location = 5) flat in highp uint varying_lamp;
 layout(location = 6) in vec4 varying_fog;
 
 layout(location = 0) out vec4 out_color;
-
-const uint kTableWidth = 1024u;
-const uint kFlipStride = 16u;
 
 vec3 lamp_light(vec3 facing, vec3 place, uint which) {
     // Ô 31 là đèn tắt; kẹp để không bao giờ đọc mảng ngoài biên.
@@ -137,64 +131,22 @@ vec3 gloss(vec3 facing, vec3 place) {
     return pow(max(dot(facing, half_way), 0.01), shininess) * uintBitsToFloat(tl_push[6]).rgb;
 }
 
-float word16(float high, float low) {
-    // Cùng công thức tuyến tính với terrain.ps.slang (không làm tròn từng kênh).
-    return (high * (65280.0 / 65535.0)) + (low * (255.0 / 65535.0));
-}
-
-vec4 layer_sample(uint pixmap, uint turn, uint flip, vec2 along, vec2 cell_dx, vec2 cell_dy) {
-    uint first = pixmap * 4u;
-    ivec2 at = ivec2(int(first % kTableWidth), 1 + int(first / kTableWidth));
-    vec4 box_a = texelFetch(table, at, 0);
-    vec4 box_b = texelFetch(table, ivec2(at.x + 1, at.y), 0);
-    vec4 move_a = texelFetch(table, ivec2(at.x + 2, at.y), 0);
-    vec4 move_b = texelFetch(table, ivec2(at.x + 3, at.y), 0);
-    vec4 edges = vec4(word16(box_a.r, box_a.g), word16(box_a.b, box_a.a), word16(box_b.r, box_b.g),
-        word16(box_b.b, box_b.a));
-    vec4 into_atlas = vec4(word16(move_a.r, move_a.g), word16(move_a.b, move_a.a), word16(move_b.r, move_b.g),
-        word16(move_b.b, move_b.a));
-    vec4 raw_corner = texelFetch(table, ivec2(int(flip * kFlipStride + turn), 0), 0) * 255.0;
-    uvec4 corner = uvec4(raw_corner + 0.5);
-    vec2 left_top = vec2(edges[corner.x >> 4u], edges[corner.x & 15u]);
-    vec2 right_top = vec2(edges[corner.y >> 4u], edges[corner.y & 15u]);
-    vec2 left_bottom = vec2(edges[corner.z >> 4u], edges[corner.z & 15u]);
-    vec2 right_bottom = vec2(edges[corner.w >> 4u], edges[corner.w & 15u]);
-    vec2 uv = mix(mix(left_top, right_top, along.x), mix(left_bottom, right_bottom, along.x), along.y);
-    vec2 by_x = mix(right_top - left_top, right_bottom - left_bottom, along.y);
-    vec2 by_z = mix(left_bottom - left_top, right_bottom - right_top, along.x);
-    vec2 slope_x = ((by_x * cell_dx.x) + (by_z * cell_dx.y)) * into_atlas.zw;
-    vec2 slope_y = ((by_x * cell_dy.x) + (by_z * cell_dy.y)) * into_atlas.zw;
-    return textureGrad(atlas, into_atlas.xy + (uv * into_atlas.zw), slope_x, slope_y);
-}
-
 void main() {
     uint flags = tl_push[7].z;
-    ivec2 size = textureSize(cells, 0);
-    vec2 grid = vec2(size);
-    vec2 place = varying_uv * grid;
-    vec2 cell_dx = dFdx(place);
-    vec2 cell_dy = dFdy(place);
-    vec2 cell = clamp(floor(place), vec2(0.0), grid - vec2(1.0));
-    vec2 along = place - cell;
-    uvec4 ground = uvec4((texelFetch(cells, ivec2(cell), 0) * 255.0) + 0.5);
-    uint base_id = ground.r | ((ground.b & 3u) << 8u);
-    uint cover_id = ground.g | (((ground.b >> 2u) & 3u) << 8u);
-    uint flip = (ground.b >> 4u) & 1u;
-    // Không discard (xem terrain.ps.slang): lỗ địa hình đã bị bỏ khỏi lưới lúc dựng.
-    vec4 under = layer_sample(base_id, ground.a & 15u, flip, along, cell_dx, cell_dy);
+    // Đạo hàm lấy trước nhánh: cả cụm 2 x 2 thuộc một tam giác nên điều kiện của nhánh phủ giống nhau trong cụm.
+    vec2 cover_dx = dFdx(varying_color.xy);
+    vec2 cover_dy = dFdy(varying_color.xy);
+    // Không discard (xem terrain.ps.slang): lỗ địa hình không có đỉnh nào.
+    vec4 under = texture(atlas, varying_uv);
     vec3 color = (under.a > 0.0) ? (under.rgb / under.a) : vec3(0.0);
-    if (cover_id != 0u) {
-        vec4 over = layer_sample(cover_id, ground.a >> 4u, flip, along, cell_dx, cell_dy);
+    if (varying_color.x >= 0.0) {
+        vec4 over = textureGrad(atlas, varying_color.xy, cover_dx, cover_dy);
         color = over.rgb + (color * (1.0 - over.a));
     }
-    vec2 light_at = vec2(place.x / grid.x, 1.0 - (place.y / grid.y));
-    vec2 light_dx = vec2(cell_dx.x / grid.x, -cell_dx.y / grid.y);
-    vec2 light_dy = vec2(cell_dy.x / grid.x, -cell_dy.y / grid.y);
-    color *= textureGrad(light_map, light_at, light_dx, light_dy).rgb;
+    color *= texture(light_map, varying_color.zw).rgb;
     vec4 base_color = uintBitsToFloat(tl_push[3]);
-    vec4 tint = (flags & 256u) != 0u ? varying_color : vec4(1.0);
-    float alpha = base_color.a * tint.a;
-    color *= base_color.rgb * tint.rgb;
+    float alpha = base_color.a;
+    color *= base_color.rgb;
     if ((flags & 1u) == 0u) {
         vec3 facing = varying_normal * inversesqrt(max(dot(varying_normal, varying_normal), 1.0e-12));
         vec3 light = (flags & 8u) != 0u ? diffuse_light(facing, varying_place, varying_lamp) : varying_light;

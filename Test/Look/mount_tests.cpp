@@ -14,7 +14,9 @@
  *============================================================================*/
 
 #include "core/check.hpp"
+#include "look/appearance.hpp"
 #include "look/mount.hpp"
+#include "table/tsv.hpp"
 #include "test.hpp"
 
 #include <array>
@@ -209,6 +211,59 @@ void reads_ride_entities(Context& context) {
     context.expect(!look::parse_ride_entities("object\tslot\n"), "thiếu cột");
 }
 
+// Bộ 1476 của 从刃滑翔翼: hai giới cùng một ô, clip nằm trên hai skeleton khác nhau. Trước 2026-10-18
+// bảng không có cột race nên công cụ bỏ cả 56 ô của bộ này.
+void raced_anims_split_by_sex(Context& context) {
+    const std::string head = "set\trace\taction\tweapon\tanim\tclip\n";
+    const std::string woman = row({"1476", "0", "idle", "none", "女空手站立.skeleton", "空手站立01"});
+    const std::string man = row({"1476", "1", "idle", "none", "4_男空手非战斗.skeleton", "空手站立01"});
+    const table::TsvResult table = table::parse_tsv(head + woman + man);
+    context.expect(table.has_value(), "đọc bảng");
+    if (!table) return;
+    const auto rows = look::read_raced_anims(*table);
+    context.expect(rows.has_value(), "hai giới cùng ô không phải khoá trùng");
+    if (!rows) return;
+    const auto idle = look::Action::kIdle;
+    const auto bare = look::Weapon::kNone;
+    const look::AnimRow* female = look::find_raced_anim(*rows, look::Race::kFemale, 1476, idle, bare);
+    const look::AnimRow* male = look::find_raced_anim(*rows, look::Race::kMale, 1476, idle, bare);
+    const bool is_female = female != nullptr && female->anim == "女空手站立.skeleton";
+    const bool is_male = male != nullptr && male->anim == "4_男空手非战斗.skeleton";
+    context.expect(is_female, "nữ lấy skeleton nữ");
+    context.expect(is_male, "nam lấy skeleton nam");
+    const auto run = look::Action::kRun;
+    context.expect(look::find_raced_anim(*rows, look::Race::kMale, 1476, run, bare) == nullptr,
+        "ô không có dòng thì không bịa");
+    const std::string twice = head + woman + woman;
+    const table::TsvResult doubled = table::parse_tsv(twice);
+    context.expect(doubled && !look::read_raced_anims(*doubled), "trùng cả giới là lỗi");
+}
+
+// ride_skeletons lấy dòng khớp đầu tiên; ride_model_clips cho dòng sau thắng khi lặp hành động. Dòng
+// hỏng (model "x") và hành động lạ bị bỏ qua; thiếu cột là lỗi cả bảng.
+void reads_skeletons_and_clips(Context& context) {
+    const std::string skeleton_head = "model\tskeleton\n";
+    const std::string skeletons = skeleton_head + row({"1010", "虎.skeleton"}) + row({"x", "hong"}) +
+                                  row({"1027", "象.skeleton"}) + row({"1027", "sau.skeleton"});
+    const auto elephant = look::parse_ride_skeleton(skeletons, 1027);
+    context.expect(elephant && *elephant == "象.skeleton", "dòng khớp đầu tiên");
+    const auto none = look::parse_ride_skeleton(skeletons, 5);
+    context.expect(none && none->empty(), "không có dòng thì rỗng");
+    context.expect(!look::parse_ride_skeleton("model\n", 1010), "thiếu cột skeleton");
+    const std::string clip_head = "model\taction\tanim\tclip\n";
+    const std::string idle = row({"1010", "idle", "虎.skeleton", "站立"});
+    const std::string runs = row({"1010", "run", "虎.skeleton", "跑"}) + row({"1010", "run", "虎.skeleton", "跑2"});
+    const std::string odd = row({"1010", "bay", "虎.skeleton", "飞"}) + row({"x", "idle", "a", "b"});
+    const std::string other = row({"1027", "idle", "象.skeleton", "站"});
+    const auto tiger = look::parse_mount_clips(clip_head + idle + runs + odd + other, 1010);
+    context.expect(tiger.has_value(), "đọc được clip");
+    if (!tiger) return;
+    context.expect(tiger->idle && tiger->idle->name == "站立", "clip đứng của đúng mô hình");
+    context.expect(tiger->run && tiger->run->name == "跑2", "hành động lặp thì dòng sau thắng");
+    context.expect(!tiger->idle_alt && !tiger->jump_run, "hành động không có thì trống");
+    context.expect(!look::parse_mount_clips("model\taction\n", 1010), "thiếu cột clip");
+}
+
 void rejects_a_bad_table(Context& context) {
     Fixture fixture = good();
     fixture.rides += tiger();
@@ -232,6 +287,8 @@ constexpr std::array kCases{
     Case{.name = "keeps_speed_percent", .body = &keeps_speed_percent},
     Case{.name = "reads_ride_effects", .body = &reads_ride_effects},
     Case{.name = "reads_ride_entities", .body = &reads_ride_entities},
+    Case{.name = "raced_anims_split_by_sex", .body = &raced_anims_split_by_sex},
+    Case{.name = "reads_skeletons_and_clips", .body = &reads_skeletons_and_clips},
     Case{.name = "rejects_a_bad_table", .body = &rejects_a_bad_table},
 };
 

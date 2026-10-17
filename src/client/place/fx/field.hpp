@@ -60,6 +60,19 @@ public:
     [[nodiscard]] std::span<const std::uint32_t> order() const noexcept { return active_; }
     [[nodiscard]] const Grain& grain(std::uint32_t index) const { return pool_.at(index); }
 
+    // Hộp trục của tâm mọi hạt đang sống (toạ độ của hạt: thế giới, hay của node khi local_space)
+    // và bề rộng, bề cao lớn nhất của một hạt, đo ở cuối bước mô phỏng gần nhất. Hạt chỉ đổi trong
+    // bước, nên số này luôn khớp order(). Không hạt nào thì is_empty.
+    struct Extent {
+        ogre::Vec3 low{};
+        ogre::Vec3 high{};
+        float widest = 0.0F;
+        float tallest = 0.0F;
+        bool is_empty = true;
+    };
+
+    [[nodiscard]] const Extent& extent() const noexcept { return extent_; }
+
     struct ChainPoint {
         ogre::Vec3 position{};
         float width = 1.0F;
@@ -85,6 +98,7 @@ private:
 
     void step(float dt);
     void expire(float dt);
+    void measure();
     void affect(float dt);
     void apply_kind(const Affector& affector, float dt);
     void revolve(const Revolution& spin, float dt);
@@ -128,6 +142,7 @@ private:
     bool is_timed_ = false;
     bool is_stopped_ = false;
     Colour tint_{1.0F, 1.0F, 1.0F, 1.0F};
+    Extent extent_{};
 };
 
 } // namespace game::fx

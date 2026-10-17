@@ -1,7 +1,20 @@
-// Template hệ hạt và effect đọc từ script đã nấu.
-// MeshRotator theo Render.dll RVA 0x1475c0 và 0x1474d0; parseAngle đổi độ sang radian.
-// Khác gốc: mảng scale của ScaleInterpolator bắt đầu bằng (1, 1, 1) vì script bỏ
-// khoá đúng bằng 1; để 0 thì lửa có kích thước 0.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/place/fx/system.hpp
+ *  PHÂN HỆ   : Place / Fx / System
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Template hệ hạt và effect đọc từ script đã nấu. MeshRotator theo
+ *    Render.dll RVA 0x1475c0 và 0x1474d0; parseAngle đổi độ sang radian. Khác
+ *    gốc: mảng scale của ScaleInterpolator bắt đầu bằng (1, 1, 1) vì script bỏ
+ *    khoá đúng bằng 1; để 0 thì lửa có kích thước 0.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #pragma once
 
 #include "fx/script.hpp"
@@ -21,7 +34,21 @@ inline constexpr float kDegree = 0.0174532925F;
 
 using Colour = std::array<float, 4>;
 
-enum class EmitterKind : std::uint8_t { kPoint, kBox, kRing, kEllipsoid, kHollowEllipsoid, kCylinder, kPolar };
+enum class EmitterKind : std::uint8_t {
+    kPoint,
+    kBox,
+    kRing,
+    kEllipsoid,
+    kHollowEllipsoid,
+    kCylinder,
+    kPolar
+};
+
+// Vector2 của parseVector2: đúng hai số, thiếu hay thừa thì (0, 0).
+struct Pair {
+    float x = 0.0F;
+    float y = 0.0F;
+};
 
 struct EmitterDef {
     EmitterKind kind = EmitterKind::kPoint;
@@ -41,7 +68,15 @@ struct EmitterDef {
     float repeat_min = 0.0F;
     float repeat_max = 0.0F;
     ogre::Vec3 size{.x = 1.0F, .y = 1.0F, .z = 1.0F};
+    // Ellipsoid để 0, Ring, Cylinder, HollowEllipsoid để 0,5 (read_emitter đặt theo loại).
     ogre::Vec3 inner{.x = 0.5F, .y = 0.5F, .z = 0.5F};
+    // Tham số riêng của Ellipsoid và Cylinder bản TLBB (Plugin_ParticleFX): angle_range theo độ,
+    // height_range 0..1 dọc trục Z, topdown_ratio (x ở đỉnh, y ở đáy), curve, bend_angle theo độ.
+    Pair angle_range{.x = 0.0F, .y = 360.0F};
+    Pair height_range{.x = 0.0F, .y = 1.0F};
+    Pair topdown{.x = 1.0F, .y = 1.0F};
+    float curve = 0.0F;
+    float bend = 0.0F;
     ogre::Vec3 x_range{};
     ogre::Vec3 y_range{};
     ogre::Vec3 z_range{};
@@ -241,6 +276,9 @@ struct SystemDef {
 };
 
 inline constexpr std::size_t kFade = 5;
+// ColourValue::Black. Ctor NewRibbonTrailElement (Render.dll 0x18022e870) đặt cả năm mốc màu như
+// vậy, time 0; mốc dữ liệu không đặt vẫn được dùng khi điểm vệt quá mọi mốc.
+inline constexpr Colour kBlack{0.0F, 0.0F, 0.0F, 1.0F};
 
 enum class ElementKind : std::uint8_t { kParticle, kBeam, kTrail, kProjector };
 
@@ -287,7 +325,7 @@ struct ElementDef {
     float alpha_cut = 0.0F;
     float lift_time = 0.0F;
     std::array<float, kFade> fade_time{};
-    std::array<Colour, kFade> fade_colour{};
+    std::array<Colour, kFade> fade_colour{kBlack, kBlack, kBlack, kBlack, kBlack};
     float projection = 200.0F;
 };
 

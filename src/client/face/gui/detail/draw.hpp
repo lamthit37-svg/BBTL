@@ -104,6 +104,9 @@ struct BarLevel {
     [[nodiscard]] bool operator==(const BarLevel&) const = default;
 };
 
+// Tập khoá thuộc tính mà một lần layout() đã tra (xem read_key).
+using ReadKeys = std::vector<std::uint64_t>;
+
 // Mọi thứ một lượt vẽ cần: asset, đầu vào, các cửa sổ đã đặt, nơi ghi lệnh, và trạng thái chuột.
 struct Ctx {
     const GuiAsset* asset = nullptr;
@@ -116,6 +119,9 @@ struct Ctx {
     std::span<const BarLevel> bar_levels;
     bool is_live_pass = false;
     bool is_down = false;
+    // Khoá (read_key) của mọi lần effective tra thuộc tính trong lúc layout(); nullptr ngoài lúc
+    // ấy. Hub dùng tập này để biết Override nào đổi thì phải dàn lại.
+    ReadKeys* reads = nullptr;
 };
 
 // Một GuiFormat đã đọc trên một cửa sổ, chưa đổi ra chỉ số: tên mà thuộc tính của cửa sổ nêu
@@ -152,8 +158,15 @@ struct FormatValue {
 // Cờ true của thuộc tính hiệu lực, như Disabled, Selected, Caret.
 [[nodiscard]] bool flag(const Ctx& ctx, const Placed& self, std::string_view name);
 [[nodiscard]] const GuiImage* image_at(const GuiAsset& asset, std::int32_t index) noexcept;
-// Đặt mọi cửa sổ của asset theo UDim, cha trước con.
-[[nodiscard]] std::vector<Placed> layout(const GuiAsset& asset, const Place& input);
+// Khoá băm của cặp (cửa sổ, thuộc tính) trong tập đã tra của layout. Hai cặp trùng khoá chỉ làm
+// Hub dàn lại thừa một lần, không bao giờ bỏ sót.
+[[nodiscard]] std::uint64_t read_key(std::string_view window, std::string_view name) noexcept;
+// Thuộc tính mà layout áp từ Override của mọi cửa sổ (hình học, Visible và ba cờ khác), không qua
+// effective nên không có trong tập đã tra.
+[[nodiscard]] bool is_geometry_property(std::string_view name) noexcept;
+// Đặt mọi cửa sổ của asset theo UDim, cha trước con. keys khác nullptr thì nhận read_key của mọi
+// lần tra thuộc tính trong lúc dàn (chưa sắp, có thể lặp).
+[[nodiscard]] std::vector<Placed> layout(const GuiAsset& asset, const Place& input, ReadKeys* keys);
 // Ô của một vùng thành phần (ComponentArea) theo cửa sổ self, trong ô local của cha.
 [[nodiscard]] Box area_box(const Ctx& ctx, const Placed& self, const GuiArea& area, Box local);
 // Cửa sổ đã đặt mang tên name; nullptr khi không có.

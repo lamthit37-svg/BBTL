@@ -92,6 +92,8 @@ private:
         bool has_tick = false;
         // Đã đứng yên ở đích bao lâu khi máy chủ còn báo đang đi.
         float idle_for = 0.0F;
+        // Placed: khung kế chép đích lên người rồi bỏ cờ, không đuổi.
+        bool pinned = false;
     };
 
     void on(const Arrive& note);
@@ -102,11 +104,14 @@ private:
     void on(const Pulled& /*note*/) noexcept {}
     void on(const Flagged& note);
     void on(const Died& note);
+    void on(const Placed& note);
     // Ra chiêu và kết quả đòn không đổi trạng thái thực thể: nơi vẽ đọc chúng từ Note, Cast bỏ qua.
     void on(const Casting& /*note*/) noexcept {}
     void on(const CastEnded& /*note*/) noexcept {}
     void on(const Struck& /*note*/) noexcept {}
     static void step(Actor& shown, Goal& goal, float seconds) noexcept;
+    static void copy_pin(Actor& shown, Goal& goal) noexcept;
+    static void place_actor(Actor& shown, Goal& goal, const Placed& note) noexcept;
     // Dời shown về phía đích; trả khoảng cách còn lại TRƯỚC khi dời (thực thể có đang đi hay không).
     [[nodiscard]] static float chase(Actor& shown, const Goal& goal, float seconds) noexcept;
     void erase_at(std::size_t index);

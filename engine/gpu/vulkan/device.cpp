@@ -370,8 +370,11 @@ using Names = std::vector<const char*>;
     traits.swapchain = has_extension(known, VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     traits.memory_budget = has_extension(known, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     caps.conservative_raster = has_extension(known, conservative);
-    traits.present_wait = traits.swapchain && has_extension(known, VK_KHR_PRESENT_ID_EXTENSION_NAME) &&
-        has_extension(known, VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
+    const bool has_present_id = has_extension(known, VK_KHR_PRESENT_ID_EXTENSION_NAME);
+    const bool has_present_wait = has_extension(known, VK_KHR_PRESENT_WAIT_EXTENSION_NAME);
+    traits.present_wait = traits.swapchain && has_present_id && has_present_wait;
+    const char* const timing = VK_GOOGLE_DISPLAY_TIMING_EXTENSION_NAME;
+    traits.display_timing = traits.swapchain && has_extension(known, timing);
     // STORE_OP_NONE là lõi từ 1.3; dưới đó cần VK_EXT_load_store_op_none.
     const bool has_store_ext = has_extension(known, VK_EXT_LOAD_STORE_OP_NONE_EXTENSION_NAME);
     traits.store_none = api >= VK_API_VERSION_1_3 || has_store_ext;
@@ -380,6 +383,7 @@ using Names = std::vector<const char*>;
     if (traits.swapchain) extensions.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     if (traits.memory_budget) extensions.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     if (caps.conservative_raster) extensions.push_back(conservative);
+    if (traits.display_timing) extensions.push_back(timing);
     return extensions;
 }
 
@@ -433,6 +437,8 @@ struct VulkanDevice::Contexts {
     };
 
     static void settle(Lane& lane, std::uint64_t reached);
+    // Như settle, khi chỗ gọi đã giữ lane.mutex.
+    static void settle_locked(Lane& lane, std::uint64_t reached);
     static void reclaim(Lane& lane, std::atomic<std::uint32_t>& recording);
     // Khác gốc: hàm dưới là khối tách từ begin_commands, ghi tại định nghĩa.
     [[nodiscard]] static Status refill(VulkanDevice& device, Lane& lane, QueueType queue);
@@ -497,6 +503,7 @@ Status VulkanDevice::start(const PhysicalDevice& physical, const DeviceDesc& des
     is_raw_color_ = desc.is_raw_color;
     caps_.is_raw_color = desc.is_raw_color;
     vkGetPhysicalDeviceMemoryProperties(physical_, &memory_);
+    caps_.has_unified_memory = upload_is_device_local(memory_);
     VkPhysicalDeviceProperties base{};
     vkGetPhysicalDeviceProperties(physical_, &base);
     api_ = std::min(base.apiVersion, instance_->api_version());
@@ -600,6 +607,18 @@ Status VulkanDevice::create_device() {
     return ok();
 }
 
+void VulkanDevice::load_display_timing() noexcept {
+    using Refresh = PFN_vkGetRefreshCycleDurationGOOGLE;
+    using Past = PFN_vkGetPastPresentationTimingGOOGLE;
+    DisplayTimingApi& api = display_timing_;
+    api.refresh_cycle = device_function<Refresh>(device_, "vkGetRefreshCycleDurationGOOGLE");
+    api.past_timing = device_function<Past>(device_, "vkGetPastPresentationTimingGOOGLE");
+    const bool has_both = api.refresh_cycle != nullptr && api.past_timing != nullptr;
+    if (has_both) return;
+    display_timing_ = {};
+    traits_.display_timing = false;
+}
+
 Status VulkanDevice::create_queues() {
     for (std::uint32_t index = 0; index < queue_count_; ++index) {
         start_queue(device_, queues_.at(index));
@@ -612,6 +631,7 @@ Status VulkanDevice::create_queues() {
         wait_for_present_ = device_function<PFN_vkWaitForPresentKHR>(device_, "vkWaitForPresentKHR");
         traits_.present_wait = wait_for_present_ != nullptr;
     }
+    if (traits_.display_timing) load_display_timing();
     if (!instance_->has_debug_utils()) return ok();
     using SetName = PFN_vkSetDebugUtilsObjectNameEXT;
     using Begin = PFN_vkCmdBeginDebugUtilsLabelEXT;
@@ -881,8 +901,14 @@ Result<std::unique_ptr<Commands>> VulkanDevice::create_commands(QueueType queue)
 }
 
 // Khác gốc: khối `if (lane.idle.empty())` của begin_commands tách ra đây (if lồng if).
-// Hàng rảnh rỗng thì tạo thêm một danh sách lệnh; gọi khi đang giữ lane.mutex.
+// Hàng rảnh rỗng thì nhận về các danh sách GPU đã chạy xong, còn rỗng mới tạo thêm; gọi khi đang
+// giữ lane.mutex. Lúc nạp cảnh đầu chưa có end_frame nào trả danh sách về, nên mỗi lần nạp từng
+// tạo một command pool rồi giữ tới khi tắt (đo 2026-10-17: 371 lần nạp, 46 ms trên RTX 5060).
+// Thứ tự khoá: lane.mutex rồi flight_mutex (poll); không đường nào giữ flight_mutex mà lấy lane.
 Status VulkanDevice::Contexts::refill(VulkanDevice& device, Lane& lane, QueueType queue) {
+    if (!lane.idle.empty()) return ok();
+    const std::uint64_t reached = device.poll(device.queue(queue));
+    settle_locked(lane, reached);
     if (!lane.idle.empty()) return ok();
     Result<std::unique_ptr<Commands>> created = device.create_commands(queue);
     if (!created) return std::unexpected(std::move(created).error());
@@ -963,6 +989,10 @@ Status VulkanDevice::submit(QueueType queue, const SubmitDesc& desc) {
 // Đưa các danh sách lệnh mà GPU đã chạy xong (lần nộp tới reached) về hàng rảnh.
 void VulkanDevice::Contexts::settle(Lane& lane, std::uint64_t reached) {
     const std::scoped_lock lock(lane.mutex);
+    settle_locked(lane, reached);
+}
+
+void VulkanDevice::Contexts::settle_locked(Lane& lane, std::uint64_t reached) {
     const auto is_running = [reached](const Pending& item) { return item.value > reached; };
     const auto finished = std::ranges::stable_partition(lane.busy, is_running);
     for (const Pending& item : finished) {

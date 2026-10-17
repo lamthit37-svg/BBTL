@@ -5,6 +5,194 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Hiệu ứng nhân vật và thú đi theo (2026-10-18, chưa xong)
+
+Lát cắt đã chạy: `--pet` gieo mẫu creature rồi `pet_follow` của AI_Pet 2008 dẫn theo chủ. Điểm đi
+là `Baby_Go` (hướng chủ trừ pi/2, X cộng 2·sin, Z cộng 2·cos). Điểm dịch quá 15 m cùng góc nhưng
+Z trừ 2·cos. `--impact` gắn hạt liên tục ở chân. Đạn chỉ bay khi chiêu đang có mục tiêu. Thú cưỡi
+và PetPoss không nằm trong lát này.
+
+Đã kiểm thêm (2026-10-18): `motion_tests` ca `pet_paces` đạt, gồm hướng 0 lệch −x và hướng pi/2
+lệch +z, và ca đang đi vẫn nhằm điểm `Baby_Go`. Client Vulkan `--scene-id 2 --pet 339 --impact 1
+--frames 60 --validate`: GPU 0 lỗi, không có dòng "không dựng g01_buff2". Ảnh chụp lúc 1013 ms,
+khung đầu lúc 757 ms. Với nhịp chạy 2,7 m/s, quãng đó ước lượng khoảng 0,7 m trên đường 4 m tới điểm lệch. Thư viện hạt 12.971.655 byte,
+nạp 42,7 ms (một lượt). Trước đó cùng ngày: `impact_tests`, `cast_tests`, `creature_tests`,
+`client_tests` đạt; `collect_fx.py` thoát 1 vì thiếu skeleton glb của một mesh hạt.
+
+Khác gốc còn giữ: không `IsCanGo`, không tìm đường, điểm đi tính lại mỗi khung, `std::sin` thay
+bảng `SinCos` 4096. Chưa đọc mã máy 2026 cho InsertImpact, AI thú, và đạn quỹ đạo loại 3 (id 169
+và 294). Locator `身体受击点` chưa có trên avatar. Quầng buff và viên đạn chưa thấy trên ảnh.
+
+## Shader HLSL của client gốc chuyển thành gói .f2s (2026-10-18)
+
+**Nguồn.** 100 tệp của `F:\tl 2026\_goc` (87 `.hlsl`/`.inc`, 13 `.program`, khai 289 chương trình)
+chép vào `src/client/render/shaders/origin`. 38 tệp gb18030 đổi sang UTF-8 không mất byte nào;
+`NGUON.tsv` ghi nguồn và mã hoá của từng tệp.
+
+**Cách chuyển.** `TOOLS/port/hlsl_origin.py generate` sinh nguồn Slang và `origin.list`, rồi
+`thienlong_shader` dựng 289 gói cho cả `spirv,dxil,dxbc` (7,4 MB, dựng sạch 80 giây trên 12 lõi).
+Target CMake `game_origin_shaders` chạy cả hai bước vào `build/<preset>/shaders/origin`. Các gói
+chưa được cài và chưa vào APK vì lượt vẽ chưa nạp chúng.
+
+**Bằng chứng giữ đúng bản gốc.** `hlsl_origin.py oracle` dịch cả bản gốc lẫn bản đã chuyển bằng
+`D3DCompiler_43.dll` của client gốc (vs_5_0/ps_5_0, cờ gói ma trận như OGRE) rồi so khối SHEX,
+ISGN, OSGN, PCSG, bố cục RDEF và giá trị mặc định: 289/289 chương trình cùng mã máy. 182/376 nội
+dung của `ShaderCache` gốc khớp từng byte. 194 nội dung còn lại là biến thể define do Render.dll
+tạo lúc chạy, không khai trong `.program` (NGHI-NGO 64c).
+
+**Vá nguồn.** `patches.tsv` có 23 bản vá, mỗi bản đều qua oracle:
+
+- 20 chỗ fxc cắt vector hay ma trận ngầm mà Slang báo lỗi kiểu (E30019), viết phép cắt ra
+  tường minh.
+- 3 chỗ ở `WaveGrass.hlsl`: VS trả về struct cùng một biến ra rời. Struct được chuyển thành tham
+  số `out` đứng đầu; đặt nó cuối danh sách thì OSGN đổi thứ tự (đã đo).
+
+Một lỗi ở bản vá đầu (cắt `fNw` vốn là float4 ở `Model_ps.hlsl`) được Slang bắt, oracle không
+bắt vì fxc rút gọn ra cùng mã. Đã sửa.
+
+**Engine.**
+
+- `locations semantic` (danh sách) và `matrix=row` (gói). Location vào ra của DXIL tính theo bảng
+  `semantic_location`. Phép đối chiếu bỏ đầu vào DXIL không dùng mà SPIR-V của Slang đã bỏ.
+- Sửa hai lỗi phản chiếu làm 56 chương trình hỏng ở bước đối chiếu:
+  - SPIR-V: mảng ma trận trong cbuffer mang `RowMajor`/`MatrixStride` ở thành viên của lớp bọc
+    `_Array_*`. Bộ đọc lấy ở thành viên ngoài nên báo `float3x4 bones[74]` 4720 byte thay vì 4732.
+  - DXIL: ma trận khai `row_major` riêng trong module theo cột bị Slang hạ về struct
+    `_MatrixStorage_float4x4natural`. Bộ đọc báo struct thay vì ma trận 4x4.
+- Test mới trong `shader_tests` (33/33 xanh): bảng location, đối chiếu theo semantic, lệnh danh
+  sách, module SPIR-V dựng tay theo dạng Slang sinh, và một ca dịch thật bằng Slang và DXC. Hai ca
+  hồi quy đã đỏ trước khi sửa: "bones 252 byte, đọc được 240", và "shadow: scalar, bits (SPIR-V 32,
+  DXIL 0)".
+- `TOOLS/port/test_hlsl_origin.py`: 7/7 xanh; hai ca hồi quy đỏ khi tắt phần sửa.
+
+**Slang 2026.17, đã đo.** `[[vk::location]]` trên trường struct là độ lệch so với gốc của struct.
+Gốc ấy tự cấp sau các location tường minh đứng trước, nên struct vào cùng một biến rời ở location 1
+làm TEXCOORD0 ra location 2. Bộ sinh ghim gốc bằng `[[vk::location(0)]]` trên tham số struct, và từ
+chối struct trả về cùng biến ra rời (không có chỗ gắn thuộc tính lên giá trị trả về).
+
+**Cảnh báo còn lại.** Khi dựng DXBC, fxc 47 báo X3571 (`pow` với cơ số có thể âm) ở 7 chỗ và
+X3550 (chỉ số mảng sampler trong vòng lặp) ở 1 chỗ. D3DCompiler_43 báo đúng các chỗ ấy với bản gốc
+chưa chuyển, nên giữ nguyên (NGHI-NGO 64f).
+
+## Tablet: điều tốc và bảng đo theo nhịp màn thật, luồng vẽ ở lõi mạnh (2026-10-17, tối)
+
+Máy đo như mục dưới (TB-X306F, Đại Lý, Vulkan). Số thật lấy từ `dumpsys SurfaceFlinger --latency`:
+cột a (lúc nộp), b (lúc lên màn), c (lúc GPU xong). Công cụ đo nằm ngoài cây nguồn.
+
+**Luồng vẽ bị đẩy sang cụm lõi chậm.** Bộ lập lịch của MT8768 dời luồng vẽ sang cpu4–7 (trần 1,05
+GHz) khi tải giảm. `core/cores.cpp` chọn cụm lõi mạnh theo `cpu_capacity` hoặc `cpuinfo_max_freq`
+(máy này không có `cpu_capacity`) và ghim luồng vẽ ở đó, kiểm lại mỗi 120 lượt vì Android đặt lại
+affinity khi đổi cpuset. iOS chỉ xin QoS `USER_INTERACTIVE` (chưa build, không có macOS). Log máy:
+"Luồng vẽ: lõi mạnh 0 1 2 3, giữ được"; 100% mẫu `ps` của luồng vẽ nằm ở cpu0–3. Test
+`frame_cpus_picks_the_fast_class`.
+
+**Điều tốc phán sai vì đo khoảng vòng lặp.** Tắt điều tốc thì SurfaceFlinger cho 59,87 FPS, p95
+16,77 ms, 0% vượt ngân sách, trong khi client in 146–350 "Khung chậm" mỗi 20 giây. Hàng chờ trình
+Fifo sâu: từ lúc nộp tới lúc lên màn trung vị 64 ms (3–4 ảnh), nên vòng lặp 22 ms rồi 11 ms vẫn ra
+một ảnh mỗi nhịp quét. `core::FifoCadence` (`engine/core/cadence.hpp`) dựng lại nhịp màn từ mốc
+acquire: acquire phải chờ từ 2 ms là lúc màn thay ảnh (lệch ±1,5 ms quanh b), nên lưới neo vào đó;
+acquire không chờ thì khung muộn quá một phần tư nhịp là màn đã lặp ảnh. Chu kỳ tự đo từ các lần
+chờ: Android báo 60,000 Hz, màn thật 16,703 ms (59,87 Hz); dùng số báo thì cứ vài giây có một khung
+lặp giả. Đối chiếu từng cửa sổ 10 giây (cùng mốc, chạy lại đúng thuật toán):
+
+| Cửa sổ | SurfaceFlinger | Khoảng vòng lặp | FifoCadence |
+|---|---|---|---|
+| đứng, sau nạp | p95 33,40, vượt 7,2% | p95 22,72, vượt 38,9% | p95 33,33, vượt 7,6% |
+| đứng, ổn định | max 16,96, vượt 0% | max 21,26, vượt 20,4% | max 16,71, vượt 0% |
+| đứng, có một khung lặp | max 50,04, vượt 0,2% | max 57,14, vượt 16,4% | max 50,12, vượt 0,2% |
+| đi bộ | p95 50,16, vượt 89,4% | p95 33,38, vượt 100% | p95 50,00, vượt 94,9% |
+
+Điều tốc (`govern_rate`), bảng đo (`note_pace`), DetailGovernor và dòng "Khung chậm" nay dùng
+khoảng màn giữ khung (`Display::State::shown_interval`); dòng "Khung chậm" in thêm "(vòng … ms)".
+PC giữ khoảng vòng lặp (chưa đối chiếu acquire trên PC). Test `cadence_tests` 9/9.
+
+Tablet sau sửa, có điều tốc: đứng yên 59,87 FPS ở các cửa sổ sau nạp, không lùi về 30 lần nào;
+bảng đo xanh hết (FPS 59,9, Khung, Trung vị, p95, Chậm nhất 16,7 ms, vượt 0,0%). Đi bộ máy về 30 Hz
+thật và vẫn lặp ảnh (p95 66,8, chậm nhất 83,6 ms); bảng đo báo đúng như thế (TRƯỢT, p95 66,7,
+chậm nhất 83,3). Nguyên nhân khi đi (simpleperf 15 giây): "dựng UI" của các khung lặp trung vị
+39,6 ms. `minimap.cpp` `fill_place` ghi toạ độ người chơi vào một override, mỗi lần toạ độ nguyên
+đổi thì `gui::Hub::update` thấy override khác và gọi `relayout`, dựng lại cả layout và phân tích lại
+mọi chuỗi vị trí (`parse_uvector`, `from_chars`). Chưa sửa (NGHI-NGO 63j).
+
+Vào cảnh (khởi động ấm): khung đầu 3,2–3,3 giây, mesh trong khung nhìn đủ ở 3,2–3,3 giây, cả cảnh
+6,9–7,1 giây. Lần chạy đầu sau khi cài APK chậm hơn: khung đầu 6,2–6,5 giây.
+
+## Tablet 60 Hz: địa hình theo đỉnh, nạp cảnh gộp lệnh, điều tốc không kẹt ở 30 (2026-10-17)
+
+Máy đo: Lenovo TB-X306F (MT8768, PowerVR GE8320, 1280×800, 60 Hz), Đại Lý, Vulkan. FPS lấy từ
+`dumpsys SurfaceFlinger --latency` (mốc trình thật), không từ log của client.
+
+**Nút thắt ở trạng thái ổn định là PS địa hình**, không phải cấu hình máy. PS cũ đọc bảng ô rồi
+năm lần đọc bảng mỗi lớp rồi mới lấy mẫu atlas: chuỗi đọc phụ thuộc nhau. Bản mới ghép toạ độ atlas
+ở đỉnh (mỗi ô 4 đỉnh riêng, `resource::Vertex` giữ 96 byte; `uv` là toạ độ nền, `color` là
+`(phủ.u, phủ.v, sáng.u, 1−sáng.v)`, `phủ.u < 0` là không có lớp phủ), PS chỉ lấy mẫu atlas.
+
+| Không điều tốc, tablet | FPS |
+|---|---|
+| trước | 46,5 |
+| bảng ô 3 lần đọc | 52,7 và 54,1 |
+| không đọc bảng (cùng cách bản gốc) | 58,0 |
+| toạ độ theo đỉnh, ba lượt | 59,6, 59,4, 59,9 |
+
+- Ô xoay 8–15 (góc lặp, không phải hình bình hành) nay nội suy affine từng tam giác như bản gốc;
+  PS cũ nội suy song tuyến. `cell_order` trong `sheet.hpp` là nguồn duy nhất của thứ tự tam giác.
+- Test mới `splat_cell_uv_follows_the_corner_table`, `splat_drops_layers_without_a_brush`,
+  `splat_cover_uses_its_own_orientation`. Vulkan, D3D12, D3D11 0 lỗi validate; hình PC giữ nguyên.
+- Đo gộp đỉnh trùng (Đại Lý: 409.600 đỉnh còn 323.429): bớt 21%, không đáng độ phức tạp nên bỏ.
+  Giá phải trả: +29 MB ở Đại Lý (NGHI-NGO 63a).
+
+**Nạp cảnh: một lần nộp mỗi khung nạp.** Mỗi mesh có ảnh từng `begin_commands` → chép → `submit`,
+và `vkQueueSubmit` chặn 19–51 ms (151 lần, trung vị 25 ms, tổng 3,56 giây trên 4,4 giây đưa GPU).
+`resource::UploadBatch` gom lệnh chép của mọi mesh trong một lát `pump_load` vào một danh sách lệnh,
+nộp một lần ở `flush`. Thiết bị không có bộ nhớ thống nhất (D3D12, GPU rời) vẫn đi đường cũ.
+Tablet sau khi gộp: 68–71 lần nộp, "dựng GPU" 0,99–1,19 giây, nhưng cả nạp cảnh vẫn 8,7–10,4 giây
+(trước 8,7–12): địa hình 3,5 giây chiếm phần lớn, và mỗi lần nộp còn chặn cỡ 25 ms (NGHI-NGO 63g).
+Năm ca mới trong `resource_upload_tests` (17/17).
+
+**Điều tốc kẹt ở 30 Hz.** Tablet có điều tốc chỉ đạt 29,3 và 29,0 FPS dù không điều tốc đạt 59,3.
+Số đo từng cửa sổ (log tạm, đã gỡ) cho ba nguyên nhân chồng nhau:
+
+1. Cửa sổ đầu ở mức 60 trùng lúc nạp cảnh (trễ 92%, việc thật 49 ms) nên máy bị đẩy về 30 ngay khi
+   vào cảnh. `govern_rate` nay không đếm khung khi `arrival` còn (nạp cảnh dài theo thiết kế).
+2. Ở mức 30, việc thật 13,4 ms vượt ngưỡng "dư sức" 70% của 16,7 ms (11,7 ms), nên không bao giờ
+   thăm dò lên; về sau xung nhịp hạ làm việc thật phình tới 22 ms. `kHeadroom` 0,7 → 1,5: ngưỡng chỉ
+   lọc ca chắc chắn không kịp, thăm dò mới là phép đo thật.
+3. Mỗi lần lên 60 (và ngay sau nạp cảnh) máy chạy chậm 21–24 ms trong 50–180 khung rồi mới ổn, nên
+   cửa sổ thăm dò nào cũng "hỏng" (đúng 35 khung trễ trên 90, hai lần liền). Governor nay bỏ qua
+   `kSettle` = 90 khung sau khi đổi mức và `kStartSettle` = 240 khung lúc bắt đầu.
+
+Test mới `ramp_after_start_is_ignored` và `ramp_after_probe_is_ignored` (máy mô phỏng đo trên
+tablet): đỏ trước, xanh sau; `governor_tests` 11/11. Tablet sau sửa: khung đầu giữ 60 ngay, cửa sổ
+đầu 59,9 FPS (khoảng cách khung 16,69 ms, việc thật 11,9 ms), không lùi về 30 lần nào trong 45 giây.
+Cả lượt đo 58,4 FPS. Về sau việc thật tăng 11,9 → 15,8 ms và 99,0% khung đúng nhịp tụt còn 96,7%;
+không điều tốc cũng y hệt (59,3 rồi 57,9 FPS trong lượt 60 giây), nên đó là trôi theo thời gian
+chạy của máy, không phải do điều tốc (NGHI-NGO 63f).
+
+**Hiệu ứng bị cắt theo khung nhìn.** `simpleperf` trên luồng vẽ của tablet (khoảng 90% bận, việc thật
+15,8 ms) cho hiệu ứng chiếm cỡ 40% (`draw_fx` 28,8%, riêng `billboards_of` 14,6%; `Cast::update` 11,2%),
+giao diện 9–11%, gom mesh và `see_copies` cỡ 12%. `FxView::draw` dựng quad cho cả 127 Field dù phần
+lớn nằm ngoài khung nhìn. Nay `fx::grain_sphere(field)` trả cầu bao mọi đỉnh quad của hệ (hộp trục
+của các tâm hạt, cầu ngoại tiếp hộp, cộng tầm với lớn nhất của một quad theo bề rộng và cao từng hạt)
+và `FxView::draw` bỏ Field có cầu nằm hẳn ngoài khung (`render::sphere_in_view`) trước
+`billboards_of`. Cầu chỉ có cho billboard kiểu điểm; ribbon, mesh và kiểu theo hướng hạt hay hướng
+chung luôn được vẽ như cũ. `Cast::update` vẫn chạy đủ nên hình không đổi khi camera quay lại.
+
+Test mới `grain_sphere_covers_quads` (mọi đỉnh `billboards_of` sinh ra nằm trong cầu; hệ không gian
+cục bộ, node dời, xoay, tỉ lệ khác nhau, hạt có kích thước riêng và Rotator) và
+`grain_sphere_skips_ribbons`. Đỏ với bản chưa cài, và tạm bỏ phần tầm với của quad thì ca đầu đỏ lại.
+PC Release, D3D12, Đại Lý ở chỗ khởi đầu, 900 khung, ba lượt xen kẽ mỗi bên:
+
+| | quad mỗi khung | CPU chặng hiệu ứng | ghi lệnh vẽ |
+|---|---|---|---|
+| không cắt | 3852 trong 127 lô | 0,53 / 0,59 / 0,55 ms | 0,87 / 0,99 / 0,90 ms |
+| có cắt | 487–549 trong 26–27 lô | 0,14 / 0,15 / 0,17 ms | 0,47 / 0,48 / 0,55 ms |
+
+Trên tablet chưa có số sạch: ba lượt có điều tốc đo ngay sau khi cài (54,2 / 48,0 / 36,4 FPS) bị nhiễu,
+vì có người chạm màn hình (`getevent` thấy sự kiện kéo, task game bị xoá khỏi recents lúc 22:49:10),
+nhân vật đi khỏi chỗ khởi đầu giữa các lượt (160,160 sang 169,132 rồi 160,47, từ 84 tới 156 lệnh vẽ) và máy
+nóng dần. Chỉ chắc điều đếm được: ở chỗ khởi đầu tablet vẽ 549 quad trong 27 lô thay vì 3852 trong 127
+(NGHI-NGO 63h).
+
 ## Swapchain Vulkan dựng ở luồng phụ (2026-10-17)
 
 `vkCreateSwapchainKHR` tốn 145–160 ms trên RTX 5060 và nằm giữa đường găng của luồng vẽ (thiết bị
@@ -2977,3 +3165,15 @@ Cùng một luồng vẽ (`gui::Hub` → `paint.cpp` → `Painter`) mà APK lệ
 ### Hệ số LOD ổn định, hết chớp ở vật thể xa (2026-10-16)
 
 Sau khi lưới skin có LOD, trần tam giác của điện thoại đạt được nên `Forward::choose_lods` bắt đầu tác dụng thật. Cách cũ mỗi khung hạ hệ số 10% rồi nhân 1,15 tới khi vừa trần, nên hệ số dao động và các vật thể gần ngưỡng đổi mức qua lại: đo trên tablet 177 lệnh vẽ đổi mức trong 120 khung (đứng yên, nhìn thấy là chớp). Cách mới giữ hệ số giữa các khung, chỉ tăng khi vượt trần, và mỗi 60 khung khi tổng dưới 90% trần thì tìm nhị phân hệ số nhỏ nhất vừa 95% trần (`lowest_bias`): 0 lần đổi mức trong 120 khung, cảnh đăng nhập 143 nghìn tam giác, tablet 30,0 FPS, chậm nhất 33,4 ms. Máy bàn (trần 0) không đổi.
+
+### Thú cưỡi: chất liệu luồng sáng, pass độ sâu, hiệu ứng theo mã máy (2026-10-18)
+
+Đợt thử thú cưỡi trên cả bảng `rides.tsv`. Sửa theo đường dữ liệu chung một lần cho mọi thú, không sửa từng con.
+- Clip người cưỡi: 56 clip lệch vì `export_rides.py` gộp hai giới vào một ô. Bảng `ride_anims.tsv` nay có cột race (4618 clip, 30 thiếu clip trong kho); `look::read_raced_anims` và `player.cpp` chọn theo giới. Test `mount_tests` `raced_anims_split_by_sex`.
+- Chất liệu: bộ đọc `all.material` từng dòng không thấy MaterialTemplates nên mất chương trình `Model_Flow_ps.hlsl` của 105 thú. `TOOLS/content/export_material_programs.py` trộn kế thừa OGRE đủ (technique, pass, texture_unit) và ghi `Material/programs.tsv` (3457 chất liệu: FlowLight 1149, OutlineCtrl 1076, FLTrans 836, Outline_FlowLight 194, Outline 192). Số đọc theo `parseReal` của OGRE (lỗi gõ `0.0.0` của `pet_2022ZSliuheE01半透` thành 0). `resource::parse_programs` đọc bảng, `ogre_mesh.cpp` áp vào chất liệu; `model.ps.slang` cộng luồng (Calc_Flow) sau ánh sáng, viền (fmt_output) sau sương. Mẫu hai pass (WriteDepth rồi Effect) có pipeline ghi độ sâu riêng (`Pso::kModelDepth`). Test `ogre_mesh_tests` bốn ca, có ca đọc bảng thật.
+- Hiệu ứng gắn: Render.dll để nút hiệu ứng là con của điểm neo, không thừa hưởng tỉ lệ; `translateAll` thiếu thì không thừa hưởng hướng. `ride_fx_at` nay trả hướng đơn vị.
+- Hạt (đối chiếu Plugin_ParticleFX, OgreMain): emitter vùng mặc định hướng +Y (701 hệ của bộ thú lệch trục); góc phát là hình nón (`randomDeviant`); Ring, Cylinder, Ellipsoid, HollowEllipsoid lấy mẫu theo `_initParticle` của bản TLBB (`fx/area.cpp`; Ellipsoid và Cylinder đã bị viết lại, khác OGRE gốc); Rotator xoay đỉnh billboard (kiểu mặc định BBR_VERTEX); đọc `billboard_origin`; `scroll_anim` đổi dấu và thay scroll tĩnh; scale UV chia quanh tâm 0,5; vệt NewRibbonTrail giữ màu mốc cuối; hạt mesh one/one vẽ qua pipeline cộng. Test `fx_tests` năm ca mới.
+- Kiểm: ảnh sư tử 385, 387 và ngựa 212 trên Vulkan, D3D12, D3D11, lớp kiểm tra 0 lỗi. Dải xúc tu của sư tử hết đứt khúc. Luồng sáng nhẹ vì mặt nạ ctl của dữ liệu gốc gần như tối (kênh r trung bình 11,7/255). GLES có mảng đen quanh cánh, có từ bản trước đợt này.
+- Tầng: `display/player.cpp` (từ commit 8bfa3cb6) đọc thẳng `table::` nên cổng `layers` đỏ. Bốn bảng `ride_locators`, `ride_anims`, `ride_skeletons`, `ride_model_clips` nay phân tích ở `look/mount` (`parse_ride_*`, `parse_mount_clips`), display chỉ đọc văn bản tệp. Pipeline ghi độ sâu bắt buộc như cặp cộng sáng; `catalog_tests` đếm riêng hai pipeline này. Test `mount_tests` `reads_skeletons_and_clips`. Ctest 189/189.
+- Đối chiếu bằng REA (dựng lại `D:\rea`): màu vệt NewRibbonTrail theo Render.dll `0x180158970` (mốc đầu tiên có time > tuổi, quá năm mốc thì mốc 4, mặc định Black, nội suy đúng trọng số lệnh gốc) và saturate của `0x180158fa0`; alpha đỉnh hạt kẹp về 1 như `getAsABGR_SSE` của OgreMain (opacity 2 của 11 hiệu ứng). Test `fx_tests` `trail_colour_matches_render` đỏ trước, xanh sau.
+- Còn mở: `docs/NGHI-NGO.md` mục 65.

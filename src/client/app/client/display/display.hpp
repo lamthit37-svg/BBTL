@@ -150,6 +150,8 @@ struct DisplayDesc {
     std::vector<std::uint32_t> creatures;
     // Công cụ thử (--pet): id mẫu trân thú đứng trước mặt, như máy chủ gửi EntityKind::kPet.
     std::vector<std::uint32_t> pets;
+    // Công cụ thử (--impact): id hiệu ứng bật trên người chơi ở khung đầu. 0 là id thật.
+    std::optional<std::uint32_t> impact_id;
     // Công cụ thử (--peer): số người chơi khác đứng trước mặt ở khung đầu, như máy chủ vừa cho thấy họ.
     std::uint32_t peer_count = 0;
     // Công cụ thử của dự án (--talk-demo), client gốc không có: NPC của --creature mang cờ bấm được, và việc người chơi nhờ

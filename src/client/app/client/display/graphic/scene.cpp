@@ -173,7 +173,9 @@ void assign_paint(resource::Material& material, const fx::Paint& paint, std::uin
     material.pass.reset();
     material.unlit = true;
     material.double_sided = true;
-    material.alpha = resource::Alpha::kBlend;
+    // Cộng one/one vào pipeline cộng của Forward; còn lại là trộn alpha (fx::has_mesh_pipeline).
+    const bool is_add = paint.blend == fx::Blend::kAdd;
+    material.alpha = is_add ? resource::Alpha::kAdd : resource::Alpha::kBlend;
     material.shading = resource::Shading::kMetallic;
     material.base_color = {.x = paint.gain, .y = paint.gain, .z = paint.gain, .w = 1.0F};
     material.emissive = {.x = paint.scroll_u, .y = paint.scroll_v, .z = 0.0F};
@@ -349,16 +351,20 @@ void Display::State::compose_frame() {
     stand.is_moving = is_player_running;
     stand.jump = std::exchange(jump_begun, std::nullopt);
     stand.has_landed = std::exchange(jump_landed, false);
-    stand.strike = std::exchange(strike_begun, std::nullopt);
+    const std::optional<StrikeCall> begun = std::exchange(strike_begun, std::nullopt);
+    stand.strike = begun;
     const core::Status posed = player->update(frame_time, stand);
     if (!posed) {
         std::println(stderr, "Người chơi: {}", posed.error());
         return;
     }
+    if (begun) launch_bullet(*begun);
     dispatch_cues();
     sync_follows();
     sync_gear();
     sync_ride();
+    sync_impacts();
     player->append(frame_instances);
+    step_bullets();
 }
 } // namespace game::client

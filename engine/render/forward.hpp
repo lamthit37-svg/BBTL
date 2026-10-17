@@ -188,6 +188,8 @@ private:
     const resource::Uploaded* uploaded_ = nullptr;
     // Một nhóm cho mỗi chất liệu của model, rồi một nhóm cho primitive không khai chất liệu.
     std::vector<gpu::BindGroupHandle> materials_;
+    // FlowBlock riêng của các chất liệu có luồng sáng hay viền sáng; nhóm chất liệu trỏ vào chúng.
+    std::vector<gpu::BufferHandle> flow_blocks_;
     std::vector<math::Matrix4> rest_;
     bool is_rest_neutral_ = false;
     // Khoảng cách xa nhất từ gốc model tới một đỉnh ở tư thế nghỉ (bán kính bao của Ogre::Mesh),
@@ -235,13 +237,15 @@ public:
     // cọ (Pso::kTerrain), được phép rỗng: chất liệu có resource::Splat khi ấy vẽ như chất liệu
     // thường. solid là Pso::kModelSolid và kModelSolidTwoSided (không discard), được phép rỗng:
     // chất liệu đục không cắt alpha khi ấy vẽ bằng biến thể model thường. additive là
-    // Pso::kModelAdd và kModelAddTwoSided (one one). Rỗng thì tấm scene_blend add bị bỏ. Forward
+    // Pso::kModelAdd và kModelAddTwoSided (one one). Rỗng thì tấm scene_blend add bị bỏ. depth là
+    // Pso::kModelDepth và kModelDepthTwoSided; rỗng thì chất liệu hai pass chỉ vẽ pass màu. Forward
     // không huỷ chúng: Catalog phải sống lâu hơn Forward. InvalidArgument khi thiếu slot hoặc một
     // handle model rỗng. Mượn device: Forward và mọi Drawable của nó phải bị huỷ trước device.
     [[nodiscard]] static core::Result<Forward> create(gpu::Device& device, const ForwardDesc& desc,
         std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain = {},
         std::array<gpu::PipelineHandle, 2> solid = {},
-        std::array<gpu::PipelineHandle, 2> additive = {});
+        std::array<gpu::PipelineHandle, 2> additive = {},
+        std::array<gpu::PipelineHandle, 2> depth = {});
 
     Forward(Forward&&) noexcept;
     Forward& operator=(Forward&&) noexcept;

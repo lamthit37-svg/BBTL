@@ -543,6 +543,11 @@ struct D3d12Device::Contexts {
 
     static void settle(Lane& lane, std::uint64_t reached) {
         const std::scoped_lock lock(lane.mutex);
+        settle_locked(lane, reached);
+    }
+
+    // Như settle, khi chỗ gọi đã giữ lane.mutex.
+    static void settle_locked(Lane& lane, std::uint64_t reached) {
         const auto is_running = [reached](const Pending& item) { return item.value > reached; };
         const auto finished = std::ranges::stable_partition(lane.busy, is_running);
         for (const Pending& item : finished) {
@@ -864,8 +869,12 @@ Result<std::unique_ptr<Commands>> D3d12Device::make_commands(QueueType queue) {
     return std::make_unique<Commands>(*this, queue, std::move(allocator), std::move(list));
 }
 
-// Khác gốc: if rỗng của begin_commands tách ra đây.
+// Khác gốc: if rỗng của begin_commands tách ra đây. Hàng rảnh trống thì nhận về các danh sách GPU
+// đã chạy xong trước khi tạo mới: lúc nạp cảnh đầu chưa có end_frame nào, nên mỗi lần nạp từng tạo
+// một allocator và danh sách mới rồi giữ tới khi tắt (đo 2026-10-17: 371 lần nạp đầu).
 Status D3d12Device::Contexts::refill(D3d12Device& device, Lane& lane, QueueType queue) {
+    if (!lane.idle.empty()) return ok();
+    settle_locked(lane, device.completed(queue));
     if (!lane.idle.empty()) return ok();
     Result<std::unique_ptr<Commands>> created = device.make_commands(queue);
     if (!created) return std::unexpected(std::move(created).error());

@@ -11,6 +11,8 @@
 #  - Danh sách tệp là bao đóng Table/mobile.files.tsv (trace_assets.py): texture
 #    đã nấu (bake_mobile_textures.py) thay DDS gốc; thiếu tệp là lỗi.
 #  - --gate-host thay địa chỉ máy chủ trong Table/gates.tsv cho thiết bị.
+#  - --delta chỉ đóng assets khác sổ của máy đang cắm, --install cài luôn: vòng
+#    thử trên máy thật không phải đóng và cài lại 1,25 GB dữ liệu không đổi.
 #-------------------------------------------------------------------------------
 #  TÁC GIẢ   : HiepHoon
 #  TELEGRAM  : @Hoon9xx
@@ -26,14 +28,78 @@ from __future__ import annotations
 import argparse
 import ipaddress
 import os
+import re
 import shutil
 import subprocess
+import zlib
 import zipfile
 from pathlib import Path
 
 
 # Mọi tệp và thư mục lần chạy này đã đọc, cho --depfile.
 read_inputs: list[Path] = []
+
+
+class DeltaBook:
+    # --delta: sổ assets mà máy đang giữ (files/data/assets.book, vỏ ghi sau mỗi lần chép đủ) và dấu
+    # đã tính của tệp nguồn. Tệp có dấu trùng sổ của máy thì không đóng vào APK, chỉ ghi dòng sổ:
+    # vỏ chỉ chép tệp có dấu khác sổ nó giữ (client/assets.hpp), nên mọi tệp nó cần đều có trong gói.
+    # Đo 2026-10-17 (TB-X306F, USB): APK đủ 1,25 GB đóng 35 giây và cài 120 giây; chỉ mã 8 MB dưới 1 giây.
+
+    def __init__(self, device_book: str, cache: Path) -> None:
+        self.kept: dict[tuple[str, str], str] = {}
+        for line in device_book.splitlines():
+            parts = line.rstrip("\r").split(" ", 2)
+            if len(parts) == 3:
+                self.kept[(parts[0], parts[2])] = parts[1]
+        self.cache_path = cache
+        self.cache: dict[str, tuple[int, int, str]] = {}
+        self.skipped = 0
+        self.packed = 0
+        self.load_cache()
+
+    def load_cache(self) -> None:
+        # Dấu nhớ theo đường dẫn, cỡ và mtime: lần đóng sau không phải đọc lại cả cây dữ liệu.
+        if not self.cache_path.is_file():
+            return
+        for line in self.cache_path.read_text(encoding="utf-8").splitlines():
+            parts = line.split("\t", 3)
+            if len(parts) == 4:
+                self.cache[parts[3]] = (int(parts[0]), int(parts[1]), parts[2])
+
+    def save_cache(self) -> None:
+        rows = [f"{size}\t{mtime}\t{stamp}\t{path}" for path, (size, mtime, stamp) in self.cache.items()]
+        self.cache_path.write_text("\n".join(rows) + "\n", encoding="utf-8", newline="\n")
+
+    def stamp_of(self, source: Path) -> str:
+        # Cùng dạng dòng sổ của add_asset: CRC-32 của nội dung (như ZipInfo.CRC) và cỡ tệp.
+        status = source.stat()
+        key = str(source.resolve())
+        known = self.cache.get(key)
+        if known and known[0] == status.st_size and known[1] == status.st_mtime_ns:
+            return known[2]
+        crc = 0
+        with source.open("rb") as stream:
+            for chunk in iter(lambda: stream.read(1 << 20), b""):
+                crc = zlib.crc32(chunk, crc)
+        stamp = f"{crc & 0xFFFFFFFF:08x}-{status.st_size}"
+        self.cache[key] = (status.st_size, status.st_mtime_ns, stamp)
+        return stamp
+
+    def kept_stamp(self, group: str, relative: str, source: Path) -> str | None:
+        # Dấu của tệp khi máy đã giữ đúng bản này; None khi phải đóng vào gói.
+        stamp = self.stamp_of(source)
+        if self.kept.get((group, relative)) != stamp:
+            self.packed += 1
+            return None
+        self.skipped += 1
+        return stamp
+
+
+# Có khi chạy --delta; None là đóng đủ.
+delta_book: DeltaBook | None = None
+# Mọi mục assets đã ghi sổ, kể cả mục --delta không đóng: chặn một tệp được kê hai lần.
+listed_names: set[str] = set()
 
 
 AVATAR_TABLES = ("player_bodies", "faces", "hairs", "outfits", "anim_sets")
@@ -72,10 +138,17 @@ WHOLE_FOLDERS = ("Table", "Config", "Script", "effect", "Web")
 # Layout giao diện (3,6 MB, 2 071 tệp): HUD nạp cố định 34 layout nhưng host Lua nạp thêm theo sổ cửa sổ, và danh sách
 # layout của HUD đổi theo phiên bản (Quest.layout.xml thêm sau lượt trace làm HUD không mở được trên điện thoại).
 WHOLE_PATTERNS = ("Interface/**/*.layout.xml",)
+# Bảng chương trình chất liệu (export_material_programs.py): resource/ogre_mesh.cpp đọc nó cho mọi
+# lưới OGRE, nên lượt trace cũ không có nó vẫn phải mang. Thiếu thì chất liệu mất luồng sáng, viền.
+WHOLE_FILES = ("Material/programs.tsv",)
 
 
 def folder_paths(data: Path) -> list[str]:
     found: list[str] = []
+    for relative in WHOLE_FILES:
+        if (data / relative).is_file():
+            read_inputs.append(data / relative)
+            found.append(relative)
     for pattern in WHOLE_PATTERNS:
         found.extend(path.relative_to(data).as_posix() for path in sorted(data.glob(pattern)) if path.is_file())
     for folder in WHOLE_FOLDERS:
@@ -199,10 +272,14 @@ def add_asset(archive: zipfile.ZipFile, source: Path, folder: str, group: str,
     # Đưa một tệp vào assets/<folder>/ và trả dòng sổ "<nhóm> <dấu> <đường dẫn>". Dấu là CRC và
     # cỡ tệp: vỏ Android chỉ chép lại tệp có dấu khác sổ nó đã giữ (client/assets.hpp).
     name = f"assets/{folder}/{relative}"
-    if name in archive.NameToInfo:
+    if name in listed_names:
         # zipfile chỉ cảnh báo; apksigner từ chối gói có hai mục cùng tên.
         raise SystemExit(f"đóng gói: {name} được đóng hai lần")
+    listed_names.add(name)
     read_inputs.append(source)
+    kept = delta_book.kept_stamp(group, relative, source) if delta_book else None
+    if kept is not None:
+        return f"{group} {kept} {relative}"
     archive.write(source, name, compress_type=compression_of(source))
     info = archive.getinfo(name)
     return f"{group} {info.CRC:08x}-{info.file_size} {relative}"
@@ -314,6 +391,27 @@ def compile_resources(build_tools: Path, res: Path, work: Path) -> Path:
     return compiled
 
 
+def package_of(manifest: Path) -> str:
+    found = re.search(r'package="([^"]+)"', manifest.read_text(encoding="utf-8"))
+    if not found:
+        raise SystemExit(f"android: {manifest} không có package")
+    return found.group(1)
+
+
+def device_book(package: str) -> str | None:
+    # Sổ assets vỏ đã ghi trên máy (bản dev debuggable nên run-as đọc được). None khi không đọc được:
+    # chưa cài, đã gỡ, không có máy, hay nhiều máy mà không đặt ANDROID_SERIAL.
+    command = ["adb", "exec-out", "run-as", package, "cat", "files/data/assets.book"]
+    result = subprocess.run(command, check=False, capture_output=True)
+    text = result.stdout.decode("utf-8", errors="replace")
+    is_book = result.returncode == 0 and text.startswith(("D ", "S "))
+    if is_book:
+        return text
+    reason = (result.stderr.decode("utf-8", errors="replace") + text).strip().splitlines()
+    print(f"android: adb không đọc được sổ: {reason[0] if reason else result.returncode}")
+    return None
+
+
 def debug_keystore(work: Path) -> Path:
     # Khoá ký bản dev nằm ngoài cây dựng, chung mọi preset Android: khoá đổi thì APK mới không cập nhật được bản đã cài
     # (INSTALL_FAILED_UPDATE_INCOMPATIBLE) và người thử phải gỡ ứng dụng, mất dữ liệu trong máy. Trước đây mỗi cây
@@ -414,6 +512,9 @@ def main() -> None:
     parser.add_argument("--res", default="",
                         help="thư mục res của APK (mipmap/ic_launcher.png), biên dịch bằng aapt2 vào resources.arsc")
     parser.add_argument("--depfile", default="", help="ghi depfile của --out cho Ninja")
+    parser.add_argument("--delta", action="store_true",
+                        help="chỉ đóng assets khác sổ của máy đang cắm (adb); không đọc được sổ thì đóng đủ")
+    parser.add_argument("--install", action="store_true", help="adb install -r gói vừa đóng")
     args = parser.parse_args()
     baked = Path(args.baked) if args.baked else None
     if args.stage:
@@ -435,8 +536,14 @@ def main() -> None:
     platform = newest(root / "platforms")
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
-    work = out.parent / "apk-work"
+    work = out.parent / ("apk-delta" if args.delta else "apk-work")
     work.mkdir(parents=True, exist_ok=True)
+    global delta_book
+    book = device_book(package_of(Path(args.manifest))) if args.delta else None
+    if args.delta and book is None:
+        print("android: không đọc được sổ assets của máy, đóng đủ")
+    if book is not None:
+        delta_book = DeltaBook(book, work / "stamps.tsv")
     unsigned = work / "unsigned.apk"
     aligned = work / "aligned.apk"
     link = [
@@ -489,6 +596,9 @@ def main() -> None:
                              compress_type=zipfile.ZIP_STORED)
     if args.data or args.shaders:
         print(f"android: đóng {files} tệp assets")
+    if delta_book:
+        delta_book.save_cache()
+        print(f"android: delta đóng {delta_book.packed} tệp, {delta_book.skipped} tệp máy đã có")
     # zipalign đọc thẳng bản chưa ký: chép qua một tệp trung gian là thêm một lượt đọc và ghi cả gói (hơn 1 GB) vào RAM.
     run([str(build_tools / "zipalign.exe"), "-p", "-f", "4", str(unsigned), str(aligned)])
     store = debug_keystore(work)
@@ -515,6 +625,9 @@ def main() -> None:
         read_inputs.append(library)
         write_depfile(Path(args.depfile), out)
     print(f"android: {out} ({out.stat().st_size} byte)")
+    if args.install:
+        run(["adb", "install", "-r", str(out)])
+        print(f"android: đã cài {out.name}")
 
 
 if __name__ == "__main__":

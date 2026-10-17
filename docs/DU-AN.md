@@ -87,6 +87,18 @@ nhật ký cũ [tài liệu].
   nhịp. Tablet màn đăng nhập về 30,0 FPS, hết chớp LOD (`d9d7665e`, `23ec96f8`).
 - Android: APK chạy trên TB-X306F, có cảm ứng, IME, trần khung theo `RateGovernor`. iOS: chưa
   build lần nào, máy không có macOS (E1).
+- Shader HLSL của client gốc (100 tệp, 289 chương trình) chuyển thành gói .f2s cho SPIR-V, DXIL và
+  DXBC qua Slang (2026-10-18, target `game_origin_shaders`). Mã máy fxc của bản đã chuyển trùng bản
+  gốc 289/289. Chưa nạp vào lượt vẽ, chưa so ảnh (NGHI-NGO 64).
+- Tablet giữ 60 Hz ở Đại Lý (2026-10-17): địa hình ghép toạ độ atlas ở đỉnh nên không điều tốc đạt
+  59,6 FPS (trước 46,5); điều tốc không còn kẹt ở 30 (khung đầu 59,9 FPS, 58,4 cả lượt 45 giây);
+  nạp cảnh vẫn 8,7–10,4 giây. Trôi dần xuống ~57,7 FPS sau ~25 giây chạy, cả khi không điều tốc.
+  Hiệu ứng ngoài khung nhìn không còn dựng quad (PC: 3852 xuống ~500 quad, CPU chặng hiệu ứng 0,55
+  xuống 0,15 ms); chưa có số sạch trên tablet. Số đo ở `TIEN-DO.md`, chỗ chưa chắc ở NGHI-NGO 63.
+- Tablet, cùng ngày (tối): luồng vẽ ghim ở cụm lõi mạnh (`core/cores.cpp`); điều tốc, bảng đo và
+  "Khung chậm" đếm nhịp màn thật suy từ acquire (`core/cadence.hpp`), khớp SurfaceFlinger từng cửa
+  sổ 10 giây. Đứng yên: 59,87 FPS, bảng đo xanh hết, không lùi về 30. Đi bộ: máy về 30 Hz thật, đỉnh
+  là HUD relayout ~40 ms mỗi lần toạ độ minimap đổi (NGHI-NGO 63j, chưa sửa).
 
 ### Map, nhân vật, hiệu ứng
 
@@ -111,6 +123,13 @@ nhật ký cũ [tài liệu].
   chạy bằng công cụ thử `--weapon --skill --gem --auto-strike`. Nhảy có mã, chưa ai nhìn tận mắt.
 - Quái và NPC vẽ từ tin máy chủ. Người chơi khác có mã `show_player` và cờ `--peer` (`834caccb`),
   chưa có mục nhật ký nào xác nhận đã kiểm.
+- Thú cưỡi (2026-10-18, `--mount <id>`, 353 dòng `rides.tsv`): clip người cưỡi tách theo giới
+  (`ride_anims.tsv` cột race). 105 thú dùng chất liệu luồng sáng, viền sáng của
+  `Model_Flow_ps.hlsl`: bảng `Material/programs.tsv` (`TOOLS/content/export_material_programs.py`,
+  3457 chất liệu) vẽ trong `model.ps`, kèm pass ghi độ sâu của mẫu hai pass. Hiệu ứng gắn theo mã
+  máy Render.dll (`translateAll` thiếu thì giữ trục thế giới). Emitter vùng, góc nón, xoay billboard,
+  `billboard_origin`, `scroll_anim`, scale UV, vệt NewRibbonTrail, hạt mesh one/one theo mã máy
+  Plugin_ParticleFX và OgreMain. Chụp trên Vulkan, D3D12, D3D11. Còn mở: NGHI-NGO 65.
 - Nạp đầu cảnh Đại Lý: 387 ms ngày 10-13, đo lại 490–528 ms, vượt ngân sách 450 ms, chưa kết luận
   (C3).
 

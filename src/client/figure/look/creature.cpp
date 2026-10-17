@@ -105,6 +105,10 @@ struct TableSpec {
     return std::format("bảng {} sai, {}", name, reader.error().value_or("lỗi không rõ"));
 }
 
+[[nodiscard]] std::string template_why(const table::RowReader& reader) {
+    return row_failure("creature_templates", reader);
+}
+
 [[nodiscard]] std::optional<CreatureKind> kind_of(std::string_view cell) noexcept {
     if (cell == "npc") return CreatureKind::kNpc;
     if (cell == "monster") return CreatureKind::kMonster;
@@ -133,6 +137,7 @@ struct TableSpec {
         const table::TsvResult lang = table::parse_tsv(lang_text);
         if (lang) static_cast<void>(table::localize(*table, *lang, "template"));
     }
+    const bool has_speed = table::column_of(*table, "move_speed").has_value();
     std::vector<CreatureTemplate> rows;
     rows.reserve(table->rows.size());
     for (std::size_t at = 0; at < table->rows.size(); ++at) {
@@ -148,7 +153,8 @@ struct TableSpec {
         row.scale = reader.positive("scale");
         const std::optional<CreatureKind> kind = kind_of(reader.text("kind"));
         if (!kind) reader.reject("kind", "chỉ nhận npc hay monster");
-        if (reader.error() || !kind) return std::unexpected(row_failure("creature_templates", reader));
+        if (has_speed) row.move_speed = reader.integer("move_speed", 0, 1'000'000);
+        if (reader.error() || !kind) return std::unexpected(template_why(reader));
         row.kind = *kind;
         rows.push_back(std::move(row));
     }

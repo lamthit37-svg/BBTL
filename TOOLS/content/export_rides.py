@@ -545,31 +545,24 @@ def export_chain(obj_path, mounts, models):
     names = load_names()
     skills = load_skills()
     cache = {}
+    # Bản gốc tra tên động tác của ActionSet trên skeleton của chính người cưỡi, nên một bộ mà hai
+    # giới cùng dùng (1476 của 从刃滑翔翼) ra hai clip khác nhau: mỗi giới một dòng.
     rider_rows = []
     missed = 0
-    disagreed = 0
     for action_set, sexes in sorted(riders.items()):
-        for action, base in ACTIONS.items():
-            for weapon, column in WEAPON_COLUMNS.items():
-                found = None
-                broken = False
-                for sex in sorted(sexes):
-                    rig = rigs.get(sex)
-                    if rig is None:
-                        broken = True
-                        break
-                    hit = clip_of(index, lines, names, skills, cache, rig["skeleton"], rig["links"],
-                                  action_set, base, column)
-                    if hit is None or (found is not None and hit != found):
-                        broken = True
-                        if hit is not None and found is not None:
-                            disagreed += 1
-                        break
-                    found = hit
-                if broken or found is None:
-                    missed += 1
-                    continue
-                rider_rows.append(f"{action_set}\t{action}\t{weapon}\t{found[0]}\t{found[1]}\n")
+        for sex in sorted(sexes):
+            rig = rigs.get(sex)
+            for action, base in ACTIONS.items():
+                for weapon, column in WEAPON_COLUMNS.items():
+                    hit = None
+                    if rig is not None:
+                        hit = clip_of(index, lines, names, skills, cache, rig["skeleton"],
+                                      rig["links"], action_set, base, column)
+                    if hit is None:
+                        missed += 1
+                        continue
+                    rider_rows.append(
+                        f"{action_set}\t{sex}\t{action}\t{weapon}\t{hit[0]}\t{hit[1]}\n")
     model_rows = []
     model_missed = 0
     seen_model = set()
@@ -603,9 +596,12 @@ def export_chain(obj_path, mounts, models):
     anim_note = (
         "# source: ActionSet, ActionSetLine, ActionSetKV; clip trên skeleton người chơi\n"
         "# tool: TOOLS/content/export_rides.py\n"
-        "# Cùng cột anim_sets.tsv. set là driver_action hoặc passenger_action của CharMount.\n"
+        "# Cột anim_sets.tsv thêm race: set là driver_action hoặc passenger_action của CharMount,\n"
+        "# race là giới người cưỡi (0 nữ, 1 nam) mà cột đó phục vụ. Clip tra trên skeleton của giới\n"
+        "# ấy, nên một bộ hai giới cùng dùng có hai dòng cho mỗi ô. Không có clip thì không có dòng.\n"
     )
-    write(OUT / "ride_anims.tsv", anim_note, "set\taction\tweapon\tanim\tclip", rider_rows)
+    header = "set\trace\taction\tweapon\tanim\tclip"
+    write(OUT / "ride_anims.tsv", anim_note, header, rider_rows)
     model_note = (
         "# source: action_set cột 20 của CharModelEx, cột tay không của ActionSetLine,\n"
         "# Animation của Effect/all.skill khi tên KV là skill\n"
@@ -614,7 +610,7 @@ def export_chain(obj_path, mounts, models):
     )
     write(OUT / "ride_model_clips.tsv", model_note, "model\taction\tanim\tclip", model_rows)
     print(f"skeletons {len(skeletons)} rider_clips {len(rider_rows)} missed {missed} "
-          f"disagreed {disagreed} model_clips {len(model_rows)} model_missed {model_missed} "
+          f"model_clips {len(model_rows)} model_missed {model_missed} "
           f"skills {len(skills)}")
 
 

@@ -1,15 +1,36 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/place/fx/field.cpp
+ *  PHÂN HỆ   : Place / Fx / Field
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt Field (xem field.hpp): sinh hạt theo emitter, affector, chuyển
+ *    động theo Plugin_ParticleFX và ParticleFX2 bản TLBB.
+ *  - Emitter vùng lấy chỗ sinh ở area.cpp; hướng phát là nón randomDeviant của
+ *    OgreMain.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fx/field.hpp"
+
+#include "fx/area.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
-#include <utility>
+#include <numbers>
 
 namespace game::fx {
 namespace {
 
 constexpr float kStep = 0.033F;
 constexpr int kMaxSteps = 30;
+// Math::TWO_PI của OGRE.
+constexpr float kTwoPi = 2.0F * std::numbers::pi_v<float>;
 
 using ogre::Vec3;
 
@@ -87,6 +108,31 @@ void grow(Grain& grain, float width_step, float height_step, float depth_step) {
     set_size(grain, width, height, depth);
 }
 
+// Hạt còn sống sau dt thì trừ ttl; hết hạn thì giữ nguyên để chỗ gọi trả nó về.
+[[nodiscard]] bool ages(Grain& grain, float dt) noexcept {
+    if (grain.ttl < dt) return false;
+    grain.ttl -= dt;
+    return true;
+}
+
+constexpr float kHighest = std::numeric_limits<float>::max();
+constexpr float kLowest = std::numeric_limits<float>::lowest();
+
+// Tâm và cỡ của một hạt vào hộp. Toạ độ NaN không làm hộp đổi (min, max với NaN giữ số cũ).
+void take_grain(Field::Extent& extent, const Grain& grain, const SystemDef& definition) {
+    const Vec3 point = grain.position;
+    extent.low.x = std::min(extent.low.x, point.x);
+    extent.low.y = std::min(extent.low.y, point.y);
+    extent.low.z = std::min(extent.low.z, point.z);
+    extent.high.x = std::max(extent.high.x, point.x);
+    extent.high.y = std::max(extent.high.y, point.y);
+    extent.high.z = std::max(extent.high.z, point.z);
+    const float width = grain.own ? grain.width : definition.width;
+    const float height = grain.own ? grain.height : definition.height;
+    extent.widest = std::max(extent.widest, std::fabs(width));
+    extent.tallest = std::max(extent.tallest, std::fabs(height));
+}
+
 } // namespace
 
 Field::Field(const SystemDef& definition, std::uint32_t seed) : definition_(&definition), random_(seed) {
@@ -131,21 +177,33 @@ void Field::step(float dt) {
     affect(dt);
     move(dt);
     emit(dt);
+    measure();
 }
 
+// Dồn tại chỗ, giữ thứ tự của active_ và thứ tự trả về free_ như bản chép sang vector mới trước
+// đây: không cấp phát mỗi bước.
 void Field::expire(float dt) {
-    std::vector<std::uint32_t> kept;
-    kept.reserve(active_.size());
+    std::size_t kept = 0;
     for (const std::uint32_t index : active_) {
-        Grain& grain = pool_[index];
-        if (grain.ttl < dt) {
-            free_.push_back(index);
-            continue;
-        }
-        grain.ttl -= dt;
-        kept.push_back(index);
+        const bool is_alive = ages(pool_[index], dt);
+        if (!is_alive) free_.push_back(index);
+        if (!is_alive) continue;
+        active_[kept] = index;
+        ++kept;
     }
-    active_ = std::move(kept);
+    active_.resize(kept);
+}
+
+// Đo ở cuối bước để FxView loại hệ ngoài khung nhìn mà không quét lại mọi hạt mỗi khung (đo
+// 2026-10-17 trên TB-X306F: quét và đổi sang thế giới mỗi khung là 8,8% luồng vẽ).
+void Field::measure() {
+    Extent extent;
+    extent.low = Vec3{.x = kHighest, .y = kHighest, .z = kHighest};
+    extent.high = Vec3{.x = kLowest, .y = kLowest, .z = kLowest};
+    for (const std::uint32_t index : active_)
+        take_grain(extent, pool_[index], *definition_);
+    extent.is_empty = active_.empty();
+    extent_ = extent;
 }
 
 // BillboardChain::addChainElement: head lùi, đầy thì tail lùi theo.
@@ -442,13 +500,6 @@ void init_one(Field& field, Grain& grain, const Affector& affector) {
     }
 }
 
-[[nodiscard]] Vec3 area_point(Field& field, const EmitterDef& emitter) {
-    const Vec3 unit{.x = field.range(-1.0F, 1.0F), .y = field.range(-1.0F, 1.0F), .z = field.range(-1.0F, 1.0F)};
-    const Vec3 spread =
-        add(add(scaled(emitter.x_range, unit.x), scaled(emitter.y_range, unit.y)), scaled(emitter.z_range, unit.z));
-    return add(emitter.position, spread);
-}
-
 [[nodiscard]] Vec3 sub(Vec3 left, Vec3 right) {
     return ogre::sub_vec3(left, right);
 }
@@ -503,6 +554,26 @@ void advance_polar(PolarCursor cursor, const EmitterDef& source) {
     }
     if (source.polar_step) advance_polar(cursor, source);
     return place;
+}
+
+// Chỗ sinh hạt theo loại emitter; emitter vùng theo fx/area.cpp.
+[[nodiscard]] Vec3 emit_point(Field& field, PolarCursor cursor, const EmitterDef& source) {
+    if (source.kind == EmitterKind::kPoint) return source.position;
+    if (source.kind != EmitterKind::kPolar) return area_point(field, source);
+    const Vec3 polar = place_polar(field, cursor, source);
+    return add(source.position, polar);
+}
+
+// genEmissionDirection rồi Vector3::randomDeviant (OgreMain 0x18011d770, 0x18011daf0): nghiêng
+// UnitRandom·angle quanh trục up đã quay ngẫu nhiên 0..2π quanh hướng, nên hạt phủ cả hình nón.
+[[nodiscard]] Vec3 emission_direction(Field& field, const EmitterDef& source) {
+    if (source.angle == 0.0F) return source.direction;
+    const float tilt = field.unit() * source.angle;
+    const float roll = field.unit() * kTwoPi;
+    const ogre::Quat around = ogre::quat_from_angle_axis(roll, source.direction);
+    const Vec3 axis = ogre::quat_rotate(around, source.up);
+    const ogre::Quat deviate = ogre::quat_from_angle_axis(tilt, axis);
+    return ogre::quat_rotate(deviate, source.direction);
 }
 
 void add_spin_scale(Grain& grain, const Revolution& spin, Vec3 radial) {
@@ -563,16 +634,8 @@ void Field::init_grain(std::size_t emitter, Grain& grain) {
     grain = Grain{};
     EmitterState& state = emitters_[emitter];
     PolarCursor cursor{&state.radius, &state.theta, &state.phi, &state.reset_count};
-    if (source.kind == EmitterKind::kPolar) grain.position = add(source.position, place_polar(*this, cursor, source));
-    if (source.kind == EmitterKind::kPoint) grain.position = source.position;
-    if (source.kind != EmitterKind::kPolar && source.kind != EmitterKind::kPoint)
-        grain.position = area_point(*this, source);
-    const float angle = source.angle != 0.0F ? unit() * source.angle : 0.0F;
-    Vec3 direction = source.direction;
-    if (angle != 0.0F) {
-        const ogre::Quat deviate = ogre::quat_from_angle_axis(angle, source.up);
-        direction = ogre::quat_rotate(deviate, direction);
-    }
+    grain.position = emit_point(*this, cursor, source);
+    const Vec3 direction = emission_direction(*this, source);
     grain.direction = scaled(direction, range(source.velocity_min, source.velocity_max));
     grain.ttl = grain.total = range(source.ttl_min, source.ttl_max);
     grain.colour = source.colour_start;

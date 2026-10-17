@@ -1,6 +1,7 @@
 // Test của core: đổi mã UTF-8 và wchar_t, cắt và kiểm UTF-8, mã lỗi và chi tiết của Error.
 // Win32: wchar_t là UTF-16, mã hệ thống là Win32. POSIX: wchar_t là UTF-32, mã là errno.
 #include "core/check.hpp"
+#include "core/cores.hpp"
 #include "core/error.hpp"
 #include "core/function.hpp"
 #include "core/number.hpp"
@@ -12,8 +13,10 @@
 #if !defined(_WIN32)
 #include <cerrno>
 #endif
+#include <cstddef>
 #include <cstdint>
 #include <format>
+#include <initializer_list>
 #include <limits>
 #include <optional>
 #include <string>
@@ -190,6 +193,39 @@ void page_allocator_rejects_huge_request(Context& context) {
     context.expect(alloc.allocate(1).valid(), "1 byte vẫn được một trang");
 }
 
+core::CpuSet cpus_of(std::initializer_list<std::size_t> indices) {
+    core::CpuSet cpus;
+    for (const std::size_t index : indices)
+        cpus.set(index);
+    return cpus;
+}
+
+// Chọn lõi cho luồng khung hình trên các kiểu CPU điện thoại thật; rỗng là không ghim.
+void frame_cpus_picks_the_fast_class(Context& context) {
+    // TB-X306F: cpuinfo_max_freq (kHz) của 4 x 2,3 GHz rồi 4 x 1,8 GHz, không có cpu_capacity.
+    constexpr std::array<std::uint64_t, 8> kTablet{
+        2301000, 2301000, 2301000, 2301000, 1800000, 1800000, 1800000, 1800000};
+    context.expect(core::frame_cpus(kTablet) == cpus_of({0, 1, 2, 3}), "lấy cụm 2,3 GHz");
+    // cpu_capacity kiểu EAS: cụm lớn đứng sau.
+    constexpr std::array<std::uint64_t, 8> kEas{160, 160, 160, 160, 1024, 1024, 1024, 1024};
+    context.expect(core::frame_cpus(kEas) == cpus_of({4, 5, 6, 7}), "lấy cụm lớn đứng sau");
+    // Một lõi prime: thêm lớp kế để không kẹt sau một lõi.
+    constexpr std::array<std::uint64_t, 8> kPrime{2000, 2000, 2000, 2800, 2800, 2800, 2800, 3200};
+    const core::CpuSet with_next = cpus_of({3, 4, 5, 6, 7});
+    context.expect(core::frame_cpus(kPrime) == with_next, "prime cộng lớp kế");
+    // Một lõi lớn và bảy lõi nhỏ: phải lấy mọi lõi, ghim không thêm gì.
+    constexpr std::array<std::uint64_t, 8> kLone{1024, 512, 512, 512, 512, 512, 512, 512};
+    context.expect(core::frame_cpus(kLone).none(), "lấy hết thì không ghim");
+    constexpr std::array<std::uint64_t, 8> kEven{1024, 1024, 1024, 1024, 1024, 1024, 1024, 1024};
+    context.expect(core::frame_cpus(kEven).none(), "lõi đồng nhất thì không ghim");
+    // 0 là CPU không đọc được (cả cụm đang tắt): không chọn, không làm hỏng phép chọn.
+    constexpr std::array<std::uint64_t, 5> kPartial{0, 1024, 1024, 512, 512};
+    context.expect(core::frame_cpus(kPartial) == cpus_of({1, 2}), "bỏ CPU không đọc được");
+    constexpr std::array<std::uint64_t, 3> kUnknown{0, 0, 0};
+    context.expect(core::frame_cpus(kUnknown).none(), "không đọc được gì thì không ghim");
+    context.expect(core::frame_cpus({}).none(), "không có CPU nào thì không ghim");
+}
+
 constexpr std::array kCases{
     Case{.name = "text_round_trips_utf8_and_utf16", .body = &text_round_trips_utf8_and_utf16},
     Case{.name = "utf8_cut_keeps_whole_characters", .body = &utf8_cut_keeps_whole_characters},
@@ -201,6 +237,7 @@ constexpr std::array kCases{
     Case{.name = "const_move_only_calls", .body = &const_move_only_calls},
     Case{.name = "whole_int_takes_the_entire_text", .body = &whole_int_takes_the_entire_text},
     Case{.name = "page_allocator_rejects_huge_request", .body = &page_allocator_rejects_huge_request},
+    Case{.name = "frame_cpus_picks_the_fast_class", .body = &frame_cpus_picks_the_fast_class},
 };
 
 } // namespace

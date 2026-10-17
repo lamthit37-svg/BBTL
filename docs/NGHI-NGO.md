@@ -1057,3 +1057,104 @@ kết luận ngay dưới mục đó chứ không xoá.
     bàn phím console nên chờ mãi. Trên Windows không đặt được biến môi trường rỗng (gán rỗng là xoá), nên không có cách
     nào chạy `new-key` không cụm mật khẩu ở chế độ tự động. Cần: `_tty()` kiểm console thật (`GetConsoleMode`) thay vì
     `isatty`; hiện chỉ gặp khi tự động hoá, người dùng gõ tay hay dùng cửa sổ không bị. Chưa sửa.
+
+63. **Tablet 60 Hz, địa hình theo đỉnh và điều tốc** (2026-10-17, TB-X306F, Đại Lý). Số đo ở `docs/TIEN-DO.md`.
+    (a) Bộ nhớ: mỗi ô 4 đỉnh riêng × 96 byte. Đại Lý 320² là 409.600 đỉnh (~39 MB, hơn bản đỉnh dùng chung ~29 MB);
+    Lạc Dương 512² sẽ cỡ 100 MB, mà `kKeptGrounds` = 4 giữ bốn mặt đất trên GPU. Đo gộp đỉnh trùng chỉ bớt 21%.
+    APK hiện chỉ gói Login và Đại Lý nên chưa vượt. Cần: định dạng đỉnh gọn riêng cho địa hình (cỡ 32 byte) trước
+    khi gói Lạc Dương lên máy 2 GB.
+    (b) Ô xoay 8–15 (góc lặp) nay affine từng tam giác như bản gốc; PS cũ song tuyến. Chưa so ảnh với client gốc
+    riêng ở các ô ấy.
+    (c) `terrain.ps.glsl` (GLES) sửa theo cùng công thức nhưng chưa biên dịch hay chạy; GLES đã ngừng phát triển.
+    (d) "Chỉ vẽ vùng thay đổi" chưa làm. Chưa đo bao nhiêu phần khung thật sự đổi (camera, hạt, nước), nên chưa biết có đáng.
+    (e) `kHeadroom` 1,5, `kSettle` 90, `kStartSettle` 240 đo trên một máy. Cập nhật 2026-10-17 tối: hai nguyên
+    nhân đã đo được: luồng vẽ bị dời sang cụm cpu4–7 (nay ghim ở lõi mạnh, `core/cores.cpp`) và điều tốc đếm khoảng
+    vòng lặp mà hàng chờ Fifo che (nay đếm nhịp màn thật, `core/cadence.hpp`). Ba hằng số chưa đo lại sau hai sửa
+    ấy; có thể `kSettle`/`kStartSettle` không còn cần lớn như thế. Cần: lượt đo lên-xuống mức có SurfaceFlinger.
+    (f) Sau ~25 giây chạy việc thật mỗi khung tăng 11,9 → 15,8 ms (khung đúng nhịp 99,0% → 96,7%), cả khi không
+    điều tốc. Nghi nhiệt. Ghi lệnh chiếm 8,4 ms mỗi khung nên bớt công ghi lệnh là cách tăng độ dư. Cập nhật
+    2026-10-17 tối: có ghim lõi, các lượt 30 giây đứng yên giữ 59,87 FPS ở mọi cửa sổ sau nạp, không thấy trôi;
+    chưa chạy lượt dài (5–10 phút) để loại hẳn nhiệt.
+    (g) Nạp cảnh Đại Lý vẫn 8,7–10,4 giây: mỗi lần nộp lệnh chép ảnh chặn cỡ 25 ms (~70 lần). Chưa biết chặn
+    trong `vkQueueSubmit` hay ở chỗ khác. Phương án: nộp chung danh sách lệnh chép với danh sách lệnh của khung.
+    (h) Cắt hiệu ứng theo khung nhìn (`fx::grain_sphere`) mới đo trên PC (CPU chặng hiệu ứng 0,55 xuống 0,15 ms, quad
+    3852 xuống ~500); trên tablet chưa có số sạch vì lượt đo bị chạm tay và nhân vật tự đi. Cần: một lượt đo khi
+    không ai cầm máy, nhân vật đứng yên, so "Ghi lệnh" và FPS có điều tốc trước và sau. Cầu bao theo tâm hạt nên một
+    hạt bay xa làm cả hệ khó bị cắt (không sai hình, chỉ mất lợi). Phần `Cast::update` (11,2% luồng vẽ) và
+    `Hub::hit` gọi hai lần mỗi khung (5,4%) chưa đụng: dừng cập nhật hệ ngoài khung đổi hình khi quay lại, còn
+    nhớ kết quả `hit` cần biết dấu nào phủ việc ẩn hiện.
+    (i) Lượt đo trên tablet dễ nhiễu: cảm ứng nhận chạm ngoài ý muốn thì nhân vật đi theo, và đo xen kẽ nhiều lượt
+    làm máy nóng dần. Cần: đo ở chế độ máy đứng yên (ghi toạ độ HUD vào log, bỏ lượt lệch) và nghỉ giữa các lượt.
+    (j) Đi bộ trên tablet: mỗi lần toạ độ nguyên của người chơi đổi, `minimap.cpp` `fill_place` đổi một override chữ
+    và `gui::Hub::update` (`forced_same` sai) gọi `relayout` dựng lại cả layout, ~35–40 ms trên A53 (simpleperf:
+    `HubOps::relayout` 76% của `Hub::update`, phần lớn là `parse_uvector`/`from_chars`). Đây là đỉnh "dựng UI"
+    39,6 ms của các khung lặp khi đi. Phương án: layout chỉ phụ thuộc override có tên thuộc `kRules`/`apply_flag`
+    (`layout.cpp`); chữ được đọc lại lúc vẽ qua `effective()`, nên override chỉ đổi chữ thì cần vẽ lại, không cần
+    relayout. Chưa sửa vì `hub.cpp` đang có thay đổi chưa commit của phiên khác. Thêm: phân tích số trong chuỗi
+    layout một lần lúc nạp thay vì mỗi lần relayout.
+    (k) `FifoCadence` dựa vào giả định "acquire chờ từ 2 ms là lúc màn thay ảnh". Mới đối chiếu trên TB-X306F
+    (Android 10, PowerVR, WSI kết nối kiểu EGL, ba ảnh). iOS (MoltenVK, `nextDrawable`) chưa đối chiếu; PC không
+    dùng mô hình. Máy khác có thể chờ ở `vkQueuePresentKHR` thay vì acquire; khi đó không có lần chờ nào, chu kỳ giữ
+    số hệ điều hành báo và lưới dựa vào khung đầu. Cần: một lượt `--latency` trên máy thứ hai và trên iOS.
+    (l) Mấy giây đầu sau nạp vẫn lặp ảnh thật (SurfaceFlinger cửa sổ đầu 7–21% vượt, chậm nhất 67–167 ms):
+    `pump_load` và GPU còn bận đưa mesh cuối. Liên quan (g).
+
+64. **Shader HLSL của client gốc chuyển qua Slang** (2026-10-18; `src/client/render/shaders/origin`,
+    `TOOLS/port/hlsl_origin.py`, nhật ký ở `docs/TIEN-DO.md`). Oracle fxc chứng minh bản đã chuyển ra
+    cùng mã máy fxc với bản gốc (289/289). Nó không chứng minh mã Slang sinh ra (SPIR-V, DXIL) cho
+    cùng điểm ảnh.
+    (a) Chưa nạp gói nào vào lượt vẽ, chưa so ảnh với client gốc. Cần: nối một vật liệu (ví dụ
+    Character_Skin_PS) vào lượt vẽ, chụp cùng cảnh ở client gốc và ở đây, so từng điểm ảnh.
+    (b) Ở `locations semantic`, DXIL giữ đầu vào khai mà không dùng còn SPIR-V bỏ. Bố cục vào của D3D11
+    và D3D12 với các đầu vào thừa ấy chưa chạy qua lớp kiểm tra. Cần: dựng PSO D3D12 cho một gói có
+    đầu vào thừa, bật lớp kiểm tra.
+    (c) 194/376 nội dung `ShaderCache` gốc là biến thể define do Render.dll tạo lúc chạy, không khai
+    trong `.program` (Bloom, GodRays, EnScene, AntiAlias, và chừng 94 chương trình của
+    `Material/all.material` chưa đối chiếu). Cần: tìm define của từng biến thể trong mã máy, ghi vào
+    `code_programs.tsv`, chạy oracle với `--cache`.
+    (d) Ma trận: 195 chương trình gói theo hàng (`matrix=row`), và `ParamNamedAuto.inc` khai riêng
+    `row_major` cho `shadow_csm_proj_scale`, `shadow_csm_proj_offset`. Lúc nối tham số tự động, bộ ghi
+    cbuffer phải theo đúng layout từng biến (phản chiếu đã báo rows, columns, size đúng). Chưa có mã
+    ghi nào.
+    (e) Ở chế độ semantic, phép đối chiếu ghép đầu vào DXIL với SPIR-V theo location. Nếu Slang dời
+    location (xem TIEN-DO cùng ngày) trùng đúng location của một đầu vào thừa cùng kiểu, semantic sẽ
+    ghép sai mà không báo lỗi. Bộ sinh ghim gốc location cho tham số struct và từ chối struct trả về
+    cùng biến ra rời, nên với 289 chương trình hiện có không còn nguồn dời nào đã biết. Engine không tự
+    phát hiện được ca này.
+    (f) Khi dựng DXBC, fxc báo X3571 (`pow` với cơ số có thể âm) ở 7 chỗ: CalcLight.inc, Model_2Tex_ps,
+    Model_Face_ps, Model_Flow_ps, Model_ps (hai chỗ), WaveGrass. Nó cũng báo X3550 (chỉ số mảng
+    sampler trong vòng lặp, buộc unroll) ở SkySphereLayer. D3DCompiler_43 báo đúng các chỗ ấy khi
+    dịch bản gốc chưa chuyển, nên đây là hành vi của game gốc (cơ số âm cho NaN). Bộ chuyển giữ
+    nguyên vì thêm `abs` sẽ đổi mã máy. Cần: chủ dự án quyết định có sửa như bug của bản gốc không.
+
+65. **Thú cưỡi và hiệu ứng thú 2026-10-18: các chỗ chưa làm hoặc chưa kết luận** (`engine/render/forward.cpp`,
+    `src/client/render/shaders/model.ps.slang`, `src/client/place/fx/`, `display/player.cpp`; nhật ký ở `docs/TIEN-DO.md`).
+    (a) Hạt mesh trộn `src_alpha one` (28 hệ), `one one_minus_src_colour` (17), `zero one_minus_src_colour` (2)
+    vẫn bị bỏ: Forward chỉ có pipeline trộn alpha và cộng one/one. Cần: Pso model và kiểu trộn mới cho chất liệu.
+    (b) Chưa làm: hiệu ứng con (`ParEffectName`, 2 hiệu ứng), PointLight (2), energy wave (3), RotationCurve (1 hệ),
+    MeshAnimationAffector, `play_mode` của SequenceFrame (3), `accurate_facing` (90 hệ), `force_application
+    average` (10), `rotate` của texture (2), `colour_range_end`.
+    (c) Màu vệt NewRibbonTrail đã theo mã máy (REA 2026-10-18): Render.dll `0x180158970` lấy mốc đầu tiên có
+    time > tuổi, quá năm mốc thì mốc 4 (Black của ctor `0x18022e870`), rồi `0x180158fa0` saturate. Còn lệch ở vòng
+    cập nhật `0x180158fa0`: alpha <= ngưỡng, độ rộng ngoài khoảng cắt hay tuổi quá LiftTime thì cắt đuôi vệt tại
+    điểm ấy khi LiftTime >= 0, làm trong suốt điểm khi LiftTime < 0; độ rộng cộng dồn theo dt và kẹp >= 0; điểm
+    vệt sinh theo `Fairy::RibbonTrail` (addNode `0x1801593a0`). Ở đây chỉ làm trong suốt điểm và giữ cách nối
+    điểm cũ. Cần: đọc doSet của các ParamCommand (`0x1803c06a8`...) để khớp tên tham số với offset 0x260–0x278
+    trước khi port vòng này.
+    (d) Màu trên PC: luồng sáng cộng trong gamma rồi đổi tuyến tính như phần còn lại của `model.ps`; hạt fx còn
+    lệch gốc (mục 29). Cường độ luồng sáng chưa so ảnh với client gốc.
+    (e) Người cưỡi không thấy trên sư tử 385, 387 trong ảnh chụp (camera nhìn mặt trước, bờm che); ngựa 212 thấy.
+    `add_height`, tỉ lệ mẫu và `camera_y` của `rides.tsv` chưa áp. Cần: chụp nghiêng hoặc đối chiếu toạ độ ghế
+    với client gốc.
+    (f) GLES: `model.ps.glsl` không có luồng sáng, viền; cảnh GLES có mảng đen quanh cánh sư tử, có cả ở bản trước
+    đợt này. GLES đã ngừng phát triển nên chưa soát.
+    (g) APK mang `Material/programs.tsv` (`WHOLE_FILES` của `package_apk.py`); ảnh ctl, luồng, viền chỉ có trong
+    gói khi lượt trace mở chúng. Thiếu ảnh thì phép ấy tắt, như ảnh đen của D3D9.
+    (h) `avatar/locator.cpp` dời offset của điểm neo mà không nhân derived scale của xương (Render.dll có nhân).
+    Lệch chỉ khi xương có tỉ lệ khác 1.
+    (i) Ellipsoid nhánh rỗng: khi thể tích rút ra ngoài mọi đoạn, mã gốc không ghi vị trí (hạt giữ vị trí đời trước);
+    ở đây hạt đứng ở tâm emitter. Chưa có hệ thú nào rơi vào nhánh này.
+    (j) Đã kết luận (REA 2026-10-18): `BillboardSet::genVertices` gói màu qua `ColourValue::getAsABGR_SSE`
+    (OgreMain `0x18005ff70`: nhân 255, CVTPS2DQ, PACKUSWB), bão hoà về [0, 255]; log Fairy của client gốc trên máy
+    này báo SSE, MMX, MMXEXT có nên chạy nhánh này. 11 hiệu ứng có độ mờ ColourFading lớn hơn 1 nay kẹp alpha
+    ở `fx_view.cpp`. Khác gốc còn lại: không lượng tử về 8 bit.

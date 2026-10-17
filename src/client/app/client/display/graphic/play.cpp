@@ -232,10 +232,12 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     take_events(taken.events);
     apply_ride_step();
     const float delta_seconds = step_clock(ask.elapsed);
+    frame_seconds = delta_seconds;
     enter_camera(scene_id);
     if (!creature_demo.empty()) seed_creature_demo(scene_id);
     if (peer_demo != 0) seed_peer_demo(scene_id);
     if (!pet_demo.empty()) seed_pet_demo(scene_id);
+    if (impact_demo) arm_impact();
     Steering keys = is_auto_walk ? auto_walk(taken.keys, delta_seconds) : taken.keys;
     walk_to_talk(keys, now);
     // Trước đuổi mục tiêu: khung tuyệt chiêu xoá lệnh đi của chính khung đó, rồi pursue mới khỏi đặt lại.
@@ -247,6 +249,7 @@ render::Camera Display::State::frame_camera(FrameAsk ask) {
     publish_cursor();
     simulate_motion(keys, now);
     note_walk_step();
+    step_pet_herd();
     people.advance(delta_seconds);
     publish_spot(true);
     // NOLINTNEXTLINE(bugprone-unchecked-optional-access): terrain đã kiểm ở đầu hàm

@@ -1,6 +1,20 @@
-// Cửa xét trước khi dựng: tên có trong thư viện, bộ đọc hiểu hết affector và element, renderer và
-// material là thứ pipeline cộng sáng vẽ đúng. Bảng material đọc theo tên cột của dòng tiêu đề, nên
-// bộ gom thêm cột thì bản client cũ vẫn đọc được; dòng hỏng bị bỏ chứ không làm client dừng.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/place/fx/cast.cpp
+ *  PHÂN HỆ   : Place / Fx / Cast
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cửa xét trước khi dựng: tên có trong thư viện, bộ đọc hiểu hết affector và
+ *    element, renderer và material là thứ pipeline cộng sáng vẽ đúng. Bảng
+ *    material đọc theo tên cột của dòng tiêu đề, nên bộ gom thêm cột thì bản
+ *    client cũ vẫn đọc được; dòng hỏng bị bỏ chứ không làm client dừng.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "fx/cast.hpp"
 
 #include "fx/billboard.hpp"
@@ -412,8 +426,7 @@ std::optional<Skip> Library::refuse_mesh(std::string_view material) const {
     const Paint* found = palette_.find(material);
     if (found == nullptr || found->image.empty()) return Skip::kNoMaterial;
     if (found->blend == Blend::kOther) return Skip::kBlend;
-    // Model chỉ trộn src_alpha. Hạt mesh cộng sáng không có pipeline One+One.
-    if (found->blend != Blend::kAlpha) return Skip::kMeshRenderer;
+    if (!has_mesh_pipeline(found->blend)) return Skip::kMeshRenderer;
     return std::nullopt;
 }
 

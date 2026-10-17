@@ -65,29 +65,47 @@ float3 gloss(float3 normal, float3 place) {
 
 // Màu gamma và alpha đã có: ghép ánh sáng khuếch tán (nhân, hoặc cộng với chất liệu đổi màu), cộng
 // specular, trộn sương, đổi về tuyến tính cho đích sRGB.
-float4 finish_pixel(float3 gamma_color, float alpha, Varying input) {
-    float3 color = gamma_color;
-    if ((draw.flags & kUnlit) == 0u) {
-        // Như bản gốc, mặt sau của chất liệu hai mặt dùng nguyên pháp tuyến của mặt trước.
-        const float3 slope = input.normal;
-        const float3 normal = slope * rsqrt(max(dot(slope, slope), 1.0e-12));
-        const bool is_lit_here = (draw.flags & kPixelLit) != 0u;
-        const float3 light = is_lit_here ? diffuse_light(normal, input.place, input.lamp) : input.light;
-        const bool is_added = (draw.flags & kAddLight) != 0u;
-        color = is_added ? color + light : color * light;
-        if ((draw.flags & kSpecular) != 0u) color += gloss(normal, input.place);
-    }
-    if ((draw.flags & kNoFog) == 0u) {
-        const float depth = dot(frame.depth_row, float4(input.place, 1.0));
-        color = lerp(frame.fog_color.rgb, color, fog_share(depth));
-    }
-    color = height_fog(color, input.place);
+// Pháp tuyến thế giới chuẩn hoá lại sau nội suy. Như bản gốc, mặt sau của chất liệu hai mặt dùng
+// nguyên pháp tuyến của mặt trước.
+float3 pixel_normal(Varying input) {
+    const float3 slope = input.normal;
+    return slope * rsqrt(max(dot(slope, slope), 1.0e-12));
+}
+
+// Ánh sáng khuếch tán và specular (Calc_Light_In_Ps), trên màu gamma.
+float3 light_pixel(float3 gamma_color, Varying input) {
+    if ((draw.flags & kUnlit) != 0u) return gamma_color;
+    const float3 normal = pixel_normal(input);
+    const bool is_lit_here = (draw.flags & kPixelLit) != 0u;
+    const float3 light = is_lit_here ? diffuse_light(normal, input.place, input.lamp) : input.light;
+    const bool is_added = (draw.flags & kAddLight) != 0u;
+    float3 color = is_added ? gamma_color + light : gamma_color * light;
+    if ((draw.flags & kSpecular) != 0u) color += gloss(normal, input.place);
+    return color;
+}
+
+// Sương của cảnh (Calc_Fog_Color).
+float3 fog_pixel(float3 color, Varying input) {
+    if ((draw.flags & kNoFog) != 0u) return color;
+    const float depth = dot(frame.depth_row, float4(input.place, 1.0));
+    return lerp(frame.fog_color.rgb, color, fog_share(depth));
+}
+
+// Phần bản gốc chạy như hậu kỳ trên buffer màu (sương chiều cao, đèn giả), rồi đổi về tuyến tính.
+float4 post_pixel(float3 color, float alpha, Varying input) {
+    float3 shown = height_fog(color, input.place);
     // Đèn giả nhân lên màu cuối cùng, sau cả sương: bản gốc chạy sau khi cảnh đã ghi vào buffer màu.
-    color *= fake_gain(input.place);
+    shown *= fake_gain(input.place);
     // Chất liệu không trộn: điểm ảnh đã qua phép cắt alpha là đặc. Giữ alpha của texture thì ảnh đích
     // có nền trong suốt (ảnh đầu 3D của ô chân dung) bị xuyên thấu ở tóc, mi và mép.
     if ((draw.flags & kOpaqueAlpha) != 0u) alpha = 1.0;
-    return float4(to_linear(color), alpha);
+    return float4(to_linear(shown), alpha);
+}
+
+float4 finish_pixel(float3 gamma_color, float alpha, Varying input) {
+    const float3 lit = light_pixel(gamma_color, input);
+    const float3 fogged = fog_pixel(lit, input);
+    return post_pixel(fogged, alpha, input);
 }
 
 #endif

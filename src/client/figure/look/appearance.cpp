@@ -140,6 +140,13 @@ AnimRow anim_row(table::RowReader& reader) {
     return anim;
 }
 
+RacedAnimRow raced_anim_row(table::RowReader& reader) {
+    RacedAnimRow row;
+    row.race = race_of(reader);
+    row.anim = anim_row(reader);
+    return row;
+}
+
 } // namespace
 
 Rows<PlayerBody> read_player_bodies(const table::Tsv& table) {
@@ -169,6 +176,17 @@ Rows<AnimRow> read_anim_sets(const table::Tsv& table) {
     };
     auto rows = read_all<AnimRow>(table, anim_row);
     return not_empty(sorted_unique(std::move(rows), key, "anim_sets"), "anim_sets");
+}
+
+Rows<RacedAnimRow> read_raced_anims(const table::Tsv& table) {
+    const auto key = [](const RacedAnimRow& row) {
+        const AnimRow& anim = row.anim;
+        const int action = static_cast<int>(anim.action);
+        const int weapon = static_cast<int>(anim.weapon);
+        return std::tuple(static_cast<int>(row.race), anim.set, action, weapon);
+    };
+    auto rows = read_all<RacedAnimRow>(table, raced_anim_row);
+    return not_empty(sorted_unique(std::move(rows), key, "raced_anims"), "raced_anims");
 }
 
 std::optional<Weapon> weapon_named(std::string_view name) {
@@ -204,6 +222,17 @@ const AnimRow* find_anim(std::span<const AnimRow> rows, std::uint32_t set, Actio
     };
     const auto found = std::ranges::find_if(rows, matches);
     return found == rows.end() ? nullptr : &*found;
+}
+
+const AnimRow* find_raced_anim(std::span<const RacedAnimRow> rows, Race race, std::uint32_t set,
+    Action action, Weapon weapon) {
+    const auto matches = [=](const RacedAnimRow& row) {
+        const AnimRow& anim = row.anim;
+        const bool is_cell = anim.set == set && anim.action == action && anim.weapon == weapon;
+        return row.race == race && is_cell;
+    };
+    const auto found = std::ranges::find_if(rows, matches);
+    return found == rows.end() ? nullptr : &found->anim;
 }
 
 } // namespace game::look

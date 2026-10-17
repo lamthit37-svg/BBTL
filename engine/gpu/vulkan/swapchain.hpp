@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "gpu/pacer.hpp"
 #include "gpu/vulkan/device.hpp"
 
 #include <chrono>
@@ -68,6 +69,16 @@ public:
     [[nodiscard]] bool reports_shown() const noexcept override { return device_->traits().present_wait; }
     [[nodiscard]] std::uint64_t presents() const noexcept override { return presents_; }
     [[nodiscard]] Status wait_shown(std::uint64_t count, std::chrono::nanoseconds timeout) override;
+    [[nodiscard]] bool paces_present() const noexcept override {
+        return device_->traits().display_timing;
+    }
+    [[nodiscard]] bool holds_cadence() const noexcept override {
+        const auto next = static_cast<std::uint32_t>(presents_ + 1);
+        return pacer_.is_locked(next);
+    }
+    void set_present_interval(std::uint32_t refreshes) noexcept override {
+        pacer_.set_interval(refreshes);
+    }
 
     // Phần dưới do VulkanDevice::submit gọi khi lần nộp đặt present_target là swapchain này.
     // Đã acquire một ảnh mà chưa lần nộp nào nhận nó.
@@ -111,6 +122,11 @@ private:
     [[nodiscard]] Result<std::size_t> free_signal();
     // Trả ảnh, view và semaphore; giữ lại VkSwapchainKHR để làm oldSwapchain của lần dựng kế.
     void drop_images() noexcept;
+    // Lúc hẹn cho lần present id (VK_GOOGLE_display_timing): đọc chu kỳ quét nếu chưa có, nhận các
+    // mốc trình thật mới vào pacer_, rồi hỏi pacer_. 0 là không ràng buộc.
+    [[nodiscard]] std::uint64_t plan_present(std::uint32_t id) noexcept;
+    void read_refresh() noexcept;
+    void read_shown() noexcept;
 
     VulkanDevice* device_;
     VkSurfaceKHR surface_;
@@ -138,6 +154,9 @@ private:
     bool has_rebuilt_for_suboptimal_ = false;
     // Số present đã nộp với swapchain_ hiện tại; cũng là presentId (VkPresentIdKHR) của lần cuối.
     std::uint64_t presents_ = 0;
+    // Lịch hẹn lúc trình (VK_GOOGLE_display_timing). Số nhịp mỗi ảnh giữ qua resize; mốc neo và chu
+    // kỳ quét bỏ khi đổi swapchain_. Chỉ luồng vẽ đụng, như mọi thứ khác của lớp.
+    PresentPacer pacer_{};
     // Cách dùng ảnh mà plan chọn; settle nhận ảnh theo nó.
     TextureUsage usage_ = TextureUsage::kNone;
     // Lần dựng đầu: vkCreateSwapchainKHR tốn ~150 ms trên NVIDIA (đo 2026-10-17), luồng vẽ dựng
