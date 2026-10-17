@@ -62,6 +62,8 @@ struct WindowState {
     Mode windowed_mode = Mode::kWindowed;
     bool is_resizable = true;
     bool is_visible = true;
+    // WindowConfig::is_inactive: show và restore không kích hoạt cửa sổ.
+    bool is_inactive = false;
     bool is_maximized = false;
     bool is_minimized = false;
     bool is_focused = false;
@@ -304,6 +306,13 @@ void apply_theme(HWND handle) noexcept {
     RegGetValueW(HKEY_CURRENT_USER, key, L"AppsUseLightTheme", RRF_RT_REG_DWORD, nullptr, &is_light, &size);
     const BOOL is_dark = is_light == 0 ? TRUE : FALSE;
     DwmSetWindowAttribute(handle, kDarkModeAttribute, &is_dark, sizeof(is_dark));
+}
+
+// Thêm WS_EX_NOACTIVATE sau khi tạo (cửa sổ còn ẩn): lời gọi tạo giữ nguyên một kiểu mở rộng cho
+// mọi cửa sổ.
+void forbid_activation(HWND handle) noexcept {
+    const LONG_PTR kept = GetWindowLongPtrW(handle, GWL_EXSTYLE);
+    SetWindowLongPtrW(handle, GWL_EXSTYLE, kept | WS_EX_NOACTIVATE);
 }
 
 [[nodiscard]] std::optional<LRESULT> on_minimized(WindowState& state) {
@@ -812,6 +821,7 @@ void apply_brand(HWND handle, const BrandIcons& icons) noexcept {
     auto state = std::make_unique<WindowState>();
     state->title = config.title;
     state->is_resizable = config.is_resizable;
+    state->is_inactive = config.is_inactive;
     state->quits_on_close = config.quits_on_close;
     // Tạo ở dạng ẩn, cỡ thường; hiện và đổi chế độ sau khi đã có HWND.
     state->is_visible = false;
@@ -878,6 +888,7 @@ core::Result<Window> Window::create(const WindowConfig& config) {
     if (handle == nullptr) {
         return core::fail_system(GetLastError(), "không tạo được cửa sổ", config.title);
     }
+    if (config.is_inactive) forbid_activation(handle);
     Window window(std::move(state));
     window.state_->dpi = {.x = GetDpiForWindow(handle), .y = GetDpiForWindow(handle)};
     window.state_->client = client_rect_of(handle);
@@ -960,7 +971,7 @@ void Window::toggle_fullscreen() {
 
 void Window::show() {
     state_->is_visible = true;
-    ShowWindow(state_->handle, SW_SHOW);
+    ShowWindow(state_->handle, state_->is_inactive ? SW_SHOWNOACTIVATE : SW_SHOW);
 }
 
 void Window::hide() {
@@ -977,7 +988,7 @@ void Window::minimize() {
 }
 
 void Window::restore() {
-    ShowWindow(state_->handle, SW_RESTORE);
+    ShowWindow(state_->handle, state_->is_inactive ? SW_SHOWNOACTIVATE : SW_RESTORE);
 }
 
 bool Window::is_visible() const noexcept {

@@ -295,7 +295,7 @@ struct Display::State {
         gpu::CommandList* list = nullptr;
         std::optional<ShotPlan> shot;
     };
-    [[nodiscard]] core::Status present_drawn(PresentAsk ask) const;
+    [[nodiscard]] core::Status present_drawn(PresentAsk ask);
     [[nodiscard]] core::Status render();
     // Lấy cảnh mới nếu luồng cửa sổ vừa đổi resid. Mesh prop đã có thì không đọc lại đĩa.
     void adopt();
@@ -511,13 +511,57 @@ struct Display::State {
     void build_instances(const PropTable& table, std::span<const std::size_t> loaded);
     // Đã tới lúc chụp: có đường dẫn, chưa chụp, cảnh nạp xong và đủ điều kiện của chế độ chạy.
     [[nodiscard]] bool is_shot_due() const;
+    // Đường ảnh của khung này: yêu cầu của bước shot trước, rồi --shot khi is_shot_due; rỗng là
+    // không chụp.
+    [[nodiscard]] std::optional<std::filesystem::path> shot_due();
     // Khung này chụp thì tạo buffer đọc ngược; rỗng khi không chụp hoặc hỏng. Gọi trước
     // Screen::end để ảnh đi thẳng từ bố cục vẽ sang CopySource.
     [[nodiscard]] std::optional<ShotPlan> plan_shot();
     // Ghi lệnh chép ảnh khung ra buffer của plan rồi rào ảnh về Present.
     void copy_shot(gpu::CommandList& list, const ShotPlan& plan, std::uint32_t slot) const;
-    // Chờ GPU chép xong, đọc buffer, nén PNG và ghi tệp; lỗi được in ra.
-    void finish_shot(const ShotPlan& plan) const;
+    // Chờ GPU chép xong, đọc buffer, nén PNG và ghi tệp; lỗi được in ra. Ghi kết quả cho note_shot.
+    void finish_shot(const ShotPlan& plan);
+    [[nodiscard]] bool write_shot(const ShotPlan& plan) const;
+    void note_shot(bool is_ok) noexcept;
+    // --script (graphic/script.cpp): mỗi khung chạy một bước, đầu draw_world, trước khi lấy input
+    // của khung.
+    void tick_script();
+    void arm_script(const DisplayDesc& desc);
+    void report_script_step(const Step& step, const StepOutcome& result);
+    void end_script();
+    void advance_script();
+    // Bước mới thì begin_step, bước đang chờ thì poll_step; mỗi lệnh một hàm step_*, lệnh có pha
+    // chờ thêm poll_*.
+    [[nodiscard]] StepOutcome begin_step(const Step& step);
+    [[nodiscard]] StepOutcome poll_step(const Step& step);
+    [[nodiscard]] StepOutcome step_wait(const Step& step);
+    [[nodiscard]] StepOutcome step_sleep(const Step& step) const;
+    [[nodiscard]] StepOutcome step_wait_play(const Step& step);
+    [[nodiscard]] StepOutcome step_shot(const Step& step);
+    [[nodiscard]] StepOutcome poll_shot(const Step& step);
+    [[nodiscard]] StepOutcome step_event(const Step& step);
+    [[nodiscard]] StepOutcome step_click(const Step& step);
+    [[nodiscard]] StepOutcome step_type(const Step& step);
+    [[nodiscard]] StepOutcome step_walk(const Step& step);
+    [[nodiscard]] StepOutcome poll_walk();
+    [[nodiscard]] StepOutcome step_talk(const Step& step);
+    [[nodiscard]] StepOutcome poll_talk();
+    [[nodiscard]] StepOutcome step_choose(const Step& step) const;
+    [[nodiscard]] StepOutcome step_cast(const Step& step);
+    [[nodiscard]] StepOutcome step_pick();
+    [[nodiscard]] StepOutcome poll_pick();
+    [[nodiscard]] StepOutcome step_quit();
+    // Đối tượng của bước chưa có: chờ, quá kFindSeconds thì hỏng.
+    [[nodiscard]] StepOutcome wait_for(std::string_view what) const;
+    [[nodiscard]] bool is_script_late(double seconds) const;
+    void push_input(std::span<const control::InputEvent> events);
+    void click_at(const gui::Pointer& spot);
+    [[nodiscard]] const cast::Actor* find_npc(std::string_view who) const;
+    [[nodiscard]] const cast::Actor* find_drop() const;
+    // Đi tới NPC để nói chuyện (hay nói ngay khi đủ gần), và tới vật rơi để nhặt: đường chung của
+    // nhấp chuột và kịch bản.
+    void start_talk(const cast::Actor& npc);
+    void start_pick(const cast::Actor& drop);
     // Lưu các số báo cáo cho luồng thông điệp đọc không khoá.
     void publish() noexcept;
     // In một dòng tổng kết khoảng thời gian khung; gọi một lần lúc dừng.
@@ -1044,6 +1088,35 @@ struct Display::State {
     bool wait_flag = false;
     // Ảnh chụp (--shot): chụp đúng một lần ở khung đầu vẽ được.
     bool shot_taken = false;
+    // Kịch bản --script: các bước, bước đang chạy và số liệu của nó. Chỉ luồng vẽ chạm, trừ hai ô
+    // atomic bên dưới cho luồng cửa sổ (script_over: hết kịch bản; script_faults: số bước hỏng).
+    struct ScriptRun {
+        ScriptSteps steps;
+        std::size_t next = 0;
+        bool is_begun = false;
+        // Bước quit đã chạy: kịch bản dừng sau dòng SCRIPT của nó, bỏ các bước còn lại.
+        bool is_quitting = false;
+        core::Clock::time_point began{};
+        std::uint64_t waited = 0;
+        std::uint32_t shots_mark = 0;
+        std::uint32_t pulls_mark = 0;
+        std::uint32_t subject = 0;
+        core::GroundPoint goal{};
+        std::filesystem::path shot_dir;
+    };
+    std::optional<ScriptRun> script;
+    std::atomic<bool> script_over{false};
+    std::atomic<std::uint32_t> script_faults{0};
+    // Ảnh bước shot xin chụp ở khung này; plan_shot lấy đi. shots_done đếm lần chụp đã xong,
+    // is_shot_ok là kết quả lần cuối.
+    std::optional<std::filesystem::path> script_shot;
+    std::uint32_t shots_done = 0;
+    bool is_shot_ok = false;
+    // Sự kiện của bước event, giao cho giao diện ở prepare_hud kế tiếp (ở mọi thủ tục, khác
+    // --ui-event chờ màn chơi).
+    std::vector<ui::panel::PostedEvent> script_events;
+    // Đăng nhập tự động đã dừng (bị từ chối hay mất phiên): bước wait play thôi chờ.
+    bool is_auto_login_stopped = false;
     // Mốc khung đầu trình đã in (core/timeline.hpp).
     bool has_marked_first = false;
     // Đã thử đọc bảng cổng. Không thử lại mỗi khung khi tệp thiếu hoặc hỏng.

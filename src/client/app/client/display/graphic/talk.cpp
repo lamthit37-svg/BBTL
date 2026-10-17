@@ -151,15 +151,40 @@ void Display::State::pick_npc(bool is_over_hud) {
     const bool is_press = is_button_down.at(kLeft) && has_button_changed.at(kLeft);
     if (hit == nullptr || !is_press || !hud) return;
     is_npc_press = true;
+    start_talk(*hit);
+}
+
+// Đường chung của nhấp chuột lên NPC và bước talk của kịch bản: đủ gần thì nói ngay, không thì đi
+// tới nó rồi nói (walk_to_talk).
+void Display::State::start_talk(const cast::Actor& npc) {
+    const bool is_ready = hud && ground != nullptr && scale_ok(ground->file);
+    if (!is_ready) return;
     const core::GroundPoint here = game_of(ground->file, walk);
-    if (std::hypot(hit->x - here.x, hit->z - here.z) <= kTalkReach) {
+    const core::GroundPoint spot{.x = npc.x, .z = npc.z};
+    if (std::hypot(spot.x - here.x, spot.z - here.z) <= kTalkReach) {
         order.reset();
         talk_goal.reset();
-        hud->say(ui::panel::talk::Talk{.npc = hit->id});
+        const ui::panel::talk::Talk said{.npc = npc.id};
+        hud->say(said);
         return;
     }
-    talk_goal = TalkGoal{.npc = hit->id, .until = frame_time + kTalkPatience};
-    order_move(core::GroundPoint{.x = hit->x, .z = hit->z}, nav::MoveMode::kFind);
+    talk_goal = TalkGoal{.npc = npc.id, .until = frame_time + kTalkPatience};
+    order_move(spot, nav::MoveMode::kFind);
+}
+
+// Như start_talk cho vật rơi: đủ gần thì gửi PickUp, không thì đi tới rồi gửi.
+void Display::State::start_pick(const cast::Actor& drop) {
+    if (ground == nullptr || !scale_ok(ground->file)) return;
+    const core::GroundPoint here = game_of(ground->file, walk);
+    const core::GroundPoint spot{.x = drop.x, .z = drop.z};
+    if (std::hypot(spot.x - here.x, spot.z - here.z) <= kPickReach) {
+        order.reset();
+        const ui::panel::talk::PickUp said{.drop = drop.id};
+        send_say(said);
+        return;
+    }
+    talk_goal = TalkGoal{.npc = drop.id, .until = frame_time + kTalkPatience, .is_pickup = true};
+    order_move(spot, nav::MoveMode::kFind);
 }
 
 const cast::Actor* Display::State::foe_at(control::ScreenPoint point) const {
@@ -188,14 +213,7 @@ void Display::State::pick_foe(bool is_over_hud) {
         combat.engage(hit->id);
         return;
     }
-    const core::GroundPoint here = game_of(ground->file, walk);
-    if (std::hypot(hit->x - here.x, hit->z - here.z) <= kPickReach) {
-        order.reset();
-        send_say(ui::panel::talk::PickUp{.drop = hit->id});
-        return;
-    }
-    talk_goal = TalkGoal{.npc = hit->id, .until = frame_time + kTalkPatience, .is_pickup = true};
-    order_move(core::GroundPoint{.x = hit->x, .z = hit->z}, nav::MoveMode::kFind);
+    start_pick(*hit);
 }
 
 void Display::State::walk_to_talk(const Steering& keys, core::Clock::time_point now) {

@@ -18,6 +18,7 @@
 #include "client/session/session.hpp"
 
 #include "client/session/machine.hpp"
+#include "client/session/trace.hpp"
 #include "core/thread.hpp"
 #include "link/link.hpp"
 #include "net/net.hpp"
@@ -494,6 +495,7 @@ private:
             lose(fault_of(sent.error()));
             return;
         }
+        trace::sent(message);
         // Gate xoá phiên ngay khi nhận Resume. Gửi lại token này sẽ nhận kNoSession.
         token_sent_ = true;
         const Clock::time_point now = Clock::now();
@@ -594,7 +596,11 @@ private:
             return;
         }
         const link::LinkResult<void> sent = line_->send_frame(frame, kSend);
-        if (!sent) lose(fault_of(sent.error()));
+        if (!sent) {
+            lose(fault_of(sent.error()));
+            return;
+        }
+        std::visit([](const auto& held) { trace::sent(held); }, request.speech);
     }
 
     void close_link() {
@@ -606,9 +612,10 @@ private:
     void farewell() {
         if (!line_) return;
         std::vector<std::byte> frame;
-        if (!protocol::encode(frame, protocol::Logout{})) return;
+        const protocol::Logout message;
+        if (!protocol::encode(frame, message)) return;
         const link::LinkResult<void> sent = line_->send_frame(frame, kFarewell);
-        static_cast<void>(sent);
+        if (sent) trace::sent(message);
     }
 
     template <typename Message>
@@ -627,6 +634,7 @@ private:
             lose(fault_of(sent.error()));
             return;
         }
+        trace::sent(message);
         pending_ = ask;
         set_phase(begin(phase_, ask));
         arm_reply();
@@ -653,6 +661,7 @@ private:
             lose(fault_of(sent.error()));
             return std::nullopt;
         }
+        trace::sent(message);
         return await_ticket(*opened);
     }
 
@@ -685,7 +694,9 @@ private:
             lose(Fault::kProtocol);
             return std::nullopt;
         }
-        if (const auto* ticket = std::get_if<protocol::Ticket>(&*decoded)) return ticket_text(*ticket);
+        trace::received(*decoded);
+        const auto* ticket = std::get_if<protocol::Ticket>(&*decoded);
+        if (ticket != nullptr) return ticket_text(*ticket);
         if (const auto* refused = std::get_if<protocol::Reject>(&*decoded)) {
             reject(Ask::kSignIn, refused->request, refused->code);
             set_phase(Phase::kIdle);
@@ -720,6 +731,7 @@ private:
             lose(fault_of(sent.error()));
             return;
         }
+        trace::sent(message);
         const Clock::time_point now = Clock::now();
         const auto beat = std::chrono::duration_cast<std::chrono::milliseconds>(opened->welcome().heartbeat);
         beat_ = std::clamp(beat, kMinBeat, kMaxBeat);
@@ -765,13 +777,18 @@ private:
         const protocol::Ping ping{.client_time = std::chrono::milliseconds{since & kMask}};
         if (!protocol::encode(frame, ping)) return;
         const link::LinkResult<void> sent = line_->send_frame(frame, kSend);
-        if (!sent) lose(fault_of(sent.error()));
+        if (!sent) {
+            lose(fault_of(sent.error()));
+            return;
+        }
+        trace::sent(ping);
     }
 
-    // Tick client (30 mỗi giây) của chỗ đứng báo lúc reported: tick gốc cộng thời gian từ gốc, làm tròn lên.
-    // Gốc là Move gửi gần nhất nên hiệu tick giữa hai Move không ít hơn thời gian thật giữa hai chỗ đứng; làm
-    // tròn tick tuyệt đối thì hiệu hụt tới gần một tick và guard::Pace kéo về khi đang chạy. Khai dư không
-    // mua thêm quãng: máy chủ cắt theo đồng hồ của nó (G2 trong guard/pace.hpp).
+    // Tick client (30 mỗi giây) của chỗ đứng báo lúc reported: tick gốc cộng thời gian từ gốc, làm
+    // tròn lên. Gốc là Move gửi gần nhất nên hiệu tick giữa hai Move không ít hơn thời gian thật
+    // giữa hai chỗ đứng; làm tròn tick tuyệt đối thì hiệu hụt tới gần một tick và guard::Pace kéo
+    // về khi đang chạy. Khai dư không mua thêm quãng: máy chủ cắt theo đồng hồ của nó (G2 trong
+    // guard/pace.hpp).
     [[nodiscard]] std::uint32_t client_tick(Clock::time_point reported) const noexcept {
         constexpr std::int64_t kMicros = 1'000'000;
         const std::int64_t elapsed = std::chrono::duration_cast<std::chrono::microseconds>(reported - tick_at_).count();
@@ -805,6 +822,7 @@ private:
             lose(fault_of(sent.error()));
             return;
         }
+        trace::sent(move);
         sent_ = *latest;
         tick_base_ = move.tick;
         tick_at_ = latest->reported;
@@ -822,6 +840,7 @@ private:
             lose(Fault::kProtocol);
             return;
         }
+        trace::received(*decoded);
         const Phase before = phase_;
         const Step step = on_server(before, *decoded);
         if (step.outcome == Outcome::kQuiet) {

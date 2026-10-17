@@ -76,6 +76,8 @@ constexpr std::chrono::milliseconds kFramePause{8};
 // khung 16,7 ms, khung nhận hai cụm, khung nhận ba, camera kéo bằng chuột phải xoay lúc 16 lúc 24 ms
 // đường chuột (lệch 50%). Nghỉ 1 ms đưa phần lệch xuống dưới 1 ms mỗi khung; vòng rỗi tốn vài µs.
 constexpr std::chrono::milliseconds kInputPause{1};
+// Mã thoát khi kịch bản --script có bước hỏng (1 là lỗi vẽ, 2 là sai cách dùng).
+constexpr int kScriptFailedCode = 3;
 
 [[nodiscard]] double refresh_now(const window::Window& opened, double sdl_hz) noexcept;
 
@@ -123,7 +125,7 @@ void step(window::Window& opened, Display& display, LoopStats& stats) {
 // --frames đếm lượt của vòng vẽ, không đếm vòng này: vòng này quay theo kInputPause nên số vòng của
 // nó không nói gì về số khung đã vẽ.
 [[nodiscard]] bool is_done(const ViewerDesc& desc, const Display& display) {
-    if (!display.is_spinning()) return true;
+    if (!display.is_spinning() || display.script_ended()) return true;
     return desc.frames.has_value() && display.turns() >= *desc.frames;
 }
 
@@ -694,7 +696,10 @@ void pump_until_done(Session& session) {
     std::println("{} lệnh vẽ của khung cuối, lớp kiểm tra của GPU báo {} lỗi", session.display->draw_count(), faults);
     if (!finished) std::println(stderr, "Lỗi khi vẽ: {}", finished.error());
     const bool is_clean = finished.has_value() && faults == 0;
-    return is_clean ? 0 : 1;
+    if (!is_clean) return 1;
+    // Kịch bản E2E có bước hỏng: mã riêng để e2e_client.py phân biệt với lỗi vẽ.
+    const bool has_failed_steps = session.display->script_failures() != 0;
+    return has_failed_steps ? kScriptFailedCode : 0;
 }
 
 void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_root) {
@@ -791,6 +796,8 @@ void begin_speaker(audio::Engine& speaker, const std::filesystem::path& data_roo
     config.title = desc.title;
     config.client_size = {.width = wanted.width, .height = wanted.height};
     config.is_resizable = false;
+    // Chạy kịch bản E2E là việc nền: cửa sổ hiện mà không giành tiêu điểm của người đang dùng máy.
+    config.is_inactive = desc.script.has_value();
     return config;
 }
 
@@ -891,6 +898,8 @@ private:
     shown.quality = desc.quality;
     shown.procedure = desc.procedure;
     shown.preload = desc.preload;
+    shown.script = desc.script;
+    shown.shot_dir = desc.shot_dir;
     return shown;
 }
 
@@ -920,8 +929,10 @@ private:
 // Tần số quét nâng trong suốt hàm này; trả về là đã trả lại cho màn.
 [[nodiscard]] int run_raised(window::Window& opened, const ViewerDesc& desc) {
     // Trước swapchain: Fifo khoá vào nhịp quét, nên trần khung là Hz của desktop chứ không phải
-    // lượng việc GPU. Mailbox không dùng — đo 2026-10-13, khung lệch pha nhịp quét, nhân vật chạy giật.
-    const RaisedRefresh refresh(opened.native_handle());
+    // lượng việc GPU. Mailbox không dùng — đo 2026-10-13, khung lệch pha nhịp quét, nhân vật chạy
+    // giật. Kịch bản E2E không đổi chế độ màn hình của người đang dùng máy.
+    std::optional<RaisedRefresh> refresh;
+    if (!desc.script) refresh.emplace(opened.native_handle());
     static_cast<void>(window::pump_messages());
     const int code = run_online(opened, desc);
     core::mark("đóng: phiên mạng huỷ xong");

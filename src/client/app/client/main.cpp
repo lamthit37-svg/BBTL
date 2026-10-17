@@ -242,7 +242,28 @@ void print_visit(const world::ShownScene& shown) {
     viewer.backend = options.backend;
     viewer.quality = options.quality;
     viewer.client_size = options.client_size;
+    viewer.shot_dir = options.shot_dir;
+    viewer.script = options.script;
     return viewer;
+}
+
+// --script: đọc và phân tích cả tệp trước khi mở cửa sổ, để kịch bản hỏng không chạy nửa chừng.
+// Không nêu --script thì không làm gì; có lỗi thì in một dòng và trả false (start thoát mã 2).
+[[nodiscard]] bool load_script(client::Options& options) {
+    if (options.script_path.empty()) return true;
+    const std::string shown = io::utf8_of(options.script_path);
+    const io::TextResult text = io::read_text(options.script_path);
+    if (!text) {
+        std::println(stderr, "Kịch bản {}: {}", shown, io::describe(text.error()));
+        return false;
+    }
+    client::ScriptResult parsed = client::parse_script(*text);
+    if (!parsed) {
+        std::println(stderr, "Kịch bản {}: {}", shown, parsed.error());
+        return false;
+    }
+    options.script = std::move(*parsed);
+    return true;
 }
 
 // Một cảnh mở thẳng từ tệp, không qua bảng cảnh: tệp cảnh, nội dung vẽ và địa hình của nó.
@@ -389,11 +410,12 @@ void report_named(const client::NamedScene& named, std::string_view label) {
     io::use_utf8_console();
     core::mark("main bắt đầu");
     const std::vector<std::string_view> texts(arguments.begin(), arguments.end());
-    const auto options = client::parse_options(texts);
+    auto options = client::parse_options(texts);
     if (!options) {
         std::println(stderr, "{}", client::kUsage);
         return 2;
     }
+    if (!load_script(*options)) return 2;
     const int code = run(*options);
     core::mark("đóng: cửa sổ và thế giới huỷ xong");
     return code;

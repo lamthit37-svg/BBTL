@@ -1,0 +1,10 @@
+# Kịch bản cố tình sai cú pháp: client phải in "dòng 9: ..." và thoát mã 2, không mở cửa sổ.
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/bad-syntax.script
+#! out build/e2e/G0/bad-syntax
+#! timeout 30
+#! expect-exit 2
+
+wait 5
+shot ok
+dance now
+quit

@@ -208,6 +208,12 @@ constexpr std::size_t kMostDemoCreatures = 32;
     return options.quality.has_value();
 }
 
+// Khoá mà set_option ghi thẳng, không kiểm giá trị.
+[[nodiscard]] bool is_path_key(std::string_view key) noexcept {
+    const bool is_scene = key == "--scene" || key == "--data" || key == "--shot";
+    return is_scene || key == "--script" || key == "--shot-dir";
+}
+
 [[nodiscard]] bool set_option(Options& options, const Argument& argument) {
     if (argument.key == "--frames") return set_frames(options, argument.value);
     if (argument.key == "--quality") return set_quality(options, argument.value);
@@ -224,11 +230,13 @@ constexpr std::size_t kMostDemoCreatures = 32;
     if (argument.key == "--data") options.data_folder = io::path_from_utf8(argument.value);
     if (argument.key == "--shot") options.shot_path = io::path_from_utf8(argument.value);
     if (argument.key == "--ui-event") return add_ui_event(options, argument.value);
+    if (argument.key == "--script") options.script_path = io::path_from_utf8(argument.value);
+    if (argument.key == "--shot-dir") options.shot_dir = io::path_from_utf8(argument.value);
     if (argument.key == "--creature") return set_creatures(options, argument.value);
     if (argument.key == "--pet") return set_pets(options, argument.value);
     if (argument.key == "--peer") return set_peers(options, argument.value);
     if (argument.key == "--talk-demo") return set_talk_demo(options, argument.value);
-    return argument.key == "--scene" || argument.key == "--data" || argument.key == "--shot";
+    return is_path_key(argument.key);
 }
 
 // Cờ đơn, không kèm giá trị; false khi text không phải một cờ đơn.

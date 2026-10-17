@@ -224,8 +224,15 @@ public:
     [[nodiscard]] std::optional<std::uint32_t> take_skill_slot() noexcept;
     // Nút hồi sinh vừa nhấn. Rỗng khi không nhấn. Lấy một lần.
     [[nodiscard]] std::optional<panel::talk::Place> take_revive() noexcept;
-    // Tốc độ xoay người mẫu của bảng nhân vật theo đối số RotateBeginEx của script (âm là sang trái, 0 là
-    // không giữ nút xoay): client đổi ra góc cho ảnh toàn thân.
+    // Công cụ E2E (client --script): tâm cửa sổ name theo lần prepare gần nhất, điểm ảnh của màn
+    // như HudView::pointer; nullopt khi cửa sổ không có hay đang ẩn.
+    [[nodiscard]] std::optional<gui::Pointer> window_spot(std::string_view name) const;
+    // Công cụ E2E: chọn lựa chọn thứ position (từ 0, theo thứ tự hiện) của hộp thoại đang mở, cùng
+    // đường với bấm vào nó. false khi không có hộp, hộp đang chờ máy chủ, hay position quá số lựa
+    // chọn.
+    [[nodiscard]] bool choose_option(std::size_t position, std::chrono::milliseconds clock);
+    // Tốc độ xoay người mẫu của bảng nhân vật theo đối số RotateBeginEx của script (âm là sang
+    // trái, 0 là không giữ nút xoay): client đổi ra góc cho ảnh toàn thân.
     [[nodiscard]] float equip_spin() const noexcept;
     // Nạp máy chủ của lần vào game trước từ chữ tệp đã đọc (chuỗi rỗng là chưa có); chữ sai dạng hay
     // máy chủ không còn trong danh sách thì bỏ. Gọi sau khi mở Hud.

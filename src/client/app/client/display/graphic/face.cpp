@@ -111,6 +111,7 @@ void Display::State::arm_scene(const DisplayDesc& desc) {
     is_auto_walk = desc.is_auto_walk;
     auto_strike_from = desc.auto_strike_from;
     seed_ui_events(desc.ui_events);
+    arm_script(desc);
     arm_auto_login(desc);
     creature_demo = desc.creatures;
     pet_demo = desc.pets;
@@ -274,6 +275,8 @@ void Display::State::prepare_hud() {
     if (!hud) return;
     // Sự kiện thử chờ khung màn chơi đầu tiên; HUD nhận chúng đúng một lần (posted_events rỗng từ khung sau).
     if (procedure == Procedure::kPlay) hud_events.swap(posted_events);
+    std::ranges::move(script_events, std::back_inserter(hud_events));
+    script_events.clear();
     start_auto_login();
     pump_online();
     pump_talk();
@@ -357,7 +360,9 @@ void Display::State::drive_auto_login(const ui::panel::OnlineReply& reply) {
     const AutoLogin::Step step = auto_login->step;
     const auto kind = static_cast<int>(reply.kind);
     const auto fault = static_cast<int>(reply.fault);
-    if (step == AutoLogin::Step::kStopped) std::println(stderr, "Đăng nhập tự động: dừng, trả lời {} lỗi {}", kind, fault);
+    const bool is_stopped = step == AutoLogin::Step::kStopped;
+    if (is_stopped) is_auto_login_stopped = true;
+    if (is_stopped) std::println(stderr, "Đăng nhập tự động dừng: trả lời {} lỗi {}", kind, fault);
     // Máy chủ đã nhận EnterGame: bấm "vào game" thay người chơi; online_entry vừa được pump_online ghi.
     constexpr std::uint64_t kShotDelayFrames = 300;
     if (step == AutoLogin::Step::kPlay) online_shot_from = frame_serial + kShotDelayFrames;

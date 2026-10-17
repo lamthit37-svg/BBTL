@@ -402,6 +402,8 @@ struct ShotPlan {
     std::uint32_t width = 0;
     std::uint32_t height = 0;
     capture::PixelFormat format = capture::PixelFormat::kRgba8;
+    // Tệp PNG sẽ ghi.
+    std::filesystem::path path;
 };
 
 // Thời gian mỗi khung chia theo ba chặng, cộng dồn để in trung bình lúc thoát: chặng nào chiếm

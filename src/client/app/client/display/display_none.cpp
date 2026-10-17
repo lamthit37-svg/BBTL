@@ -97,6 +97,15 @@ bool Display::is_spinning() const noexcept {
     return true;
 }
 
+// Bản không có chuỗi đồ hoạ không chạy kịch bản --script.
+bool Display::script_ended() const noexcept {
+    return false;
+}
+
+std::uint32_t Display::script_failures() const noexcept {
+    return 0;
+}
+
 // Luồng vẽ vô hình coi như quay một lượt mỗi kFramePause, để --frames vẫn dừng được.
 std::uint64_t Display::turns() const noexcept {
     const auto lived = std::chrono::steady_clock::now() - state_->started;

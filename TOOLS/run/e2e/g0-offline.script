@@ -1,0 +1,12 @@
+# G0-K, không cần cụm máy chủ: mở client ở màn đăng nhập, chờ, chụp, thoát. Kiểm bộ chạy kịch bản,
+# thư mục ảnh và việc cửa sổ không giành tiêu điểm (bọc trong desk_watch).
+# Chạy: py -X utf8 TOOLS/run/desk_watch.py py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g0-offline.script
+#! out build/e2e/G0/offline
+#! timeout 120
+#! expect-exit 0
+#! expect-shots g0-dang-nhap
+
+wait 120
+wait 1s
+shot g0-dang-nhap
+quit

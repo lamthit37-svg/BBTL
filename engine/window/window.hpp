@@ -73,6 +73,9 @@ struct WindowConfig {
     bool quits_on_close = true;
     // Nhận tệp kéo thả từ Explorer (sự kiện FilesDropped).
     bool accepts_files = false;
+    // Cửa sổ không bao giờ giành tiêu điểm của người đang dùng máy: tạo với WS_EX_NOACTIVATE, hiện
+    // và khôi phục bằng SW_SHOWNOACTIVATE. Dành cho lần chạy tự động (client --script).
+    bool is_inactive = false;
 };
 
 enum class EventKind : std::uint8_t {

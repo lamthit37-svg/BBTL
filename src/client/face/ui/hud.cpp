@@ -1666,6 +1666,25 @@ std::optional<panel::talk::Place> Hud::take_revive() noexcept {
     return std::exchange(state_->revive_press, std::nullopt);
 }
 
+std::optional<gui::Pointer> Hud::window_spot(std::string_view name) const {
+    const State& state = *state_;
+    if (!state.hub) return std::nullopt;
+    const std::optional<gui::Box> box = state.hub->box(name);
+    if (!box) return std::nullopt;
+    const float across = (box->x + box->w * 0.5F) * state.scale;
+    const float down = (box->y + box->h * 0.5F) * state.scale;
+    return gui::Pointer{.x = across, .y = down};
+}
+
+bool Hud::choose_option(std::size_t position, std::chrono::milliseconds clock) {
+    panel::NpcTalk& talk = state_->talk;
+    if (!talk.is_open || talk.is_waiting) return false;
+    if (position >= talk.dialog.choices.size()) return false;
+    const std::uint32_t index = talk.dialog.choices.at(position).index;
+    panel::pick_talk_option(talk, index, clock);
+    return true;
+}
+
 // Bảng tên vật phẩm đọc ở lần đầu một phần thưởng hay yêu cầu cần tên; hỏng thì thôi, phần thưởng hiện theo số mẫu.
 void Hud::State::ensure_item_names() {
     if (item_names.is_loaded() || has_item_names_failed) return;

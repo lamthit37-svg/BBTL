@@ -17,6 +17,7 @@
 #pragma once
 
 #include "client/display/policy.hpp"
+#include "client/display/script.hpp"
 #include "client/viewer/client_size.hpp"
 
 #include <cstdint>
@@ -36,6 +37,7 @@ inline constexpr std::string_view kUsage =
     "                         [--walk] [--weapon <mã vật phẩm>] [--gem <mã đá quý>]\n"
     "                         [--skill <mã skill>] [--auto-strike <khung>]\n"
     "                         [--ui-event <TÊN|arg0|arg1|arg2|arg3>]...\n"
+    "                         [--script <tệp>] [--shot-dir <thư mục>]\n"
     "--scene-id là resid trong Config/SceneDefineEx.txt. --scene tìm tên file .Scene trong bảng "
     "đó.\n"
     "Không nêu --scene và --scene-id: mở đăng nhập, như bấm đúp exe. Nút vào game đọc "
@@ -76,7 +78,14 @@ inline constexpr std::string_view kUsage =
     "không có.\n"
     "--ui-event: ở khung màn chơi đầu tiên phát một sự kiện của game cho các bảng giao diện (như\n"
     "PushEvent(tên, arg0...) của game gốc), ví dụ \"PROGRESSBAR_SHOW|Đang luyện công\"; nêu nhiều\n"
-    "lần thì phát theo thứ tự. Phần rỗng là nil. Công cụ thử, tới khi có gói tin của máy chủ.";
+    "lần thì phát theo thứ tự. Phần rỗng là nil. Công cụ thử, tới khi có gói tin của máy chủ.\n"
+    "--script: chạy tệp kịch bản E2E (mỗi dòng một bước: wait, shot, event, click, type, walk, "
+    "talk,\n"
+    "choose, cast, pick, quit), in mỗi bước một dòng SCRIPT; hết tệp thì thoát, có bước hỏng thì "
+    "mã 3.\n"
+    "Khi chạy kịch bản, client không nâng tần số quét và cửa sổ không giành tiêu điểm. "
+    "--shot-dir:\n"
+    "thư mục ghi ảnh của bước shot (mặc định thư mục hiện hành). Công cụ thử, client gốc không có.";
 
 struct Options {
     // Rỗng: không chọn theo tên file. resid được ưu tiên hơn tên này.
@@ -118,8 +127,14 @@ struct Options {
     std::uint32_t auto_strike_from = 0;
     // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên, theo thứ tự. Công cụ thử của dự án.
     std::vector<std::string> ui_events;
-    // --creature: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở màn chơi, để nhìn hình mà không cần máy chủ.
-    // Công cụ thử của dự án.
+    // --script: tệp kịch bản E2E; rỗng thì không chạy kịch bản. Công cụ thử của dự án.
+    std::filesystem::path script_path;
+    // Kịch bản đã đọc từ script_path: parse_options không đọc tệp, main đọc rồi điền vào đây.
+    std::optional<ScriptSteps> script;
+    // --shot-dir: thư mục ghi ảnh của bước shot trong kịch bản; rỗng là thư mục hiện hành.
+    std::filesystem::path shot_dir;
+    // --creature: id mẫu quái hay NPC đứng thành lưới trước mặt nhân vật ở màn chơi, để nhìn hình
+    // mà không cần máy chủ. Công cụ thử của dự án.
     std::vector<std::uint32_t> creatures;
     // --pet: id mẫu trân thú (cùng bảng creature) đứng trước mặt. Công cụ thử, client gốc không có.
     std::vector<std::uint32_t> pets;

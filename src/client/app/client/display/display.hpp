@@ -28,15 +28,16 @@
 
 #pragma once
 
+#include "client/cast/note.hpp"
 #include "client/display/policy.hpp"
+#include "client/display/script.hpp"
 #include "client/map/ground.hpp"
 #include "client/stage/stage.hpp"
-#include "client/cast/note.hpp"
 #include "client/world/world.hpp"
-#include "core/ground_point.hpp"
 #include "control/cursor_rules.hpp"
 #include "control/input.hpp"
 #include "core/error.hpp"
+#include "core/ground_point.hpp"
 #include "ui/panel/online.hpp"
 #include "ui/panel/talk.hpp"
 
@@ -171,7 +172,12 @@ struct DisplayDesc {
     std::optional<std::uint32_t> skill_id;
     // Rỗng: tự chọn backend. Có thì ép đúng tên đó.
     std::optional<std::string> backend;
-    // Máy chủ trong danh sách đăng nhập có cổng thật (client/session): chọn chúng thì thủ tục đăng nhập nối máy chủ.
+    // Công cụ thử của dự án (--script), client gốc không có: kịch bản E2E chạy mỗi khung một bước
+    // (display/script.hpp). Không có thì không chạy kịch bản. shot_dir là nơi bước shot ghi ảnh.
+    std::optional<ScriptSteps> script;
+    std::filesystem::path shot_dir;
+    // Máy chủ trong danh sách đăng nhập có cổng thật (client/session): chọn chúng thì thủ tục đăng
+    // nhập nối máy chủ.
     std::vector<ui::panel::ServerName> online_servers;
     // Công cụ thử: tài khoản đăng nhập tự động vào máy chủ đầu của online_servers (auto_login.hpp). Rỗng là không bật.
     std::optional<std::string> auto_account;
@@ -325,6 +331,11 @@ public:
     [[nodiscard]] std::uint32_t draw_count() const noexcept;
     // Luồng vẽ còn quay hay không: dừng khi lỗi vẽ hoặc mất thiết bị, vòng cửa sổ nên kết thúc.
     [[nodiscard]] bool is_spinning() const noexcept;
+    // Kịch bản --script đã chạy hết (hay gặp bước quit): vòng cửa sổ nên kết thúc. false khi không
+    // có kịch bản.
+    [[nodiscard]] bool script_ended() const noexcept;
+    // Số bước hỏng của kịch bản; mã thoát khác 0 khi có.
+    [[nodiscard]] std::uint32_t script_failures() const noexcept;
     // Số lượt của vòng vẽ từ lúc quay (khung đã vẽ cộng lượt nghỉ khi cửa sổ ẩn hay bề mặt đang
     // đổi cỡ); --frames đếm theo số này. An toàn mọi luồng.
     [[nodiscard]] std::uint64_t turns() const noexcept;

@@ -462,7 +462,8 @@ if(NOT CMAKE_CROSSCOMPILING OR ANDROID OR IOS)
     game_module(client_session
         src/client/app/client/session/gates.cpp
         src/client/app/client/session/machine.cpp
-        src/client/app/client/session/session.cpp)
+        src/client/app/client/session/session.cpp
+        src/client/app/client/session/trace.cpp)
     target_link_libraries(game_client_session PUBLIC game_core game_net game_protocol game_secure game_link game_table)
     # client/online: cầu nối giữa chuỗi đăng nhập (ui/panel) và phiên mạng; viewer của Windows và vỏ điện thoại gọi nó.
     game_module(client_online src/client/app/client/online/bridge.cpp)
@@ -1084,6 +1085,7 @@ if(GAME_HAS_GPU)
         src/client/app/client/display/graphic/talk_demo.cpp
         src/client/app/client/display/graphic/fight.cpp
         src/client/app/client/display/graphic/fight_demo.cpp
+        src/client/app/client/display/graphic/script.cpp
         src/client/app/client/display/creature.cpp
         src/client/app/client/display/player.cpp
         src/client/app/client/display/portrait.cpp src/client/app/client/display/role_preview.cpp src/client/app/client/display/fx_view.cpp
@@ -1113,9 +1115,13 @@ target_link_libraries(game_client_fight PUBLIC game_core game_client_cast)
 game_module(client_world src/client/app/client/world/world.cpp)
 target_link_libraries(game_client_world PUBLIC game_client_stage game_client_map game_io game_nav game_fs
     game_collision)
+# client/script: bộ đọc kịch bản E2E của --script (display/script.hpp); thuần logic, main đọc tệp bằng nó còn
+# phần hiển thị chạy các bước.
+game_module(client_script src/client/app/client/display/script.cpp)
+target_link_libraries(game_client_script PUBLIC game_core)
 game_module(client_display ${game_client_screen})
 target_link_libraries(game_client_display PUBLIC game_core game_client_stage game_client_map
-    game_client_world game_client_cast game_client_fight game_control)
+    game_client_world game_client_cast game_client_fight game_client_script game_control)
 if(GAME_HAS_GPU)
     target_link_libraries(game_client_display PRIVATE game_gpu game_render game_capture
         game_avatar game_look game_motion game_ui game_fx game_ensky game_classic)
@@ -1135,7 +1141,8 @@ if(WIN32)
     target_link_libraries(game_client_viewer PUBLIC game_audio)
 endif()
 game_module(client src/client/app/client/options.cpp src/client/app/client/assets.cpp src/client/app/client/boot.cpp)
-target_link_libraries(game_client PUBLIC game_core game_io game_client_map game_client_world)
+target_link_libraries(game_client PUBLIC game_core game_io game_client_map game_client_world
+    game_client_script)
 # client/host: việc mỗi khung của vỏ điện thoại (Android, iOS): đăng nhập trực tuyến, tin thế giới, nhạc cảnh. Dựng cả trên
 # máy tính để lỗi dịch lộ ở lượt dựng thường ngày; viewer PC không dùng nó.
 if(TARGET game_client_online)

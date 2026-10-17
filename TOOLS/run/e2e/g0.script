@@ -1,0 +1,23 @@
+# G0-K: đăng nhập tự động, tạo nhân vật, vào game, đi hai đoạn, chụp hai ảnh.
+# Hướng +x ở điểm sinh Đại Lý (165,169) bị địa hình chặn (walk +4,+0: không tìm được đường), nên
+# hai đoạn đi theo trục z: 4 m tới rồi 4 m về.
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g0.script   (cụm máy chủ đang chạy)
+# Tài khoản đã có nhân vật thì không còn CreateCharacter: đổi tên bằng --account e2ek0a2...
+#! account e2ek0a1
+#! out build/e2e/G0
+#! timeout 300
+#! sidecar build\lane-server\thienlong_bot.exe --identity dev\server\data\gate\identity.key --count 1 --seconds 40 --peers 1 --prefix e2em2
+#! expect-exit 0
+#! expect-shots g0-vao g0-di
+#! expect-net gửi:SignIn gửi:CreateCharacter gửi:EnterGame gửi:Move nhận:SceneEnter
+#! expect-file dev/server/log/cluster_err.txt zone: kiểm .* việc=vào .* ten="{account}"
+#! expect-file dev/server/log/cluster_err.txt zone: kiểm .* việc=(đi|kéo) .* ten="{account}"
+
+wait play 120
+wait 2s
+shot g0-vao
+walk +0,+4
+walk +0,-4
+wait 15
+shot g0-di
+quit

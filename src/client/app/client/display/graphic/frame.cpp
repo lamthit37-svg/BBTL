@@ -234,6 +234,14 @@ bool Display::is_spinning() const noexcept {
     return state_->is_spinning.load(std::memory_order_relaxed);
 }
 
+bool Display::script_ended() const noexcept {
+    return state_->script_over.load(std::memory_order_relaxed);
+}
+
+std::uint32_t Display::script_failures() const noexcept {
+    return state_->script_faults.load(std::memory_order_relaxed);
+}
+
 std::uint64_t Display::turns() const noexcept {
     return state_->turn_count.load(std::memory_order_relaxed);
 }
@@ -538,7 +546,7 @@ Display::State::Taken Display::State::take_steering() {
     return taken;
 }
 
-core::Status Display::State::present_drawn(PresentAsk ask) const {
+core::Status Display::State::present_drawn(PresentAsk ask) {
     const core::Status submitted = submit_frame(*ask.list);
     if (!submitted) {
         discard_shot(*device, ask.shot);
@@ -648,6 +656,7 @@ void Display::State::lap(gpu::CommandList& list, bool marks_gpu) {
 // Thứ tự lap phải khớp kCpuStages (bảy chặng, sáu lần lap rồi end) và kGpuStages (năm mốc giữa).
 core::Status Display::State::draw_world(gpu::CommandList& list, std::uint32_t slot) {
     cpu_stages.begin();
+    tick_script();
     const float elapsed = std::chrono::duration<float>(frame_time - started).count();
     FrameAsk ask;
     ask.elapsed = elapsed;
@@ -754,15 +763,32 @@ bool Display::State::is_shot_due() const {
     return !shot_waits_online || is_online_due;
 }
 
-std::optional<ShotPlan> Display::State::plan_shot() {
+// Đường ảnh của khung này: yêu cầu của kịch bản trước, rồi --shot khi đã tới lúc; rỗng là không
+// chụp.
+std::optional<std::filesystem::path> Display::State::shot_due() {
+    if (script_shot) return std::exchange(script_shot, std::nullopt);
     if (!is_shot_due()) return std::nullopt;
     shot_taken = true;
+    return shot_path;
+}
+
+// Một lần chụp đã xong (hay hỏng): bước shot của kịch bản chờ số này tăng.
+void Display::State::note_shot(bool is_ok) noexcept {
+    is_shot_ok = is_ok;
+    ++shots_done;
+}
+
+std::optional<ShotPlan> Display::State::plan_shot() {
+    const std::optional<std::filesystem::path> path = shot_due();
+    if (!path) return std::nullopt;
+    const std::string name = io::utf8_of(*path);
     const gpu::Format colour = screen->color_format();
     const std::uint32_t width = screen->width();
     const std::uint32_t height = screen->height();
     const auto format = shot_format(colour);
     if (!format) {
-        std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), format.error());
+        std::println(stderr, "Lỗi chụp {}: {}", name, format.error());
+        note_shot(false);
         return std::nullopt;
     }
     const std::uint64_t stride = gpu::padded_row_bytes(colour, width);
@@ -773,7 +799,8 @@ std::optional<ShotPlan> Display::State::plan_shot() {
     buffer.memory = gpu::MemoryDomain::kReadback;
     const auto made = device->create_buffer(buffer);
     if (!made) {
-        std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), made.error());
+        std::println(stderr, "Lỗi chụp {}: {}", name, made.error());
+        note_shot(false);
         return std::nullopt;
     }
     ShotPlan plan;
@@ -783,6 +810,7 @@ std::optional<ShotPlan> Display::State::plan_shot() {
     plan.width = width;
     plan.height = height;
     plan.format = *format;
+    plan.path = *path;
     return plan;
 }
 
@@ -796,19 +824,26 @@ void Display::State::copy_shot(gpu::CommandList& list, const ShotPlan& plan,
     shot_to_present(list, image);
 }
 
-void Display::State::finish_shot(const ShotPlan& plan) const {
+void Display::State::finish_shot(const ShotPlan& plan) {
+    const bool is_written = write_shot(plan);
+    note_shot(is_written);
+}
+
+// Chờ GPU chép xong, đọc buffer, nén PNG và ghi tệp của plan; false khi hỏng (đã in lỗi).
+bool Display::State::write_shot(const ShotPlan& plan) const {
     core::mark("chụp ảnh (trước khi mã hoá PNG)");
+    const std::string name = io::utf8_of(plan.path);
     const core::Status waited = device->wait_idle();
     if (!waited) {
-        std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), waited.error());
-        return;
+        std::println(stderr, "Lỗi chụp {}: {}", name, waited.error());
+        return false;
     }
     std::vector<std::byte> pixels(plan.size);
     const core::Status read = device->read_buffer(plan.staging, 0, pixels);
     device->destroy(plan.staging);
     if (!read) {
-        std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), read.error());
-        return;
+        std::println(stderr, "Lỗi chụp {}: {}", name, read.error());
+        return false;
     }
     capture::FrameView taken;
     taken.pixels = pixels;
@@ -820,14 +855,15 @@ void Display::State::finish_shot(const ShotPlan& plan) const {
     options.alpha = false;
     const auto png = capture::encode_png(taken, options);
     if (!png) {
-        std::println(stderr, "Lỗi chụp {}: {}", io::utf8_of(shot_path), png.error());
-        return;
+        std::println(stderr, "Lỗi chụp {}: {}", name, png.error());
+        return false;
     }
-    if (!write_bytes(shot_path, *png)) {
-        std::println(stderr, "Lỗi chụp {}: không ghi được tệp", io::utf8_of(shot_path));
-        return;
+    if (!write_bytes(plan.path, *png)) {
+        std::println(stderr, "Lỗi chụp {}: không ghi được tệp", name);
+        return false;
     }
-    std::println("Đã ghi ảnh chụp {} ({} byte)", io::utf8_of(shot_path), png->size());
+    std::println("Đã ghi ảnh chụp {} ({} byte)", name, png->size());
+    return true;
 }
 
 void Display::State::publish() noexcept {

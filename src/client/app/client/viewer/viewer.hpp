@@ -66,6 +66,11 @@ struct ViewerDesc {
     std::uint32_t auto_strike_from = 0;
     // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên (DisplayDesc::ui_events).
     std::vector<std::string> ui_events;
+    // --script: kịch bản E2E đã đọc (DisplayDesc::script). Có kịch bản thì viewer không nâng tần số
+    // quét, cửa sổ không giành tiêu điểm, và mã thoát là 3 khi có bước hỏng. shot_dir là
+    // DisplayDesc::shot_dir (--shot-dir).
+    std::optional<ScriptSteps> script;
+    std::filesystem::path shot_dir;
     // --creature: id mẫu quái hay NPC đứng trước mặt nhân vật ở màn chơi (DisplayDesc::creatures).
     std::vector<std::uint32_t> creatures;
     // --pet: id mẫu trân thú (DisplayDesc::pets).

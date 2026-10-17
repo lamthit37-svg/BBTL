@@ -1,0 +1,24 @@
+# G0-K (tuỳ chọn): vào game, đi tới một NPC và nói chuyện, chọn dòng đầu của hộp thoại, chụp.
+# NPC lấy theo tên (chứa chuỗi); không thấy NPC thì bước talk hỏng sau 5 giây. 赵天师 đứng gần điểm
+# sinh Đại Lý. Điểm sinh (165,169) là tam giác vật cản của lưới đi; plan_move cho người đang đứng
+# trong vật cản chỉ đi thẳng ra qua không quá một cạnh, nên NPC mà đoạn thẳng tới đó cắt từ hai cạnh
+# trở lên (như 孙八爷, 洪大贵) bị từ chối tới khi nhân vật bước ra chỗ đi được. Đo ngày 2026-10-18.
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g0-talk.script --account e2ek0t2
+# (mỗi lượt cần tên tài khoản mới nếu muốn thấy CreateCharacter).
+#! account e2ek0t1
+#! out build/e2e/G0/talk
+#! timeout 300
+#! expect-exit 0
+#! expect-shots g0-talk g0-chon
+#! expect-net gửi:EnterGame gửi:Talk nhận:DialogOpen
+#! expect-file dev/server/log/cluster_err.txt zone: kiểm .* việc=nói .* ten="{account}"
+
+wait play 120
+wait 2s
+talk 赵天师
+wait 1s
+shot g0-talk
+choose 1
+wait 2s
+shot g0-chon
+quit
