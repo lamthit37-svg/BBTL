@@ -1,15 +1,32 @@
-// Chọn định dạng, chế độ trình bày và cỡ ảnh theo khả năng của bề mặt.
-// Chỉ nhận không gian màu sRGB; không có chế độ được xin thì dùng Fifo.
-// maxImageCount bằng 0 nghĩa là không trần; ưu tiên biến đổi identity.
-// Nguồn: Forge2 src/gpu/vulkan/swapchain.cpp@d7fcd76. Khác gốc: enumerator mang tiền tố k; phần
-// điền VkSwapchainCreateInfoKHR của build tách thành swapchain_info (kèm struct Picked); lambda huỷ
-// semaphore trong hai vòng lặp của drop_images tách thành retire_semaphore; vòng lặp của
-// adopt_images đưa điều kiện dừng lên điều kiện lặp và TextureDesc khai rồi gán trường; present giữ
-// semaphore chờ trong mảng một phần tử; handle cục bộ viết auto* const; include trực tiếp header
-// của mọi tên dùng tới.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/vulkan/swapchain.cpp
+ *  PHÂN HỆ   : Gpu / Vulkan / Swapchain
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Chọn định dạng, chế độ trình bày và cỡ ảnh theo khả năng của bề mặt. Chỉ
+ *    nhận không gian màu sRGB; không có chế độ được xin thì dùng Fifo.
+ *    maxImageCount bằng 0 nghĩa là không trần; ưu tiên biến đổi identity.
+ *    Nguồn: Forge2 src/gpu/vulkan/swapchain.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: enumerator mang tiền tố k; phần điền VkSwapchainCreateInfoKHR của build tách thành
+// swapchain_info (kèm struct Picked); lambda huỷ semaphore trong hai vòng lặp của drop_images tách
+// thành retire_semaphore; vòng lặp của adopt_images đưa điều kiện dừng lên điều kiện lặp và
+// TextureDesc khai rồi gán trường; present giữ semaphore chờ trong mảng một phần tử; handle cục bộ
+// viết auto* const; include trực tiếp header của mọi tên dùng tới. Phần chọn của build tách thành
+// plan, phần nhận kết quả thành take; lần dựng của create (launch) gọi vkCreateSwapchainKHR ở luồng
+// phụ, ảnh nhận ở acquire đầu (settle).
+
 #include "gpu/vulkan/swapchain.hpp"
 
 #include "core/error.hpp"
+#include "core/thread.hpp"
 #include "gpu/device.hpp"
 #include "gpu/format.hpp"
 #include "gpu/handle.hpp"
@@ -30,6 +47,8 @@
 #include <memory>
 #include <mutex>
 #include <span>
+#include <stop_token>
+#include <thread>
 #include <tuple>
 #include <utility>
 #include <vector>
@@ -214,13 +233,15 @@ Result<std::unique_ptr<Swapchain>> SwapchainVk::create(VulkanDevice& device, con
     if (is_presentable == VK_FALSE) {
         return fail(ErrorCode::kUnsupported, "hàng đợi Graphics không trình bày được lên bề mặt này");
     }
-    const Status built = swapchain->build();
+    const Status built = swapchain->launch();
     if (!built) return std::unexpected(built.error());
     return swapchain;
 }
 
 SwapchainVk::~SwapchainVk() {
-    // Lỗi chờ ở đây không báo được cho ai; mất thiết bị thì việc huỷ bên dưới vẫn hợp lệ.
+    // Lần dựng đầu còn chạy thì chờ nó: swapchain nó tạo cũng phải huỷ, và bề mặt phải sống tới lúc
+    // ấy. Kết quả và lỗi chờ ở đây không báo được cho ai; mất thiết bị thì việc huỷ vẫn hợp lệ.
+    std::ignore = join_builder();
     std::ignore = device_->wait_idle();
     drop_images();
     auto* const device = device_->handle();
@@ -228,7 +249,9 @@ SwapchainVk::~SwapchainVk() {
     vkDestroySurfaceKHR(device_->instance().handle(), surface_, nullptr);
 }
 
-Status SwapchainVk::build() {
+// Khác gốc: phần đọc bề mặt và chọn giá trị của build cũ. Trạng thái chọn được ghi trước lần tạo
+// (gốc ghi sau): gốc ghi nó cả khi lần tạo thất bại, nên chỉ khác thứ tự.
+Result<VkSwapchainCreateInfoKHR> SwapchainVk::plan() {
     auto* const physical = device_->physical();
     // Struct C của Vulkan: trình điều khiển điền mọi trường; 0 chỉ để không đọc rác khi lời gọi
     // thất bại (lệch KG-06).
@@ -237,8 +260,10 @@ Status SwapchainVk::build() {
     const VkResult read = vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physical, surface_, &caps);
     if (read != VK_SUCCESS) return device_->failed(read, "không đọc được khả năng của bề mặt");
     const VkExtent2D extent = pick_extent(caps, desc_);
-    const Format format = pick_format(surface_formats(physical, surface_), desc_.format, device_->is_raw_color());
-    const PresentMode mode = pick_mode(surface_modes(physical, surface_), desc_.present_mode);
+    const std::vector<VkSurfaceFormatKHR> formats = surface_formats(physical, surface_);
+    const Format format = pick_format(formats, desc_.format, device_->is_raw_color());
+    const std::vector<VkPresentModeKHR> modes = surface_modes(physical, surface_);
+    const PresentMode mode = pick_mode(modes, desc_.present_mode);
     const TextureUsage usage = pick_usage(caps);
     const bool is_hidden = extent.width == 0 || extent.height == 0;
     if (format == Format::kUnknown) {
@@ -246,26 +271,83 @@ Status SwapchainVk::build() {
     }
 
     // Khác gốc: gốc điền VkSwapchainCreateInfoKHR tại đây; nay ở swapchain_info.
-    const Picked picked{.extent = extent,
-        .format = format,
-        .stored = device_->vk_format(format),
-        .mode = mode,
-        .usage = usage,
-        .image_count = desc_.image_count};
-    const VkSwapchainCreateInfoKHR info = swapchain_info(surface_, swapchain_, caps, picked);
-    VkSwapchainKHR created = VK_NULL_HANDLE;
-    auto* const device = device_->handle();
-    const VkResult made = is_hidden ? VK_SUCCESS : vkCreateSwapchainKHR(device, &info, nullptr, &created);
-    // Swapchain cũ không còn dùng được kể cả khi lần tạo mới thất bại.
-    if (swapchain_ != VK_NULL_HANDLE) vkDestroySwapchainKHR(device, swapchain_, nullptr);
-    swapchain_ = created;
-    presents_ = 0;
+    Picked picked;
+    picked.extent = extent;
+    picked.format = format;
+    picked.stored = device_->vk_format(format);
+    picked.mode = mode;
+    picked.usage = usage;
+    picked.image_count = desc_.image_count;
     extent_ = is_hidden ? VkExtent2D{} : extent;
     format_ = format;
     mode_ = mode;
+    usage_ = usage;
     is_stale_ = false;
+    return swapchain_info(surface_, swapchain_, caps, picked);
+}
+
+Status SwapchainVk::take(VkResult made, VkSwapchainKHR created) {
+    // Swapchain cũ không còn dùng được kể cả khi lần tạo mới thất bại.
+    if (swapchain_ != VK_NULL_HANDLE) vkDestroySwapchainKHR(device_->handle(), swapchain_, nullptr);
+    swapchain_ = created;
+    presents_ = 0;
     if (made != VK_SUCCESS) return device_->failed(made, "không tạo được swapchain");
-    return is_hidden ? ok() : adopt_images(usage);
+    return is_hidden() ? ok() : adopt_images(usage_);
+}
+
+Status SwapchainVk::build() {
+    const Result<VkSwapchainCreateInfoKHR> info = plan();
+    if (!info) return std::unexpected(info.error());
+    if (is_hidden()) return take(VK_SUCCESS, VK_NULL_HANDLE);
+    VkSwapchainKHR created = VK_NULL_HANDLE;
+    const VkResult made = vkCreateSwapchainKHR(device_->handle(), &*info, nullptr, &created);
+    return take(made, created);
+}
+
+// Chỉ lần đầu: lúc ấy chưa có swapchain cũ (oldSwapchain rỗng) và chưa ai acquire. info chép theo
+// giá trị; pNext và pQueueFamilyIndices rỗng nên luồng phụ không mượn gì của luồng vẽ. Chuẩn
+// Vulkan chỉ đòi đồng bộ ngoài trên surface và oldSwapchain, luồng vẽ không đụng tới chúng tới
+// settle.
+Status SwapchainVk::launch() {
+    const Result<VkSwapchainCreateInfoKHR> info = plan();
+    if (!info) return std::unexpected(info.error());
+    if (is_hidden()) return take(VK_SUCCESS, VK_NULL_HANDLE);
+    auto* const device = device_->handle();
+    const VkSwapchainCreateInfoKHR asked = *info;
+    auto* const made = &built_;
+    auto* const created = &built_chain_;
+    const auto body = [device, asked, made, created](const std::stop_token& /*stop*/) {
+        *made = vkCreateSwapchainKHR(device, &asked, nullptr, created);
+    };
+    core::ThreadConfig config;
+    config.name = "dựng swapchain";
+    builder_ = core::start_thread(std::move(config), body);
+    return ok();
+}
+
+VkResult SwapchainVk::join_builder() noexcept {
+    if (!builder_.joinable()) return VK_SUCCESS;
+    wait_builder(builder_);
+    swapchain_ = built_chain_;
+    return built_;
+}
+
+Status SwapchainVk::settle() {
+    if (!builder_.joinable()) return ok();
+    const VkResult made = join_builder();
+    if (made != VK_SUCCESS) return device_->failed(made, "không tạo được swapchain");
+    const Status adopted = adopt_images(usage_);
+    // Thiếu ảnh thì không acquire được: chỗ gọi phải resize để dựng lại.
+    if (!adopted) is_stale_ = true;
+    return adopted;
+}
+
+// Cỡ đã xin, không phải cỡ bề mặt chốt: bề mặt có thể chốt cỡ khác, và so với nó thì vòng không
+// dứt. Lần dựng đầu còn chạy ở luồng phụ cũng tính là có swapchain.
+bool SwapchainVk::is_current(std::uint32_t width, std::uint32_t height) const noexcept {
+    const bool has_chain = swapchain_ != VK_NULL_HANDLE || builder_.joinable();
+    const bool is_same = desc_.width == width && desc_.height == height;
+    return has_chain && !is_stale_ && is_same;
 }
 
 Status SwapchainVk::adopt_images(TextureUsage usage) {
@@ -344,10 +426,18 @@ Result<std::size_t> SwapchainVk::free_signal() {
     return acquire_ready_.size() - 1;
 }
 
-Result<std::uint32_t> SwapchainVk::acquire() {
-    if (is_acquired_) return fail(kState, "acquire khi ảnh trước chưa được present");
+Status SwapchainVk::ready() {
+    const Status settled = settle();
+    if (!settled) return settled;
     const bool is_usable = swapchain_ != VK_NULL_HANDLE && !is_stale_;
     if (!is_usable) return fail(kState, "bề mặt đã đổi, cần resize trước khi acquire");
+    return ok();
+}
+
+Result<std::uint32_t> SwapchainVk::acquire() {
+    if (is_acquired_) return fail(kState, "acquire khi ảnh trước chưa được present");
+    const Status usable = ready();
+    if (!usable) return std::unexpected(usable.error());
     const Result<std::size_t> signal = free_signal();
     if (!signal) return std::unexpected(signal.error());
     auto* const semaphore = acquire_ready_.at(*signal).handle;
@@ -450,6 +540,9 @@ Status SwapchainVk::wait_shown(std::uint64_t count, std::chrono::nanoseconds tim
 // Rộng rồi cao là thứ tự quen của mọi API cỡ ảnh; chữ ký do gpu::Swapchain định (lệch API-03).
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
 Status SwapchainVk::resize(std::uint32_t width, std::uint32_t height) {
+    // Lần dựng đầu còn chạy: nhận swapchain của nó để build dùng làm oldSwapchain rồi huỷ. Lần ấy
+    // hỏng thì swapchain_ rỗng và build dựng từ đầu, lỗi của build mới là lỗi trả về.
+    std::ignore = join_builder();
     const Status idle = device_->wait_idle();
     if (!idle) return idle;
     drop_images();

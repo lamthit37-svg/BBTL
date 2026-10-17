@@ -281,8 +281,8 @@ struct Display::State {
     void seal_mesh(std::size_t index, std::vector<std::size_t>& slots);
     void finish_stream();
     [[nodiscard]] core::Status submit_frame(gpu::CommandList& list) const;
-    // Chờ GPU chạy xong mọi khung trước còn dùng bộ đệm của ảnh slot; xem frame_line.
-    [[nodiscard]] core::Status wait_slot(std::uint32_t slot);
+    // Chờ GPU chạy xong khung trước còn dùng ô bộ đệm của khung đang ghi; xem frame_line.
+    [[nodiscard]] core::Status wait_slot();
     void load_props();
     [[nodiscard]] std::vector<std::size_t> load_listed(const PropTable& table);
     void load_stage();
@@ -690,19 +690,17 @@ struct Display::State {
     std::atomic<double> refresh_hz{0.0};
     // Display::turns: số lượt của vòng vẽ. Luồng vẽ ghi, luồng cửa sổ đọc.
     std::atomic<std::uint64_t> turn_count{0};
-    // Số thứ tự khung trên GPU. Lần nộp thứ n của khung báo frame_line lên n. Bộ đệm mỗi khung (khối
-    // camera, ma trận vật thể, bảng xương, đỉnh giao diện, quad hạt) là bộ nhớ Upload ánh xạ thẳng,
-    // đánh số theo ảnh swapchain (slot_serials: khung gần nhất đã dùng ảnh đó) hay theo vòng
-    // image_count (ảnh đầu 3D). Acquire trả ảnh không có nghĩa GPU đã vẽ xong khung trước dùng ảnh ấy,
-    // nên wait_slot chờ mốc đó trước khi ghi. gpu_waits đếm số khung đã phải chờ thật.
+    // Số thứ tự khung trên GPU. Lần nộp thứ n của khung báo frame_line lên n. Bộ đệm mỗi khung
+    // (khối camera, ma trận vật thể, bảng xương, đỉnh giao diện, quad hạt) là bộ nhớ Upload ánh xạ
+    // thẳng, xoay vòng kFrameSlots ô theo số khung, không theo ảnh swapchain. Acquire trả ảnh không
+    // có nghĩa GPU đã vẽ xong khung trước, nên wait_slot chờ khung cuối dùng ô trước khi ghi.
+    // gpu_waits đếm số khung đã phải chờ thật.
     std::unique_ptr<gpu::Timeline> frame_line;
     std::uint64_t frame_serial = 0;
-    std::vector<std::uint64_t> slot_serials;
     std::uint64_t gpu_waits = 0;
     double gpu_wait_ms = 0.0;
     double gpu_wait_peak = 0.0;
     std::uint64_t gpu_long_waits = 0;
-    std::uint64_t gpu_same_image_waits = 0;
     // Mốc thời gian của khung đang vẽ: lúc luồng vẽ thức sau khi khung trước nữa đã lên màn (await_shown),
     // hay lúc render bắt đầu khi bề mặt không báo được. Mô phỏng, hoạt ảnh, HUD và bảng đo cùng đọc mốc
     // này, nên hai khung liền nhau cách nhau đúng khoảng giữa hai lần ảnh lên màn. shown_wait_ms là phần

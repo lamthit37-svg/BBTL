@@ -563,8 +563,10 @@ mục ở mục 11.
   2026-10-14, Đại Lý, Fifo 3 ảnh, `--walk`: 893 trên 893 khung ghi vào bộ đệm GPU còn dùng, đều vì chính ảnh swapchain
   đó). Sửa: `gpu::Timeline` của khung, mỗi lần nộp báo số thứ tự khung; trước khi ghi bộ đệm của ảnh nào thì
   `wait_slot` chờ số của lần cuối dùng ảnh đó (và vòng `image_count` khung). Sau sửa 871 khung, trung vị 16,7 ms,
-  p95 17,4 ms, 0 lỗi lớp kiểm. Bộ đệm mới đánh số theo ảnh swapchain phải đi sau `wait_slot`; số khung phải chờ in ở
-  dòng "Khung phải chờ GPU nhả bộ đệm của ảnh" lúc thoát.
+  p95 17,4 ms, 0 lỗi lớp kiểm. Từ 2026-10-17 bộ đệm mỗi khung không theo số ảnh nữa mà xoay vòng `kFrameSlots` ô
+  theo số khung, `wait_slot` chờ khung `n - kFrameSlots` (swapchain Vulkan nhận ảnh ở acquire đầu, nên lúc dựng
+  Forward và UI chưa biết số ảnh). Bộ đệm mới mỗi khung phải đi sau `wait_slot`; số khung phải chờ in ở dòng
+  "Khung phải chờ GPU nhả bộ đệm" lúc thoát.
 - Cây nguồn của các công cụ `TOOLS/content` từ 2026-10-10 là `F:\tl 2026\_goc` (thay `_raw`, tên gốc đã giải) và
   `F:\tl 2026\_cook` (thay `_glb`, GLB đã nấu); `_raw`, `_glb` không còn. Đo 2026-10-15: `export_look.py` trên hai cây
   này ra `player_bodies.tsv` và `anim_sets.tsv` đúng từng dòng với bảng đang có; `outfits.tsv`, `faces.tsv`, `hairs.tsv`

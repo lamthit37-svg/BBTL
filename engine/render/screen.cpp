@@ -244,9 +244,6 @@ std::uint32_t Screen::height() const noexcept {
     return state_->swapchain->height();
 }
 
-std::uint32_t Screen::image_count() const noexcept {
-    return state_->swapchain->image_count();
-}
 
 std::uint32_t Screen::samples() const noexcept {
     return state_->desc.samples;

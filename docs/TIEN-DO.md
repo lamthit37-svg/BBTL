@@ -5,6 +5,32 @@ hiện tại của cả dự án đọc ở ba chỗ: mục "Khảo sát theo m�
 tệp này, và dòng "Trạng thái" ở mục 0 của `AGENTS.md`. Tên cũ của tệp là "cửa sổ, Vulkan và 57 vật
 thể tĩnh của map huoyangu": đó là đích của sáu bước B1 tới B6 đầu tiên, tả ngay dưới.
 
+## Swapchain Vulkan dựng ở luồng phụ (2026-10-17)
+
+`vkCreateSwapchainKHR` tốn 145–160 ms trên RTX 5060 và nằm giữa đường găng của luồng vẽ (thiết bị
+→ swapchain → pipeline → HUD → `arm_scene` → khung đầu).
+
+- `SwapchainVk::create` chọn cỡ, định dạng và chế độ ngay (đọc được trước khi có ảnh), còn
+  `vkCreateSwapchainKHR` chạy ở luồng "dựng swapchain"; ảnh nhận ở acquire đầu. Hàm huỷ và `resize`
+  chờ luồng ấy trước. Windows chờ bằng `MsgWaitForMultipleObjectsEx` và xử lý thông điệp gửi tới
+  cửa sổ, vì DXGI có thể `SendMessage` tới cửa sổ thuộc chính luồng đang chờ.
+- Client: bộ đệm mỗi khung xoay vòng `kFrameSlots` (3) ô theo số khung, không theo chỉ số ảnh
+  swapchain; `wait_slot` chờ khung `n - 3`. Forward và UI vì thế dựng được trước khi có ảnh.
+  `Screen::image_count` bỏ.
+- Test `vulkan_swapchain_dropped_while_building`: bỏ lời chờ trong hàm huỷ thì lớp kiểm tra báo
+  `Invalid VkSurfaceKHR` ở luồng dựng rồi `gpu_tests` sập; trả lại thì xanh, 50/50.
+
+| `bench_load.py --runs 10`, Vulkan mặc định | Trước | Sau |
+|---|---|---|
+| khung đầu đã trình | 565,8 ms (558–620) | 498,1 ms (487–793) |
+| Display::create xong | 436,2 ms | 370,6 ms |
+
+Lãi không đủ 150 ms: mốc tạm (đã gỡ) cho thấy `warm_scene` (dựng pipeline của cảnh) chậm thêm
+10–20 ms và `load_player` 5–15 ms khi chạy cùng lúc với `vkCreateSwapchainKHR`, tức driver khoá
+chung; `prepare_hud` (~70 ms, thuần CPU) không đổi. Lượt 793 ms là một lượt lẻ, chín lượt kia
+487–508 ms. Đại Lý `--validate` trên Vulkan, D3D12, D3D11 và đường mặc định 0 lỗi; Vulkan, D3D12 và
+đường mặc định trùng từng điểm ảnh với bản trước, D3D11 lệch 129 điểm (MSAA, NGHI-NGO 25).
+
 ## Khởi động GPU: bỏ thiết bị tạo thừa (2026-10-17)
 
 Đo bằng mốc tạm (đã gỡ): trước khi có thiết bị, client gọi `predict_cache`, tức

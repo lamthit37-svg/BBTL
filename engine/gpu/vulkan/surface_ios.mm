@@ -1,9 +1,25 @@
-// Phần iOS của backend Vulkan: bề mặt từ CAMetalLayer qua VK_EXT_metal_surface, chạy trên
-// MoltenVK nhúng trong ứng dụng (MoltenVK xuất đủ symbol Vulkan 1.3 nên không cần bảng nạp trễ
-// như Android API cũ). Chưa build trên máy này (không có macOS); hợp đồng has_loader và
-// create_surface giữ nguyên như surface_win32/surface_android mà swapchain.cpp đang gọi.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/vulkan/surface_ios.mm
+ *  PHÂN HỆ   : Gpu / Vulkan / Surface Ios
+ *  CHUẨN     : Objective-C++
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần iOS của backend Vulkan: bề mặt từ CAMetalLayer qua
+ *    VK_EXT_metal_surface, chạy trên MoltenVK nhúng trong ứng dụng (MoltenVK
+ *    xuất đủ symbol Vulkan 1.3 nên không cần bảng nạp trễ như Android API cũ).
+ *    Chưa build trên máy này (không có macOS); hợp đồng has_loader và
+ *    create_surface giữ nguyên như surface_win32/surface_android mà
+ *    swapchain.cpp đang gọi.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 // Nguồn port: Forge2 src/gpu/vulkan/surface_win32.cpp@d7fcd76. Khác gốc: tệp mới của THIENLONG
 // cho iOS.
+
 #include "gpu/vulkan/swapchain.hpp"
 
 #include "core/error.hpp"
@@ -47,6 +63,11 @@ Result<VkSurfaceKHR> create_surface(const Instance& instance, void* window) {
         return fail_vk(made, "không tạo được bề mặt Vulkan cho CAMetalLayer");
     }
     return surface;
+}
+
+// iOS: CAMetalLayer không có hàng thông điệp gắn với luồng như HWND, join suông là đủ.
+void wait_builder(std::jthread& builder) noexcept {
+    if (builder.joinable()) builder.join();
 }
 
 } // namespace game::gpu::vulkan

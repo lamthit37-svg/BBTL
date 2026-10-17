@@ -233,6 +233,9 @@ public:
     // Chỉ số ảnh để vẽ khung này. InvalidState khi bề mặt đã đổi cỡ và phải resize trước: đó là
     // đường chạy thường ngày (người dùng kéo cửa sổ), không phải hỏng.
     [[nodiscard]] virtual Result<std::uint32_t> acquire() = 0;
+    // Ảnh, view và số ảnh chắc có từ lần acquire thành công đầu tiên: Vulkan dựng swapchain đầu ở
+    // luồng phụ và nhận ảnh ở đó, trước đó image_count là 0. Format, cỡ và chế độ có ngay từ lúc
+    // tạo.
     [[nodiscard]] virtual TextureHandle image(std::uint32_t index) const = 0;
     [[nodiscard]] virtual TextureViewHandle view(std::uint32_t index) const = 0;
     [[nodiscard]] virtual std::uint32_t image_count() const noexcept = 0;

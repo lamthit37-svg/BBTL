@@ -412,6 +412,12 @@ using PackedSize = std::uint64_t;
     return std::filesystem::exists(packaged, ignored) ? packaged.string() : std::string{};
 }
 
+// Số khung mà CPU được ghi trước GPU. Bộ đệm mỗi khung (Forward, UI, ảnh đầu) xoay vòng theo số
+// này chứ không theo chỉ số ảnh swapchain: Forward và UI dựng xong trước khi swapchain có ảnh
+// (Vulkan nhận ảnh ở acquire đầu), và số ảnh bề mặt chốt không đổi được số ô. Bằng số ảnh xin cho
+// swapchain (SwapchainDesc::image_count), như số ô trước khi tách.
+inline constexpr std::uint32_t kFrameSlots = 3;
+
 // Số của trần tam giác và lý do chọn nó ở display/policy.hpp (GraphicsPolicy::triangle_cap).
 [[nodiscard]] inline ForwardResult make_forward(gpu::Device& device, const render::Screen& screen, std::string shaders,
     const render::Catalog& catalog, const GraphicsPolicy& policy) {
@@ -419,7 +425,7 @@ using PackedSize = std::uint64_t;
     pass.color_format = screen.color_format();
     pass.depth_format = screen.depth_format();
     // Phần đầu cho lượt vẽ màn hình, rồi một phần cho ảnh đầu và một phần cho toàn thân.
-    pass.slots = screen.image_count() * 3;
+    pass.slots = kFrameSlots * 3;
     pass.samples = screen.samples();
     // Ánh sáng ở đỉnh theo chính sách, và luôn bật trên backend GLES dự phòng để giữ nhịp khung.
     pass.lights_at_vertices = policy.lights_at_vertices || device.adapter().backend == gpu::Backend::kGles;
@@ -435,7 +441,7 @@ using PackedSize = std::uint64_t;
     render::UiDesc pass;
     pass.color_format = screen.color_format();
     pass.depth_format = screen.depth_format();
-    pass.slots = screen.image_count();
+    pass.slots = kFrameSlots;
     pass.samples = screen.samples();
     pass.shader_dir = std::move(shaders);
     return render::UiPass::create(device, pass, pipeline);

@@ -776,7 +776,7 @@ void Display::State::load_head(const PlayerDesc& desc, const MeshLoader& loader)
 // mẫu ảnh này. Ghi ở cuối khung để khung bị bỏ (bề mặt đổi cỡ) không để lại ảnh đích dở dang.
 void Display::State::record_head(gpu::CommandList& list) {
     if (!head && !body) return;
-    const std::uint32_t count = screen->image_count();
+    const std::uint32_t count = kFrameSlots;
     const std::uint32_t turn = head_turns % count;
     if (head) {
         const core::Status drawn = head->record(list, count + turn);

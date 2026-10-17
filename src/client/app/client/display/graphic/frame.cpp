@@ -507,21 +507,22 @@ core::Status Display::State::render() {
     // Mốc GPU đầu nằm ngoài lượt vẽ màn hình: GPU chia ô chỉ cho tổng khung đúng khi hai mốc bao
     // trọn lượt vẽ.
     if (gpu_clock) gpu_clock->start(**list);
-    const core::Result<std::uint32_t> slot = screen->begin(**list);
+    const core::Result<std::uint32_t> image = screen->begin(**list);
     // Bề mặt đổi cỡ giữa chừng: bỏ khung này, spin() dựng lại ở khung kế.
-    const bool is_wait = !slot && slot.error().code() == core::ErrorCode::kTimeout;
+    const bool is_wait = !image && image.error().code() == core::ErrorCode::kTimeout;
     if (is_wait) {
         wait_flag = true;
         return device->end_frame();
     }
-    const bool is_stale = !slot && slot.error().code() == core::ErrorCode::kInvalidState;
+    const bool is_stale = !image && image.error().code() == core::ErrorCode::kInvalidState;
     stale_flag = is_stale;
     if (is_stale) return device->end_frame();
-    if (!slot) return std::unexpected(slot.error());
-    const core::Status free = wait_slot(*slot);
+    if (!image) return std::unexpected(image.error());
+    const core::Status free = wait_slot();
     if (!free) return free;
     const core::Clock::time_point acquired = core::Clock::now();
-    const core::Status shown = draw_world(**list, *slot);
+    const auto slot = static_cast<std::uint32_t>((frame_serial + 1) % kFrameSlots);
+    const core::Status shown = draw_world(**list, slot);
     if (!shown) return shown;
     const core::Clock::time_point recorded = core::Clock::now();
     const std::optional<ShotPlan> shot = plan_shot();
@@ -531,12 +532,11 @@ core::Status Display::State::render() {
     scene_draws = forward->draw_count();
     record_head(**list);
     if (gpu_clock) gpu_clock->finish(**list);
-    if (shot) copy_shot(**list, *shot, *slot);
+    if (shot) copy_shot(**list, *shot, *image);
     const PresentAsk present{.list = *list, .shot = shot};
     const core::Status submitted = present_drawn(present);
     if (!submitted) return submitted;
     ++frame_serial;
-    slot_serials.at(*slot) = frame_serial;
     if (!has_marked_first) {
         has_marked_first = true;
         core::mark("khung đầu đã trình");
@@ -652,21 +652,17 @@ core::Status Display::State::submit_frame(gpu::CommandList& list) const {
     return screen->present();
 }
 
-// Khung đang ghi là frame_serial + 1. Ảnh slot được khung slot_serials[slot] dùng lần cuối; ảnh đầu 3D
-// xoay vòng image_count nên ô của khung này được khung frame_serial + 1 - image_count dùng lần cuối.
-// Chờ có hạn: GPU không xong một khung trong 2 giây là thiết bị treo, dừng vòng vẽ và báo lỗi.
-core::Status Display::State::wait_slot(std::uint32_t slot) {
+// Khung đang ghi là frame_serial + 1, ô của nó là (frame_serial + 1) % kFrameSlots; mọi bộ đệm mỗi
+// khung (cả ảnh đầu 3D) xoay vòng kFrameSlots, nên ô ấy được khung frame_serial + 1 - kFrameSlots
+// dùng lần cuối. Chờ có hạn: GPU không xong một khung trong 2 giây là thiết bị treo, dừng vòng vẽ.
+core::Status Display::State::wait_slot() {
     if (!frame_line) return core::ok();
-    const std::uint32_t count = screen->image_count();
-    // Đổi cỡ dựng lại swapchain sau wait_idle: mọi khung cũ đã xong, mốc 0 là đúng.
-    if (slot_serials.size() != count) slot_serials.assign(count, 0);
-    if (slot >= slot_serials.size()) return core::fail(core::ErrorCode::kInvalidState, "ảnh swapchain ngoài số ảnh");
-    const std::uint64_t ring = frame_serial + 1 > count ? frame_serial + 1 - count : 0;
-    const std::uint64_t needed = std::max(slot_serials.at(slot), ring);
+    const std::uint64_t serial = frame_serial + 1;
+    if (serial <= kFrameSlots) return core::ok();
+    const std::uint64_t needed = serial - kFrameSlots;
     const std::uint64_t done = frame_line->completed();
     if (done >= needed) return core::ok();
     ++gpu_waits;
-    if (done < slot_serials.at(slot)) ++gpu_same_image_waits;
     constexpr std::chrono::seconds kGpuPatience{2};
     const core::Clock::time_point began = core::Clock::now();
     const core::Status waited = frame_line->wait(needed, kGpuPatience);
@@ -848,8 +844,11 @@ void Display::State::report_frames() const {
     const bool has_steady = steady_from && *steady_from + 8 < frame_ms.size();
     if (has_steady) say_steady(frame_ms, *steady_from);
     std::println("Khung bỏ vì đổi cỡ: {}", stale_frames);
-    std::println("Khung phải chờ GPU nhả bộ đệm của ảnh: {} trên {} ({} lần quá 1 ms, {} vì chính ảnh swapchain), tổng {:.2f} ms, lâu nhất {:.2f} ms",
-        gpu_waits, frame_serial, gpu_long_waits, gpu_same_image_waits, gpu_wait_ms, gpu_wait_peak);
+    const std::string waits = std::format("{} trên {}", gpu_waits, frame_serial);
+    const std::string longs = std::format("{} lần quá 1 ms", gpu_long_waits);
+    const std::string spent = std::format("tổng {:.2f} ms", gpu_wait_ms);
+    const std::string peak = std::format("lâu nhất {:.2f} ms", gpu_wait_peak);
+    std::println("Khung phải chờ GPU nhả bộ đệm: {} ({}), {}, {}", waits, longs, spent, peak);
     std::println("Khung bắt đầu theo lúc ảnh lên màn: {} lần chờ được, {} lần hỏng", shown_waits, shown_failures);
     if (phase_ms.frames == 0) return;
     const auto frames = static_cast<double>(phase_ms.frames);

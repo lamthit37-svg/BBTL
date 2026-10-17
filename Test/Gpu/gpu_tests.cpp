@@ -1219,6 +1219,35 @@ void swapchain_presents_frames(Context& context, gpu::Backend backend) {
     if (made && window.hwnd != nullptr) present_frames(context, **made, window.hwnd);
     close_hidden(window);
 }
+
+// Huỷ ngay sau khi tạo, lúc lần dựng đầu của Vulkan còn chạy ở luồng phụ (~150 ms trên NVIDIA):
+// hàm huỷ phải chờ nó và huỷ swapchain nó tạo trước khi huỷ bề mặt, nếu không lớp kiểm tra báo
+// bề mặt bị huỷ khi swapchain còn sống. Cỡ và định dạng phải có ngay, trước khi có ảnh.
+void drop_fresh(Context& context, gpu::Device& device, void* hwnd) {
+    gpu::SwapchainDesc desc;
+    desc.window = hwnd;
+    desc.width = 64;
+    desc.height = 64;
+    core::Result<std::unique_ptr<gpu::Swapchain>> chain = device.create_swapchain(desc);
+    context.expect(chain.has_value(), "tạo được swapchain");
+    if (!chain) return;
+    const bool has_size = (*chain)->width() == 64 && (*chain)->height() == 64;
+    context.expect(has_size, "cỡ có ngay khi chưa có ảnh");
+    context.expect((*chain)->format() != gpu::Format::kUnknown, "định dạng có ngay");
+    chain->reset();
+    context.expect(device.wait_idle().has_value(), "chờ GPU rỗi");
+    context.expect(device.loss() == gpu::DeviceLoss::kNone, "thiết bị còn sống");
+    context.expect(device.validation_errors() == 0, "lớp kiểm tra không báo lỗi");
+}
+
+void vulkan_swapchain_dropped_while_building(Context& context) {
+    HiddenWindow window = open_hidden();
+    context.expect(window.hwnd != nullptr, "tạo được cửa sổ ẩn");
+    const DeviceResult made = validated_device(gpu::Backend::kVulkan);
+    context.expect(made.has_value(), "tạo được thiết bị");
+    if (made && window.hwnd != nullptr) drop_fresh(context, **made, window.hwnd);
+    close_hidden(window);
+}
 #endif
 
 void vulkan_storage_upload_keeps_device(Context& context) {
@@ -1401,6 +1430,7 @@ constexpr std::array kCases{
     Case{.name = "d3d12_swapchain_accepts_srgb", .body = &d3d12_swapchain_accepts_srgb},
     Case{.name = "d3d11_swapchain_accepts_srgb", .body = &d3d11_swapchain_accepts_srgb},
     Case{.name = "vulkan_swapchain_presents_frames", .body = &vulkan_swapchain_presents_frames},
+    Case{.name = "vulkan_swapchain_dropped_while_building", .body = &vulkan_swapchain_dropped_while_building},
     Case{.name = "d3d12_swapchain_presents_frames", .body = &d3d12_swapchain_presents_frames},
     Case{.name = "d3d11_swapchain_presents_frames", .body = &d3d11_swapchain_presents_frames},
     Case{.name = "d3d_alpha_blend_has_no_color_factor", .body = &d3d_alpha_blend_has_no_color_factor},

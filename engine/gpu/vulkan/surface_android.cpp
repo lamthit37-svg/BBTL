@@ -1,9 +1,25 @@
-// Phần Android của backend Vulkan: bề mặt của cửa sổ và việc dò thư viện nạp. ANativeWindow do
-// NativeActivity trao qua android_app->window; libvulkan.so được liên kết trực tiếp ở lần nạp
-// tiến trình nên has_loader chỉ việc xác nhận nó mở được — thiết bị không có Vulkan vẫn có thư
-// viện khoá này, việc hỏng sẽ hiện ở vkCreateInstance và Instance::create trả Unsupported.
-// Nguồn port: Forge2 src/gpu/vulkan/surface_win32.cpp@d7fcd76. Khác gốc: tệp mới của THIENLONG
-// cho Android; giữ nguyên hợp đồng has_loader/create_surface mà swapchain.cpp đang gọi.
+/*==============================================================================
+ *  ENGINEHP  |  HIGH-PERFORMANCE GAME ENGINE
+ *------------------------------------------------------------------------------
+ *  TỆP       : engine/gpu/vulkan/surface_android.cpp
+ *  PHÂN HỆ   : Gpu / Vulkan / Surface Android
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Phần Android của backend Vulkan: bề mặt của cửa sổ và việc dò thư viện
+ *    nạp. ANativeWindow do NativeActivity trao qua android_app->window;
+ *    libvulkan.so được liên kết trực tiếp ở lần nạp tiến trình nên has_loader
+ *    chỉ việc xác nhận nó mở được — thiết bị không có Vulkan vẫn có thư viện
+ *    khoá này, việc hỏng sẽ hiện ở vkCreateInstance và Instance::create trả
+ *    Unsupported. Nguồn port: Forge2 src/gpu/vulkan/surface_win32.cpp@d7fcd76.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Khác gốc: tệp mới của THIENLONG cho Android; giữ nguyên hợp đồng has_loader/create_surface mà
+// swapchain.cpp đang gọi.
+
 #include "gpu/vulkan/swapchain.hpp"
 
 #include "core/error.hpp"
@@ -16,7 +32,8 @@
 #include <android/native_window.h>
 
 #include <vulkan/vulkan_core.h>
-// vulkan_android.h dùng VkFlags và VkStructureType mà không tự include vulkan_core.h: phải đứng sau.
+// vulkan_android.h dùng VkFlags và VkStructureType mà không tự include vulkan_core.h: phải đứng
+// sau.
 #include <vulkan/vulkan_android.h>
 
 namespace game::gpu::vulkan {
@@ -47,6 +64,11 @@ Result<VkSurfaceKHR> create_surface(const Instance& instance, void* window) {
         return fail_vk(created, "không tạo được bề mặt Vulkan cho ANativeWindow");
     }
     return surface;
+}
+
+// Android: ANativeWindow không có hàng thông điệp gắn với luồng như HWND, join suông là đủ.
+void wait_builder(std::jthread& builder) noexcept {
+    if (builder.joinable()) builder.join();
 }
 
 } // namespace game::gpu::vulkan

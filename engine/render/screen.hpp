@@ -70,8 +70,6 @@ public:
     [[nodiscard]] gpu::Format depth_format() const noexcept;
     [[nodiscard]] std::uint32_t width() const noexcept;
     [[nodiscard]] std::uint32_t height() const noexcept;
-    // Số ảnh của swapchain: số slot dữ liệu mỗi khung mà renderer cần.
-    [[nodiscard]] std::uint32_t image_count() const noexcept;
     // Số mẫu khử răng cưa đang vẽ (1 khi tắt); pipeline vẽ lên màn hình phải khai đúng số này.
     [[nodiscard]] std::uint32_t samples() const noexcept;
     // Đặt vào SubmitDesc::present_target của lần nộp chứa lệnh của khung.
