@@ -90,3 +90,6 @@ $RECYCLE.BIN/
 # Tệp autotools của libsodium: CMake của dự án không dùng.
 /third_party/libsodium/upstream/**/Makefile.am
 /third_party/libsodium/upstream/**/Makefile.in
+
+# Chỉ mục của công cụ codegraph: cơ sở dữ liệu hàng trăm MB, sinh lại được.
+/.codegraph/
