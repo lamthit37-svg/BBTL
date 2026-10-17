@@ -99,6 +99,8 @@ struct Options {
     int peers = 0;
     std::string prefix = "bot";
     bool straight = false;
+    // --probe 1: chỉ bắt tay với cổng game rồi in phiên bản giao thức của bot và của cụm.
+    bool probe = false;
     // Điểm tới của --hunt, centimet.
     std::optional<std::pair<float, float>> hunt;
     // Điểm tới của --talk, centimet.
@@ -951,7 +953,8 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     if (key == "--fight") return take_goal(options.fight, value);
     if (key == "--prefix") options.prefix = value;
     if (key == "--straight") options.straight = value == "1";
-    return key == "--prefix" || key == "--straight";
+    if (key == "--probe") options.probe = value == "1";
+    return key == "--prefix" || key == "--straight" || key == "--probe";
 }
 
 [[nodiscard]] std::optional<Options> parse(std::span<const char* const> args) {
@@ -990,11 +993,24 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     return true;
 }
 
+// --probe 1: bắt tay với cổng game, in một dòng `giao thức: bot v<n>, cụm v<m>` rồi thoát. Thoát 1
+// khi cụm từ chối bắt tay (cụm cũ hơn bot, hay chưa chạy), để bộ chạy E2E dừng sớm thay vì báo lỗi
+// vé.
+[[nodiscard]] int probe(const Options& options, const secure::PublicKey& server) {
+    constexpr std::uint16_t kBot = protocol::kVersion;
+    std::optional<link::Link> line = dial(options.game_port, server);
+    if (!line) std::println("giao thức: bot v{}, cụm từ chối bắt tay", kBot);
+    if (!line) return 1;
+    const std::uint16_t cluster = line->welcome().version;
+    std::println("giao thức: bot v{}, cụm v{}", kBot, cluster);
+    return 0;
+}
+
 void print_usage() {
     std::println(stderr, "dùng: thienlong_bot --identity <khoá> [--game 7100] [--auth 7101]");
     std::println(stderr, "  [--count 4] [--seconds 6] [--prefix bot] [--straight 1] [--peers <n>]");
-    std::println(stderr, "  [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>] [--fight <x_m>,<z_m>]");
-    std::println(stderr, "  [--walk <walk.path>]");
+    std::println(stderr, "  [--probe 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
+    std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>]");
 }
 
 } // namespace
@@ -1017,6 +1033,7 @@ int main(int argc, char** argv) {
         return 2;
     }
     const secure::PublicKey server = identity->public_key();
+    if (options->probe) return probe(*options, server);
     Tally tally;
     {
         std::vector<std::jthread> bots;

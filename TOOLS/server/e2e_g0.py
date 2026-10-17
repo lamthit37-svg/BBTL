@@ -18,7 +18,9 @@
 
 """E2E G0-M: sáu kịch bản bot trên cụm thật, đối chiếu log kiểm của zone.
 
-cách dùng: py -X utf8 TOOLS/server/e2e_g0.py [--tag 7] [--bot build/lane-server/thienlong_bot.exe]
+cách dùng: py -X utf8 TOOLS/server/e2e_g0.py [--tag 7] [--bot dev/server/bin/thienlong_bot.exe]
+Trước khi chạy, bot tự bắt tay với cổng game (--probe 1) và in phiên bản giao thức của bot và của
+cụm; cụm từ chối thì dừng với mã 2 (bot mới hơn cụm: cài lại máy chủ và bot cùng một lượt).
 Cụm phải đang chạy (local_cluster.py start) với play_trace = true. Tài khoản bot là
 e2em<tag><kịch bản><số>: mỗi lượt chạy cần một --tag mới vì tài khoản đã có nhân vật thì giữ vị
 trí cũ. Kết quả vào build/e2e/G0/m/ (build/e2e/G0/ là của client K): <kịch bản>-out.txt, <kịch bản>-err.txt, report.txt.
@@ -39,7 +41,9 @@ KEY = PROJECT / "dev" / "server" / "data" / "gate" / "identity.key"
 WALK = PROJECT / "dev" / "server" / "scenes" / "dali" / "walk.path"
 ZONE_LOG = PROJECT / "dev" / "server" / "log" / "cluster_err.txt"
 OUT = PROJECT / "build" / "e2e" / "G0" / "m"
-BOT = PROJECT / "build" / "lane-server" / "thienlong_bot.exe"
+# Bot cài cùng lượt cài máy chủ (dev/server/bin) nên luôn cùng bản dựng và cùng phiên bản giao thức
+# với cụm đang chạy; bản ở build/lane-server có thể dựng từ cây khác phiên bản.
+BOT = PROJECT / "dev" / "server" / "bin" / "thienlong_bot.exe"
 # Mọi việc zone có thể ghi (zone/trace.cpp); việc nào không kịch bản nào sinh thì in ở "chưa kiểm".
 ALL_ACTS = ("vào", "rời", "đi", "kéo", "nói", "chọn", "nhận", "trả", "bỏ", "chiêu", "đánh", "trúng",
             "hạ", "chết", "hồi", "nhặt")
@@ -133,8 +137,19 @@ def verdict(one: Scenario) -> tuple[bool, str]:
     return exit_ok and not missing, text
 
 
-def report(plan: list[Scenario], tag: str) -> tuple[str, bool]:
-    lines = [f"E2E G0-M, tag {tag}, bot {BOT.name}", ""]
+def probe(bot: Path) -> tuple[bool, str]:
+    """Bắt tay thử: (đạt, dòng `giao thức: bot v.., cụm v..` của bot)."""
+    command = [str(bot), "--identity", str(KEY), "--probe", "1"]
+    try:
+        done = subprocess.run(command, cwd=PROJECT, capture_output=True, timeout=60, check=False)
+    except subprocess.TimeoutExpired:
+        return False, "bot treo quá 60 giây khi bắt tay thử"
+    shown = done.stdout.decode("utf-8", errors="replace").strip()
+    return done.returncode == 0, shown or f"bot thoát {done.returncode} không in gì"
+
+
+def report(plan: list[Scenario], tag: str, versions: str) -> tuple[str, bool]:
+    lines = [f"E2E G0-M, tag {tag}, bot {BOT.name}", versions, ""]
     every_ok = True
     for one in plan:
         ok, text = verdict(one)
@@ -156,13 +171,22 @@ def main() -> int:
     if not ZONE_LOG.is_file():
         print(f"không thấy {ZONE_LOG}: cụm chưa chạy (local_cluster.py start)", file=sys.stderr)
         return 2
+    bot = Path(args.bot)
+    if not bot.is_file():
+        print(f"không thấy bot {bot}: cài cùng máy chủ vào dev/server/bin", file=sys.stderr)
+        return 2
+    is_greeted, versions = probe(bot)
+    print(versions)
+    if not is_greeted:
+        print("cụm từ chối bắt tay của bot: dựng lại máy chủ cùng bot rồi khởi động lại cụm", file=sys.stderr)
+        return 2
     OUT.mkdir(parents=True, exist_ok=True)
     since = ZONE_LOG.stat().st_size
     plan = scenarios()
-    run_all(Path(args.bot), args.tag, plan)
+    run_all(bot, args.tag, plan)
     time.sleep(2.0)
     attach_acts(plan, args.tag, acts_by_account(since))
-    text, ok = report(plan, args.tag)
+    text, ok = report(plan, args.tag, versions)
     (OUT / "report.txt").write_text(text, encoding="utf-8")
     sys.stdout.write(text)
     return 0 if ok else 1
