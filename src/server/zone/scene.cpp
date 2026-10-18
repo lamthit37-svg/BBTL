@@ -38,6 +38,9 @@ namespace game::zone {
 namespace {
 
 constexpr float kMinStepCm = 1.0F;
+// Khoảng cách mẫu khi kiểm đoạn đi của người chơi: bằng độ lệch kWalkSlackCm (zone/content.hpp) của
+// luật đi.
+constexpr float kStepSampleCm = 20.0F;
 
 bool motion_due(std::uint32_t sent, std::uint32_t tick, std::uint32_t stride) noexcept {
     if (sent == kNeverSent || sent == tick) return true;
@@ -286,11 +289,16 @@ bool Scene::moved(std::uint64_t session, const ipc::Moved& step, Outbox& out) {
     return false;
 }
 
+// Khác gốc: máy chủ 2008 tự đi theo đường client gửi nên không có chuyện nhảy qua tường; ta nhận
+// chỗ đứng client khai (gate chỉ giới hạn quãng), nên kiểm cả đoạn đi bằng điểm mẫu dày, không chỉ
+// điểm đến (B19). Mẫu cách nhau kStepSampleCm: tường dày hơn hai lần dung sai của luật đi không lọt
+// giữa hai mẫu. Người đang đứng ở chỗ không đi được thì không bị kiểm gì (đúng luật gốc).
 bool Scene::blocked(const Entity& who, const ipc::Moved& step) const {
     if (!config_.walkable) return false;
-    // Phần lớn bước đi vào chỗ đi được: chỉ một lần tra. Tra chỗ đứng cũ chỉ khi bước mới không đi được.
-    if (config_.walkable(step.x_cm, step.z_cm)) return false;
-    return config_.walkable(who.x_cm, who.z_cm);
+    const Point from{.x_cm = who.x_cm, .z_cm = who.z_cm};
+    const Point to{.x_cm = step.x_cm, .z_cm = step.z_cm};
+    if (clear_line(from, to, kStepSampleCm)) return false;
+    return passable(from);
 }
 
 void Scene::detach(std::uint64_t session, Outbox& out) {

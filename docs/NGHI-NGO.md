@@ -1236,3 +1236,31 @@ kết luận ngay dưới mục đó chứ không xoá.
     khi G5 có trang bị thì thêm `equip[19]`, khi có PvP thì thêm `pk_level`, rồi nâng phiên bản giao thức. Chưa có khoá
     `store.toml` cho danh sách ảnh chân dung và bộ đồ tân thủ (tập đóng trong `account/rules.cpp`, khớp `portraits.tsv`
     choice 1 hay 3 và `newbie_outfits.tsv`); client đổi bảng thì phải sửa mã.
+
+74. **Kiểm đoạn đi của zone (B19): mẫu 20 cm, chưa chạy trên cảnh `legacy_nav` và chưa đo với client giật khung** (2026-10-18,
+    B19; `src/server/zone/scene.cpp` `Scene::blocked`, `kStepSampleCm`; `docs/giao-viec/HOAN-THIEN/H1-M.md`).
+    `Scene::blocked` lấy mẫu dọc đoạn đi, cách nhau 20 cm (bằng độ lệch `kWalkSlackCm` của luật đi) bằng chính hàm
+    `walkable`, thay cho việc chỉ tra điểm đến; bước dài xuyên tường mỏng không còn lọt. Chưa chắc: (1) E2E `--leap` mới
+    chạy trên Đại Lý (lưới `.path`), chưa trên cảnh `legacy_nav` (lưới ô); (2) client giật khung vài trăm ms phát một Move
+    dài quanh góc lồi có thể cắt qua mép tường và bị hoàn bước (chỉ kéo về, không phạt); (3) gốc 2008 không có bản tương
+    ứng vì máy chủ tự đi đường qua FindPath (`AI_Character.cpp:152-201`), nên ghi `// Khác gốc:` ở `Scene::blocked`;
+    (4) lần chạy `--leap` đầu tiên ngay sau khi cài exe mới và khởi động cụm bị EnterGame từ chối mã 16 (`kBusy`: gate
+    chưa nối zone, `gate/table.cpp:1282`), 6/6 lần sau vào được, kể cả bot chạy 2 s sau khi start: chưa tái hiện, chưa rõ
+    nguyên nhân (nghi lần chạy đầu của exe mới chậm vì quét tệp), không do B19 (gate là HEAD).
+    Cần: một lượt đi sát tường bằng client thật ở cả hai loại cảnh, đếm Position kéo về; và bắt được lần `kBusy`
+    đầu (dừng cụm, cài exe mới, chạy bot ngay) để biết gate nối zone mất bao lâu.
+
+75. **Tin máy chủ lớn hơn một bản ghi mật (4104 byte): chưa có tin thật nào vượt, gate vẫn bỏ lặng khi vượt** (2026-10-18,
+    điều phối giao đo; `src/server/gate/table.cpp` `queue_down`, `note_oversize`; `docs/PROTOCOL-TIN.md` cột "Thân tối đa").
+    Đo: cột "Thân tối đa" của catalog (cận trên lý thuyết) cho thấy chỉ hai tin server gửi vượt 4096 byte thân:
+    `DialogOpen` 29 473 và `UiCommand` 4 188; mọi tin khác không quá 3000 (CharacterList 579, QuestBook 1 334, SceneEnter 16).
+    Cỡ thật của `DialogOpen`: `dialogue.zh.txt` (1 183 nhóm: script NPC và nhiệm vụ; đo bằng một
+    đoạn Python tạm cộng chữ từng nhóm kèm 4 byte tiền tố mỗi dòng) có nhóm lớn nhất 1 686 byte (`obj/dali/odali_zhengyi.lua`,
+    58 dòng gồm cả lựa chọn), dòng dài nhất 408 byte, không nhóm nào quá 4 000. Cộng tối đa 16 dòng dấu nhiệm vụ,
+    bonus và số lựa chọn thì ước chừng dưới 3 500 byte: còn dưới trần, nhưng cận trên này chưa dựng bằng cách mã hoá từng hộp
+    thoại thật. `UiCommand` mang chuỗi ngắn (tên lệnh, id) nên thực tế vài chục byte. Chưa chắc: một hộp thoại đủ lớn
+    (bảng nhiệm vụ với nhiều phần thưởng và dòng dấu cùng lúc, hoặc bảng chữ của nhà phát hành ghi đè trong
+    `config/text/dialogue.zh.txt` dài hơn) có vượt 4 096 hay không. Cần: một lượt dựng `DialogOpen` cho mọi NPC và mọi
+    nhiệm vụ rồi mã hoá để lấy cỡ thật (hoặc đọc dòng log `gate: bỏ khung zone 0x8601 (n byte), lần k` khi E2E chạm
+    một hộp quá lớn). Nếu có tin vượt: B1 cần đổi giao thức (`link.cpp` coi mỗi bản ghi là một khung, nên gate không chẻ
+    khung ra nhiều bản ghi được nếu không có nhận biết ở client) hoặc cắt chữ ở nguồn; hai phương án gửi điều phối chọn.

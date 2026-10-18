@@ -99,13 +99,13 @@ void Scene::think_one(std::uint32_t index, Outbox& out) {
 
 bool Scene::passable(Point at) const { return !config_.walkable || config_.walkable(at.x_cm, at.z_cm); }
 
-bool Scene::clear_line(Point from, Point to) const {
+bool Scene::clear_line(Point from, Point to, float sample_cm) const {
     if (!config_.walkable) return true;
     const float length = std::sqrt(from.distance_squared(to));
     if (length <= 0.0F) return true;
-    const int samples = static_cast<int>(std::ceil(length / kSampleCm));
+    const int samples = static_cast<int>(std::ceil(length / sample_cm));
     for (int at = 1; at <= samples; ++at) {
-        const float along = std::min(1.0F, static_cast<float>(at) * kSampleCm / length);
+        const float along = std::min(1.0F, static_cast<float>(at) * sample_cm / length);
         const Point point{.x_cm = from.x_cm + ((to.x_cm - from.x_cm) * along),
             .z_cm = from.z_cm + ((to.z_cm - from.z_cm) * along)};
         if (!passable(point)) return false;
@@ -183,7 +183,9 @@ void Scene::begin_wander(std::uint32_t index) {
             return static_cast<float>(rng_.below(nature.range_cm)) - static_cast<float>(rng_.below(nature.range_cm));
         };
         const Point target{.x_cm = mind.home_x_cm + offset(), .z_cm = mind.home_z_cm + offset()};
-        if (!passable(target) || !clear_line(Point{.x_cm = who.x_cm, .z_cm = who.z_cm}, target)) continue;
+        const Point from{.x_cm = who.x_cm, .z_cm = who.z_cm};
+        const bool is_open = passable(target) && clear_line(from, target, kSampleCm);
+        if (!is_open) continue;
         mind.mode = Mode::kWander;
         mind.goal_x_cm = target.x_cm;
         mind.goal_z_cm = target.z_cm;

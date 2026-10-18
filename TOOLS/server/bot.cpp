@@ -18,7 +18,8 @@
 
 // Chạy: thienlong_bot --identity <identity.key> [--game 7100] [--auth 7101] [--count 4]
 //       [--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
-//       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>] [--roster 1] [--probe 1]
+//       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>] [--roster 1] [--leap 1]
+//       [--probe 1]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --walk <walk.path>: tệp .path của cảnh vào (dev/server/scenes/<cảnh>/walk.path). --hunt, --talk,
 // --fight đi theo các điểm rẽ của luật đi client (nav::Field::plan_move, nhấp chuột tìm đường vòng
@@ -43,6 +44,10 @@
 // từng bước và thoát 1 nếu một bước sai mã mong đợi (G1-M): trần ba nhân vật (can_create), xoá id
 // của tài khoản khác, xoá lại id đã xoá, xoá nhân vật đang chơi qua kết nối thứ hai, xoá dồn dưới
 // 500 ms, xoá khi hết nhân vật.
+// --leap 1 (cần --walk): đứng yên 2,2 giây cho giới hạn từng bước của guard::Pace đủ dài, rồi gửi
+// một Move dài tới điểm đi được nằm sau tường (B19); zone phải đặt lại về chỗ cũ (Position). Sau đó
+// một Move cùng khoảng cách tới điểm thông phải được nhận, để biết việc đặt lại là do tường chứ
+// không do giới hạn quãng.
 
 #include "io/platform.hpp"
 #include "link/link.hpp"
@@ -108,6 +113,8 @@ struct Options {
     bool probe = false;
     // --roster 1: kịch bản tạo và xoá nhân vật thay cho việc vào cảnh.
     bool roster = false;
+    // --leap 1: một Move dài xuyên tường sau khi đứng yên, mong bị đặt lại.
+    bool leap = false;
     // Điểm tới của --hunt, centimet.
     std::optional<std::pair<float, float>> hunt;
     // Điểm tới của --talk, centimet.
@@ -132,7 +139,10 @@ struct Tally {
     // Chỉ chế độ --straight: số lần server kéo về, và số lần kéo về xa hơn vài bước so với chỗ khách đang tưởng mình đứng.
     std::atomic<int> corrections{0};
     std::atomic<int> drifted{0};
-    // Chỉ chế độ --hunt: EntityPos của quái theo trạng thái, và khoảng gần nhất (cm) từ quái tới khách.
+    // Chỉ chế độ --leap: số khách mà bước xuyên tường bị đặt lại còn bước tới điểm thông được nhận.
+    std::atomic<int> leaped{0};
+    // Chỉ chế độ --hunt: EntityPos của quái theo trạng thái, và khoảng gần nhất (cm) từ quái tới
+    // khách.
     std::atomic<int> monster_walking{0};
     std::atomic<int> monster_resting{0};
     std::atomic<int> closest_cm{1'000'000};
@@ -479,11 +489,16 @@ constexpr float kNodeCm = 2.0F;
     return go_leg(line, seen, tally, leg, tick);
 }
 
-// Chỗ cách khách đúng `radius` cm, theo hướng thứ `index` trong `count` hướng đều nhau.
-[[nodiscard]] Goal ring_spot(const Seen& seen, float radius, int index, int count) {
+// Chỗ cách `from` đúng `radius` cm, theo hướng thứ `index` trong `count` hướng đều nhau.
+[[nodiscard]] Goal spot_at(Goal from, float radius, int index, int count) {
     constexpr float kTurn = 2.0F * std::numbers::pi_v<float>;
     const float heading = kTurn * static_cast<float>(index) / static_cast<float>(count);
-    return Goal{seen.x_cm + radius * std::cos(heading), seen.z_cm + radius * std::sin(heading)};
+    return Goal{from.first + radius * std::cos(heading), from.second + radius * std::sin(heading)};
+}
+
+// Chỗ cách khách đúng `radius` cm, theo hướng thứ `index` trong `count` hướng đều nhau.
+[[nodiscard]] Goal ring_spot(const Seen& seen, float radius, int index, int count) {
+    return spot_at(Goal{seen.x_cm, seen.z_cm}, radius, index, count);
 }
 
 // Trong các chỗ trên vòng bán kính `radius` mà luật đi client cho tới được, chỗ gần `goal` nhất.
@@ -822,6 +837,119 @@ void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position&
     if (Clock::now() >= strike.deadline) std::println("  hết {} giây săn quái", seconds);
 }
 
+// ---- Chế độ --leap: một Move dài xuyên tường (B19) ---------------------------------------------
+
+constexpr int kIdleMs = 2200;
+constexpr std::uint32_t kLeapTick = 70;
+constexpr float kLeapSampleCm = 20.0F;
+constexpr float kLeapSlackCm = 20.0F;
+
+// Điểm đứng được của lưới tam giác: nằm trong một tam giác đi được.
+[[nodiscard]] bool is_open(const nav::Mesh& mesh, Goal spot) {
+    const nav::Point point{.x = spot.first / kCmPerUnit, .z = spot.second / kCmPerUnit};
+    return nav::locate(mesh, point, nav::Ground::kOpen).has_value();
+}
+
+// Luật đi của zone (zone/content.cpp walkable_of): đi được khi chính điểm đó hoặc điểm lệch 20 cm
+// theo bốn hướng nằm trong tam giác đi được.
+[[nodiscard]] bool zone_stands(const nav::Mesh& mesh, Goal spot) {
+    if (is_open(mesh, spot)) return true;
+    const float right = spot.first + kLeapSlackCm;
+    const float left = spot.first - kLeapSlackCm;
+    const float above = spot.second + kLeapSlackCm;
+    const float below = spot.second - kLeapSlackCm;
+    if (is_open(mesh, Goal{right, spot.second})) return true;
+    if (is_open(mesh, Goal{left, spot.second})) return true;
+    if (is_open(mesh, Goal{spot.first, above})) return true;
+    return is_open(mesh, Goal{spot.first, below});
+}
+
+// Đoạn from→to có một điểm mẫu (cách nhau 20 cm, như zone/scene.cpp) mà zone coi là không đi được.
+[[nodiscard]] bool has_gap(const nav::Mesh& mesh, Goal from, Goal to) {
+    const float length = std::hypot(to.first - from.first, to.second - from.second);
+    const int samples = static_cast<int>(std::ceil(length / kLeapSampleCm));
+    for (int at = 1; at <= samples; ++at) {
+        const float along = std::min(1.0F, static_cast<float>(at) * kLeapSampleCm / length);
+        const float spot_x = from.first + ((to.first - from.first) * along);
+        const float spot_z = from.second + ((to.second - from.second) * along);
+        if (!zone_stands(mesh, Goal{spot_x, spot_z})) return true;
+    }
+    return false;
+}
+
+// Hai đích cùng khoảng cách: `wall` đi được nhưng đoạn thẳng tới đó xuyên vật cản, `clear` thông
+// hẳn.
+struct Leap {
+    Goal wall;
+    Goal clear;
+    float reach_cm = 0.0F;
+};
+
+// Cặp đích đầu tiên trên vòng bán kính `reach` (16 hướng quanh `from`); reach_cm là 0 khi thiếu một
+// loại.
+[[nodiscard]] Leap leap_on_ring(const nav::Mesh& mesh, Goal from, float reach) {
+    constexpr int kHeadings = 16;
+    std::optional<Goal> wall;
+    std::optional<Goal> clear;
+    for (int i = 0; i < kHeadings; ++i) {
+        const Goal spot = spot_at(from, reach, i, kHeadings);
+        if (!zone_stands(mesh, spot)) continue;
+        const bool is_gap = has_gap(mesh, from, spot);
+        if (is_gap && !wall) wall = spot;
+        if (!is_gap && !clear) clear = spot;
+    }
+    if (!wall || !clear) return Leap{};
+    return Leap{.wall = *wall, .clear = *clear, .reach_cm = reach};
+}
+
+// Thử các khoảng 400, 600, 800 cm (dưới giới hạn của 2,2 giây đứng yên, khoảng 1000 cm) cho tới khi
+// có đủ cặp đích.
+[[nodiscard]] std::optional<Leap> pick_leap(const nav::Mesh& mesh, Goal from) {
+    for (const float reach : {400.0F, 600.0F, 800.0F}) {
+        const Leap leap = leap_on_ring(mesh, from, reach);
+        if (leap.reach_cm > 0.0F) return leap;
+    }
+    return std::nullopt;
+}
+
+// Đọc tin trong `span`, mỗi lượt một khung 33 ms.
+void drain_for(link::Link& line, Seen& seen, Tally& tally, std::chrono::milliseconds span) {
+    const auto end = Clock::now() + span;
+    while (Clock::now() < end && !seen.refused) {
+        drain_frame(line, seen, tally);
+    }
+}
+
+// Đứng yên kIdleMs cho giới hạn từng bước đủ dài, gửi một Move tới `target`, đọc thêm 700 ms. true
+// khi bị đặt lại (nhận Position).
+[[nodiscard]] bool leap_pulled(link::Link& line, Seen& seen, Tally& tally, Goal target) {
+    drain_for(line, seen, tally, std::chrono::milliseconds{kIdleMs});
+    const int before = tally.corrections.load();
+    const protocol::Move move{.x_cm = target.first, .z_cm = target.second, .tick = kLeapTick};
+    if (!send(line, move)) return false;
+    drain_for(line, seen, tally, std::chrono::milliseconds{700});
+    return tally.corrections.load() > before;
+}
+
+// Chạy --leap từ chỗ vừa vào cảnh: nhảy tới điểm sau tường phải bị đặt lại, nhảy tới điểm thông
+// cùng khoảng thì không. Cần --walk để biết chỗ nào là tường.
+void run_leap(link::Link& line, Seen& seen, Tally& tally, std::string_view account) {
+    if (seen.field == nullptr) return report(account, "--leap cần --walk <walk.path>");
+    seen.x_cm = seen.position->x_cm;
+    seen.z_cm = seen.position->z_cm;
+    const Goal from{seen.x_cm, seen.z_cm};
+    const std::optional<Leap> leap = pick_leap(seen.field->mesh(), from);
+    if (!leap) return report(account, "không thấy cặp điểm tường và thông quanh điểm sinh");
+    const bool is_wall_pulled = leap_pulled(line, seen, tally, leap->wall);
+    const bool is_clear_pulled = leap_pulled(line, seen, tally, leap->clear);
+    const bool is_right = is_wall_pulled && !is_clear_pulled;
+    if (is_right) ++tally.leaped;
+    const std::string_view wall_fate = is_wall_pulled ? "bị đặt lại" : "lọt qua";
+    const std::string_view open_fate = is_clear_pulled ? "bị đặt lại" : "được nhận";
+    const float reach = leap->reach_cm;
+    std::println("[{}] leap {:.0f} cm: tường {}, thông {}", account, reach, wall_fate, open_fate);
+}
+
 // Nhân vật nam mới với lựa chọn nằm trong danh sách tạo được: mặt 100, tóc 5 (store.toml), ảnh chân
 // dung 52 (đầu bảng của nam trong portraits.tsv) và bộ đồ tân thủ 0.
 [[nodiscard]] protocol::CreateCharacter novice(const std::string& name) {
@@ -884,6 +1012,7 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     if (options.peers > 0) return watch(*line, seen, tally, account, options.seconds);
     const float share = static_cast<float>(index) / static_cast<float>(options.count);
     const float heading = 2.0F * std::numbers::pi_v<float> * share;
+    if (options.leap) return run_leap(*line, seen, tally, account);
     bool walked = true;
     if (options.fight) {
         fight(*line, seen, tally, *seen.position, *options.fight, options.seconds);
@@ -1166,7 +1295,8 @@ void online_and_pace(Rig& rig, const Options& options, const secure::PublicKey& 
     if (key == "--straight") options.straight = value == "1";
     if (key == "--probe") options.probe = value == "1";
     if (key == "--roster") options.roster = value == "1";
-    const bool is_flag = key == "--prefix" || key == "--straight";
+    if (key == "--leap") options.leap = value == "1";
+    const bool is_flag = key == "--prefix" || key == "--straight" || key == "--leap";
     return is_flag || key == "--probe" || key == "--roster";
 }
 
@@ -1223,7 +1353,7 @@ void print_usage() {
     std::println(stderr, "dùng: thienlong_bot --identity <khoá> [--game 7100] [--auth 7101]");
     std::println(stderr, "  [--count 4] [--seconds 6] [--prefix bot] [--straight 1] [--peers <n>]");
     std::println(stderr, "  [--probe 1] [--roster 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
-    std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>]");
+    std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>] [--leap 1]");
 }
 
 } // namespace
@@ -1284,6 +1414,10 @@ int main(int argc, char** argv) {
         std::println("quái đi: Walk={} Idle={}, gần nhất {} cm", tally.monster_walking.load(), tally.monster_resting.load(),
             tally.closest_cm.load());
         return tally.monsters.load() > 0 && tally.monster_walking.load() > 0 ? 0 : 1;
+    }
+    if (options->leap) {
+        std::println("leap: {} trên {} khách bị đặt lại đúng", tally.leaped.load(), options->count);
+        return tally.leaped.load() == options->count ? 0 : 1;
     }
     if (options->straight) return tally.corrections.load() > 0 && tally.drifted.load() == 0 ? 0 : 1;
     // Mỗi khách phải thấy mọi khách khác hiện ra ít nhất một lần.

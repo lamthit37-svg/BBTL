@@ -303,8 +303,8 @@ private:
     void begin_wander(std::uint32_t index);
     void give_up(std::uint32_t index);
     [[nodiscard]] bool passable(Point at) const;
-    // Đoạn thẳng from→to đi được: mọi điểm cách nhau chừng kSampleCm đều đi được.
-    [[nodiscard]] bool clear_line(Point from, Point to) const;
+    // Đoạn thẳng from→to đi được: mọi điểm cách nhau chừng sample_cm đều đi được.
+    [[nodiscard]] bool clear_line(Point from, Point to, float sample_cm) const;
     // Một bước kMoveEvery tick về phía goal với tốc độ speed_cm; trượt dọc trục khi bước chéo bị chặn.
     [[nodiscard]] Step step_toward(std::uint32_t index, Point goal, std::uint32_t speed_cm, Outbox& out);
 

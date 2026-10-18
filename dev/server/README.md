@@ -176,7 +176,9 @@ trước mỗi lượt và ghi hai số đó vào báo cáo. `--roster 1` không
 `<prefix>r` và `<prefix>x` (đặt `--prefix` mới mỗi lần, nhân vật nằm lại trong database) đi qua
 tạo và xoá nhân vật, in mã server trả cho từng bước (trần ba nhân vật, xoá id người khác, xoá
 lại id đã xoá, xoá nhân vật đang chơi, xoá dồn dưới 500 ms, xoá khi hết nhân vật) và thoát 1
-nếu một bước sai mã mong đợi. Ví dụ: `thienlong_bot --identity
+nếu một bước sai mã mong đợi. `--leap 1 --walk <walk.path>` đứng yên 2,2 giây rồi gửi một
+Move dài xuyên tường, sau đó một Move cùng khoảng tới điểm thông; thoát 0 khi chỉ bước xuyên
+tường bị đặt lại (`Scene::blocked` kiểm cả đoạn đi). Ví dụ: `thienlong_bot --identity
 dev\server\data\gate\identity.key --count 2 --seconds 8 --prefix e2em1`. `--peers N` cho một bot đứng
 yên đủ `--seconds` giây rồi thoát 0 nếu thấy ít nhất N người chơi khác; đặt cạnh client thật trong
 kịch bản E2E. `--walk dev\server\scenes\dali\walk.path` cho `--hunt`, `--talk`, `--fight` đi theo luật

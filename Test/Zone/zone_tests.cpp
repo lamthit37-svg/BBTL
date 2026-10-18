@@ -1209,6 +1209,35 @@ void walkable_lets_trapped_player_leave(Context& context) {
     context.expect(now && now->x_cm == 5000.0F && places_in(out, 11).empty(), "đi từ ngoài vào trong sân, không bị hoàn lại");
 }
 
+// B19: sân có bức tường dày 100 cm ở x từ 2000 tới 2100. Điểm đến bên kia tường đi được, nhưng đoạn
+// đi cắt qua tường thì phải bị hoàn lại; trước đây zone chỉ tra điểm đến nên bước dài lọt qua.
+[[nodiscard]] bool in_split_yard(float x_cm, float z_cm) {
+    const bool is_wall = x_cm >= 2000.0F && x_cm <= 2100.0F;
+    return in_yard(x_cm, z_cm) && !is_wall;
+}
+
+[[nodiscard]] Scene make_split_scene() {
+    return Scene{Scene::Config{
+        .id = 1, .grid = {.cell_cm = kCell, .radius = 2}, .player_max = 100, .walkable = &in_split_yard}};
+}
+
+void walkable_blocks_step_through_wall(Context& context) {
+    Scene scene = make_split_scene();
+    Outbox out;
+    static_cast<void>(scene.attach(11, arrival(1, 1000.0F, 1000.0F), out));
+    out.clear();
+    scene.moved(11, ipc::Moved{.x_cm = 3000.0F, .z_cm = 1000.0F}, out);
+    const std::optional<Scene::Where> held = scene.where(*scene.entity_of(11));
+    context.expect(held && held->x_cm == 1000.0F, "bước xuyên tường không dời người chơi");
+    const std::vector<ipc::Place> back = places_in(out, 11);
+    context.expect(back.size() == 1 && back[0] == ipc::Place{.x_cm = 1000.0F, .z_cm = 1000.0F},
+        "zone đặt lại người xuyên tường về chỗ cũ");
+    out.clear();
+    scene.moved(11, ipc::Moved{.x_cm = 1900.0F, .z_cm = 1000.0F}, out);
+    const std::optional<Scene::Where> near_wall = scene.where(*scene.entity_of(11));
+    context.expect(near_wall && near_wall->x_cm == 1900.0F && places_in(out, 11).empty(), "bước dài sát tường nhưng không cắt thì được nhận");
+}
+
 void walkable_absent_allows_everything(Context& context) {
     Scene scene = make_scene();
     Outbox out;
@@ -1780,6 +1809,7 @@ constexpr std::array kCases{
     Case{"walkable_blocks_step_into_wall", walkable_blocks_step_into_wall},
     Case{"walkable_neighbour_does_not_see_blocked_step", walkable_neighbour_does_not_see_blocked_step},
     Case{"walkable_lets_trapped_player_leave", walkable_lets_trapped_player_leave},
+    Case{"walkable_blocks_step_through_wall", walkable_blocks_step_through_wall},
     Case{"walkable_absent_allows_everything", walkable_absent_allows_everything},
     Case{"walkable_of_keeps_the_edge_slack", walkable_of_keeps_the_edge_slack},
     Case{"host_ignores_place_from_gate", host_ignores_place_from_gate},
