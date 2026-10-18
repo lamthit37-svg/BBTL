@@ -281,16 +281,17 @@ constexpr gui::RadarAsk kMiddleAsk{
 
 void radar_center(Context& context) {
     const gui::Radar view = gui::radar_uv(kMiddleAsk);
-    context.expect(near_value(view.u0, 0.4453125F) && near_value(view.u1, 0.5546875F), "giữa cảnh");
+    // 140 / (320 x 3,2): minimap là SceneMap chế độ 1, 3,2 điểm ảnh một đơn vị cảnh.
+    context.expect(near_value(view.u0, 0.431640625F) && near_value(view.u1, 0.568359375F), "giữa cảnh");
     context.expect(near_value(view.v0, view.u0) && near_value(view.v1, view.u1), "trục z");
     gui::RadarAsk corner = kMiddleAsk;
     corner.player_x = 0.0F;
     corner.player_z = 0.0F;
     const gui::Radar edge = gui::radar_uv(corner);
     context.expect(near_value(edge.u0, 0.0F), "sát mép thì kẹp");
-    context.expect(near_value(edge.u1, 140.0F / (320.0F * 4.0F)), "mép phải của vùng thấy");
-    context.expect(view.is_centred_u && view.is_centred_v, "giữa cảnh: vùng thấy canh giữa người chơi");
-    context.expect(!edge.is_centred_u && !edge.is_centred_v, "sát mép: vùng thấy bị kẹp");
+    context.expect(near_value(edge.u1, 140.0F / (320.0F * 3.2F)), "mép phải của vùng thấy");
+    context.expect(near_value(view.mark_x, 70.0F) && near_value(view.mark_y, 70.0F), "giữa cảnh: người chơi đúng tâm cửa sổ");
+    context.expect(near_value(edge.mark_x, 0.0F) && near_value(edge.mark_y, 0.0F), "sát mép: người chơi lệch ra mép cửa sổ");
     const gui::BarMove move{.shown = 1.0F, .target = 0.5F, .speed = 1.0F, .seconds = 0.25F};
     context.expect(near_value(gui::bar_step(move), 0.75F), "thanh trượt 0,25 mỗi nhịp");
     const gui::SceneCursor centre{.local_x = 70.0F, .local_y = 70.0F};
@@ -299,9 +300,88 @@ void radar_center(Context& context) {
     context.expect(near_value(middle_hit.x, 160.0F) && near_value(middle_hit.z, 160.0F), "tâm là chỗ đứng");
     const gui::SceneCursor west{.local_x = 0.0F, .local_y = 70.0F};
     const gui::SceneHit edge_hit = gui::scene_at(kMiddleAsk, west);
-    context.expect(near_value(edge_hit.x, 142.5F), "mép trái là 142.5");
+    context.expect(near_value(edge_hit.x, 138.125F), "mép trái là 160 - 70 / 3,2");
     const gui::SceneHit missed = gui::scene_at(kMiddleAsk, {.local_x = -600.0F, .local_y = 70.0F});
     context.expect(!missed.is_on_scene && missed.x == 0.0F, "ra ngoài cảnh thì không có điểm");
+}
+
+bool is_whole_pixel(float value) {
+    return std::abs(value - std::round(value)) < 0.01F;
+}
+
+// Chế độ dính lưới (is_snapped): gốc nhìn của nền là số nguyên điểm ảnh (CEGUI PixelAligned của cửa sổ nền): khi
+// người chơi đi, mỗi lần đổi chỉ tịnh tiến nền nguyên điểm ảnh, nên điểm ảnh màn lấy mẫu cùng một lưới của ảnh nền ở
+// mọi khung và mép, nét, chữ trên ảnh không nhấp nháy. Mũi tên lấy chỗ từ cùng gốc nguyên đó nên không lệch nền quá
+// nửa điểm ảnh.
+void radar_view_is_pixel_aligned(Context& context) {
+    gui::RadarAsk ask = kMiddleAsk;
+    ask.window_width = 119.0F;
+    ask.window_height = 121.0F;
+    ask.is_snapped = true;
+    bool is_left_whole = true;
+    bool is_top_whole = true;
+    bool is_glued = true;
+    bool is_near_centre = true;
+    for (int step = 0; step < 2000; ++step) {
+        ask.player_x = 100.0F + (static_cast<float>(step) * 0.0693F);
+        ask.player_z = 200.0F - (static_cast<float>(step) * 0.0517F);
+        const gui::Radar view = gui::radar_uv(ask);
+        const float left = view.u0 * 1024.0F;
+        const float top = view.v0 * 1024.0F;
+        if (!is_whole_pixel(left)) is_left_whole = false;
+        if (!is_whole_pixel(top)) is_top_whole = false;
+        if (std::abs(view.mark_x - ((ask.player_x * 3.2F) - left)) > 0.01F) is_glued = false;
+        if (std::abs(view.mark_x - 59.0F) > 0.51F || std::abs(view.mark_y - 60.0F) > 0.51F) is_near_centre = false;
+    }
+    context.expect(is_left_whole && is_top_whole, "cạnh trái và trên của nền ở điểm ảnh nguyên");
+    context.expect(is_glued, "người chơi = chỗ trên nền trừ gốc nguyên");
+    context.expect(is_near_centre, "đi giữa cảnh: người chơi lệch tâm không quá nửa điểm ảnh");
+    gui::RadarAsk small = ask;
+    small.scene_width = 30.0F;
+    small.scene_depth = 30.0F;
+    small.player_x = 3.0F;
+    small.player_z = 27.0F;
+    const gui::Radar still = gui::radar_uv(small);
+    small.player_x = 20.0F;
+    const gui::Radar same = gui::radar_uv(small);
+    context.expect(near_value(still.u0, same.u0) && near_value(still.v0, same.v0), "cảnh nhỏ hơn cửa sổ: nền đứng yên giữa cửa sổ");
+    context.expect(still.u0 < 0.0F && near_value(still.u0, -12.0F / 96.0F), "cảnh 30 đơn vị rộng 96 điểm ảnh canh giữa ô 119");
+}
+
+// Mặc định (không dính lưới): nền trượt lẻ theo đúng chỗ đứng từng khung, người chơi luôn đúng tâm cửa sổ (điểm ảnh
+// nguyên: cạnh lẻ lấy nửa dưới) khi chưa chạm mép cảnh; chạm mép thì nền đứng lại và người chơi trượt tiếp, liền một
+// mạch với lúc ở giữa.
+void radar_view_is_smooth(Context& context) {
+    gui::RadarAsk ask = kMiddleAsk;
+    ask.window_width = 119.0F;
+    ask.window_height = 121.0F;
+    bool is_centred = true;
+    bool is_exact = true;
+    int fractional = 0;
+    for (int step = 0; step < 2000; ++step) {
+        ask.player_x = 100.0F + (static_cast<float>(step) * 0.0693F);
+        ask.player_z = 200.0F - (static_cast<float>(step) * 0.0517F);
+        const gui::Radar view = gui::radar_uv(ask);
+        const float left = view.u0 * 1024.0F;
+        if (std::abs(view.mark_x - 59.0F) > 0.001F || std::abs(view.mark_y - 60.0F) > 0.001F) is_centred = false;
+        if (std::abs(left - ((ask.player_x * 3.2F) - 59.0F)) > 0.01F) is_exact = false;
+        if (!is_whole_pixel(left)) ++fractional;
+    }
+    context.expect(is_centred, "đi giữa cảnh: người chơi đúng tâm cửa sổ ở mọi khung");
+    context.expect(is_exact, "cạnh trái của nền theo đúng chỗ đứng, không làm tròn");
+    context.expect(fractional > 1500, "nền trượt lẻ (không dính lưới)");
+    gui::RadarAsk edge = ask;
+    edge.player_z = 160.0F;
+    float last_mark = -1.0F;
+    bool is_continuous = true;
+    for (int step = 0; step < 250; ++step) {
+        edge.player_x = 25.0F - (static_cast<float>(step) * 0.1F);
+        const gui::Radar view = gui::radar_uv(edge);
+        const float mark = view.mark_x;
+        if (last_mark >= 0.0F && std::abs(mark - last_mark) > 0.4F) is_continuous = false;
+        last_mark = mark;
+    }
+    context.expect(is_continuous, "chạm mép cảnh: người chơi trượt liền, không nhảy");
 }
 
 // createBackground của DLL: trunc / 64, dư thì thêm ô. 320 và 192 chia hết; 100 thì không.
@@ -326,6 +406,10 @@ void round_edge(Context& context) {
     context.expect(near_value(fan.at(1).x, 50.0F) && near_value(fan.at(1).y, 50.0F), "vành phải");
     context.expect(near_value(fan.at(11).y, 80.0F), "góc 90 độ ở đáy như renderer gốc");
     context.expect(near_value(fan.at(1).u, 1.0F) && near_value(fan.at(1).v, 0.5F), "uv vành phải");
+    // Ảnh ô gốc (dds) đứng chữ, y màn hình xuống và v ảnh xuống cùng chiều: đáy màn lấy v dưới, đỉnh màn lấy v trên.
+    // Bản đầu ghép đáy với v trên nên minimap lật dọc (chữ trên nền bản đồ đảo đầu).
+    context.expect(near_value(fan.at(11).v, 0.75F), "đáy màn lấy v dưới của ảnh");
+    context.expect(near_value(fan.at(35).y, 20.0F) && near_value(fan.at(35).v, 0.25F), "đỉnh màn lấy v trên của ảnh");
 }
 
 // Một cửa sổ chữ: section "label" có một TextComponent phủ cả cửa sổ.
@@ -746,9 +830,8 @@ void radar_arrow(Context& context) {
     context.expect(is_back, "quay 180 độ sang khung hai");
 }
 
-// Radar cạnh lẻ (MiniMap của bản 2026 rộng 119): tâm rơi vào nửa điểm ảnh. Người chơi đi giữa cảnh thì vùng thấy
-// trôi theo, mũi tên đứng yên đúng một ô; trước đây sai số số thực quanh .5 (86,49994 rồi 86,50003) làm phép làm tròn
-// lật nó qua lại 1 px mỗi khung, mũi tên rung khi chạy.
+// Radar cạnh lẻ (MiniMap của bản 2026 rộng 119): tâm là điểm ảnh nguyên (nửa dưới). Người chơi đi giữa cảnh thì mũi
+// tên đứng yên đúng tâm, ở điểm ảnh nguyên (khung ảnh 32 x 32 lấy mẫu 1:1, không nhoè); nền là thứ trượt.
 void radar_arrow_steady(Context& context) {
     const GuiAsset asset = arrow_asset("w:119 h:119");
     const auto is_arrow = [](const Quad& quad) { return quad.texture == 0; };
@@ -768,11 +851,81 @@ void radar_arrow_steady(Context& context) {
                 continue;
             }
             if (!first) first = arrow->dest;
-            if (!same_box(arrow->dest, *first)) ++moved;
+            const bool is_whole = is_whole_pixel(arrow->dest.x) && is_whole_pixel(arrow->dest.y);
+            if (!is_whole || !same_box(arrow->dest, *first)) ++moved;
         }
     }
     context.expect(first.has_value(), "có mũi tên");
-    context.expect(moved == 0, "đi giữa cảnh: mũi tên không lệch điểm ảnh nào");
+    context.expect(moved == 0, "đi giữa cảnh: mũi tên đứng yên đúng tâm, ở điểm ảnh nguyên");
+}
+
+// Khung gần hướng mặt nhất cộng phần lẻ xoay nốt: mũi tên quay liền thay vì nhảy từng nấc 12 độ.
+void arrow_pose_is_continuous(Context& context) {
+    const float step = 2.0F * std::numbers::pi_v<float> / 30.0F;
+    const auto pose_at = [](float facing) { return gui::arrow_pose(gui::ArrowTurn{.facing = facing, .frames = 30}); };
+    const gui::ArrowPose exact = pose_at(step * 7.0F);
+    context.expect(exact.frame == 7 && near_value(exact.spin, 0.0F), "đúng khung 7 thì không xoay thêm");
+    const gui::ArrowPose early = pose_at((step * 7.0F) + (step * 0.3F));
+    context.expect(early.frame == 7 && near_value(early.spin, -step * 0.3F), "lệch sang đông: xoay ngược chiều kim đồng hồ");
+    const gui::ArrowPose late = pose_at((step * 7.0F) + (step * 0.7F));
+    context.expect(late.frame == 8 && near_value(late.spin, step * 0.3F), "quá nửa bước thì sang khung kế, xoay thuận");
+    const gui::ArrowPose wrap = pose_at((2.0F * std::numbers::pi_v<float>) - (step * 0.1F));
+    context.expect(wrap.frame == 0 && near_value(wrap.spin, step * 0.1F), "sát một vòng thì về khung 0");
+    const gui::ArrowPose back = pose_at(-step * 2.0F);
+    context.expect(back.frame == 28 && near_value(back.spin, 0.0F), "hướng âm đưa về 0..2pi");
+    context.expect(gui::arrow_pose({.facing = std::nanf(""), .frames = 30}).frame == 0, "hướng hỏng");
+    const gui::ArrowPose empty = gui::arrow_pose({.facing = 1.0F, .frames = 0});
+    context.expect(empty.frame == 0 && empty.spin == 0.0F, "hoạt ảnh rỗng");
+    bool is_smooth = true;
+    float last = pose_at(0.0F).spin;
+    for (int index = 1; index < 400; ++index) {
+        const float facing = static_cast<float>(index) * 0.001F;
+        const gui::ArrowPose pose = pose_at(facing);
+        const float shown = (static_cast<float>(pose.frame) * step) - pose.spin;
+        const float turned = std::abs(std::remainder(shown - facing, 2.0F * std::numbers::pi_v<float>));
+        if (turned > 0.0001F) is_smooth = false;
+        last = pose.spin;
+    }
+    context.expect(is_smooth && std::abs(last) <= step * 0.5F + 0.0001F, "khung cộng góc xoay luôn khớp hướng mặt");
+}
+
+// Minimap dựng riêng mỗi khung theo chỗ đứng hiện tại, không đụng trang đã dàn: đi bộ không làm Hub vẽ lại.
+void minimap_rebuilds_without_repaint(Context& context) {
+    const GuiAsset asset = arrow_asset("w:119 h:119");
+    Hub hub(asset);
+    Place input = radar_input();
+    hub.update(input);
+    const std::uint64_t stamp = hub.live_stamp();
+    Place walked = input;
+    walked.player_x = 170.0F;
+    walked.player_facing = 1.0F;
+    walked.view_facing = 0.5F;
+    const std::optional<gui::MiniView> mini = hub.minimap(walked);
+    context.expect(mini.has_value(), "có radar nhỏ");
+    if (!mini) return;
+    context.expect(hub.live_stamp() == stamp, "dựng riêng, trang động không đổi");
+    context.expect(mini->quads.size() == 3, "nền, chùm sáng, mũi tên");
+    const gui::RadarAsk ask{.scene_width = 320.0F, .scene_depth = 320.0F, .window_width = 119.0F, .window_height = 119.0F,
+        .player_x = 170.0F, .player_z = 160.0F};
+    context.expect(near_value(mini->uv.u0, gui::radar_uv(ask).u0), "uv theo chỗ đứng mới");
+    const auto is_map = [](const Quad& quad) { return quad.slot == gui::kSlotMap; };
+    const auto page = std::ranges::find_if(hub.live(), is_map);
+    const auto fresh = std::ranges::find_if(mini->quads, is_map);
+    const bool has_both = page != hub.live().end() && fresh != mini->quads.end();
+    context.expect(has_both && !near_value(page->u0, fresh->u0), "trang giữ chỗ cũ, bản riêng theo chỗ mới");
+    std::array<std::uint8_t, 3> slots{};
+    for (std::size_t index = 0; index < mini->quads.size() && index < slots.size(); ++index) {
+        slots.at(index) = mini->quads[index].slot;
+    }
+    const bool is_ordered = slots[0] == gui::kSlotMap && slots[1] == gui::kSlotLight && slots[2] == gui::kSlotArrow;
+    context.expect(is_ordered, "khe theo thứ tự vẽ");
+    const auto page_arrow = std::ranges::find_if(hub.live(), [](const Quad& quad) { return quad.slot == gui::kSlotArrow; });
+    context.expect(page_arrow != hub.live().end(), "trang cũng mang khe để Painter ghi chỗ");
+    Place hidden = input;
+    const std::string_view roots[] = {"KhongCo"};
+    hidden.roots = roots;
+    hub.update(hidden);
+    context.expect(!hub.minimap(hidden).has_value(), "radar ẩn thì không có minimap");
 }
 
 // Người chơi ở góc cảnh: tâm mũi tên nằm sát mép radar nên ảnh bị cắt theo ô radar.
@@ -790,6 +943,70 @@ void radar_arrow_clipped(Context& context) {
     context.expect(same_box(arrow->dest, half), "chỉ còn nửa trong ô radar");
     const bool is_right_half = arrow->source.x == 16.0F && arrow->source.w == 16.0F;
     context.expect(is_right_half, "phần ảnh tương ứng là nửa phải");
+}
+
+// Chùm sáng hướng nhìn (MapLight): cỡ 64 điểm ảnh layout tâm ở người chơi. Ảnh gốc MapSearchLight có chóp ở tâm và mở
+// xuống nam (+z, facing 0), nên xoay một góc -view_facing thì chóp chỉ đúng hướng camera nhìn; cắt theo ô radar khi người
+// chơi sát mép. Bản đầu giả định chóp chỉ lên (turn = pi - view_facing) nên chùm sáng chỉ ngược hướng nhìn nửa vòng.
+void radar_light_turns_with_camera(Context& context) {
+    const GuiAsset asset = arrow_asset();
+    const auto is_light = [](const Quad& quad) { return quad.texture == gui::kMapLight; };
+    Place input = radar_input();
+    input.view_facing = std::numbers::pi_v<float>;
+    const Sheet north = gui::place(asset, input);
+    const auto light = std::ranges::find_if(north.quads, is_light);
+    context.expect(light != north.quads.end(), "có chùm sáng");
+    if (light == north.quads.end()) return;
+    const float half_turn = std::numbers::pi_v<float>;
+    context.expect(near_value(light->turn, -half_turn), "camera nhìn bắc: chóp xuống xoay nửa vòng thành chỉ lên");
+    context.expect(near_value(light->source.w, 64.0F) && near_value(light->source.h, 64.0F), "cỡ 64 x 64");
+    const bool is_whole = same_box(light->dest, light->source);
+    context.expect(is_whole, "giữa cảnh: chùm sáng nằm trọn trong ô radar");
+    input.view_facing = 0.0F;
+    const Sheet south = gui::place(asset, input);
+    const auto back = std::ranges::find_if(south.quads, is_light);
+    context.expect(back != south.quads.end() && near_value(back->turn, 0.0F), "camera nhìn nam: chóp chỉ xuống, không xoay");
+    input.view_facing = std::numbers::pi_v<float> / 2.0F;
+    const Sheet east = gui::place(asset, input);
+    const auto right = std::ranges::find_if(east.quads, is_light);
+    context.expect(right != east.quads.end() && near_value(right->turn, -half_turn / 2.0F), "camera nhìn đông: xoay ngược một phần tư");
+    input.player_x = 0.0F;
+    input.player_z = 160.0F;
+    const Sheet edge = gui::place(asset, input);
+    const auto cut = std::ranges::find_if(edge.quads, is_light);
+    context.expect(cut != edge.quads.end(), "sát mép vẫn có chùm sáng");
+    if (cut == edge.quads.end()) return;
+    context.expect(near_value(cut->dest.x, 0.0F) && cut->dest.w < cut->source.w, "sát mép: cắt theo ô radar");
+}
+
+// Đứng yên mà xoay camera: nền và mũi tên của minimap không đổi, chỉ chùm sáng (MapLight) quay.
+void radar_ignores_camera(Context& context) {
+    const GuiAsset asset = arrow_asset();
+    Place input = radar_input();
+    input.view_facing = 0.0F;
+    const Sheet before = gui::place(asset, input);
+    input.view_facing = 1.3F;
+    const Sheet after = gui::place(asset, input);
+    const auto is_light = [](const Quad& quad) { return quad.texture == gui::kMapLight; };
+    const auto is_other = [&](const Quad& quad) { return !is_light(quad); };
+    std::vector<Quad> kept_before;
+    std::vector<Quad> kept_after;
+    std::ranges::copy_if(before.quads, std::back_inserter(kept_before), is_other);
+    std::ranges::copy_if(after.quads, std::back_inserter(kept_after), is_other);
+    context.expect(kept_before.size() == kept_after.size(), "cùng số quad ngoài chùm sáng");
+    bool is_same = kept_before.size() == kept_after.size();
+    for (std::size_t index = 0; is_same && index < kept_before.size(); ++index) {
+        const Quad& left = kept_before.at(index);
+        const Quad& right = kept_after.at(index);
+        const bool is_same_box = same_box(left.dest, right.dest) && same_box(left.source, right.source);
+        const bool is_same_uv = near_value(left.u0, right.u0) && near_value(left.v0, right.v0);
+        is_same = is_same_box && is_same_uv && left.texture == right.texture;
+    }
+    context.expect(is_same, "xoay camera không đổi nền, mũi tên");
+    const auto light_before = std::ranges::find_if(before.quads, is_light);
+    const auto light_after = std::ranges::find_if(after.quads, is_light);
+    const bool has_both = light_before != before.quads.end() && light_after != after.quads.end();
+    context.expect(has_both && !near_value(light_before->turn, light_after->turn), "chùm sáng quay theo camera");
 }
 
 // Layout không nêu mũi tên (hay bảng hoạt ảnh thiếu): giữ chấm vàng để vẫn thấy chỗ đứng.
@@ -1546,6 +1763,8 @@ constexpr std::array kCases{
     Case{.name = "fixed_parent_does_not_resize_children", .body = &fixed_parent_does_not_resize_children},
     Case{.name = "half_bar", .body = &half_bar},
     Case{.name = "radar_center", .body = &radar_center},
+    Case{.name = "radar_view_is_pixel_aligned", .body = &radar_view_is_pixel_aligned},
+    Case{.name = "radar_view_is_smooth", .body = &radar_view_is_smooth},
     Case{.name = "radar_grid", .body = &radar_grid},
     Case{.name = "round_edge", .body = &round_edge},
     Case{.name = "text_run", .body = &text_run},
@@ -1559,7 +1778,11 @@ constexpr std::array kCases{
     Case{.name = "arrow_frames", .body = &arrow_frames},
     Case{.name = "radar_arrow", .body = &radar_arrow},
     Case{.name = "radar_arrow_steady", .body = &radar_arrow_steady},
+    Case{.name = "arrow_pose_is_continuous", .body = &arrow_pose_is_continuous},
+    Case{.name = "minimap_rebuilds_without_repaint", .body = &minimap_rebuilds_without_repaint},
     Case{.name = "radar_arrow_clipped", .body = &radar_arrow_clipped},
+    Case{.name = "radar_light_turns_with_camera", .body = &radar_light_turns_with_camera},
+    Case{.name = "radar_ignores_camera", .body = &radar_ignores_camera},
     Case{.name = "radar_dot_fallback", .body = &radar_dot_fallback},
     Case{.name = "map_image", .body = &map_image},
     Case{.name = "mask_veils_children", .body = &mask_veils_children},

@@ -1,0 +1,28 @@
+# K: đo "Dựng giao diện mỗi khung" lúc đi bộ (NGHI-NGO 63j): mỗi lần toạ độ nguyên của người chơi đổi thì chữ toạ độ
+# của minimap đổi, và mỗi khung đi thì vùng thấy của minimap dời. Mười hai đoạn 4 m theo trục z, tới rồi về.
+# Số cần đọc là dòng "Dựng giao diện mỗi khung sau khi cảnh hiện" ở cuối stdout.txt: p95 và max là các khung đi bộ.
+# Chạy trên máy rảnh, không chạy cùng ctest hay E2E khác (tải máy làm lệch số). Hai bản exe cần so thì chạy hai lượt
+# cùng kịch bản này, bản nào cũng qua --client.
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/k-minimap-walk.script --client <exe> --out <thư mục>
+#! account fresh
+#! out build/e2e/K/minimap-walk
+#! timeout 300
+#! expect-exit 0
+#! expect-net gửi:EnterGame gửi:Move
+
+wait play 120
+wait 2s
+walk +0,+4
+walk +0,-4
+walk +0,+4
+walk +0,-4
+walk +0,+4
+walk +0,-4
+walk +0,+4
+walk +0,-4
+walk +0,+4
+walk +0,-4
+walk +0,+4
+walk +0,-4
+wait 1s
+quit

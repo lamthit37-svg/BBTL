@@ -237,15 +237,18 @@ public:
     // cọ (Pso::kTerrain), được phép rỗng: chất liệu có resource::Splat khi ấy vẽ như chất liệu
     // thường. solid là Pso::kModelSolid và kModelSolidTwoSided (không discard), được phép rỗng:
     // chất liệu đục không cắt alpha khi ấy vẽ bằng biến thể model thường. additive là
-    // Pso::kModelAdd và kModelAddTwoSided (one one). Rỗng thì tấm scene_blend add bị bỏ. depth là
-    // Pso::kModelDepth và kModelDepthTwoSided; rỗng thì chất liệu hai pass chỉ vẽ pass màu. Forward
-    // không huỷ chúng: Catalog phải sống lâu hơn Forward. InvalidArgument khi thiếu slot hoặc một
-    // handle model rỗng. Mượn device: Forward và mọi Drawable của nó phải bị huỷ trước device.
+    // Pso::kModelAdd và kModelAddTwoSided (one one). Rỗng thì tấm scene_blend add bị bỏ. dark là
+    // Pso::kModelDark và kModelDarkTwoSided (zero one_minus_src_colour); rỗng thì tấm làm tối bị
+    // bỏ. depth là Pso::kModelDepth và kModelDepthTwoSided; rỗng thì chất liệu hai pass chỉ vẽ pass
+    // màu. Forward không huỷ chúng: Catalog phải sống lâu hơn Forward. InvalidArgument khi thiếu
+    // slot hoặc một handle model rỗng. Mượn device: Forward và mọi Drawable của nó phải bị huỷ
+    // trước device.
     [[nodiscard]] static core::Result<Forward> create(gpu::Device& device, const ForwardDesc& desc,
         std::array<gpu::PipelineHandle, 4> pipelines, gpu::PipelineHandle terrain = {},
         std::array<gpu::PipelineHandle, 2> solid = {},
         std::array<gpu::PipelineHandle, 2> additive = {},
-        std::array<gpu::PipelineHandle, 2> depth = {});
+        std::array<gpu::PipelineHandle, 2> depth = {},
+        std::array<gpu::PipelineHandle, 2> dark = {});
 
     Forward(Forward&&) noexcept;
     Forward& operator=(Forward&&) noexcept;

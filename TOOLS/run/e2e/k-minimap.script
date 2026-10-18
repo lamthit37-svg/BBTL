@@ -1,0 +1,21 @@
+# K: minimap trong game — ba ảnh cùng cảnh ở ba chỗ đứng để soi vùng thấy, mũi tên, chùm sáng hướng nhìn và chữ toạ độ.
+# Điểm sinh Đại Lý (165,169); hướng +x ở đó bị địa hình chặn nên đi theo trục z (như g0.script).
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/k-minimap.script   (cụm máy chủ đang chạy)
+#! account fresh
+#! out build/e2e/K/minimap
+#! timeout 300
+#! expect-exit 0
+#! expect-shots mm-0 mm-1 mm-2
+#! expect-net gửi:EnterGame gửi:Move
+
+wait play 120
+wait 2s
+shot mm-0
+walk +0,+4
+wait 1s
+shot mm-1
+walk +0,-4
+walk +0,-4
+wait 1s
+shot mm-2
+quit

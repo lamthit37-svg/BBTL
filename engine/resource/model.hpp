@@ -152,8 +152,9 @@ struct TexSlot {
     float rotation = 0.0F;
 };
 
-// kAdd là scene_blend add của OGRE (one one): tấm hiệu ứng cộng sáng, không trộn alpha.
-enum class Alpha : std::uint8_t { kOpaque, kMask, kBlend, kAdd };
+// kAdd là scene_blend add của OGRE (one one): tấm hiệu ứng cộng sáng, không trộn alpha. kDarken là
+// scene_blend zero one_minus_src_colour: tấm làm tối nền theo màu ảnh ("特效片暗" của thú cưỡi).
+enum class Alpha : std::uint8_t { kOpaque, kMask, kBlend, kAdd, kDarken };
 
 // Specular khi tệp có KHR_materials_pbrSpecularGlossiness. Khối metallic vẫn được giữ.
 enum class Shading : std::uint8_t { kMetallic, kSpecular };

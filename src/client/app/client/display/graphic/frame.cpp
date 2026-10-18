@@ -379,6 +379,7 @@ void Display::State::run(Launch& handshake, const DisplayDesc& desc, const std::
     if (!made) return;
     is_spinning.store(true, std::memory_order_relaxed);
     frame_ms.reserve(8192);
+    prepare_series.reserve(8192);
     settle_first_scene(stop);
     spin(stop);
     is_spinning.store(false, std::memory_order_relaxed);
@@ -945,6 +946,7 @@ void Display::State::report_frames() const {
     say_rank("Khung hình", rank_frames(sorted), sorted.size());
     const bool has_steady = steady_from && *steady_from + 8 < frame_ms.size();
     if (has_steady) say_steady(frame_ms, *steady_from);
+    if (has_steady) say_prepare(prepare_series, *steady_from);
     std::println("Khung bỏ vì đổi cỡ: {}", stale_frames);
     const std::string waits = std::format("{} trên {}", gpu_waits, frame_serial);
     const std::string longs = std::format("{} lần quá 1 ms", gpu_long_waits);

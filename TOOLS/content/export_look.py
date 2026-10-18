@@ -121,8 +121,16 @@ class ObjectBook:
         text = re.sub(r"<!--.*?-->", "", read_text_file(path), flags=re.S)
         self.root = ElementTree.fromstring(text)
         self.by_name = {}
+        self.by_lower = {}
         for item in self.root.iter("Object"):
             self.by_name.setdefault(item.get("name"), []).append(item)
+            self.by_lower.setdefault((item.get("name") or "").lower(), []).append(item)
+
+    # Mẫu theo tên, khớp đúng chữ trước rồi mới bỏ phân biệt hoa thường: tài nguyên của Ogre trên
+    # Windows không phân biệt hoa thường, nên all.obj ghi `ride_zm_2023diao.obj` còn CharModelEx
+    # ghi `ride_ZM_2023diao.obj` vẫn là một mẫu. Rỗng khi không có mẫu nào.
+    def named(self, name: str) -> list:
+        return self.by_name.get(name) or self.by_lower.get(name.lower(), [])
 
     def template(self, name: str):
         found = self.by_name.get(name, [])

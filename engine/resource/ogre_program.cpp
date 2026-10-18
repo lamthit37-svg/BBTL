@@ -112,6 +112,7 @@ using Cells = std::vector<std::string_view>;
     const bool is_plain = blend.empty() || is_replace;
     if (is_plain) return Alpha::kOpaque;
     if (blend == "add" || blend == "one one") return Alpha::kAdd;
+    if (blend == "zero one_minus_src_colour") return Alpha::kDarken;
     return Alpha::kBlend;
 }
 

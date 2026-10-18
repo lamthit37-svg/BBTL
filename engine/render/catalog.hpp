@@ -111,6 +111,11 @@ enum class Pso : std::uint8_t {
     // shader với model, chỉ khác mặt nạ ghi màu.
     kModelDepth = 21,
     kModelDepthTwoSided = 22,
+    // Làm tối nền theo ảnh (scene_blend zero one_minus_src_colour): tấm "特效片暗" của thú cưỡi.
+    // Cùng shader và cùng mặt nạ với tấm cộng sáng, chỉ khác hệ số trộn. Bit của 23 và 24 cũng
+    // không phải cờ trộn hay hai mặt: make_model nhận riêng hai giá trị này.
+    kModelDark = 23,
+    kModelDarkTwoSided = 24,
 };
 
 inline constexpr std::uint32_t kModelTwoSided = 1;
@@ -120,7 +125,7 @@ inline constexpr std::uint32_t kModelFrameBytes = 2896;
 inline constexpr std::uint32_t kModelDrawBytes = gpu::kMaxPushBytes;
 inline constexpr std::size_t kModelVariants = 4;
 inline constexpr std::size_t kPackageCount = 12;
-inline constexpr std::size_t kSlotCount = 23;
+inline constexpr std::size_t kSlotCount = 25;
 // Cỡ khối hằng của sky.inc.slang: SkyBlock (32 lệnh, mỗi lệnh 16 float4) và push constant (một uvec4).
 inline constexpr std::uint32_t kSkyFrameBytes = 8192;
 inline constexpr std::uint32_t kSkyDrawBytes = 16;
@@ -258,6 +263,8 @@ constexpr auto body = sky_entry("render.sky.body", Pso::kSkyBody, "sky.vs", "sky
 constexpr auto star = sky_entry("render.sky.star", Pso::kSkyStar, "star.vs", "star.ps");
 constexpr auto add = character_entry("render.model.add", Pso::kModelAdd);
 constexpr auto add_two = character_entry("render.model.add_two_sided", Pso::kModelAddTwoSided);
+constexpr auto dark = character_entry("render.model.dark", Pso::kModelDark);
+constexpr auto dark_two = character_entry("render.model.dark_two_sided", Pso::kModelDarkTwoSided);
 constexpr auto depth = character_entry("render.model.depth", Pso::kModelDepth);
 constexpr auto depth_two =
     character_entry("render.model.depth_two_sided", Pso::kModelDepthTwoSided);
@@ -287,6 +294,8 @@ inline constexpr std::array<Entry, kSlotCount> kEntries{{
     row::add_two,
     row::depth,
     row::depth_two,
+    row::dark,
+    row::dark_two,
 }};
 
 static_assert(std::to_underlying(Pso::kModelTwoSided) == kModelTwoSided);

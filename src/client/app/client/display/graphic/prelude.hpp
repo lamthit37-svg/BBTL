@@ -271,6 +271,22 @@ inline void say_rank(std::string_view title, const FrameRank& rank, std::size_t 
     std::println("{}{}{}{}{}", head, mid, low, band, high);
 }
 
+// Ms dựng giao diện mỗi khung sau khi cảnh hiện: đi bộ làm đổi chữ toạ độ và vùng thấy của minimap
+// nên đỉnh nằm ở p95 và max (NGHI-NGO 63j); đứng yên thì cả ba số gần 0.
+inline void say_prepare(std::span<const double> series, std::size_t from) {
+    if (from >= series.size()) return;
+    const auto begin = series.begin() + static_cast<std::ptrdiff_t>(from);
+    std::vector<double> steady(begin, series.end());
+    std::ranges::sort(steady);
+    const FrameRank rank = rank_frames(steady);
+    const std::string median = std::format("{:.2f}", rank.median);
+    const std::string p95 = std::format("{:.2f}", rank.p95);
+    const std::string peak = std::format("{:.2f}", rank.peak);
+    const std::string count = std::to_string(steady.size());
+    const std::string head = "Dựng giao diện mỗi khung sau khi cảnh hiện: " + count + " khung";
+    std::println("{}, trung vị {} ms, p95 {} ms, max {} ms", head, median, p95, peak);
+}
+
 inline void say_steady(std::span<const double> frames, std::size_t from) {
     const auto begin = frames.begin() + static_cast<std::ptrdiff_t>(from);
     std::vector<double> steady(begin, frames.end());
@@ -462,8 +478,10 @@ inline constexpr std::uint32_t kFrameSlots = 3;
         catalog.get(render::Pso::kModelAdd), catalog.get(render::Pso::kModelAddTwoSided)};
     const std::array depth{
         catalog.get(render::Pso::kModelDepth), catalog.get(render::Pso::kModelDepthTwoSided)};
+    const std::array dark{
+        catalog.get(render::Pso::kModelDark), catalog.get(render::Pso::kModelDarkTwoSided)};
     const auto models = catalog.models();
-    return render::Forward::create(device, pass, models, terrain, solid, additive, depth);
+    return render::Forward::create(device, pass, models, terrain, solid, additive, depth, dark);
 }
 
 // Lượt vẽ 2D của giao diện: cùng đích vẽ và thư mục shader với Forward.
@@ -1008,7 +1026,9 @@ inline constexpr float kTerrainTileCells = 16.0F;
 [[nodiscard]] inline bool is_opaque(const resource::Material& material) noexcept {
     const bool is_blend = material.alpha == resource::Alpha::kBlend;
     const bool is_add = material.alpha == resource::Alpha::kAdd;
-    return !is_blend && !is_add;
+    const bool is_dark = material.alpha == resource::Alpha::kDarken;
+    const bool is_sheet = is_add || is_dark;
+    return !is_blend && !is_sheet;
 }
 
 // Model đặc (không trộn alpha) mà vẽ ở tư thế nghỉ như lưới không skin (không skin, hoặc skin trung tính

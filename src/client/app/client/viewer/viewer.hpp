@@ -62,7 +62,10 @@ struct ViewerDesc {
     bool is_bare = false;
     // --walk: nhân vật tự chạy vòng để đo nhịp lúc di chuyển (DisplayDesc::is_auto_walk).
     bool is_auto_walk = false;
-    // --auto-strike: khung màn chơi đầu tiên tự dùng skill ở ô cuối, 0 là tắt (DisplayDesc::auto_strike_from).
+    // --map-snap: minimap dính lưới điểm ảnh (DisplayDesc::is_map_snapped).
+    bool is_map_snapped = false;
+    // --auto-strike: khung màn chơi đầu tiên tự dùng skill ở ô cuối, 0 là tắt
+    // (DisplayDesc::auto_strike_from).
     std::uint32_t auto_strike_from = 0;
     // --ui-event: sự kiện giao diện phát ở khung màn chơi đầu tiên (DisplayDesc::ui_events).
     std::vector<std::string> ui_events;

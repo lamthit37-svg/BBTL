@@ -191,8 +191,9 @@ constexpr std::string_view kEquipTurnLeft = "SelfEquip_Model_TurnLeft";
 constexpr std::string_view kEquipTurnRight = "SelfEquip_Model_TurnRight";
 constexpr float kEquipSpin = 0.3F * 0.5F;
 
-// Một cú nhấp trái lên bản đồ lớn không được kéo chuột đi xa hơn chừng này (điểm ảnh).
+// Một cú nhấp trái lên bản đồ lớn hay minimap không được kéo chuột đi xa hơn chừng này (điểm ảnh).
 constexpr float kClickReach = 5.0F;
+constexpr std::string_view kMapArea = "MiniMap_MapArea";
 // Atlas bản đồ lớn: texture 2048 x 2048 (8 ô nguyên), thu nhỏ tối đa 4 lần; ảnh gốc 4 điểm ảnh một đơn vị cảnh;
 // số ô giữ lại trong bộ đệm giải mã.
 constexpr int kBoardAtlasTiles = 8;
@@ -317,6 +318,31 @@ bool same_map(const std::optional<MapPaint>& left, const std::optional<MapPaint>
     const bool is_same_u = left->origin_u == right->origin_u && left->scale_u == right->scale_u;
     const bool is_same_v = left->origin_v == right->origin_v && left->scale_v == right->scale_v;
     return left->texture == right->texture && is_same_u && is_same_v;
+}
+
+// Cùng có hay cùng không có ảnh, và cùng texture. Phép đổi toạ độ không xét: minimap đổi nó mỗi
+// khung mà Painter vá đỉnh, không dựng lại.
+bool same_texture(const std::optional<MapPaint>& left,
+    const std::optional<MapPaint>& right) noexcept {
+    if (left.has_value() != right.has_value()) return false;
+    return !left || left->texture == right->texture;
+}
+
+// Chỗ đứng và hướng của người chơi trong cảnh (HudScene), để trang của Hub giữ bản riêng.
+struct Standing {
+    float x = 0.0F;
+    float z = 0.0F;
+    float facing = 0.0F;
+    float view_facing = 0.0F;
+};
+
+Standing standing_of(const HudScene& scene) noexcept {
+    Standing spot;
+    spot.x = scene.player_x;
+    spot.z = scene.player_z;
+    spot.facing = scene.facing;
+    spot.view_facing = scene.view_facing;
+    return spot;
 }
 
 // Điểm (across, down) có nằm trong ô box không; mép phải và mép dưới không tính.
@@ -544,6 +570,10 @@ struct Hud::State {
     bool has_world_image_failed = false;
     std::optional<MapPaint> world_paint;
     std::optional<gui::Pointer> world_press;
+    // Lớp phủ của minimap (chùm sáng MapSearchLight và tấm mũi tên MiniMap_Arrow ghép một texture):
+    // nạp một lần khi vào màn chơi.
+    std::optional<OverlayPaint> overlay_paint;
+    bool has_overlay_failed = false;
     panel::LoginFlow flow;
     // Sổ nhiệm vụ (QuestLog_Frame) và việc nó nhờ ở lần nhấn gần nhất.
     panel::QuestBook quests;
@@ -614,6 +644,19 @@ struct Hud::State {
     std::optional<MapPaint> map;
     // Ô MiniMap_MapArea của khung trước, để toạ độ chuột dùng đúng hộp đã dàn.
     std::optional<gui::Box> map_area;
+    // Nhấn trái bắt đầu trên MiniMap_MapArea; nhả gần chỗ đó thì là cú nhấp (MouseLButtonClick).
+    std::optional<gui::Pointer> map_press;
+    // Minimap dính lưới điểm ảnh (HudDesc::is_map_snapped).
+    bool is_map_snapped = false;
+    // Chỗ đứng mà trang của Hub đang giữ. Minimap đổi mỗi khung nên không đi qua trang:
+    // Hub::minimap dựng riêng và Painter vá đỉnh (refresh_map). Trang chỉ lấy số mới khi cần
+    // (seat_spot).
+    Standing page_spot;
+    int page_scene = -1;
+    float page_width = 0.0F;
+    float page_depth = 0.0F;
+    // Vá đỉnh hỏng ở khung trước: trang phải lấy chỗ đứng hiện tại để quad khe động khớp lại.
+    bool is_spot_stale = false;
     bool cursor_inside = false;
     float held_x = 0.0F;
     float held_z = 0.0F;
@@ -722,15 +765,24 @@ struct Hud::State {
     void push_debug_message(std::string_view text);
     [[nodiscard]] core::Status add_map();
     void upload_map();
-    [[nodiscard]] std::optional<MapPaint> map_of(const HudScene& scene);
+    [[nodiscard]] std::optional<MapPaint> map_of(const HudScene& scene,
+        const std::optional<gui::MiniView>& mini);
     [[nodiscard]] const panel::SceneRow* board_scene_row() const noexcept;
     void fill_board(const HudView& view);
     void note_board_press(std::string_view window, const HudView& view);
     void note_board_release(const HudView& view);
+    void note_map_release(const HudView& view);
+    void seat_spot(const HudScene& scene, gui::Place& place);
+    [[nodiscard]] std::optional<gui::MiniView> live_minimap(const HudScene& scene,
+        const gui::Place& place);
+    void refresh_map(const std::optional<gui::MiniView>& mini, bool is_fresh);
+    [[nodiscard]] PaintKit paint_kit();
     void fill_world(const HudView& view);
     void note_world_release(const HudView& view);
     [[nodiscard]] std::optional<MapPaint> world_of();
     void load_world_image();
+    [[nodiscard]] std::optional<OverlayPaint> overlay_of();
+    void load_overlay_image();
     [[nodiscard]] std::optional<MapPaint> board_of();
     void upload_board(const resource::Image& image);
     [[nodiscard]] bool is_current() const noexcept;
@@ -760,6 +812,28 @@ void Hud::State::seat_fonts(Prepared& ready) {
     vi_writer.emplace(*vi_font, &strings);
 }
 
+namespace {
+
+// Điểm cảnh dưới con trỏ trên ô MiniMap_MapArea, theo vùng radar canh giữa người chơi
+// (FalagardSceneMap::ScreenPosToScenePos). Ngoài ô hay ngoài cảnh thì is_on_scene tắt.
+gui::SceneHit minimap_hit(const HudScene& scene, const gui::Box& box, const gui::Pointer& at,
+    bool is_snapped) {
+    gui::RadarAsk ask;
+    ask.scene_width = scene.width;
+    ask.scene_depth = scene.depth;
+    ask.window_width = box.w;
+    ask.window_height = box.h;
+    ask.player_x = scene.player_x;
+    ask.player_z = scene.player_z;
+    ask.is_snapped = is_snapped;
+    gui::SceneCursor cursor;
+    cursor.local_x = at.x - box.x;
+    cursor.local_y = at.y - box.y;
+    return gui::scene_at(ask, cursor);
+}
+
+} // namespace
+
 // Chuột trên MiniMap_MapArea thì GetMouseScenePos; rời ô thì chỗ đứng. Hộp là của khung trước
 // vì chữ toạ độ phải có trước khi dàn trang, còn hộp không phụ thuộc chữ đó.
 panel::PlaceText Hud::State::place_under(const HudView& view) {
@@ -772,19 +846,7 @@ panel::PlaceText Hud::State::place_under(const HudView& view) {
     const bool is_in_rows = down >= box.y && down < box.y + box.h;
     const bool is_over = has_box && is_wide && is_in_columns && is_in_rows;
     gui::SceneHit hit;
-    if (is_over) {
-        gui::RadarAsk ask;
-        ask.scene_width = view.scene.width;
-        ask.scene_depth = view.scene.depth;
-        ask.window_width = box.w;
-        ask.window_height = box.h;
-        ask.player_x = view.scene.player_x;
-        ask.player_z = view.scene.player_z;
-        gui::SceneCursor cursor;
-        cursor.local_x = across - box.x;
-        cursor.local_y = down - box.y;
-        hit = gui::scene_at(ask, cursor);
-    }
+    if (is_over) hit = minimap_hit(view.scene, box, *view.pointer, is_map_snapped);
     panel::Hover hover;
     hover.was_inside = cursor_inside;
     hover.is_inside = is_over;
@@ -897,6 +959,7 @@ void Hud::State::note_press(const HudView& view) {
     }
     if (is_release && view.phase == Phase::kPlay) {
         note_board_release(view);
+        note_map_release(view);
         note_world_release(view);
         note_host_release(view);
         equip_spin = 0.0F;
@@ -942,6 +1005,7 @@ void Hud::State::note_press(const HudView& view) {
     press_pet_bar(*window);
     press_action_bars(*window);
     note_board_press(*window, view);
+    if (window == kMapArea) map_press = view.pointer;
     if (window == panel::kWorldWindow && view.pointer) world_press = view.pointer;
     if (window == kEquipTurnLeft) equip_spin = -kEquipSpin;
     if (window == kEquipTurnRight) equip_spin = kEquipSpin;
@@ -978,6 +1042,12 @@ void Hud::State::update_script_facts(const HudView& view) {
     facts.scene_id = view.phase == Phase::kPlay && view.scene.id >= 0 ? std::optional<std::int32_t>(view.scene.id) : std::nullopt;
     facts.hero = view.phase == Phase::kPlay ? view.hero : nullptr;
     facts.missions = &quests.log;
+    // GetCurrentTime() đọc biến "WorldTime" (Game.exe 0x140233fd0): canh giờ của máy chủ. Sự kiện
+    // VARIABLE_CHANGED không phát: chưa script nào nghe biến này.
+    const std::string watch = std::to_string(view.scene.watch);
+    script::VariableSystem& variables = script_context.variables;
+    const bool is_play = view.phase == Phase::kPlay;
+    if (is_play) static_cast<void>(variables.set("WorldTime", watch));
     facts.clock = view.clock;
     facts.scenes = &scenes;
     facts.scene_size = view.phase == Phase::kPlay && view.scene.id >= 0
@@ -1480,15 +1550,17 @@ void Hud::State::upload_map() {
     if (!sent) std::println(stderr, "Giao diện: không đưa được minimap lên GPU: {}", sent.error());
 }
 
-// Ngắm atlas vào vùng radar đang thấy (theo lần dàn trang vừa xong) và trả cách vẽ ảnh cảnh;
-// nullopt khi layout không có radar, cảnh không có token hay chưa ô ảnh nào nạp được.
-std::optional<MapPaint> Hud::State::map_of(const HudScene& scene) {
+// Ngắm atlas vào vùng radar đang thấy ở khung này (mini, dựng riêng mỗi khung; thiếu thì theo lần
+// dàn trang vừa xong) và trả cách vẽ ảnh cảnh; nullopt khi layout không có radar, cảnh không có
+// token hay chưa ô ảnh nào nạp được.
+std::optional<MapPaint> Hud::State::map_of(const HudScene& scene,
+    const std::optional<gui::MiniView>& mini) {
     if (!hub->radar() || scene.radar.empty()) return std::nullopt;
     RadarAim seen;
     seen.token = scene.radar;
     seen.scene_width = scene.width;
     seen.scene_depth = scene.depth;
-    seen.view = hub->uv();
+    seen.view = mini ? mini->uv : hub->uv();
     if (atlas.aim(seen)) upload_map();
     if (!atlas.has_image() || !map_texture) return std::nullopt;
     const gui::Radar part = atlas.to_atlas(gui::Radar{});
@@ -1591,7 +1663,41 @@ void Hud::State::load_world_image() {
     world_texture = *added;
 }
 
-// Nhấn trái trong màn chơi: nút cuộn, nút phóng của bản đồ lớn, và điểm bắt đầu một cú nhấp lên bản đồ.
+// Lớp phủ của minimap: chỉ nạp ở màn chơi. Thiếu cả hai ảnh thì không có lớp phủ; thiếu một thì ô
+// của ảnh đó trong suốt (chùm sáng không hiện, hoặc mũi tên vẽ từ tấm DDS của asset), minimap vẫn
+// chạy.
+std::optional<OverlayPaint> Hud::State::overlay_of() {
+    if (phase != Phase::kPlay) return std::nullopt;
+    if (!overlay_paint) load_overlay_image();
+    return overlay_paint;
+}
+
+void Hud::State::load_overlay_image() {
+    if (has_overlay_failed) return;
+    has_overlay_failed = true;
+    const std::filesystem::path common = client_root / "Interface" / "Common";
+    std::string notes;
+    const OverlayImage built = build_overlay(common, notes);
+    if (!notes.empty()) std::println(stderr, "Giao diện: lớp phủ minimap:\n{}", notes);
+    if (!built.has_light && !built.has_arrow) return;
+    const core::Result<std::uint32_t> added = pass->add_texture(built.image);
+    if (!added) {
+        std::println(stderr, "Giao diện: lớp phủ minimap không lên được GPU: {}", added.error());
+        return;
+    }
+    OverlayPaint paint;
+    paint.texture = *added;
+    paint.width = static_cast<float>(kOverlayWidth);
+    paint.height = static_cast<float>(kOverlayHeight);
+    paint.light_x = static_cast<float>(kLightX);
+    paint.light_y = static_cast<float>(kLightY);
+    paint.light_size = static_cast<float>(kLightImageSize);
+    paint.has_arrow = built.has_arrow;
+    overlay_paint = paint;
+}
+
+// Nhấn trái trong màn chơi: nút cuộn, nút phóng của bản đồ lớn, và điểm bắt đầu một cú nhấp lên bản
+// đồ.
 void Hud::State::note_board_press(std::string_view window, const HudView& view) {
     const panel::SceneRow* scene = board_scene_row();
     if (scene == nullptr) return;
@@ -1617,8 +1723,71 @@ void Hud::State::note_board_release(const HudView& view) {
     if (hit.is_on_scene) run_to = RunTo{.x = hit.x, .z = hit.z};
 }
 
-// Hình dạng atlas của bản đồ lớn: texture cố định 2048 x 2048, ô thu nhỏ khi mức phóng nhỏ hơn mức mà
-// ảnh gốc (4 điểm ảnh một đơn vị) cần để vẫn đủ nét.
+// Chỗ đứng đưa cho trang của Hub. Minimap đổi mỗi khung (Game.exe làm mới 9 lần mỗi giây; chủ dự án
+// yêu cầu mượt từng khung 2026-10-18) nên không đi qua trang: Hub::minimap dựng riêng và Painter vá
+// đỉnh. Trang giữ chỗ cũ, nhờ đó đi bộ không làm Hub vẽ lại trang động và Painter không dựng lại
+// đỉnh. Lấy số mới khi bản đồ lớn đang mở (mũi tên của nó nằm ở trang), đổi cảnh, vá hỏng, hay
+// trang chưa dựng.
+void Hud::State::seat_spot(const HudScene& scene, gui::Place& place) {
+    const bool is_same_size = scene.width == page_width && scene.depth == page_depth;
+    const bool is_same_scene = scene.id == page_scene && is_same_size;
+    const bool has_board = maps.is_scene_open;
+    const bool is_due = !is_built || !is_same_scene || has_board || is_spot_stale;
+    if (is_due) page_spot = standing_of(scene);
+    page_scene = scene.id;
+    page_width = scene.width;
+    page_depth = scene.depth;
+    is_spot_stale = false;
+    place.player_x = page_spot.x;
+    place.player_z = page_spot.z;
+    place.player_facing = page_spot.facing;
+    place.view_facing = page_spot.view_facing;
+}
+
+// Minimap của khung này theo chỗ đứng và hướng hiện tại (chưa qua trang).
+std::optional<gui::MiniView> Hud::State::live_minimap(const HudScene& scene,
+    const gui::Place& place) {
+    gui::Place live = place;
+    live.player_x = scene.player_x;
+    live.player_z = scene.player_z;
+    live.player_facing = scene.facing;
+    live.view_facing = scene.view_facing;
+    return hub->minimap(live);
+}
+
+// Vá đỉnh của minimap vào trang đã dựng. Vá hỏng (khe đổi số đỉnh) ở khung không vừa dựng lại thì
+// khung sau dựng lại trang với chỗ đứng hiện tại; vừa dựng lại mà vẫn hỏng thì bỏ qua, kẻo dựng lại
+// mãi.
+void Hud::State::refresh_map(const std::optional<gui::MiniView>& mini, bool is_fresh) {
+    if (!mini || !is_built) return;
+    const PaintKit kit = paint_kit();
+    const bool is_ok = painter.retouch(loader.asset(), mini->quads, kit);
+    if (is_ok || is_fresh) return;
+    is_built = false;
+    is_spot_stale = true;
+}
+
+// Nhả chuột: cú nhấp trái lên minimap (MouseLButtonClick -> MiniMap_GotoDirectly) đi tới điểm dưới
+// chuột. GetMouseScenePos cắt số thập phân (UI_CEGUI 0x180026e70) nên đích là toạ độ nguyên của ô
+// cảnh. Khác gốc: nhấp ra ngoài cảnh bị bỏ; gốc giữ điểm hợp lệ cuối của GetMouseScenePos (+0x428)
+// và để AutoRunToTarget kiểm lại.
+void Hud::State::note_map_release(const HudView& view) {
+    const std::optional<gui::Pointer> began = map_press;
+    map_press.reset();
+    const bool is_ready = began.has_value() && view.pointer.has_value() && map_area.has_value();
+    if (!is_ready) return;
+    const float shift_x = std::abs(view.pointer->x - began->x);
+    const float shift_y = std::abs(view.pointer->y - began->y);
+    if (std::max(shift_x, shift_y) > kClickReach) return;
+    const gui::SceneHit hit = minimap_hit(view.scene, *map_area, *view.pointer, is_map_snapped);
+    if (!hit.is_on_scene) return;
+    const auto across = static_cast<float>(static_cast<int>(hit.x));
+    const auto down = static_cast<float>(static_cast<int>(hit.z));
+    run_to = RunTo{.x = across, .z = down};
+}
+
+// Hình dạng atlas của bản đồ lớn: texture cố định 2048 x 2048, ô thu nhỏ khi mức phóng nhỏ hơn mức
+// mà ảnh gốc (4 điểm ảnh một đơn vị) cần để vẫn đủ nét.
 namespace {
 AtlasShape board_shape(float pixels) noexcept {
     int shrink = 1;
@@ -1677,8 +1846,7 @@ bool Hud::State::is_current() const noexcept {
     return is_built && is_same_quads && text_stamp == hub->text_stamp() && built_scale == scale;
 }
 
-void Hud::State::rebuild() {
-    const FrameParts parts{.still = hub->still(), .live = hub->live(), .texts = hub->texts()};
+PaintKit Hud::State::paint_kit() {
     PaintKit kit;
     kit.writer = writer ? &*writer : nullptr;
     kit.font_texture = font_texture;
@@ -1687,8 +1855,15 @@ void Hud::State::rebuild() {
     kit.map = map;
     kit.board = board_map;
     kit.world = world_paint;
+    kit.overlay = overlay_paint;
     kit.views = views;
     kit.scale = scale;
+    return kit;
+}
+
+void Hud::State::rebuild() {
+    const FrameParts parts{.still = hub->still(), .live = hub->live(), .texts = hub->texts()};
+    const PaintKit kit = paint_kit();
     painter.build(loader.asset(), parts, kit);
     still_stamp = hub->still_stamp();
     live_stamp = hub->live_stamp();
@@ -1726,6 +1901,7 @@ core::Result<Hud> Hud::open(render::UiPass& pass, const HudDesc& desc, HudPrep p
     core::Result<Prepared> ready = prep.work_->done.get();
     if (!ready) return std::unexpected(ready.error());
     auto state = std::make_unique<State>(*ready, pass, desc.data_root, desc.texture_tier);
+    state->is_map_snapped = desc.is_map_snapped;
     state->seat_fonts(*ready);
     state->hub = std::make_unique<gui::Hub>(state->loader.asset());
     for (const std::string& note : state->loader.notes()) {
@@ -1744,7 +1920,7 @@ float layout_scale(float width, float height, float density) noexcept {
 void Hud::prepare(const HudView& screen_view) {
     State& state = *state_;
     state.scale = layout_scale(screen_view.width, screen_view.height, screen_view.density);
-    const HudView view = layout_view(screen_view, state.scale);
+    HudView view = layout_view(screen_view, state.scale);
     state.views = view.views;
     state.enter(view.phase);
     state.note_hover(view);
@@ -1774,16 +1950,16 @@ void Hud::prepare(const HudView& screen_view) {
     place.pointer = view.pointer;
     place.scene_width = view.scene.width;
     place.scene_depth = view.scene.depth;
-    place.player_x = view.scene.player_x;
-    place.player_z = view.scene.player_z;
-    place.player_facing = view.scene.facing;
+    place.is_radar_snapped = state.is_map_snapped;
     place.clock = view.clock;
+    state.seat_spot(view.scene, place);
     state.hub->update(place);
-    state.map_area = state.hub->box("MiniMap_MapArea");
+    state.map_area = state.hub->box(kMapArea);
     state.width = view.width;
     state.height = view.height;
-    const std::optional<MapPaint> map = state.map_of(view.scene);
-    const bool is_same_map = same_map(state.map, map);
+    const std::optional<gui::MiniView> mini = state.live_minimap(view.scene, place);
+    const std::optional<MapPaint> map = state.map_of(view.scene, mini);
+    const bool is_same_map = same_texture(state.map, map);
     state.map = map;
     const std::optional<MapPaint> board = state.board_of();
     const bool is_same_board = same_map(state.board_map, board);
@@ -1791,8 +1967,13 @@ void Hud::prepare(const HudView& screen_view) {
     const std::optional<MapPaint> world = state.world_of();
     const bool is_same_world = same_map(state.world_paint, world);
     state.world_paint = world;
-    if (state.is_current() && is_same_map && is_same_board && is_same_world) return;
-    state.rebuild();
+    const bool was_overlay = state.overlay_paint.has_value();
+    const std::optional<OverlayPaint> overlay = state.overlay_of();
+    const bool is_same_overlay = was_overlay == overlay.has_value();
+    const bool is_same_images = is_same_map && is_same_board && is_same_world && is_same_overlay;
+    const bool is_fresh = !(state.is_current() && is_same_images);
+    if (is_fresh) state.rebuild();
+    state.refresh_map(mini, is_fresh);
 }
 
 core::Status Hud::draw(gpu::CommandList& list, std::uint32_t slot, HudExtra extra) {

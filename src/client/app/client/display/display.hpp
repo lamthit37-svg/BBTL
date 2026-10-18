@@ -140,8 +140,13 @@ struct DisplayDesc {
     // và hướng nhìn xoay đều kWalkTurnPerSecond, để đo nhịp khung lúc di chuyển mà không cần chuột hay
     // phím thật. Lúc thoát in một dòng về bước đi mỗi khung.
     bool is_auto_walk = false;
-    // Công cụ đo của dự án (--auto-strike), client gốc không có: ở màn chơi tự nhấn ô thao tác cuối ở khung màn chơi
-    // thứ auto_strike_from rồi mỗi 180 khung, để chụp hay đo đòn đánh mà không cần phím thật. 0 là tắt.
+    // Minimap dính nền vào lưới điểm ảnh thay vì trượt lẻ mỗi khung (--map-snap,
+    // HudDesc::is_map_snapped); mặc định trượt lẻ. Công cụ so độ nhấp nháy của hai cách trên màn
+    // thật.
+    bool is_map_snapped = false;
+    // Công cụ đo của dự án (--auto-strike), client gốc không có: ở màn chơi tự nhấn ô thao tác cuối
+    // ở khung màn chơi thứ auto_strike_from rồi mỗi 180 khung, để chụp hay đo đòn đánh mà không cần
+    // phím thật. 0 là tắt.
     std::uint32_t auto_strike_from = 0;
     // Công cụ thử của dự án (--ui-event), client gốc không có: sự kiện giao diện "TÊN|arg0|...|arg3" phát cho các bảng ở
     // khung màn chơi đầu tiên, theo thứ tự, như PushEvent của game gốc.

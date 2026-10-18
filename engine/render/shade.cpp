@@ -53,10 +53,12 @@ constexpr double kBoxToUnit = 0.01;
     return color.x() > 0.0F || color.y() > 0.0F || color.z() > 0.0F;
 }
 
-// Tấm scene_blend add có ảnh mặt nạ: shader nhân ảnh thứ hai.
+// Tấm scene_blend add hay zero one_minus_src_colour có ảnh mặt nạ: shader nhân ảnh thứ hai.
 [[nodiscard]] bool is_add_sheet(const resource::Material& material) noexcept {
     const bool is_add = material.alpha == resource::Alpha::kAdd;
-    return is_add && material.surface.image.has_value();
+    const bool is_dark = material.alpha == resource::Alpha::kDarken;
+    const bool is_sheet = is_add || is_dark;
+    return is_sheet && material.surface.image.has_value();
 }
 
 // Màu nền và ngưỡng alpha của glTF. Pass do người gọi điền thì unlit của glTF không áp.

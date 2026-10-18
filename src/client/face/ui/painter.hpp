@@ -33,6 +33,7 @@
 #include "ui/text.hpp"
 #include "ui/view.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
@@ -62,6 +63,23 @@ struct MapPaint {
     float scale_v = 1.0F;
 };
 
+// Texture lớp phủ của minimap (ui/radar.hpp build_overlay) và chỗ của từng ảnh trong đó, theo điểm
+// ảnh.
+struct OverlayPaint {
+    std::uint32_t texture = render::kUiWhite;
+    float width = 1.0F;
+    float height = 1.0F;
+    // Góc trái trên của ảnh chùm sáng (vuông, light_size điểm ảnh).
+    float light_x = 0.0F;
+    float light_y = 0.0F;
+    float light_size = 1.0F;
+    // Tấm mũi tên ở góc trái trên cỡ gốc: quad mũi tên lấy ô source của nó dời (arrow_x, arrow_y).
+    // Sai thì mũi tên vẽ từ tấm DDS của asset như mọi ảnh thường.
+    bool has_arrow = false;
+    float arrow_x = 0.0F;
+    float arrow_y = 0.0F;
+};
+
 // Những thứ ngoài GuiAsset mà một khung cần: bộ viết chữ cùng texture phông, ảnh minimap và ảnh
 // của các fake object. Thiếu thứ nào thì phần đó không vẽ.
 struct PaintKit {
@@ -75,6 +93,9 @@ struct PaintKit {
     std::optional<MapPaint> board;
     // Ảnh nền bản đồ thế giới (quad kWorldBoard): texture riêng, uv là phần của ảnh nguyên.
     std::optional<MapPaint> world;
+    // Lớp phủ của minimap: chùm sáng hướng nhìn (quad kMapLight) và, khi có, tấm mũi tên (quad
+    // kSlotArrow) nằm chung một texture với nhau để cả hai gộp vào một lệnh vẽ.
+    std::optional<OverlayPaint> overlay;
     std::span<const ViewPaint> views;
     // Số điểm ảnh của màn cho một điểm ảnh của layout (1 khi không co). Dưới 1 thì chữ dàn trực tiếp ở cỡ điểm ảnh của
     // màn và quad dính vào lưới điểm ảnh, để giao diện co lại vẫn nét.
@@ -90,6 +111,13 @@ public:
     // Dựng lại đỉnh và lô của khung. Gọi ngoài begin_rendering vì có thể tải texture. Texture không
     // tải được thì quad của nó bị bỏ và đếm vào missing().
     void build(const gui::GuiAsset& asset, const FrameParts& parts, const PaintKit& kit);
+
+    // Vá đỉnh của các quad khe động (gui::Quad::slot) vào chỗ build đã ghi, không dựng lại cả
+    // trang: minimap đổi mỗi khung nên chỉ vài chục đỉnh được viết lại. quads theo thứ tự bất kỳ;
+    // khe nào build không vẽ (thiếu ảnh) thì bỏ qua. false khi một khe đổi số đỉnh hay biến mất:
+    // phải build lại.
+    [[nodiscard]] bool retouch(const gui::GuiAsset& asset, std::span<const gui::Quad> quads,
+        const PaintKit& kit);
 
     [[nodiscard]] std::span<const render::UiVertex> vertices() const noexcept { return vertices_; }
     [[nodiscard]] std::span<const render::UiBatch> batches() const noexcept { return batches_; }
@@ -131,9 +159,19 @@ private:
     [[nodiscard]] Loaded load(const std::string& name);
     void add_layer(const Job& job, Cursor& cursor);
     void add_quad(const Job& job, const gui::Quad& quad);
-    void add_image(const gui::GuiAsset& asset, const gui::Quad& quad);
+    void add_image(const Job& job, const gui::Quad& quad);
+    void add_arrow(const Job& job, const gui::Quad& drawn);
     void add_map(const gui::Quad& quad, const MapPaint& map);
+    void add_light(const gui::Quad& quad, const OverlayPaint& overlay);
     void add_view(const Job& job, const gui::Quad& quad);
+    // Chỗ đỉnh của một khe động trong vertices_: đỉnh đầu và số đỉnh (0 là build không vẽ khe đó).
+    struct SlotSpan {
+        std::size_t first = 0;
+        std::size_t count = 0;
+    };
+
+    void add_shaped(const Job& job, const gui::Quad& quad);
+    [[nodiscard]] bool retouch_one(const Job& job, const gui::Quad& quad);
     [[nodiscard]] std::optional<Open> open_for(const gui::GuiAsset& asset, const gui::Quad& quad);
     void add_text(const Job& job, const gui::TextRun& run);
     void close_batch(Open open);
@@ -146,6 +184,10 @@ private:
     std::vector<render::UiVertex> vertices_;
     std::vector<render::UiBatch> batches_;
     std::size_t missing_ = 0;
+    std::array<SlotSpan, gui::kSlotCount> slots_{};
+    // Bộ đệm của retouch_one: dựng một quad ra đây rồi chép đè, dùng lại bộ nhớ giữa các khung.
+    std::vector<render::UiVertex> scratch_vertices_;
+    std::vector<render::UiBatch> scratch_batches_;
 };
 
 } // namespace game::ui

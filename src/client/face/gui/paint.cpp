@@ -416,21 +416,30 @@ BarLevel bar_level(const Ctx& ctx, const Placed& self) {
     return BarLevel{.target = level, .shown = level, .tint = kWhiteArgb};
 }
 
-// Điểm trên màn hình của người chơi trong radar, kẹp trong ô radar. Trục đang canh giữa người chơi thì đúng
-// tâm ô (Radar::is_centred_u): cùng một điểm mọi khung, mũi tên không rung khi chạy.
+// Điểm trên màn hình của người chơi trong radar, kẹp trong ô radar.
 struct Mark {
     float x = 0.0F;
     float y = 0.0F;
 };
 
+// Bản đồ lớn: suy từ tỉ số uv của vùng đang thấy.
 Mark radar_mark(const Box& screen, const Radar& view, const Place& input) noexcept {
     const float across = input.player_x / input.scene_width;
     const float down = input.player_z / input.scene_depth;
     const float span_u = view.u1 - view.u0;
     const float span_v = view.v1 - view.v0;
     Mark mark{.x = screen.x + (screen.w * 0.5F), .y = screen.y + (screen.h * 0.5F)};
-    if (span_u != 0.0F && !view.is_centred_u) mark.x = screen.x + ((across - view.u0) / span_u * screen.w);
-    if (span_v != 0.0F && !view.is_centred_v) mark.y = screen.y + ((down - view.v0) / span_v * screen.h);
+    if (span_u != 0.0F) mark.x = screen.x + ((across - view.u0) / span_u * screen.w);
+    if (span_v != 0.0F) mark.y = screen.y + ((down - view.v0) / span_v * screen.h);
+    mark.x = std::clamp(mark.x, screen.x, screen.x + screen.w);
+    mark.y = std::clamp(mark.y, screen.y, screen.y + screen.h);
+    return mark;
+}
+
+// Minimap: chỗ người chơi theo gốc nhìn nguyên của radar_uv, cùng số nguyên với ảnh nền nên mũi tên
+// dính nền (lệch tối đa nửa điểm ảnh do làm tròn), không đi theo tỉ số uv có sai số số thực.
+Mark radar_spot(const Box& screen, const Radar& view) noexcept {
+    Mark mark{.x = screen.x + view.mark_x, .y = screen.y + view.mark_y};
     mark.x = std::clamp(mark.x, screen.x, screen.x + screen.w);
     mark.y = std::clamp(mark.y, screen.y, screen.y + screen.h);
     return mark;
@@ -485,24 +494,60 @@ ImagePlace clipped(const ImagePlace& place, const Box& clip) noexcept {
     return out;
 }
 
-// Mũi tên người chơi: ảnh của khung theo hướng mặt, cỡ gốc của ảnh, tâm ở mark, cắt theo ô radar
-// (cửa sổ mũi tên của bản gốc là con của radar). false khi không có mũi tên để vẽ.
-bool draw_arrow(const Ctx& ctx, const Placed& self, Mark mark) {
+// Ô dest nằm trọn trong ô clip không (không phải cắt).
+bool is_inside(const Box& dest, const Box& clip) noexcept {
+    const bool is_left = dest.x >= clip.x && dest.y >= clip.y;
+    return is_left && dest.x + dest.w <= clip.x + clip.w && dest.y + dest.h <= clip.y + clip.h;
+}
+
+// Mũi tên người chơi: ảnh của khung gần hướng mặt nhất, cỡ gốc của ảnh, tâm ở mark, cắt theo ô
+// radar (cửa sổ mũi tên của bản gốc là con của radar). Phần lẻ của hướng quay nốt bằng Quad::turn
+// nên mũi tên quay liền; ô bị cắt (người chơi sát mép cảnh) thì chỉ cắt, không xoay lẻ. slot là khe
+// động của quad (0 ở bản đồ lớn). false khi không có mũi tên.
+bool draw_arrow(const Ctx& ctx, const Placed& self, Mark mark, std::uint8_t slot) {
     const GuiAnimate* arrow = self_arrow(ctx, self);
     if (arrow == nullptr) return false;
     const ArrowTurn turn{.facing = ctx.input->player_facing, .frames = arrow->frames.count};
-    const std::size_t slot = arrow_frame(turn);
-    const GuiImage* image = frame_image(*ctx.asset, *arrow, slot);
+    const ArrowPose pose = arrow_pose(turn);
+    const GuiImage* image = frame_image(*ctx.asset, *arrow, pose.frame);
     if (image == nullptr) return false;
-    // Đặt vào điểm ảnh nguyên cho nét. Làm tròn xuống chứ không dùng pixel_align: góc trái trên có
-    // thể âm khi người chơi đứng sát mép cảnh, mà pixel_align cắt số âm về phía 0.
-    Box dest = centred_box(mark, image->width, image->height);
-    dest.x = std::floor(dest.x + 0.5F);
-    dest.y = std::floor(dest.y + 0.5F);
+    // Mark là điểm ảnh nguyên khi đứng giữa cửa sổ (window_centre); sát mép cảnh nó trượt lẻ cùng
+    // nền.
+    const Box dest = centred_box(mark, image->width, image->height);
     const Box crop{.x = 0.0F, .y = 0.0F, .w = image->width, .h = image->height};
     const ImagePlace whole{.dest = dest, .crop = crop, .colour = kWhiteArgb};
+    const std::size_t first = ctx.sheet->quads.size();
     push_image(*ctx.sheet, *image, clipped(whole, self.screen));
+    if (ctx.sheet->quads.size() == first) return true;
+    Quad& drawn = ctx.sheet->quads.back();
+    drawn.slot = slot;
+    if (is_inside(dest, self.screen)) drawn.turn = pose.spin;
     return true;
+}
+
+// Chùm sáng hướng nhìn (cửa sổ MapLight của FalagardSceneMap, CreateSceneMap 0x1800c58d0): ảnh
+// MapSearchLight cỡ 64 x 64 điểm ảnh layout (updateMyselfDir 0x1800ca970), tâm ở người chơi. Ảnh
+// có chóp ở tâm và mở xuống nam (+z, facing 0) khi chưa xoay: TGA gốc dưới-trái, đọc đúng chiều
+// ở export_map_light.py. Bản đồ luôn bắc ở trên và z xuống, nên chóp chỉ hướng camera nhìn khi xoay
+// thuận chiều kim đồng hồ -view_facing (facing 0 là +z, tăng về +x); khớp -Camera_GetDirection của
+// mã gốc. Vẽ trước mũi tên vì mũi tên đặt AlwaysOnTop sau cùng; cắt theo ô radar như mọi cửa sổ
+// con.
+constexpr float kLightSize = 64.0F;
+
+void push_light(const Ctx& ctx, const Box& clip, Mark mark, std::uint8_t slot) {
+    const Box whole = centred_box(mark, kLightSize, kLightSize);
+    const float left = std::max(whole.x, clip.x);
+    const float top = std::max(whole.y, clip.y);
+    const float right = std::min(whole.x + whole.w, clip.x + clip.w);
+    const float bottom = std::min(whole.y + whole.h, clip.y + clip.h);
+    if (right <= left || bottom <= top) return;
+    Quad light;
+    light.texture = kMapLight;
+    light.dest = Box{.x = left, .y = top, .w = right - left, .h = bottom - top};
+    light.source = whole;
+    light.turn = -ctx.input->view_facing;
+    light.slot = slot;
+    ctx.sheet->quads.push_back(light);
 }
 
 // Số liệu radar_uv cần: cỡ cảnh và chỗ người chơi của input, cỡ của cửa sổ radar screen.
@@ -514,6 +559,7 @@ RadarAsk radar_ask(const Place& input, const Box& screen) noexcept {
     ask.window_height = screen.h;
     ask.player_x = input.player_x;
     ask.player_z = input.player_z;
+    ask.is_snapped = input.is_radar_snapped;
     return ask;
 }
 
@@ -559,8 +605,11 @@ void draw_board(const Ctx& ctx, const Placed& self, std::string_view zoom) {
         ctx.sheet->board_dest = dest;
         ctx.sheet->board_uv = view.uv;
         if (!flag(ctx, self, "SceneMapSelf")) return;
-        const Mark mark = radar_mark(dest, view.uv, *ctx.input);
-        if (draw_arrow(ctx, self, mark)) return;
+        // Bản đồ lớn đổi ít (kéo, cuộn) nên mũi tên đặt vào điểm ảnh nguyên cho nét.
+        const Mark exact = radar_mark(dest, view.uv, *ctx.input);
+        const Mark mark{.x = std::round(exact.x), .y = std::round(exact.y)};
+        push_light(ctx, self.screen, mark, 0);
+        if (draw_arrow(ctx, self, mark, 0)) return;
         push_source(*ctx.sheet, kSolid, centred_box(mark, kMarker, kMarker), {}, kMarkerColour);
         return;
     }
@@ -592,12 +641,15 @@ void draw_radar(const Ctx& ctx, const Placed& self) {
     map.v0 = view.v0;
     map.u1 = view.u1;
     map.v1 = view.v1;
+    map.slot = kSlotMap;
     const auto round = effective(ctx, self, "RoundEnabled");
     map.is_round = round && parse_bool(*round);
     ctx.sheet->quads.push_back(map);
-    const Mark mark = radar_mark(self.screen, view, input);
-    if (draw_arrow(ctx, self, mark)) return;
+    const Mark mark = radar_spot(self.screen, view);
+    push_light(ctx, self.screen, mark, kSlotLight);
+    if (draw_arrow(ctx, self, mark, kSlotArrow)) return;
     push_source(*ctx.sheet, kSolid, centred_box(mark, kMarker, kMarker), {}, kMarkerColour);
+    ctx.sheet->quads.back().slot = kSlotArrow;
 }
 
 std::string_view button_state(const Ctx& ctx, const Placed& self) {

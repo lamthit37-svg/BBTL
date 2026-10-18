@@ -285,6 +285,9 @@ struct NotePick {
     std::optional<cast::Note> operator()(const protocol::EntityDied& died) const {
         return cast::Died{.id = died.id, .killer = died.killer};
     }
+    std::optional<cast::Note> operator()(const protocol::WorldTime& time) const {
+        return cast::Clocked{.watch = time.period};
+    }
     template <typename Other>
     std::optional<cast::Note> operator()(const Other& /*message*/) const {
         return std::nullopt;

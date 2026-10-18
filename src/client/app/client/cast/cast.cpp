@@ -71,6 +71,7 @@ void Cast::clear() noexcept {
     scene_.reset();
     self_id_ = 0;
     self_hp_.reset();
+    watch_ = 0;
 }
 
 const Actor* Cast::find(std::uint32_t id) const noexcept {

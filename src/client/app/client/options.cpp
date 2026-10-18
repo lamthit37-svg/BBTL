@@ -245,7 +245,9 @@ constexpr std::size_t kMostDemoCreatures = 32;
     if (text == "--login") options.is_login = true;
     if (text == "--bare") options.is_bare = true;
     if (text == "--walk") options.is_auto_walk = true;
-    return text == "--validate" || text == "--login" || text == "--bare" || text == "--walk";
+    if (text == "--map-snap") options.is_map_snapped = true;
+    const bool is_view = text == "--validate" || text == "--login" || text == "--bare";
+    return is_view || text == "--walk" || text == "--map-snap";
 }
 
 [[nodiscard]] bool take_argument(Options& options, Arguments arguments, std::size_t& index) {

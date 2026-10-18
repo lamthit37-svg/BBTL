@@ -62,6 +62,9 @@ struct HudDesc {
     // Màn điện thoại: layout ở Interface/phone thắng layout PC cùng tên. Máy tính bảng và PC dùng layout PC (chủ dự án
     // chốt 2026-10-15: máy tính bảng dùng giao diện PC là bình thường).
     bool uses_phone_layout = false;
+    // Minimap dính nền vào lưới điểm ảnh (gốc nhìn nguyên) thay vì trượt lẻ mỗi khung. Mặc định
+    // trượt lẻ; bật để so độ nhấp nháy của hai cách trên màn thật.
+    bool is_map_snapped = false;
 };
 
 // Cảnh đang đứng, cho minimap. radar là token szSceneMap của bảng cảnh (rỗng thì minimap chỉ còn
@@ -76,6 +79,8 @@ struct HudScene {
     float player_z = 0.0F;
     // Hướng mặt của người chơi theo radian, 0 là +z và tăng về +x (atan2(dx, dz)).
     float facing = 0.0F;
+    // Hướng camera nhìn trên mặt đất, cùng quy ước với facing: chùm sáng của minimap xoay theo nó.
+    float view_facing = 0.0F;
     // Canh giờ trong game, 0 (Tý) tới 11 (Hợi). Giờ trong game là của máy chủ.
     std::uint8_t watch = 0;
     // Id cảnh client (cột 0 của bảng cảnh). -1 khi chưa vào cảnh.
@@ -132,8 +137,8 @@ struct HudView {
 // Việc một nút của giao diện nhờ client làm ngoài giao diện (vào game, mở trang web, rời bảng).
 using Action = panel::LogonAction;
 
-// Nhấp trái lên bản đồ lớn: đi tự động tới điểm đó của cảnh người chơi đang đứng (AutoRunToTarget của
-// SceneMap_GotoDirectly), đơn vị cảnh.
+// Nhấp trái lên bản đồ lớn hay minimap: đi tự động tới điểm đó của cảnh người chơi đang đứng
+// (AutoRunToTarget của SceneMap_GotoDirectly và MiniMap_GotoDirectly), đơn vị cảnh.
 struct RunTo {
     float x = 0.0F;
     float z = 0.0F;

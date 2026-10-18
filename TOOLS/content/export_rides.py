@@ -164,7 +164,7 @@ def export_locators(book, mounts, models):
     seen = set()
     absent = 0
     for obj_name in names:
-        items = book.by_name.get(obj_name, [])
+        items = book.named(obj_name)
         if not items:
             absent += 1
             continue
@@ -219,7 +219,7 @@ def export_entities(book, mounts, models):
     absent = 0
     skipped = 0
     for obj_name in names:
-        items = book.by_name.get(obj_name, [])
+        items = book.named(obj_name)
         if not items:
             absent += 1
             print(f"entities absent {obj_name}")
@@ -254,7 +254,7 @@ def export_effects(book, mounts, models):
     absent = 0
     skipped = 0
     for obj_name in names:
-        items = book.by_name.get(obj_name, [])
+        items = book.named(obj_name)
         if not items:
             absent += 1
             print(f"effects absent {obj_name}")
@@ -464,7 +464,7 @@ def model_skeleton(book, row, cache):
     found = mesh_skeleton(cache, mesh_name(row[1]))
     if found:
         return found
-    items = book.by_name.get(row[1], [])
+    items = book.named(row[1])
     if not items:
         return ""
     for entity in items[0].iter("Entity"):
@@ -479,7 +479,7 @@ def player_rigs(book):
     rigs = {}
     for part in data_rows(OUT / "player_bodies.tsv"):
         sex = integer_cell(part[0])
-        items = book.by_name.get(part[2], [])
+        items = book.named(part[2])
         links = skeleton_links(items[0]) if items else {}
         rigs[sex] = {"skeleton": part[3], "links": links}
     return rigs
@@ -537,7 +537,7 @@ def export_chain(obj_path, mounts, models):
         if action_set is not None and action_set >= 0:
             model_sets.add(action_set)
         if row[1] not in link_cache:
-            items = book.by_name.get(row[1], [])
+            items = book.named(row[1])
             link_cache[row[1]] = skeleton_links(items[0]) if items else {}
     wanted = set(riders) | model_sets
     index = load_sets(wanted)

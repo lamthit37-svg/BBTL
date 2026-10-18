@@ -66,6 +66,9 @@ inline constexpr std::int32_t kFont = -3;
 inline constexpr std::int32_t kMeshView = -4;
 inline constexpr std::int32_t kSceneBoard = -5;
 inline constexpr std::int32_t kWorldBoard = -6;
+// -7 là chùm sáng hướng nhìn của radar (MapSearchLight.tga): Quad::turn xoay ảnh quanh tâm ô
+// source.
+inline constexpr std::int32_t kMapLight = -7;
 
 struct Quad {
     std::int32_t texture = kSolid;
@@ -88,7 +91,21 @@ struct Quad {
     Box mask_box;
     // Tên fake object của quad kMeshView (thuộc tính FakeObject); mượn như TextRun::text.
     std::string_view view;
+    // Góc xoay (radian, thuận chiều kim đồng hồ trên màn hình) của ảnh quanh tâm ô chưa cắt.
+    // kMapLight: source là ô chưa cắt, dest là phần của ô đó nằm trong cửa sổ cha. Mũi tên của
+    // radar (texture >= 0): source là ô ảnh khung, dest là ô nguyên chưa cắt (chỉ xoay khi nó nằm
+    // trọn trong cửa sổ cha).
+    float turn = 0.0F;
+    // Khe động của minimap (kSlot*): quad mà Hub::minimap dựng lại mỗi khung, nên Painter ghi chỗ
+    // đỉnh của nó để vá tại chỗ, không dựng lại cả trang. 0 là quad thường.
+    std::uint8_t slot = 0;
 };
+
+// Khe động của minimap theo thứ tự vẽ: nền, chùm sáng, mũi tên (hay chấm khi thiếu hoạt ảnh).
+inline constexpr std::uint8_t kSlotMap = 1;
+inline constexpr std::uint8_t kSlotLight = 2;
+inline constexpr std::uint8_t kSlotArrow = 3;
+inline constexpr std::size_t kSlotCount = 4;
 
 // Lớp CEGUI ra dòng chữ, tức cách đặt khối chữ theo chiều dọc trong ô trước khi gọi Font::drawText
 // (mã máy CEGUIBase.dll và CEGUIFalagard.dll 2026, docs/GIAO-DIEN-2026.md mục chữ).
@@ -183,11 +200,12 @@ struct Radar {
     float v0 = 0.0F;
     float u1 = 1.0F;
     float v1 = 1.0F;
-    // Vùng thấy theo trục đó đang canh giữa người chơi (chưa bị kẹp sát mép ảnh): người chơi nằm đúng tâm cửa
-    // sổ. Chỗ vẽ đặt mũi tên vào tâm luôn, không suy lại từ u0, u1: phép suy có sai số số thực, quanh nửa điểm
-    // ảnh nó làm phép làm tròn lật qua lại mỗi khung.
-    bool is_centred_u = false;
-    bool is_centred_v = false;
+    // Chỗ người chơi trong cửa sổ radar, điểm ảnh từ góc trái trên, tính từ gốc nhìn đã làm tròn
+    // nguyên. Chỗ vẽ mũi tên lấy thẳng số này, không suy lại từ tỉ số u0, u1: phép suy có sai số số
+    // thực, quanh nửa điểm ảnh nó làm phép làm tròn lật qua lại. Chỉ minimap đặt (radar_uv); bản đồ
+    // lớn để 0 và suy từ uv.
+    float mark_x = 0.0F;
+    float mark_y = 0.0F;
 };
 
 // Mức muốn tới của một thanh, như SetProgress của script gốc. Hub trượt mức đang vẽ tới đó theo
@@ -213,6 +231,12 @@ struct Place {
     // Hướng mặt của người chơi theo radian, 0 là +z và tăng về +x (atan2(dx, dz) như client gốc):
     // radar chọn khung của mũi tên theo nó.
     float player_facing = 0.0F;
+    // Hướng camera nhìn trên mặt đất, cùng quy ước với player_facing: chùm sáng của radar xoay theo
+    // nó (UpdateFlag của UI_CEGUI 0x18003de10 xoay MapLight một góc đối của Camera_GetDirection).
+    float view_facing = 0.0F;
+    // Minimap dính nền vào lưới điểm ảnh (gốc nhìn nguyên, như PixelAligned của CEGUI) thay vì
+    // trượt lẻ mỗi khung. Mặc định trượt lẻ: nền mượt từng khung, mũi tên ở tâm.
+    bool is_radar_snapped = false;
     // Thời điểm của lần update trên một đồng hồ đơn điệu: Hub trượt thanh theo khoảng giữa hai lần
     // update liền nhau.
     std::chrono::milliseconds clock{0};
@@ -284,6 +308,8 @@ struct RadarAsk {
     float window_height = 0.0F;
     float player_x = 0.0F;
     float player_z = 0.0F;
+    // Gốc nhìn làm tròn nguyên điểm ảnh (Place::is_radar_snapped).
+    bool is_snapped = false;
 };
 
 // FalagardSceneMap::UpdateAllWindow và SetViewByCenter, SCENE_MAP_ZOOMSCALE = 4. Cửa sổ thấy
@@ -360,6 +386,16 @@ struct ArrowTurn {
 // hạn thì 0.
 [[nodiscard]] std::size_t arrow_frame(const ArrowTurn& turn) noexcept;
 
+// Tư thế mũi tên liên tục: khung gần hướng mặt nhất và góc lẻ còn thiếu (radian, thuận chiều kim
+// đồng hồ trên màn hình, tối đa nửa bước khung). Khác gốc: gốc chọn khung theo độ nguyên rồi dừng;
+// ở đây khung gần nhất xoay nốt phần lẻ để mũi tên quay liền, không nhảy từng nấc 12 độ.
+struct ArrowPose {
+    std::size_t frame = 0;
+    float spin = 0.0F;
+};
+
+[[nodiscard]] ArrowPose arrow_pose(const ArrowTurn& turn) noexcept;
+
 // Một bước làm mượt thanh: đang hiện shown, muốn tới target (cùng trong 0..1), tối đa speed mỗi
 // giây (mặc định 1, tức đầy thanh trong một giây), trong seconds giây.
 struct BarMove {
@@ -379,6 +415,13 @@ struct BarMove {
 // thường), kLeftButton là 1 (nhấn hay nhả nút trái).
 enum class Probe : std::uint8_t { kAny, kLeftButton };
 
+// Minimap dựng lại cho một khung: các quad mang khe động (kSlot*) theo thứ tự vẽ và phần ảnh cảnh
+// đang thấy. quads sống tới lần Hub::minimap kế.
+struct MiniView {
+    std::span<const Quad> quads;
+    Radar uv;
+};
+
 // Trung tâm dàn trang. Chỉ số ảnh dựng một lần. Trang tĩnh giữ khi chỉ thanh máu, radar hay chữ
 // động đổi. asset phải sống lâu hơn Hub. Hồ sơ hot của vòng vẽ: không dàn lại cửa sổ mỗi khung.
 class Hub {
@@ -391,6 +434,10 @@ public:
     Hub& operator=(const Hub&) = delete;
 
     void update(const Place& given);
+    // Dựng riêng radar nhỏ (minimap) theo input, không đụng trang đã dàn: chỗ đứng và hướng nhìn
+    // đổi mỗi khung thì Painter vá đỉnh của các quad khe động thay vì dựng lại cả trang. Gọi sau
+    // update; nullopt khi không có radar nhỏ nào đang hiện hay cảnh chưa có cỡ.
+    [[nodiscard]] std::optional<MiniView> minimap(const Place& input);
     [[nodiscard]] std::span<const Quad> still() const noexcept;
     [[nodiscard]] std::span<const Quad> live() const noexcept;
     [[nodiscard]] std::span<const TextRun> texts() const noexcept;

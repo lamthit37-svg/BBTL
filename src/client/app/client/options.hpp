@@ -56,6 +56,7 @@ inline constexpr std::string_view kUsage =
     "30 mẫu của bảng nên cần --frames từ 30 trở lên.\n"
     "--walk: ở màn chơi nhân vật tự chạy vòng (giữ W, hướng nhìn xoay đều) để đo nhịp lúc di\n"
     "chuyển; lúc thoát in bước chân mỗi khung. Công cụ đo, client gốc không có.\n"
+    "--map-snap: minimap nhích từng điểm ảnh nguyên thay vì trượt lẻ mỗi khung (so độ nhấp nháy).\n"
     "--weapon: ở màn chơi nhân vật cầm vũ khí của vật phẩm khe 0 này (mã trong EquipBase, ví dụ\n"
     "10100000 là Thanh Đồng Đao): mẫu gắn vào tay theo locator của mẫu nhân vật, clip đứng và "
     "chạy\n"
@@ -115,6 +116,9 @@ struct Options {
     // --walk: ở màn chơi nhân vật tự chạy vòng (giữ W, hướng nhìn xoay đều), lúc thoát in bước chân
     // mỗi khung. Công cụ đo của dự án, client gốc không có.
     bool is_auto_walk = false;
+    // --map-snap: minimap dính nền vào lưới điểm ảnh thay vì trượt lẻ mỗi khung
+    // (HudDesc::is_map_snapped).
+    bool is_map_snapped = false;
     // --weapon: vật phẩm khe 0 mà nhân vật ở màn chơi cầm. Công cụ thử của dự án.
     std::optional<std::uint32_t> weapon_item;
     // --mount: id CharMount. 0 là một thú thật (hổ), nên vắng mặt mới là không cưỡi.

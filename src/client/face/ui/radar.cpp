@@ -11,7 +11,9 @@
 #include <cstddef>
 #include <cstdint>
 #include <filesystem>
+#include <format>
 #include <iterator>
+#include <optional>
 #include <span>
 #include <string>
 #include <utility>
@@ -207,6 +209,79 @@ void RadarAtlas::stitch() {
         const Slot slot{.across = index % shape_.across, .down = index / shape_.across};
         place(origin, slot);
     }
+}
+
+namespace {
+
+// Ảnh PNG của lớp phủ: đúng cỡ expect thì trả RGBA, không thì nullopt và ghi lý do vào notes.
+struct OverlayPart {
+    std::string name;
+    int width = 0;
+    int height = 0;
+};
+
+[[nodiscard]] std::optional<resource::Image> read_part(const std::filesystem::path& common_dir,
+    const OverlayPart& part, std::string& notes) {
+    const std::filesystem::path file = common_dir / io::path_from_utf8(part.name);
+    const io::TextResult bytes = io::read_text(file);
+    if (!bytes) {
+        notes += std::format("thiếu {}\n", part.name);
+        return std::nullopt;
+    }
+    const auto raw = std::as_bytes(std::span(*bytes));
+    core::Result<resource::Image> image = resource::decode_image(raw);
+    if (!image) {
+        notes += std::format("ảnh {} hỏng\n", part.name);
+        return std::nullopt;
+    }
+    const bool is_sized = image->width == static_cast<std::uint32_t>(part.width) &&
+        image->height == static_cast<std::uint32_t>(part.height);
+    if (!is_sized) {
+        notes += std::format("ảnh {} sai cỡ\n", part.name);
+        return std::nullopt;
+    }
+    return std::move(*image);
+}
+
+// Chép ảnh image vào overlay với góc trái trên ở (left, top).
+void blit(resource::Image& overlay, const resource::Image& image, int left, int top) {
+    const std::size_t line = static_cast<std::size_t>(image.width) * kBytesPerPixel;
+    const std::size_t overlay_line = static_cast<std::size_t>(overlay.width) * kBytesPerPixel;
+    const std::size_t left_bytes = static_cast<std::size_t>(left) * kBytesPerPixel;
+    for (std::uint32_t row = 0; row < image.height; ++row) {
+        const std::size_t from = static_cast<std::size_t>(row) * line;
+        const std::size_t down = static_cast<std::size_t>(top) + row;
+        const std::size_t to = (down * overlay_line) + left_bytes;
+        const std::span<const std::uint8_t> source = std::span(image.rgba).subspan(from, line);
+        std::ranges::copy(source, overlay.rgba.begin() + static_cast<std::ptrdiff_t>(to));
+    }
+}
+
+} // namespace
+
+OverlayImage build_overlay(const std::filesystem::path& common_dir, std::string& notes) {
+    OverlayImage out;
+    out.image.name = "ui.minimap_overlay";
+    out.image.width = static_cast<std::uint32_t>(kOverlayWidth);
+    out.image.height = static_cast<std::uint32_t>(kOverlayHeight);
+    out.image.has_mips = false;
+    const auto pixels = static_cast<std::size_t>(kOverlayWidth * kOverlayHeight);
+    out.image.rgba.assign(pixels * kBytesPerPixel, 0);
+    OverlayPart arrow_part;
+    arrow_part.name = "MiniMap_Arrow.png";
+    arrow_part.width = kArrowSheetWidth;
+    arrow_part.height = kArrowSheetHeight;
+    OverlayPart light_part;
+    light_part.name = "MapSearchLight.png";
+    light_part.width = kLightImageSize;
+    light_part.height = kLightImageSize;
+    const std::optional<resource::Image> arrow = read_part(common_dir, arrow_part, notes);
+    const std::optional<resource::Image> light = read_part(common_dir, light_part, notes);
+    if (arrow) blit(out.image, *arrow, 0, 0);
+    if (light) blit(out.image, *light, kLightX, kLightY);
+    out.has_arrow = arrow.has_value();
+    out.has_light = light.has_value();
+    return out;
 }
 
 gui::Radar RadarAtlas::to_atlas(const gui::Radar& whole) const noexcept {

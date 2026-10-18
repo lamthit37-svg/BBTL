@@ -19,7 +19,14 @@
 namespace game::gui {
 namespace {
 
-constexpr float kRadarZoom = 4.0F;
+// Điểm ảnh một đơn vị cảnh của từng chế độ phóng (FalagardSceneMap::UpdateAllWindow 0x1800c73c0).
+constexpr float kBoardBase = 4.0F;
+constexpr float kBoardMode1 = 0.8F;
+constexpr float kBoardMode3 = 2.0F;
+constexpr float kBoardMode4 = 0.9F;
+// Minimap là SceneMap ở chế độ 1: hàm dựng 0x1800c3560 ghi +0x468 = 1 và MiniMap.lua không gọi
+// SetSceneZoomMode, nên 4 x 0,8 = 3,2 điểm ảnh một đơn vị cảnh (ô 64 đơn vị rộng 204,8 điểm ảnh).
+constexpr float kRadarZoom = kBoardBase * kBoardMode1;
 constexpr float kCos22 = 0.92387953251128675612818318939679F;
 constexpr float kSin22 = 0.3826834323650897717284599840304F;
 constexpr float kSin45 = 0.70710678118654752440084436210485F;
@@ -73,7 +80,10 @@ void put_rim(Fan& fan, const FanCircle& circle, RimStep step) noexcept {
     fan.x = circle.cx + (circle.rx * step.mx);
     fan.y = circle.cy - (circle.ry * step.my);
     fan.u = circle.cu + (circle.ru * step.mx);
-    fan.v = circle.cv - (circle.rv * step.my);
+    // Khác gốc: y đi xuống (ry âm) nên v cũng phải cộng; renderer gốc làm việc ở hệ y đi lên, chép
+    // dấu trừ sang đây thì mặt dưới của quạt lấy v trên và minimap lật dọc (đo 2026-10-18: NCC 0,89
+    // lật so với 0,48 nguyên).
+    fan.v = circle.cv + (circle.rv * step.my);
 }
 
 RimStep rim_at(std::size_t pair) noexcept {
@@ -85,42 +95,75 @@ struct AxisAsk {
     float scene = 0.0F;
     float window = 0.0F;
     float player = 0.0F;
+    bool is_snapped = false;
 };
 
-// Zoom và m_WindowZero của một trục sau SetViewByCenter rồi UpdateAllWindow.
+// Một trục của radar sau SetViewByCenter rồi UpdateAllWindow, theo điểm ảnh: cỡ nền so với cửa sổ,
+// cạnh trái (trên) của nền so với cửa sổ, và chỗ người chơi trong cửa sổ.
 struct ZoomAxis {
     float zoom = 0.0F;
-    float zero = 0.0F;
-    // Vùng thấy bị kẹp sát mép ảnh, không còn canh giữa người chơi.
-    bool is_pinned = false;
+    float origin = 0.0F;
+    float mark = 0.0F;
 };
 
+// Tâm của cửa sổ là điểm ảnh nguyên (cạnh lẻ thì lấy nửa dưới): mũi tên và chùm sáng đặt ở đó nằm
+// đúng lưới điểm ảnh nên khung ảnh của mũi tên không bị lấy mẫu lệch nửa điểm.
+float window_centre(float window) noexcept {
+    return std::floor(window * 0.5F);
+}
+
+// Gốc nhìn (cạnh trái của nền so với cửa sổ) theo điểm ảnh; người chơi ở tâm cửa sổ, kẹp sát mép
+// cảnh. Mặc định lẻ: nền trượt mượt từng khung theo đúng chỗ đứng nội suy của camera (chủ dự án yêu
+// cầu 2026-10-18). is_snapped: làm tròn gốc nguyên điểm ảnh như vị trí cửa sổ nền sau PixelAligned
+// của CEGUI (2008 CEGUIConfig.h:63, CEGUIWindow.cpp:2209-2400); mỗi điểm ảnh màn lấy mẫu nền ở một
+// lưới cố định nên nền chỉ tịnh tiến nguyên, không nhấp nháy, nhưng nhích từng nấc điểm ảnh. Khác
+// gốc: gốc cập nhật vài lần mỗi giây; ở đây mỗi khung. Nền lớn hơn cửa sổ thì canh giữa người chơi
+// rồi kẹp sát mép (ceil khi làm tròn để gốc vẫn nguyên); nhỏ hơn thì canh giữa cửa sổ và đứng yên
+// (UpdateAllWindow 0x1800c73c0: (1 - zoom) / 2).
 ZoomAxis zoom_axis(const AxisAsk& ask) noexcept {
     ZoomAxis axis;
     if (ask.scene <= 0.0F || ask.window <= 0.0F) return axis;
-    axis.zoom = ask.scene * kRadarZoom / ask.window;
-    const float fraction = ask.window / (ask.scene * kRadarZoom);
-    float origin = -((ask.player / ask.scene) - (fraction * 0.5F)) / fraction;
-    const bool is_low = axis.zoom >= 1.0F && origin < 1.0F - axis.zoom;
-    const bool is_high = axis.zoom >= 1.0F && origin > 0.0F;
-    if (is_low) origin = 1.0F - axis.zoom;
-    if (is_high) origin = 0.0F;
-    axis.zero = origin;
-    axis.is_pinned = is_low || is_high;
+    const float content = ask.scene * kRadarZoom;
+    axis.zoom = content / ask.window;
+    const float player_px = ask.player * kRadarZoom;
+    const float centred = window_centre(ask.window) - player_px;
+    const float lowest = ask.window - content;
+    const float middle = (ask.window - content) * 0.5F;
+    float origin = axis.zoom >= 1.0F ? std::clamp(centred, lowest, 0.0F) : middle;
+    if (ask.is_snapped) origin = std::round(origin);
+    if (ask.is_snapped && axis.zoom >= 1.0F) origin = std::clamp(origin, std::ceil(lowest), 0.0F);
+    axis.origin = origin;
+    axis.mark = player_px + axis.origin;
     return axis;
 }
 
-// Vị trí cạnh trái của vùng thấy theo một trục, như SetViewByCenter, kẹp sát mép ảnh.
-float axis_uv(const AxisAsk& ask) noexcept {
-    const ZoomAxis axis = zoom_axis(ask);
+// Cạnh trái (trên) của vùng thấy trong ảnh cảnh, toạ độ 0..1.
+float axis_uv(const AxisAsk& ask, const ZoomAxis& axis) noexcept {
     if (axis.zoom == 0.0F) return 0.0F;
-    return -axis.zero / axis.zoom;
+    return -axis.origin / (ask.scene * kRadarZoom);
 }
 
-// Vùng thấy theo trục canh giữa người chơi: có cỡ và chưa bị kẹp sát mép.
-bool is_centred(const AxisAsk& ask) noexcept {
-    const ZoomAxis axis = zoom_axis(ask);
-    return axis.zoom != 0.0F && !axis.is_pinned;
+// Chỗ người chơi trong cửa sổ; chưa biết cỡ cảnh thì tâm cửa sổ.
+float axis_mark(const AxisAsk& ask, const ZoomAxis& axis) noexcept {
+    return axis.zoom == 0.0F ? ask.window * 0.5F : axis.mark;
+}
+
+AxisAsk across_ask(const RadarAsk& ask) noexcept {
+    AxisAsk axis;
+    axis.scene = ask.scene_width;
+    axis.window = ask.window_width;
+    axis.player = ask.player_x;
+    axis.is_snapped = ask.is_snapped;
+    return axis;
+}
+
+AxisAsk down_ask(const RadarAsk& ask) noexcept {
+    AxisAsk axis;
+    axis.scene = ask.scene_depth;
+    axis.window = ask.window_height;
+    axis.player = ask.player_z;
+    axis.is_snapped = ask.is_snapped;
+    return axis;
 }
 
 } // namespace
@@ -137,12 +180,14 @@ void round_fan(const FanView& view, std::span<Fan, kRoundCount> out) noexcept {
 
 Radar radar_uv(const RadarAsk& ask) noexcept {
     Radar view;
-    const AxisAsk across{.scene = ask.scene_width, .window = ask.window_width, .player = ask.player_x};
-    const AxisAsk down{.scene = ask.scene_depth, .window = ask.window_height, .player = ask.player_z};
-    view.u0 = axis_uv(across);
-    view.v0 = axis_uv(down);
-    view.is_centred_u = is_centred(across);
-    view.is_centred_v = is_centred(down);
+    const AxisAsk across = across_ask(ask);
+    const AxisAsk down = down_ask(ask);
+    const ZoomAxis along = zoom_axis(across);
+    const ZoomAxis below = zoom_axis(down);
+    view.u0 = axis_uv(across, along);
+    view.v0 = axis_uv(down, below);
+    view.mark_x = axis_mark(across, along);
+    view.mark_y = axis_mark(down, below);
     const bool has_width = ask.scene_width > 0.0F && ask.window_width > 0.0F;
     const bool has_depth = ask.scene_depth > 0.0F && ask.window_height > 0.0F;
     if (has_width) view.u1 = view.u0 + (ask.window_width / (ask.scene_width * kRadarZoom));
@@ -151,13 +196,11 @@ Radar radar_uv(const RadarAsk& ask) noexcept {
 }
 
 SceneHit scene_at(const RadarAsk& ask, SceneCursor cursor) noexcept {
-    const ZoomAxis across = zoom_axis({.scene = ask.scene_width, .window = ask.window_width, .player = ask.player_x});
-    const ZoomAxis down = zoom_axis({.scene = ask.scene_depth, .window = ask.window_height, .player = ask.player_z});
+    const ZoomAxis across = zoom_axis(across_ask(ask));
+    const ZoomAxis down = zoom_axis(down_ask(ask));
     if (across.zoom == 0.0F || down.zoom == 0.0F) return {};
-    const float relative_x = cursor.local_x / ask.window_width;
-    const float relative_y = cursor.local_y / ask.window_height;
-    const float scene_x = ((relative_x - across.zero) * ask.scene_width) / across.zoom;
-    const float scene_z = ((relative_y - down.zero) * ask.scene_depth) / down.zoom;
+    const float scene_x = (cursor.local_x - across.origin) / kRadarZoom;
+    const float scene_z = (cursor.local_y - down.origin) / kRadarZoom;
     const bool is_on_scene =
         scene_x >= 0.0F && scene_x <= ask.scene_width && scene_z >= 0.0F && scene_z <= ask.scene_depth;
     if (!is_on_scene) return {};
@@ -165,12 +208,6 @@ SceneHit scene_at(const RadarAsk& ask, SceneCursor cursor) noexcept {
 }
 
 namespace {
-
-// Điểm ảnh một đơn vị cảnh của từng chế độ phóng (FalagardSceneMap::UpdateAllWindow).
-constexpr float kBoardBase = 4.0F;
-constexpr float kBoardMode1 = 0.8F;
-constexpr float kBoardMode3 = 2.0F;
-constexpr float kBoardMode4 = 0.9F;
 
 float board_pixels(const BoardAsk& ask) noexcept {
     const bool is_big =
@@ -277,6 +314,22 @@ std::size_t arrow_frame(const ArrowTurn& turn) noexcept {
     if (angle < 0.0F) angle += kTurn;
     const int degrees = static_cast<int>(angle * kDegreesPerRadian) % kTurnDegrees;
     return static_cast<std::size_t>(degrees) * turn.frames / static_cast<std::size_t>(kTurnDegrees);
+}
+
+// Khung i vẽ mũi tên ở hướng i x (2pi / frames) (khung 0 chỉ +z; kiểm bằng ảnh chụp). Hướng mặt
+// tăng thì mũi tên quay ngược chiều kim đồng hồ trên màn hình (từ nam sang đông), nên phần lẻ xoay
+// ngược dấu.
+ArrowPose arrow_pose(const ArrowTurn& turn) noexcept {
+    if (!std::isfinite(turn.facing) || turn.frames == 0) return {};
+    float angle = std::fmod(turn.facing, kTurn);
+    if (angle < 0.0F) angle += kTurn;
+    const float step = kTurn / static_cast<float>(turn.frames);
+    const float steps = angle / step;
+    const float nearest = std::round(steps);
+    ArrowPose pose;
+    pose.frame = static_cast<std::size_t>(nearest) % turn.frames;
+    pose.spin = -(steps - nearest) * step;
+    return pose;
 }
 
 float bar_step(const BarMove& move) noexcept {

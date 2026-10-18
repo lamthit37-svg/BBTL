@@ -70,11 +70,13 @@ void names_are_unique(Context& context) {
 }
 
 // Cộng sáng và ghi độ sâu dùng chung model.vs, model.ps nhưng nằm sau bốn biến thể model.
-enum class ModelKind : std::uint8_t { kVariant, kAdd, kDepth };
+enum class ModelKind : std::uint8_t { kVariant, kAdd, kDepth, kDark };
 
 [[nodiscard]] ModelKind model_kind(Pso pso) noexcept {
     const bool is_add = pso == Pso::kModelAdd || pso == Pso::kModelAddTwoSided;
     if (is_add) return ModelKind::kAdd;
+    const bool is_dark = pso == Pso::kModelDark || pso == Pso::kModelDarkTwoSided;
+    if (is_dark) return ModelKind::kDark;
     const bool is_depth = pso == Pso::kModelDepth || pso == Pso::kModelDepthTwoSided;
     if (is_depth) return ModelKind::kDepth;
     return ModelKind::kVariant;
@@ -90,7 +92,7 @@ void expect_character(Context& context, const Entry& entry) {
 }
 
 void model_variants_are_character(Context& context) {
-    std::array<std::size_t, 3> counts{};
+    std::array<std::size_t, 4> counts{};
     for (const Entry& entry : render::entries()) {
         if (entry.group != Group::kCharacter) continue;
         expect_character(context, entry);
@@ -104,6 +106,7 @@ void model_variants_are_character(Context& context) {
     context.expect(count(ModelKind::kVariant) == render::kModelVariants, "đúng bốn biến thể model");
     context.expect(count(ModelKind::kAdd) == 2, "hai pipeline cộng sáng của model");
     context.expect(count(ModelKind::kDepth) == 2, "hai pipeline ghi độ sâu của model");
+    context.expect(count(ModelKind::kDark) == 2, "hai pipeline làm tối của model");
 }
 
 void fx_waits_for_the_scene(Context& context) {

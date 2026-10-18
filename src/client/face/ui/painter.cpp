@@ -116,6 +116,64 @@ void push_fan(Vertices& out, const gui::Box& dest, const UvBox& texel, std::uint
     }
 }
 
+// Phép xoay uv của một ảnh quanh tâm ô chưa cắt: tâm xoay trên màn, cos và sin của góc, toạ độ ảnh
+// của điểm ảnh nằm ở tâm, và toạ độ ảnh trên mỗi điểm ảnh layout.
+struct ImageTurn {
+    float centre_x = 0.0F;
+    float centre_y = 0.0F;
+    float cos_turn = 1.0F;
+    float sin_turn = 0.0F;
+    float u_centre = 0.5F;
+    float v_centre = 0.5F;
+    float u_step = 1.0F;
+    float v_step = 1.0F;
+};
+
+// Đỉnh ở (across, down) lấy ảnh ở chỗ xoay ngược: ảnh xoay thuận chiều kim đồng hồ một góc turn
+// trên màn (trục y xuống) thì điểm lệch (px, py) khỏi tâm lấy ảnh ở (cos px + sin py, cos py - sin
+// px).
+[[nodiscard]] render::UiVertex turned_vertex(const ImageTurn& turn, float across, float down,
+    std::uint32_t colour) {
+    const float offset_x = across - turn.centre_x;
+    const float offset_y = down - turn.centre_y;
+    const float tex_x = (turn.cos_turn * offset_x) + (turn.sin_turn * offset_y);
+    const float tex_y = (turn.cos_turn * offset_y) - (turn.sin_turn * offset_x);
+    const float u_at = turn.u_centre + (tex_x * turn.u_step);
+    const float v_at = turn.v_centre + (tex_y * turn.v_step);
+    return render::UiVertex{.x = across, .y = down, .u = u_at, .v = v_at, .colour = colour};
+}
+
+// Bốn đỉnh của hộp dest lấy ảnh xoay theo turn, cùng thứ tự với push_box.
+void push_turned(Vertices& out, const gui::Box& dest, const ImageTurn& turn, std::uint32_t colour) {
+    const float right = dest.x + dest.w;
+    const float bottom = dest.y + dest.h;
+    out.push_back(turned_vertex(turn, dest.x, dest.y, colour));
+    out.push_back(turned_vertex(turn, right, dest.y, colour));
+    out.push_back(turned_vertex(turn, right, bottom, colour));
+    out.push_back(turned_vertex(turn, dest.x, bottom, colour));
+}
+
+// Phép xoay của quad ảnh thường có turn: ô dest chưa cắt xoay quanh tâm, lấy ô source của texture
+// cỡ size (1 điểm ảnh layout là 1 điểm ảnh texture).
+[[nodiscard]] ImageTurn image_turn(const gui::Quad& quad, TextureSize size) noexcept {
+    ImageTurn turn;
+    turn.centre_x = quad.dest.x + (quad.dest.w * 0.5F);
+    turn.centre_y = quad.dest.y + (quad.dest.h * 0.5F);
+    turn.cos_turn = std::cos(quad.turn);
+    turn.sin_turn = std::sin(quad.turn);
+    turn.u_centre = (quad.source.x + (quad.source.w * 0.5F)) / size.width;
+    turn.v_centre = (quad.source.y + (quad.source.h * 0.5F)) / size.height;
+    turn.u_step = 1.0F / size.width;
+    turn.v_step = 1.0F / size.height;
+    return turn;
+}
+
+// Quad là mũi tên của minimap và lớp phủ có tấm mũi tên: vẽ từ lớp phủ, không từ tấm DDS của asset.
+[[nodiscard]] bool is_arrow_in_overlay(const PaintKit& kit, const gui::Quad& quad) noexcept {
+    if (quad.slot != gui::kSlotArrow || !kit.overlay) return false;
+    return kit.overlay->has_arrow;
+}
+
 // Quad chữ nhật hay quạt tròn của cùng một ô.
 void push_shape(Vertices& out, const gui::Quad& quad, const UvBox& texel) {
     if (quad.is_round) {
@@ -348,7 +406,33 @@ std::optional<Painter::Open> Painter::open_for(const gui::GuiAsset& asset, const
     return open;
 }
 
-void Painter::add_image(const gui::GuiAsset& asset, const gui::Quad& quad) {
+// Mũi tên của minimap vẽ từ tấm trong lớp phủ: ô source dời tới chỗ tấm nằm, uv theo cỡ cả lớp phủ.
+void Painter::add_arrow(const Job& job, const gui::Quad& drawn) {
+    const OverlayPaint& overlay = *job.kit->overlay;
+    gui::Quad quad = drawn;
+    quad.source.x += overlay.arrow_x;
+    quad.source.y += overlay.arrow_y;
+    std::optional<Open> open = open_for(*job.asset, quad);
+    if (!open) {
+        ++missing_;
+        return;
+    }
+    const TextureSize size{.width = overlay.width, .height = overlay.height};
+    open->texture = overlay.texture;
+    if (quad.turn != 0.0F) {
+        push_turned(vertices_, quad.dest, image_turn(quad, size), quad.colour);
+    } else {
+        push_box(vertices_, quad.dest, source_uv(quad, size), quad.colour);
+    }
+    close_batch(*open);
+}
+
+void Painter::add_image(const Job& job, const gui::Quad& quad) {
+    if (is_arrow_in_overlay(*job.kit, quad)) {
+        add_arrow(job, quad);
+        return;
+    }
+    const gui::GuiAsset& asset = *job.asset;
     std::optional<Open> open = open_for(asset, quad);
     const bool is_solid = quad.texture < 0;
     const Loaded solid{.id = render::kUiWhite, .width = 1.0F, .height = 1.0F, .is_ok = true};
@@ -359,8 +443,13 @@ void Painter::add_image(const gui::GuiAsset& asset, const gui::Quad& quad) {
     }
     const TextureSize size{.width = texture.width, .height = texture.height};
     const UvBox texel = is_solid ? UvBox{} : source_uv(quad, size);
-    push_shape(vertices_, quad, texel);
     open->texture = texture.id;
+    const bool is_flat = is_solid || quad.is_round;
+    if (quad.turn != 0.0F && !is_flat) {
+        push_turned(vertices_, quad.dest, image_turn(quad, size), quad.colour);
+    } else {
+        push_shape(vertices_, quad, texel);
+    }
     close_batch(*open);
 }
 
@@ -373,6 +462,29 @@ void Painter::add_map(const gui::Quad& quad, const MapPaint& map) {
     texel.bottom = map.origin_v + (quad.v1 * map.scale_v);
     push_shape(vertices_, quad, texel);
     close_batch({.texture = map.texture, .first_vertex = first});
+}
+
+// Chùm sáng: ô dest (đã cắt theo cửa sổ cha) lấy ảnh xoay quanh tâm ô source chưa cắt. Xoay ngay ở
+// uv của bốn đỉnh nên vẫn là một quad; chỗ uv ra ngoài ảnh thì lấy vùng trong suốt quanh ảnh trong
+// lớp phủ. Ảnh chùm sáng cỡ light_size điểm ảnh phủ ô source (điểm ảnh layout), nên một điểm ảnh
+// layout là light_size / source.w điểm ảnh của ảnh.
+void Painter::add_light(const gui::Quad& quad, const OverlayPaint& overlay) {
+    const std::size_t first = vertices_.size();
+    const float centre_x = overlay.light_x + (overlay.light_size * 0.5F);
+    const float centre_y = overlay.light_y + (overlay.light_size * 0.5F);
+    const float texels_x = overlay.light_size / quad.source.w;
+    const float texels_y = overlay.light_size / quad.source.h;
+    ImageTurn turn;
+    turn.centre_x = quad.source.x + (quad.source.w * 0.5F);
+    turn.centre_y = quad.source.y + (quad.source.h * 0.5F);
+    turn.cos_turn = std::cos(quad.turn);
+    turn.sin_turn = std::sin(quad.turn);
+    turn.u_centre = centre_x / overlay.width;
+    turn.v_centre = centre_y / overlay.height;
+    turn.u_step = texels_x / overlay.width;
+    turn.v_step = texels_y / overlay.height;
+    push_turned(vertices_, quad.dest, turn, quad.colour);
+    close_batch({.texture = overlay.texture, .first_vertex = first});
 }
 
 // Ảnh của fake object quad.view, phủ cả texture. Chưa có ảnh (mô hình chưa dựng) thì không vẽ.
@@ -388,7 +500,54 @@ void Painter::add_view(const Job& job, const gui::Quad& quad) {
     close_batch(*open);
 }
 
+// Quad khe động ghi chỗ đỉnh của nó để retouch vá lại.
 void Painter::add_quad(const Job& job, const gui::Quad& quad) {
+    const std::size_t first = vertices_.size();
+    add_shaped(job, quad);
+    const bool is_slotted = quad.slot > 0 && quad.slot < gui::kSlotCount;
+    if (!is_slotted) return;
+    slots_.at(quad.slot) = SlotSpan{.first = first, .count = vertices_.size() - first};
+}
+
+// Vá đỉnh của quad khe động quad vào chỗ đã ghi lúc build: dựng nó vào bộ đệm riêng bằng đúng đường
+// của add_quad rồi chép đè. false khi số đỉnh lệch với lúc build (quad đổi hình dạng).
+bool Painter::retouch_one(const Job& job, const gui::Quad& quad) {
+    const SlotSpan span = slots_.at(quad.slot);
+    if (span.count == 0) return true;
+    const std::size_t missing = missing_;
+    vertices_.swap(scratch_vertices_);
+    batches_.swap(scratch_batches_);
+    vertices_.clear();
+    batches_.clear();
+    add_shaped(job, quad);
+    vertices_.swap(scratch_vertices_);
+    batches_.swap(scratch_batches_);
+    missing_ = missing;
+    if (scratch_vertices_.size() != span.count) return false;
+    if (job.kit->scale > 0.0F && job.kit->scale < 1.0F) snap(scratch_vertices_, job.kit->scale);
+    const auto target = vertices_.begin() + static_cast<std::ptrdiff_t>(span.first);
+    std::ranges::copy(scratch_vertices_, target);
+    return true;
+}
+
+bool Painter::retouch(const gui::GuiAsset& asset, std::span<const gui::Quad> quads,
+    const PaintKit& kit) {
+    const Job job{.asset = &asset, .parts = nullptr, .kit = &kit};
+    std::array<bool, gui::kSlotCount> touched{};
+    for (const gui::Quad& quad : quads) {
+        const bool is_slotted = quad.slot > 0 && quad.slot < gui::kSlotCount;
+        if (!is_slotted) continue;
+        if (!retouch_one(job, quad)) return false;
+        touched.at(quad.slot) = true;
+    }
+    for (std::size_t slot = 1; slot < gui::kSlotCount; ++slot) {
+        const bool is_lost = slots_.at(slot).count > 0 && !touched.at(slot);
+        if (is_lost) return false;
+    }
+    return true;
+}
+
+void Painter::add_shaped(const Job& job, const gui::Quad& quad) {
     if (!is_sized(quad)) return;
     if (quad.texture == gui::kMeshView) {
         add_view(job, quad);
@@ -402,8 +561,12 @@ void Painter::add_quad(const Job& job, const gui::Quad& quad) {
         if (job.kit->world) add_map(quad, *job.kit->world);
         return;
     }
+    if (quad.texture == gui::kMapLight) {
+        if (job.kit->overlay) add_light(quad, *job.kit->overlay);
+        return;
+    }
     if (quad.texture != gui::kSceneMap) {
-        add_image(*job.asset, quad);
+        add_image(job, quad);
         return;
     }
     if (job.kit->map) add_map(quad, *job.kit->map);
@@ -465,6 +628,7 @@ void Painter::add_layer(const Job& job, Cursor& cursor) {
 void Painter::build(const gui::GuiAsset& asset, const FrameParts& parts, const PaintKit& kit) {
     vertices_.clear();
     batches_.clear();
+    slots_.fill(SlotSpan{});
     const Job job{.asset = &asset, .parts = &parts, .kit = &kit};
     Cursor cursor;
     const std::size_t total = parts.still.size() + parts.live.size() + parts.texts.size();

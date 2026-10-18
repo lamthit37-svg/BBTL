@@ -882,6 +882,7 @@ private:
     shown.shot_path = desc.shot;
     shown.is_bare = desc.is_bare;
     shown.is_auto_walk = desc.is_auto_walk;
+    shown.is_map_snapped = desc.is_map_snapped;
     shown.auto_strike_from = desc.auto_strike_from;
     shown.ui_events = desc.ui_events;
     shown.creatures = desc.creatures;

@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -86,6 +87,29 @@ class CreationIds(unittest.TestCase):
     def test_no_rows_no_ids(self) -> None:
         self.assertEqual(collect_avatar.creation_ids({}, "0"), [])
         self.assertEqual(collect_avatar.creation_ids(self.ROWS, "2"), [])
+
+
+class ObjectNames(unittest.TestCase):
+    """all.obj ghi `ride_zm_2023diao.obj`, CharModelEx ghi `ride_ZM_2023diao.obj`: cùng một mẫu."""
+
+    def book_of(self, text: str) -> export_look.ObjectBook:
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / "all.obj"
+            path.write_text(text, encoding="utf-8")
+            return export_look.ObjectBook(str(path))
+
+    def test_finds_object_whatever_the_case(self) -> None:
+        book = self.book_of('<Objects><Object name="ride_zm_2023diao.obj"><Locators/></Object></Objects>')
+        self.assertEqual(len(book.named("ride_ZM_2023diao.obj")), 1)
+        self.assertEqual(len(book.named("ride_zm_2023diao.obj")), 1)
+
+    def test_exact_name_wins_over_folded_one(self) -> None:
+        book = self.book_of('<Objects><Object name="A.obj"/><Object name="a.obj"/></Objects>')
+        self.assertEqual(book.named("A.obj"), book.by_name["A.obj"])
+
+    def test_unknown_name_is_empty(self) -> None:
+        book = self.book_of('<Objects><Object name="a.obj"/></Objects>')
+        self.assertEqual(book.named("b.obj"), [])
 
 
 if __name__ == "__main__":

@@ -51,6 +51,7 @@ void Display::State::open_hud(const DisplayDesc& desc) {
     hud_desc.data_root = desc.data_root;
     hud_desc.texture_tier = texture_tier;
     hud_desc.uses_phone_layout = desc.uses_phone_layout;
+    hud_desc.is_map_snapped = desc.is_map_snapped;
     // Phần đọc đĩa đã chạy từ trước thiết bị (kick_loading); chưa có thì Hud::open tự bắt đầu.
     core::Result<ui::Hud> opened =
         hud_prep ? ui::Hud::open(*ui_pass, hud_desc, std::move(*hud_prep)) : ui::Hud::open(*ui_pass, hud_desc);
@@ -404,6 +405,11 @@ control::ScreenPoint Display::State::framed_point(const control::InputEvent& eve
         .y = unit_in_frame(event.y, screen->height(), down)};
 }
 
+float Display::State::look_facing(const core::GroundPoint& feet) const {
+    const core::GroundPoint eye = terrain->to_game(lens.eye);
+    return std::atan2(feet.x - eye.x, feet.z - eye.z);
+}
+
 ui::HudView Display::State::hud_view() const {
     const FrameRect frame = frame_rect();
     const auto width = static_cast<float>(frame.width);
@@ -457,6 +463,8 @@ ui::HudView Display::State::hud_view() const {
     view.scene.player_z = feet.z;
     view.scene.name = held->name;
     view.scene.facing = facing;
+    if (has_lens) view.scene.view_facing = look_facing(feet);
+    view.scene.watch = people.watch();
     view.scene.id = held->id;
     return view;
 }
@@ -755,6 +763,7 @@ core::Clock::time_point Display::State::pace_frame(core::Clock::time_point woke)
 
 void Display::State::record_interval(IntervalNote note) {
     frame_ms.push_back(note.interval);
+    prepare_series.push_back(last_prepare_ms);
     note_pace(note.interval);
     SpikeParts spike;
     spike.interval = note.interval;

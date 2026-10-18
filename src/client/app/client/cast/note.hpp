@@ -148,7 +148,13 @@ struct Placed {
     Pose pose = Pose::kIdle;
 };
 
+// Canh giờ trong game theo máy chủ (GCWorldTime của gốc): 0 (Tý) tới 11 (Hợi). Máy chủ gửi sau mỗi
+// lần vào cảnh và mỗi lần canh đổi; minimap hiện chữ canh và GetCurrentTime của script đọc số này.
+struct Clocked {
+    std::uint8_t watch = 0;
+};
+
 using Note = std::variant<Arrive, Spawn, Vanish, Moved, Hurt, Pulled, Flagged, Casting, CastEnded,
-    Struck, Died, Placed>;
+    Struck, Died, Placed, Clocked>;
 
 } // namespace game::client::cast

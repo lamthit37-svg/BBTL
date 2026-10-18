@@ -367,6 +367,16 @@ void enter_directly(Shell& shell) {
     return length > 0 && value[0] == '1';
 }
 
+// Chẩn đoán: `adb shell setprop debug.thienlong.mapsnap 1` cho minimap nhích từng điểm ảnh nguyên
+// như
+// --map-snap của bản PC, để so độ nhấp nháy của hai cách trên máy thật. Mặc định tắt (trượt lẻ mỗi
+// khung).
+[[nodiscard]] bool wants_map_snap() {
+    char value[PROP_VALUE_MAX] = {};
+    const int length = __system_property_get("debug.thienlong.mapsnap", value);
+    return length > 0 && value[0] == '1';
+}
+
 // Công cụ thử: `adb shell setprop debug.thienlong.account <tên>` đăng nhập tự động vào máy chủ thật
 // đầu bảng cổng (display/auto_login.hpp), như biến THIENLONG_ACCOUNT của bản PC. Không đặt thì đăng
 // nhập bằng tay như thường.
@@ -398,6 +408,7 @@ void start_display(android_app* app) {
     arm_desc(*shell, desc);
     desc.auto_account = auto_account_override();
     desc.is_auto_walk = wants_auto_walk();
+    desc.is_map_snapped = wants_map_snap();
     desc.uses_phone_layout = is_phone_screen(app);
     log_line(desc.uses_phone_layout ? "giao diện: layout điện thoại" : "giao diện: layout PC (máy tính bảng)");
     fit_gestures(app, *shell);

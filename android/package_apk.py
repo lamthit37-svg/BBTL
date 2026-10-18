@@ -140,7 +140,15 @@ WHOLE_FOLDERS = ("Table", "Config", "Script", "effect", "Web")
 WHOLE_PATTERNS = ("Interface/**/*.layout.xml",)
 # Bảng chương trình chất liệu (export_material_programs.py): resource/ogre_mesh.cpp đọc nó cho mọi
 # lưới OGRE, nên lượt trace cũ không có nó vẫn phải mang. Thiếu thì chất liệu mất luồng sáng, viền.
-WHOLE_FILES = ("Material/programs.tsv",)
+# Ảnh chùm sáng hướng nhìn của minimap (export_map_light.py): hud.cpp nạp thẳng tệp này, không qua imageset nên vết
+# của trace_assets.py không phủ tới nó; thiếu thì APK mất chùm sáng mà PC vẫn có. Tấm mũi tên người chơi của
+# minimap (export_map_arrow.py) cùng lý do: client ghép nó với chùm sáng thành texture lớp phủ; thiếu thì mũi tên
+# quay về dùng tấm DDS đã nấu (thêm một lệnh vẽ), không mất hình.
+WHOLE_FILES = (
+    "Material/programs.tsv",
+    "Interface/Common/MapSearchLight.png",
+    "Interface/Common/MiniMap_Arrow.png",
+)
 
 
 def folder_paths(data: Path) -> list[str]:

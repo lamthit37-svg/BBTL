@@ -227,6 +227,7 @@ void print_visit(const world::ShownScene& shown) {
     viewer.shot = options.shot_path;
     viewer.is_bare = options.is_bare;
     viewer.is_auto_walk = options.is_auto_walk;
+    viewer.is_map_snapped = options.is_map_snapped;
     viewer.auto_strike_from = options.auto_strike_from;
     viewer.ui_events = options.ui_events;
     viewer.creatures = options.creatures;

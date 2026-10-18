@@ -752,14 +752,23 @@ void note_gain(MaterialLook& look, std::string_view name) {
     if (doubles) look.gain = 2.0F;
 }
 
-// scene_blend add và "one one" là cộng sáng (one, one). Không để alpha_rejection ghi đè sau đó.
+// Tấm trộn bằng hệ số riêng, không trộn alpha: cộng sáng hay làm tối nền. Cùng shader mặt nạ, cùng
+// cuộn UV và không đèn; chỉ khác pipeline của Forward.
+[[nodiscard]] bool is_sheet(Alpha alpha) noexcept {
+    return alpha == Alpha::kAdd || alpha == Alpha::kDarken;
+}
+
+// scene_blend add và "one one" là cộng sáng (one, one); "zero one_minus_src_colour" làm tối nền
+// theo màu ảnh. Không để alpha_rejection ghi đè sau đó.
 void paint_blend(MaterialLook& look, std::string_view blend) {
     if (blend.empty()) return;
     const bool named_add = blend == "add";
     const bool factor_add = blend == "one one";
     const bool is_add = named_add || factor_add;
+    const bool is_dark = blend == "zero one_minus_src_colour";
     if (is_add) look.alpha = Alpha::kAdd;
-    if (is_add) return;
+    if (is_dark) look.alpha = Alpha::kDarken;
+    if (is_add || is_dark) return;
     const bool is_plain = is_plain_blend(blend);
     look.alpha = is_plain ? Alpha::kOpaque : Alpha::kBlend;
 }
@@ -780,7 +789,7 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
         look.has_offset = true;
     }
     paint_blend(look, rule.blend);
-    const bool stays_add = look.alpha == Alpha::kAdd;
+    const bool stays_add = is_sheet(look.alpha);
     const bool has_cut = !rule.rejection.empty();
     const bool open_blend = rule.blend.empty();
     const bool rejects = open_blend && has_cut && !stays_add;
@@ -792,7 +801,7 @@ void paint_rule(MaterialLook& look, const MaterialRule& rule) {
 // Mesh một UV: scroll tĩnh và scroll_anim kéo cả mặt nạ lẫn ảnh sáng. Ảnh sáng là màu, mặt nạ giữ
 // chỗ cũ.
 void use_scroll(MaterialLook& look) {
-    const bool is_add = look.alpha == Alpha::kAdd;
+    const bool is_add = is_sheet(look.alpha);
     const bool has_glow = !look.scroll.empty();
     const bool scrolls = is_add && has_glow;
     if (!scrolls) return;
@@ -825,14 +834,14 @@ void use_scroll(MaterialLook& look) {
         if (!name.empty() && name.contains("NoLight")) look.unlit = true;
         note_gain(look, name);
         const bool is_clear = name.contains("Transperant") || name.contains("Transparent");
-        const bool stays_add = look.alpha == Alpha::kAdd;
+        const bool stays_add = is_sheet(look.alpha);
         const bool named = !name.empty();
         const bool clear_named = named && is_clear;
         const bool paints_clear = clear_named && !stays_add;
         if (paints_clear) look.alpha = Alpha::kBlend;
         use_scroll(look);
     }
-    const bool is_add = look.alpha == Alpha::kAdd;
+    const bool is_add = is_sheet(look.alpha);
     const bool has_glow = !look.scroll.empty();
     const bool keeps_glow = is_add && has_glow;
     const bool takes_alias = !alias.empty() && !keeps_glow;
@@ -881,7 +890,7 @@ void apply_look(Material& material, const MaterialLook& look) {
     material.alpha = look.alpha;
     material.alpha_cutoff = look.cutoff;
     material.double_sided = look.double_sided;
-    const bool is_add = look.alpha == Alpha::kAdd;
+    const bool is_add = is_sheet(look.alpha);
     material.unlit = look.unlit || is_add;
     material.suppress_fog = look.no_fog;
     paint_gain(material, look.gain);
@@ -893,7 +902,7 @@ void apply_look(Material& material, const MaterialLook& look) {
 
 // Cache ghi tên ảnh màu. Tấm add lấy lại scrollTex từ script, kể cả khi ô cache bị sửa.
 [[nodiscard]] std::string color_name(const MaterialLook& look, const std::string& stored) {
-    const bool is_add = look.alpha == Alpha::kAdd;
+    const bool is_add = is_sheet(look.alpha);
     const bool has_glow = !look.scroll.empty();
     const bool keeps_glow = is_add && has_glow;
     const bool from_script = keeps_glow || stored.empty();

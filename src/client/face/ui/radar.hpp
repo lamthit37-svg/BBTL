@@ -26,8 +26,34 @@ inline constexpr int kRadarAtlasTiles = 2;
 // Số ô đã giải mã giữ lại: đủ cho atlas đang dùng và atlas vừa rời.
 inline constexpr std::size_t kRadarKeptTiles = 8;
 
-// Hình dạng một atlas: số ô mỗi chiều, và độ thu nhỏ (1, 2 hay 4: mỗi ô còn 256/shrink điểm ảnh, vùng phủ
-// không đổi). Atlas minimap là 2x2 ô nguyên; bản đồ lớn cần nhiều ô hơn và thu nhỏ khi xem cả cảnh.
+// Lớp phủ của minimap: tấm mũi tên người chơi (MiniMap_Arrow, 30 khung 32 x 32) và ảnh chùm sáng
+// (MapSearchLight, 128 x 128) ghép vào một texture để nền, chùm sáng và mũi tên chỉ tốn hai lệnh vẽ
+// thay vì ba. Tấm mũi tên nằm ở góc trái trên đúng cỡ gốc (toạ độ khung của imageset dùng nguyên);
+// chùm sáng nằm giữa một vùng trong suốt rộng 32 điểm ảnh mỗi phía, vì ảnh xoay lấy mẫu ra ngoài
+// chính nó tới nửa đường chéo (sampler kẹp mép sẽ kéo viền của ô bên cạnh vào).
+inline constexpr int kOverlayWidth = 256;
+inline constexpr int kOverlayHeight = 320;
+inline constexpr int kArrowSheetWidth = 256;
+inline constexpr int kArrowSheetHeight = 128;
+inline constexpr int kLightImageSize = 128;
+inline constexpr int kLightX = 64;
+inline constexpr int kLightY = 160;
+
+struct OverlayImage {
+    resource::Image image;
+    bool has_light = false;
+    bool has_arrow = false;
+};
+
+// Ghép lớp phủ từ common_dir (Interface/Common): MapSearchLight.png và MiniMap_Arrow.png
+// (export_map_light.py, export_map_arrow.py). Ảnh thiếu hay sai cỡ thì ô đó trong suốt, has_* sai
+// và notes ghi lý do (mỗi lỗi một dòng).
+[[nodiscard]] OverlayImage build_overlay(const std::filesystem::path& common_dir,
+    std::string& notes);
+
+// Hình dạng một atlas: số ô mỗi chiều, và độ thu nhỏ (1, 2 hay 4: mỗi ô còn 256/shrink điểm ảnh,
+// vùng phủ không đổi). Atlas minimap là 2x2 ô nguyên; bản đồ lớn cần nhiều ô hơn và thu nhỏ khi xem
+// cả cảnh.
 struct AtlasShape {
     int across = kRadarAtlasTiles;
     int down = kRadarAtlasTiles;

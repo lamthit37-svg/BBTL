@@ -115,6 +115,8 @@ struct Hub::Body {
     std::deque<std::string> made;
     std::optional<Box> radar;
     Radar uv;
+    // Bản dựng riêng của radar nhỏ (Hub::minimap), dùng lại bộ nhớ giữa các khung.
+    Sheet mini;
     std::optional<Box> board;
     Box board_dest;
     Radar board_uv;
@@ -144,6 +146,7 @@ struct Hub::Body {
     float player_x = 0.0F;
     float player_z = 0.0F;
     float player_facing = 0.0F;
+    float view_facing = 0.0F;
     int hot = -2;
     bool is_down = false;
     // Ô phím dưới chuột mà trang động đang vẽ, khi cửa sổ nóng là bàn phím ảo.
@@ -639,7 +642,8 @@ struct HubOps {
     static bool world_same(const Hub::Body& body, const Place& input) {
         const bool is_scene = body.scene_width == input.scene_width && body.scene_depth == input.scene_depth;
         const bool is_place = body.player_x == input.player_x && body.player_z == input.player_z;
-        return is_scene && is_place && body.player_facing == input.player_facing;
+        const bool is_facing = body.player_facing == input.player_facing;
+        return is_scene && is_place && is_facing && body.view_facing == input.view_facing;
     }
 
     static void relayout(Hub::Body& body, const Place& input) {
@@ -828,11 +832,43 @@ struct HubOps {
         body.player_x = input.player_x;
         body.player_z = input.player_z;
         body.player_facing = input.player_facing;
+        body.view_facing = input.view_facing;
         ++body.live_stamp;
     }
 
-    // Đầu vào đủ cho các câu hỏi sau update (ô vùng, mục dưới chuột): cỡ màn hình, bản chép Override
-    // và bảng chuỗi. Không mang số đo chữ, vì nó chỉ sống trong lời gọi update.
+    // Cửa sổ radar nhỏ đang hiện (không phải bản đồ lớn), theo thứ tự vẽ; nullptr khi không có.
+    static bool is_small_radar(const Ctx& ctx, const Placed& window) {
+        if (window.kind != detail::Kind::kRadar || !window.is_visible) return false;
+        return !is_board_window(ctx, window);
+    }
+
+    static const Placed* minimap_window(const Ctx& ctx, const Hub::Body& body) {
+        for (const std::size_t index : body.order) {
+            const Placed& window = body.placed.at(index);
+            if (is_small_radar(ctx, window)) return &window;
+        }
+        return nullptr;
+    }
+
+    // Vẽ riêng cửa sổ radar nhỏ ở trang động theo input, vào body.mini. false khi không có radar
+    // nhỏ.
+    static bool paint_minimap(Hub::Body& body, const Place& input) {
+        body.mini.quads.clear();
+        Ctx ctx;
+        ctx.asset = body.asset;
+        ctx.input = &input;
+        ctx.placed = body.placed;
+        ctx.sheet = &body.mini;
+        ctx.images = &body.images;
+        ctx.is_live_pass = true;
+        const Placed* window = minimap_window(ctx, body);
+        if (window == nullptr) return false;
+        detail::draw_images(ctx, *window);
+        return !body.mini.quads.empty();
+    }
+
+    // Đầu vào đủ cho các câu hỏi sau update (ô vùng, mục dưới chuột): cỡ màn hình, bản chép
+    // Override và bảng chuỗi. Không mang số đo chữ, vì nó chỉ sống trong lời gọi update.
     static Place kept_input(const Hub::Body& body) {
         Place input;
         input.width = body.width;
@@ -887,6 +923,12 @@ void Hub::update(const Place& given) {
     dirt.is_restyled = is_forced_dirty;
     dirt.is_bars_moved = HubOps::glide_bars(body, tick);
     HubOps::refresh(body, input, HubOps::hot_state(body, input), dirt);
+}
+
+std::optional<MiniView> Hub::minimap(const Place& input) {
+    Body& body = *body_;
+    if (!HubOps::paint_minimap(body, input)) return std::nullopt;
+    return MiniView{.quads = body.mini.quads, .uv = body.mini.uv};
 }
 
 std::span<const Quad> Hub::still() const noexcept {

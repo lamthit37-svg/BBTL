@@ -118,27 +118,46 @@ void note_required(const Entry& entry, const core::Error& error, std::optional<c
     if (is_solid) return static_cast<std::uint32_t>(pso) & kModelTwoSided;
     const bool is_add = pso == Pso::kModelAdd || pso == Pso::kModelAddTwoSided;
     if (is_add) return 0;
+    const bool is_dark = pso == Pso::kModelDark || pso == Pso::kModelDarkTwoSided;
+    if (is_dark) return 0;
     return static_cast<std::uint32_t>(pso);
 }
 static_assert(model_kind(Pso::kModelSolid) == 0 &&
     model_kind(Pso::kModelSolidTwoSided) == kModelTwoSided);
 static_assert(model_kind(Pso::kModelAdd) == 0 && model_kind(Pso::kModelAddTwoSided) == 0);
+static_assert(model_kind(Pso::kModelDark) == 0 && model_kind(Pso::kModelDarkTwoSided) == 0);
 static_assert(model_kind(Pso::kModelDepth) == 0 &&
     model_kind(Pso::kModelDepthTwoSided) == kModelTwoSided);
 
-[[nodiscard]] core::Result<gpu::PipelineHandle> make_model(gpu::Device& device, const CatalogDesc& desc,
-    const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
-    const bool is_add = entry.pso == Pso::kModelAdd || entry.pso == Pso::kModelAddTwoSided;
+// Hai cặp PSO có hệ số trộn riêng: cộng sáng (one one) và làm tối nền theo ảnh (zero
+// one_minus_src_colour). nullopt với bốn biến thể model còn lại.
+[[nodiscard]] std::optional<gpu::BlendState> factored_blend(Pso pso) noexcept {
+    const gpu::BlendFactor one = gpu::BlendFactor::kOne;
+    const gpu::BlendFactor zero = gpu::BlendFactor::kZero;
+    const gpu::BlendFactor inv_colour = gpu::BlendFactor::kOneMinusSrcColor;
+    const bool is_add = pso == Pso::kModelAdd || pso == Pso::kModelAddTwoSided;
+    const bool is_dark = pso == Pso::kModelDark || pso == Pso::kModelDarkTwoSided;
+    if (is_add) return fx_factors(one, one);
+    if (is_dark) return fx_factors(zero, inv_colour);
+    return std::nullopt;
+}
+
+[[nodiscard]] constexpr bool is_factored_two_sided(Pso pso) noexcept {
+    return pso == Pso::kModelAddTwoSided || pso == Pso::kModelDarkTwoSided;
+}
+
+[[nodiscard]] core::Result<gpu::PipelineHandle> make_model(gpu::Device& device,
+    const CatalogDesc& desc, const Entry& entry, std::span<const gpu::ShaderHandle> shaders) {
+    const std::optional<gpu::BlendState> factored = factored_blend(entry.pso);
+    const bool is_factored = factored.has_value();
     const std::uint32_t kind = model_kind(entry.pso);
     const bool from_blend = (kind & kModelBlended) != 0;
-    const bool is_blended = is_add || from_blend;
+    const bool is_blended = is_factored || from_blend;
     const bool bit_two = (kind & kModelTwoSided) != 0;
-    const bool add_two = entry.pso == Pso::kModelAddTwoSided;
-    const bool is_two_sided = is_add ? add_two : bit_two;
-    const gpu::BlendFactor one = gpu::BlendFactor::kOne;
-    gpu::BlendState blend{};
-    if (is_add) blend = fx_factors(one, one);
-    const bool uses_alpha = !is_add && is_blended;
+    const bool factored_two = is_factored_two_sided(entry.pso);
+    const bool is_two_sided = is_factored ? factored_two : bit_two;
+    gpu::BlendState blend = factored.value_or(gpu::BlendState{});
+    const bool uses_alpha = !is_factored && is_blended;
     if (uses_alpha) blend = alpha_blend();
     // colour_write off: chỉ ghi độ sâu, màu đích giữ nguyên.
     if (is_depth_only(entry.pso)) blend.write_mask = 0;
@@ -378,6 +397,8 @@ core::Result<gpu::PipelineHandle> Catalog::build(const Entry& entry, std::span<c
     case Pso::kModelSolidTwoSided:
     case Pso::kModelAdd:
     case Pso::kModelAddTwoSided:
+    case Pso::kModelDark:
+    case Pso::kModelDarkTwoSided:
     case Pso::kModelDepth:
     case Pso::kModelDepthTwoSided: return make_model(*device_, desc_, entry, shaders);
     case Pso::kUi: return make_ui(*device_, desc_, shaders);

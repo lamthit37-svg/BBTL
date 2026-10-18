@@ -218,6 +218,9 @@ struct Display::State {
     void apply_kept(const KeptRole& restored);
     void start_play();
     [[nodiscard]] ui::HudView hud_view() const;
+    // Hướng camera nhìn trên mặt đất, cùng quy ước với hướng mặt (0 là +z, tăng về +x): từ mắt tới
+    // chân.
+    [[nodiscard]] float look_facing(const core::GroundPoint& feet) const;
     // Phần của policy mà việc nướng mesh cần (texture, LOD, atlas cọ).
     [[nodiscard]] BakeRules bake_rules() const noexcept {
         return {.texture_edge = policy.texture_edge, .builds_lods = policy.builds_lods, .atlas_edge = atlas_edge};
@@ -866,6 +869,9 @@ struct Display::State {
     int view_scene = -1;
     std::vector<map::Gate> gates;
     std::vector<double> frame_ms;
+    // Ms dựng giao diện (last_prepare_ms) của từng khung, cùng chỉ số với frame_ms; in lúc dừng để
+    // thấy đỉnh khi đi bộ.
+    std::vector<double> prepare_series;
     // Luồng vẽ; join trong settle.
     std::jthread spinner;
     control::StickMove stick;

@@ -521,6 +521,48 @@ void additive_sheet_uses_scroll_and_mask(Context& context) {
     std::filesystem::remove_all(root);
 }
 
+// Tấm "特效片暗" của thú cưỡi: scene_blend zero one_minus_src_colour làm tối nền theo màu ảnh. Đọc
+// như tấm cộng sáng (scrollTex là màu, baseTexture là mặt nạ, không đèn, ColorX4) nhưng alpha là
+// kDarken để Forward chọn pipeline làm tối; trước đây rơi vào kBlend và ra mảng đen trắng đặc.
+void dark_sheet_reads_as_darken(Context& context) {
+    const std::string root = "ogre_mesh_dark_out";
+    static_cast<void>(fs::create_directories(root + "/Material"));
+    const char* script = "material Toi : Mtl_Model_TwoTex_Tex2_ColorX4\n"
+                         "{\nset_texture_alias <baseTexture> mat.dds\n"
+                         "set_texture_alias <scrollTex> mau.dds\n"
+                         "fog_override true none\nscene_blend zero one_minus_src_colour\n"
+                         "scroll_anim 0.7 0\n}\n"
+                         "material Mo\n{\nscene_blend colour_blend\n}\n";
+    const auto* bytes = reinterpret_cast<const std::byte*>(script);
+    const auto script_bytes = std::span<const std::byte>(bytes, std::strlen(script));
+    const core::Status written = fs::write_file(root + "/Material/all.material", script_bytes);
+    context.expect(static_cast<bool>(written), "ghi material làm tối");
+    if (!written) return;
+    const std::vector<std::byte> dds = tiny_dxt1();
+    const core::Status glow = fs::write_file(root + "/Material/mau.dds", dds);
+    const core::Status mask = fs::write_file(root + "/Material/mat.dds", dds);
+    const bool files = static_cast<bool>(glow) && static_cast<bool>(mask);
+    context.expect(files, "ghi ảnh");
+    if (!files) return;
+    const std::vector<std::byte> dark = triangle_mesh("Toi");
+    const auto model = resource::load_ogre_mesh(dark, root);
+    context.expect(model.has_value(), "tấm làm tối đọc được");
+    if (!model) return;
+    const resource::Material& material = model->materials[0];
+    context.expect(material.alpha == resource::Alpha::kDarken, "zero one_minus_src_colour là làm tối");
+    context.expect(material.unlit, "tấm làm tối không đèn để cuộn UV");
+    context.expect(material.suppress_fog, "fog_override tắt sương");
+    context.expect(material.base_color.x == 4.0F, "ColorX4 nhân bốn");
+    context.expect(material.emissive.x == 0.7F, "scroll_anim là tốc độ cuộn");
+    context.expect(material.surface.image.has_value(), "có ảnh mặt nạ");
+    const std::vector<std::byte> other = triangle_mesh("Mo");
+    const auto blended = resource::load_ogre_mesh(other, root);
+    context.expect(blended.has_value(), "colour_blend đọc được");
+    if (!blended) return;
+    context.expect(blended->materials[0].alpha == resource::Alpha::kBlend, "hệ số khác vẫn trộn alpha");
+    std::filesystem::remove_all(root);
+}
+
 // all.material giữ tên GBK. Bảng thú chồng tên UTF-8 lên cùng lưới. Tra chỉ theo byte gốc thì
 // trượt, scene_blend và ảnh không áp, con đổi màu thành trắng.
 void painted_utf8_finds_gbk_material(Context& context) {
@@ -683,6 +725,7 @@ constexpr std::array kCases{
     Case{.name = "capital_alias_is_the_diffuse_map", .body = &capital_alias_is_the_diffuse_map},
     Case{.name = "trailing_spaces_keep_the_texture", .body = &trailing_spaces_keep_the_texture},
     Case{.name = "additive_sheet_uses_scroll_and_mask", .body = &additive_sheet_uses_scroll_and_mask},
+    Case{.name = "dark_sheet_reads_as_darken", .body = &dark_sheet_reads_as_darken},
     Case{.name = "painted_utf8_finds_gbk_material", .body = &painted_utf8_finds_gbk_material},
     Case{.name = "programs_read_flow_and_rim", .body = &programs_read_flow_and_rim},
     Case{.name = "programs_reject_bad_table", .body = &programs_reject_bad_table},

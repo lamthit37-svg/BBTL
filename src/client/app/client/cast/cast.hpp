@@ -78,6 +78,9 @@ public:
     [[nodiscard]] std::uint32_t self_id() const noexcept { return self_id_; }
     // Sinh lực của chính nhân vật theo máy chủ (EntityVitals/EntityAppear của self_id); rỗng khi chưa nhận.
     [[nodiscard]] std::optional<std::uint8_t> self_hp() const noexcept { return self_hp_; }
+    // Canh giờ trong game của máy chủ (Clocked gần nhất, 0..11); 0 khi chưa nhận, nên minimap đứng
+    // ở giờ Tý.
+    [[nodiscard]] std::uint8_t watch() const noexcept { return watch_; }
     // Số Spawn đã bỏ vì chạm trần kMaxActors từ lúc dựng.
     [[nodiscard]] std::size_t dropped() const noexcept { return dropped_; }
 
@@ -105,6 +108,7 @@ private:
     void on(const Flagged& note);
     void on(const Died& note);
     void on(const Placed& note);
+    void on(const Clocked& note) noexcept { watch_ = note.watch; }
     // Ra chiêu và kết quả đòn không đổi trạng thái thực thể: nơi vẽ đọc chúng từ Note, Cast bỏ qua.
     void on(const Casting& /*note*/) noexcept {}
     void on(const CastEnded& /*note*/) noexcept {}
@@ -122,6 +126,7 @@ private:
     std::optional<std::uint16_t> scene_;
     std::uint32_t self_id_ = 0;
     std::optional<std::uint8_t> self_hp_;
+    std::uint8_t watch_ = 0;
     std::size_t dropped_ = 0;
 };
 
