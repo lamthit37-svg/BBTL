@@ -1274,3 +1274,33 @@ kết luận ngay dưới mục đó chứ không xoá.
     `fuben/efuben_sijuezhuang_mission`). Nhiệm vụ tân thủ 1400–1424 không có dòng nào. Hậu quả: `MissionDef` của 26 nhiệm
     vụ này thiếu tham số ngẫu nhiên. Chưa chắc: bố cục bản ghi mỗi dòng và giới hạn của sáu hàm gốc (chưa đọc bằng REA).
     Cần: đọc sáu hàm bằng REA rồi dựng khi N3 (nhiệm vụ lặp) cần.
+
+77. **Chữ en/vi: tên NPC, tên nhiệm vụ trong hộp thoại và nhãn trên đầu NPC vẫn là chữ Trung** (2026-10-18, I1;
+    `dev/server/tables/server/dialogue.<language>.txt`, `assets/i18n`). Đo bằng ảnh en của 赵天师 trên cụm v9 (zone
+    `language = "en"`): lời thoại hiện tiếng Anh trọn câu, nhưng tiêu đề hộp thoại "赵天师", dòng nhiệm vụ
+    "初涉江湖·赵天师" và "十年", và nhãn đầu NPC ("赵天师", "孙八爷", "巡城禁卫") còn là chữ Trung. Các chữ này đi từ bảng
+    NPC và nhiệm vụ của máy chủ chứ không qua `assets/i18n`; `dialogue.<language>.txt` chỉ giữ thoại. Chưa chắc: máy chủ
+    có chỗ nào đổi tên NPC và tên nhiệm vụ theo `[text] language` hay không (chưa đọc `play/` về tên). Cần: chọn chỗ đặt
+    bản dịch (khoá `table/...` của client hay tệp tên theo ngôn ngữ ở máy chủ), rồi dịch theo glossary.
+
+78. **Nút và ô cố định bề rộng cắt chữ ở en/vi** (2026-10-18, I1; ảnh `g0-talk` en và `g0-dang-nhap` en). Nút hộp thoại NPC
+    "Accept", "Continue", "Farewell" hiện "Accept ontin", "Farewel" (nút vẽ cho hai chữ Trung); màn chọn máy chủ cắt
+    "Green mean Light mean Orange mea" (khoá `INTERFACE_XML_446`) và "Searc"; thẻ kênh chat dính nhau. Dòng thưởng theo id
+    khi thiếu tên vật phẩm (`npc_talk.cpp`) dùng nhãn số nhiều "Items" của `INTERFACE_XML_724` nên đọc "Items 99 x1".
+    Chưa làm vì phải đo từng cửa sổ. Cần: rút ngắn bản dịch ở các nút, hoặc cho cửa sổ co theo chữ như SelfFit; khoá
+    riêng cho nhãn vật phẩm đơn.
+
+79. **MisDesc: bảng ánh xạ tên→hàm xử lý chưa đối chiếu lại được với Game.exe đang có trên máy** (2026-10-18, I1/N1 bước 2;
+    `src/client/book/quest/misdesc.cpp`, vòng 0x1402cdbc0 và hàm 0x1401d9330–0x1401dc6f0). Bộ đọc dựng theo bản Game.exe
+    có SHA-256 bắt đầu 3f8bb47d…; bản đó không còn ở ổ nào đã quét: các Game.exe ở G:\XTLBB\Bin64 và F: khác hash, và ở
+    0x140f15e80 của bản Bin64 là dữ liệu không liên quan nên không đọc lại được hai bảng con trỏ. Hậu quả: thứ tự và tên
+    trong `kParsed`/`kFlags` đúng theo mã đã đọc lúc dựng, nhưng chưa có lượt kiểm thứ hai. Cần: xuất lại đúng Game.exe đã
+    phân tích (hoặc chạy REA lên bản đang dùng) rồi đọc lại hai bảng trước khi N1 bước 2b dựa vào chúng.
+
+80. **Cổng i18n (`TOOLS/content/check_i18n.py`): giới hạn đã biết** (2026-10-18, I1). (1) `strip_comments` không hiểu chuỗi
+    thô `R"(...)"`: chuỗi thô chứa dấu `"` lẻ có thể làm lệch phép (e); src/client hiện không có chuỗi thô kèm chữ Hán.
+    (2) 286 dòng `khoá ... layout` của `i18n.baseline` phụ thuộc `dev/client/assets/Interface` (thư mục sinh, git bỏ qua);
+    thiếu nó thì cổng chỉ so khoá script. (3) Phép (e) chỉ bắt chữ Hán viết cứng trong C++ của src/client, không bắt Lua
+    hay layout. (4) Phép (c) cho thoại tra khoá bằng `dialogue.zh.txt`; khoá do máy chủ ghép lúc chạy (không nằm trong tệp
+    thoại) không được kiểm. (5) Phép (f) so theo chữ zh trùng nhau; hai chữ zh khác nhau mà cùng nghĩa không bị bắt.
+    Cần: không cần làm gì cho tới khi gặp ca thật; ghi để người sửa cổng biết ranh giới.

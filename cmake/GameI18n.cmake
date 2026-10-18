@@ -42,3 +42,8 @@ add_test(NAME i18n_tool_tests
 add_test(NAME bake_mobile_textures_tests
     COMMAND "${Python3_EXECUTABLE}" -B TOOLS/content/test_bake_mobile_textures.py
     WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
+# Cổng i18n ba thứ tiếng (luật chữ của chủ dự án): khoá zh/en/vi lệch, chữ Hán sót trong en/vi,
+# khoá dùng mà thiếu, thoại lệch khoá, chuỗi Hán viết cứng trong client. Danh sách nền chỉ co lại.
+add_test(NAME i18n_gate
+    COMMAND "${Python3_EXECUTABLE}" -B -X utf8 TOOLS/content/check_i18n.py
+    WORKING_DIRECTORY "${PROJECT_SOURCE_DIR}")
