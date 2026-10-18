@@ -1290,12 +1290,21 @@ kết luận ngay dưới mục đó chứ không xoá.
     Chưa làm vì phải đo từng cửa sổ. Cần: rút ngắn bản dịch ở các nút, hoặc cho cửa sổ co theo chữ như SelfFit; khoá
     riêng cho nhãn vật phẩm đơn.
 
-79. **MisDesc: bảng ánh xạ tên→hàm xử lý chưa đối chiếu lại được với Game.exe đang có trên máy** (2026-10-18, I1/N1 bước 2;
-    `src/client/book/quest/misdesc.cpp`, vòng 0x1402cdbc0 và hàm 0x1401d9330–0x1401dc6f0). Bộ đọc dựng theo bản Game.exe
-    có SHA-256 bắt đầu 3f8bb47d…; bản đó không còn ở ổ nào đã quét: các Game.exe ở G:\XTLBB\Bin64 và F: khác hash, và ở
-    0x140f15e80 của bản Bin64 là dữ liệu không liên quan nên không đọc lại được hai bảng con trỏ. Hậu quả: thứ tự và tên
-    trong `kParsed`/`kFlags` đúng theo mã đã đọc lúc dựng, nhưng chưa có lượt kiểm thứ hai. Cần: xuất lại đúng Game.exe đã
-    phân tích (hoặc chạy REA lên bản đang dùng) rồi đọc lại hai bảng trước khi N1 bước 2b dựa vào chúng.
+79. **MisDesc: ánh xạ tên→hàm xử lý đã đối chiếu với Game.exe (đã đóng)** (2026-10-18, N1 bước 2;
+    `src/client/book/quest/misdesc.cpp`, vòng 0x1402cdbc0). Lúc dựng chưa đọc được hai mảng con trỏ vì tệp đã phân tích không
+    còn ở G: hay D:\XTLBB. Bản xuất lại đúng tệp đó còn ở `D:\TÀI LIỆU TLBB\rea\work\client\Game.exe` (18 614 816 byte, SHA-256
+    3f8bb47de0bc…, khớp README của GAME-EXE-2026). Đọc lại bằng byte của tệp đó cộng pseudo-code của `decompile.zip`, không mở
+    phiên REA. Mảng tên 0x140b40fe0 và mảng hàm 0x140f15e80 đều 39 mục; vòng dùng chung độ lệch 8·i cho cả hai, `strstr` từng
+    tên theo thứ tự bảng, một dòng trùng nhiều tên thì chạy các hàm theo thứ tự đó. 39 tên = 33 tên bộ đọc đã dựng + sáu tên
+    `g_Parameter_*` (mục 76). Hàm mục i là 0x1401d9330 (g_MissionName) tăng dần tới 0x1401dc6f0 (g_RandomCustom); các địa chỉ
+    đã trích trong mã khớp: g_MissionLimitTime 0x1401da970, g_Custom 0x1401dac00, g_StrList 0x1401daf90, g_FormatList
+    0x1401db1d0. Offset đích trong bản ghi đọc từ từng hàm: level +4, kind +8, elite +0xc, circumstance +0x10 (đặt 1), double_exp
+    +0x14, stopwatch_pause +0x18, pos_x +0x1c, pos_z +0x20, scene +0x24, npc_name +0x28, ok_fail +0x48 (đặt 1), limit_time +0x4c,
+    round +0x50, bill +0x54 (đặt 1), fore_part +0x58, shimen_index +0x5c, bonuses +0x60 (kind 0 g_MoneyBonus, 1 g_MoneyJZBonus,
+    2 g_ItemBonus, 3 g_RandomItemBonus, 4 g_RadioItemBonus, 5 g_ExpBonus), demand_items +0x78, demand_kills +0x90, customs +0xa8,
+    str_list +0xc0, format_list +0xd8, random_customs +0xf0, name +0x108, target +0x128, state +0x148, bill_name +0x168,
+    npc_indicators +0x218: đúng thứ tự khai báo của `MissionDef`. Cặp tên mà tên này nằm trong tên kia (strstr) chỉ có g_Bill
+    trong g_BillName, đã xử lý. Không thấy chỗ nào lệch. Còn lại: mục 76 (sáu hàm g_Parameter_*).
 
 80. **Cổng i18n (`TOOLS/content/check_i18n.py`): giới hạn đã biết** (2026-10-18, I1). (1) `strip_comments` không hiểu chuỗi
     thô `R"(...)"`: chuỗi thô chứa dấu `"` lẻ có thể làm lệch phép (e); src/client hiện không có chuỗi thô kèm chữ Hán.

@@ -9,7 +9,8 @@
  *  - MissionDef: bản ghi mà DataPool:GetPlayerMission_* của Game.exe đọc ra
  *    (dựng ở 0x1401e0d00, mặc định ở 0x1401e2710).
  *  - parse_misdesc đọc khối MisDesc của tệp Config/event như vòng 0x1402cdbc0
- *    (bảng hàm xử lý 0x140f15e80). Logic thuần, không I/O. Chưa dựng sáu biến
+ *    (mảng tên 0x140b40fe0 và mảng hàm xử lý 0x140f15e80 cùng chỉ số, đã đối
+ *    chiếu: NGHI-NGO 79). Logic thuần, không I/O. Chưa dựng sáu biến
  *    g_Parameter_* của nhiệm vụ ngẫu nhiên (NGHI-NGO 76).
  *------------------------------------------------------------------------------
  *  TÁC GIẢ   : HiepHoon
