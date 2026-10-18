@@ -1264,3 +1264,13 @@ kết luận ngay dưới mục đó chứ không xoá.
     nhiệm vụ rồi mã hoá để lấy cỡ thật (hoặc đọc dòng log `gate: bỏ khung zone 0x8601 (n byte), lần k` khi E2E chạm
     một hộp quá lớn). Nếu có tin vượt: B1 cần đổi giao thức (`link.cpp` coi mỗi bản ghi là một khung, nên gate không chẻ
     khung ra nhiều bản ghi được nếu không có nhận biết ở client) hoặc cắt chữ ở nguồn; hai phương án gửi điều phối chọn.
+
+76. **MisDesc: sáu biến `g_Parameter_*` của nhiệm vụ ngẫu nhiên chưa dựng, bộ đọc bỏ qua chúng** (2026-10-18, N1 bước 2;
+    `src/client/book/quest/misdesc.cpp`, hàm xử lý gốc `Game.exe` 0x1401db7b0, 0x1401dba60, 0x1401dbc70, 0x1401dbe50,
+    0x1401dc060, 0x1401dc240). `parse_misdesc` tìm tên bằng strstr như vòng 0x1402cdbc0, nên dòng `g_Parameter_*` không có
+    hàm xử lý thì bị bỏ lặng, không báo lỗi. Đo trên `src/client/script/Config/event`: 26 khối MisDesc có dòng loại này,
+    chỉ ba tên: `g_Parameter_Item_IDRandom` (16 khối), `g_Parameter_Kill_AllRandom` (15), `g_Parameter_Kill_CountRandom`
+    (10); đều thuộc nhiệm vụ ngẫu nhiên (`shimen_*`, `event_shimen_*`, `city/ecity_loop0901`,
+    `fuben/efuben_sijuezhuang_mission`). Nhiệm vụ tân thủ 1400–1424 không có dòng nào. Hậu quả: `MissionDef` của 26 nhiệm
+    vụ này thiếu tham số ngẫu nhiên. Chưa chắc: bố cục bản ghi mỗi dòng và giới hạn của sáu hàm gốc (chưa đọc bằng REA).
+    Cần: đọc sáu hàm bằng REA rồi dựng khi N3 (nhiệm vụ lặp) cần.

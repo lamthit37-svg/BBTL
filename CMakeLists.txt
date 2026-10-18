@@ -613,7 +613,7 @@ target_link_libraries(game_gui PUBLIC game_core game_io game_xml game_table)
 game_module(hero src/client/figure/hero/hero.cpp)
 target_link_libraries(game_hero PUBLIC game_core)
 # quest: sổ nhiệm vụ của người chơi và bảng nhiệm vụ nhận được, bộ lọc port từ mã máy client 2026.
-game_module(quest src/client/book/quest/outline.cpp)
+game_module(quest src/client/book/quest/outline.cpp src/client/book/quest/misdesc.cpp)
 target_link_libraries(game_quest PUBLIC game_table game_core)
 # skill: bảng của sách võ công, sách kỹ năng của người chơi và hệ action, port từ mã máy client 2026.
 game_module(skill src/client/book/skill/tables.cpp src/client/book/skill/book.cpp src/client/book/skill/actions.cpp)
@@ -1647,6 +1647,12 @@ if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/mission
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
 endif()
 # Bảng, sách kỹ năng và hệ action của sách võ công; ca trên bảng thật chỉ dịch khi đã xuất đủ tám
+# Bộ đọc khối MisDesc; ca cuối quét cả Config/event của cây nguồn nên thiết bị không thấy cây nguồn bỏ qua.
+game_test(quest_misdesc game_quest game_io)
+if(NOT ANDROID AND TARGET quest_misdesc_tests)
+    target_compile_definitions(quest_misdesc_tests PRIVATE
+        GAME_EVENT_DIR="${PROJECT_SOURCE_DIR}/src/client/script/Config/event")
+endif()
 # bảng bằng export_config.py (bảy bảng, formation_levels.tsv là bảng mới nhất) và export_icons.py.
 game_test(skill game_skill game_io)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/life_skill_levels.tsv"
