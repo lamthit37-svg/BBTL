@@ -485,7 +485,7 @@ constexpr float kRideGap = 8.0F;
 constexpr std::uint32_t kRideFill = 0xE0202018U;
 constexpr std::uint32_t kRideInk = 0xFFFFFFFFU;
 
-[[nodiscard]] float ride_row_top(int height) noexcept {
+[[nodiscard]] float ride_row_top(std::uint32_t height) noexcept {
     const float room = static_cast<float>(height) - 72.0F;
     if (room < 16.0F) return 16.0F;
     return room;

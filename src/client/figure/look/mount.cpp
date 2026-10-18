@@ -442,6 +442,8 @@ std::expected<RideTables, std::string> parse_ride_tables(const RideTexts& texts)
     return tables;
 }
 
+namespace {
+
 [[nodiscard]] std::string unread(std::string_view file, const std::string& why) {
     return std::format("không đọc được {}: {}", file, why);
 }
@@ -453,6 +455,8 @@ std::expected<RideTables, std::string> parse_ride_tables(const RideTexts& texts)
     if (!text) return std::unexpected(unread(file, text.error()));
     return std::move(*text);
 }
+
+} // namespace
 
 std::expected<std::vector<RideEffect>, std::string> parse_ride_effects(std::string_view text) {
     return read_effects(text);
@@ -542,6 +546,8 @@ const RideOffset* halo_of(const RideTables& tables, const RideRow& row) noexcept
     return tables.find_offset(row.effect_id);
 }
 
+namespace {
+
 [[nodiscard]] std::string missing_ride(std::int32_t id) {
     return std::format("thú cưỡi {} không có trong bảng", id);
 }
@@ -553,6 +559,8 @@ const RideOffset* halo_of(const RideTables& tables, const RideRow& row) noexcept
 [[nodiscard]] std::string missing_model(std::int32_t ride, std::int32_t model) {
     return std::format("thú cưỡi {} trỏ mô hình {} không có", ride, model);
 }
+
+} // namespace
 
 std::expected<RideFigure, std::string> ride_figure(const RideTables& tables, std::int32_t mount_id,
     int owner_sex, int rider_sex, int seat) {

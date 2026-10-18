@@ -245,10 +245,11 @@ bool udp_soft(int code) noexcept {
     return code == ECONNREFUSED;
 }
 
-int post_udp(int descriptor, std::span<const std::byte> data, const sockaddr_in& where) noexcept {
-    const auto count = static_cast<int>(std::min(data.size(), kMaxChunk));
+// sendto của POSIX nhận size_t và trả ssize_t; bản Win32 cùng tên dùng int theo Winsock.
+ssize_t post_udp(int fd, std::span<const std::byte> data, const sockaddr_in& where) noexcept {
+    const std::size_t count = std::min(data.size(), kMaxChunk);
     const sockaddr* address = as_sockaddr(where);
-    return ::sendto(descriptor, data.data(), count, kSendFlags, address, kAddressSize);
+    return ::sendto(fd, data.data(), count, kSendFlags, address, kAddressSize);
 }
 
 using UdpRead = NetResult<std::optional<UdpInbound>>;
@@ -529,7 +530,7 @@ NetResult<std::size_t> UdpSocket::send_to(Endpoint to, std::span<const std::byte
     if (!is_open()) return std::unexpected(NetError::kReset);
     if (data.empty()) return std::size_t{0};
     const sockaddr_in where = to_native(to);
-    const int sent = post_udp(fd_of(handle()), data, where);
+    const ssize_t sent = post_udp(fd_of(handle()), data, where);
     if (sent >= 0) return static_cast<std::size_t>(sent);
     return udp_send_error(errno);
 }

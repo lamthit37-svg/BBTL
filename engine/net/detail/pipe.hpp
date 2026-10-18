@@ -206,6 +206,7 @@ void fill_ack_bit(State& state, std::array<std::byte, kAckBytes>& raw, std::size
 void write_ack_bits(Cursor& cursor, State& state);
 std::uint16_t oldest_or(const State& state, std::uint16_t fallback) noexcept;
 std::size_t header_size(bool has_ack) noexcept;
+void write_ack_block(Cursor& cursor, State& state);
 void write_header(Cursor& cursor, State& state, std::uint16_t number);
 void stamp_frames(Cursor& cursor, bool has_ack) noexcept;
 bool pop_lane(State& state, std::uint32_t& index);

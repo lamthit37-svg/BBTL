@@ -782,7 +782,7 @@ void Display::State::sync_impacts() {
     if (!fx_view) return;
     ensure_actor_fx();
     const fx::Node node = body_node();
-    const auto drop = [this](const ImpactHandle& held) { return drop_impact(held); };
+    const auto drop = [this](const ImpactHandle& handle) { return drop_impact(handle); };
     std::erase_if(impact_handles, drop);
     for (const look::ImpactSlot& slot : impacts.slots())
         keep_impact(slot, node);
