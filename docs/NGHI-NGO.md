@@ -1358,3 +1358,37 @@ kết luận ngay dưới mục đó chứ không xoá.
     ở màn chọn ("角色不能马上删除", `SelectRole.lua:330-380`) và chỉ cho xoá qua NPC. Chưa biết: gói nào client 2026 gửi cho
     luồng xoá qua NPC và máy chủ gốc 2026 giữ trạng thái chờ ra sao. Cần: đọc Game.exe bằng REA (tìm gói xoá qua NPC và
     thời hạn 3 đến 14 ngày), rồi quyết định có làm không (nguyên tắc "gốc có gì ta có nấy").
+
+87. **H1-B: tốc độ máy chủ cố định 488 cm/s, chưa theo thuộc tính, ngựa hay buff tốc độ** (2026-10-18, H1-B; `src/server/guard/pace.hpp` `kRunCmPerSec`, `kSlack`).
+    Gốc đi theo `GetMoveSpeed()` của từng người (`Obj_Human_Attributes.cpp:529-580`). Phương án B (điều phối chốt) bóp mọi người ở
+    465 × 1,05 = 488 cm/s, chưa nối với `Stat::kMoveSpeed`. Gốc không có cấu hình tương ứng cho quỹ và hạn kéo về
+    (`DEF_SERVER_ADJUST_POS_WARP_DIST` là `#define`), `rules/character.toml` `default_move_speed` có nhưng đơn vị chưa xác lập (mục 81),
+    nên các hằng nằm trong mã. Hệ quả: người có ngựa hay buff tốc độ (client chạy hơn 488 cm/s) tích luỹ lệch rồi bị kéo về (gấp 1,5 lần:
+    mỗi 22 giây; gấp 2 lần: mỗi 10,5 giây). Cụm chưa có ngựa hay buff tốc độ nên chưa gặp. Cần: nguồn của 465 (mục 81), rồi để tốc độ của
+    Pace theo `Stat::kMoveSpeed` khi ngựa hay buff tốc độ đổi nó.
+
+88. **H1-B: vị trí máy chủ trễ client sau khi mạng đứng, và khép lại rất chậm khi client còn chạy** (2026-10-18, H1-B; `docs/SERVER-DI-CHUYEN.md`).
+    Trễ = quãng client chạy trong lúc đứng trừ quỹ 500 cm (mô phỏng: đứng 3 giây trễ 1410 cm, 5 giây 2340 cm, 14,5 giây 6750 cm). Tốc độ khép
+    lại là 488 trừ tốc độ client = 23 cm/s khi client chạy đều (3 giây đứng cần chừng một phút), 488 cm/s khi client dừng. Trong lúc
+    trễ, vùng nhìn, tầm đánh và va chạm theo vị trí máy chủ (chỗ cũ của người chơi). Phương án B và gốc đều đi theo đường client gửi;
+    chỉ gốc không có nhịp xả dồn sau đứng mạng. Cần: quan sát bằng client thật (K); nếu khó chịu thì cân nhắc khép nhanh hơn có trần
+    (mọi tốc độ khép lại trên 488 cm/s cũng là tốc độ tối đa của kẻ gian).
+
+89. **H1-B: bình chứa tin riêng cho Move; đứng mạng từ 15 giây vẫn đóng vì idle; hai số 25 và 320 chưa có phép đo thật** (2026-10-18, H1-B; `src/server/gate/table.cpp` `move_rate`, `spend`; `gate.toml [limits] moves_per_second, move_burst, idle_timeout_ms`).
+    Bình chứa `messages_per_second` (60 tin) làm đóng phiên người chơi thật khi mạng đứng quá ~3 giây rồi xả dồn Move (client 20 Move/giây);
+    đã đo trên cụm trước sửa (log gate "vượt số tin mỗi giây"). Gốc không đóng phiên vì nhịp tin: `Player::ProcessCommand`
+    (`GameServer/Server/Player/Player.cpp:162`, `EXE_COUNT_PER_TICK` = 12) xử lý tối đa 12 tin mỗi nhịp và giữ phần dư trong bộ đệm đầu vào
+    64 MB. Gate không có bộ đệm không đáy nên giữ kiểu đóng phiên, nhưng Move có bình riêng: nạp 25/giây, chứa 320 (điều phối chốt 2026-10-18).
+    `idle_timeout_ms` nâng 10000 → 15000 cùng ngày (điều phối chốt): đo ở 10000 thì mạng đứng từ 10 giây bị đóng phiên bởi idle chứ không do Pace.
+    Gốc kick sau `KickUserTime` 300000 ms; gate giữ ngắn để socket chết được giải phóng sớm. Ràng buộc: `move_burst` ≥ nhịp Move của client ×
+    `idle_timeout_ms` / 1000 (20 × 15 = 300, lấy 320); với `move_burst` 250 (đã bỏ) thì client đứng 13 đến 15 giây rồi xả dồn (260 đến 300 Move) vượt bình và bị ngắt trước idle (tính, chưa đo).
+    `idle_timeout_ms` còn quyết hạn kéo về `resync_cm` = 465 × idle (6975 cm).
+    Chưa chắc: 25 và 320 suy từ nhịp 20 Move/giây của client K và hạn idle, chưa đo bằng client thật; chưa chứng minh được mạng đứng thật tới 15
+    giây là kịch bản có thật. Cần: đo mạng đứng bằng client thật (K); đổi `kMoveEvery` hay `idle_timeout_ms` thì đổi `move_burst` theo ràng buộc trên.
+    Triển khai: gate.toml có hai khoá mới nên mọi exe đọc nó (`thienlong_server`, `thienlong_gate`, `thienlong_lint`) phải dựng lại cùng lượt, không
+    thì giám sát từ chối "khoá lạ moves_per_second" và cụm không khởi động (đo 2026-10-18).
+
+90. **H1-B: giới hạn của hàng đợi bước** (2026-10-18, H1-B; `src/server/guard/pace.cpp`, `src/server/gate/table.cpp` `chase_all`).
+    (1) Hàng đợi 512 bước (client 20 Move/giây đủ chừng 25 giây; client 60 Move/giây chỉ 8,5 giây, rồi bị kéo về). (2) Move đã bay trên đường
+    lúc zone kéo về (`Place`) vẫn vào hàng đợi mới của gate, nên có thể thêm một hai `Position` (như trước H1-B với bước vượt tốc). (3) Chưa chạy
+    E2E trên cảnh `legacy_nav` (lưới ô), chỉ Đại Lý. (4) Quỹ nạp cả lúc đứng yên thật lẫn lúc mạng đứng: không phân biệt được hai việc.

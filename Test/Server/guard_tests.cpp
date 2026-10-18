@@ -1,5 +1,20 @@
-// Luật bước đi: trong tầm tốc độ thì nhận; vượt thì không nhận và kéo về mốc; vượt lặp lại (kể cả
-// xen kẽ bước thường) thì phạt. Thời gian đo theo tick máy chủ, client không mua thêm quãng đường.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Server/guard_tests.cpp
+ *  PHÂN HỆ   : Server / Guard Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Luật bước đi (H1-B): máy chủ làm chủ vị trí. Client khai chỗ đứng, máy chủ
+ *    đi theo đường đó với tốc độ của nó (không đóng phiên vì tốc độ). Thời gian
+ *    chỉ theo đồng hồ máy chủ; lao sau khi đứng yên chỉ nhảy tối đa quỹ; lệch
+ *    tích luỹ quá xa thì kéo về, không phạt.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "guard/pace.hpp"
 #include "test.hpp"
 
@@ -15,148 +30,189 @@ using guard::Pace;
 using guard::Step;
 using guard::Verdict;
 
+constexpr float kResyncCm = guard::kRunCmPerSec * 10.0F;
+constexpr float kTickCm = guard::kRunCmPerSec * guard::kTickSeconds;
+constexpr float kEpsilon = 0.01F;
+
 [[nodiscard]] Pace anchored(float x, std::uint32_t tick) {
     Pace pace;
-    pace.reset(Anchor{.x_cm = x, .z_cm = 0}, tick, tick);
+    pace.reset(Anchor{.x_cm = x, .z_cm = 0}, tick, tick, kResyncCm);
     return pace;
 }
 
 // Client và máy chủ cùng nhịp: tick khai bằng tick máy chủ.
 [[nodiscard]] Verdict walk(Pace& pace, float x, std::uint32_t tick) {
-    return pace.observe({.x_cm = x, .z_cm = 0, .tick = tick}, tick);
+    const Verdict verdict = pace.observe({.x_cm = x, .z_cm = 0, .tick = tick});
+    static_cast<void>(pace.advance(tick));
+    return verdict;
 }
 
-void legal_walk_is_kept(Context& context) {
+// Client chạy `step_cm` mỗi tick trong `ticks` tick, máy chủ đi theo mỗi tick. Trả số lần không kOk.
+[[nodiscard]] int run(Pace& pace, float step_cm, std::uint32_t from_tick, std::uint32_t ticks) {
+    int refused = 0;
+    float x = pace.anchor().x_cm + pace.lag_cm();
+    for (std::uint32_t tick = from_tick + 1; tick <= from_tick + ticks; ++tick) {
+        x += step_cm;
+        if (walk(pace, x, tick) != Verdict::kOk) ++refused;
+    }
+    return refused;
+}
+
+void legal_walk_is_followed(Context& context) {
     Pace pace = anchored(0, 0);
-    context.expect(walk(pace, 15, 1) == Verdict::kOk, "một tick trong tầm");
-    context.expect(walk(pace, 30, 2) == Verdict::kOk, "tick kế trong tầm");
-    context.expect(pace.anchor().x_cm == 30, "mốc dời tới bước đã nhận");
+    const int refused = run(pace, 15.0F, 0, 60);
+    context.expect(refused == 0, "chạy đều trong tầm thì nhận mọi bước");
+    context.expect(!pace.pending(), "máy chủ theo kịp, không còn đường chờ");
+    context.expect(pace.anchor().x_cm > 899.0F, "mốc tới chỗ client khai");
 }
 
 void no_anchor_no_trust(Context& context) {
     Pace pace;
-    context.expect(pace.observe({.x_cm = 9000, .z_cm = 0, .tick = 0}, 0) == Verdict::kNoAnchor,
+    context.expect(pace.observe({.x_cm = 9000, .z_cm = 0, .tick = 0}) == Verdict::kNoAnchor,
         "bước đầu của client không thành mốc");
 }
 
-// G4: vượt một lần là kRejected (khác kOk), mốc giữ nguyên để người gọi kéo về.
-void one_burst_is_rejected_not_penalized(Context& context) {
+// Đứng yên bao lâu rồi lao cũng chỉ nhảy tối đa quỹ; phần còn lại máy chủ đi dần.
+void jump_after_idle_is_capped_by_bank(Context& context) {
     Pace pace = anchored(0, 0);
-    context.expect(walk(pace, 80, 1) == Verdict::kRejected, "vượt tốc một tick: không nhận, chưa phạt");
-    context.expect(pace.anchor().x_cm == 0, "mốc không dời theo bước bị từ chối");
+    static_cast<void>(pace.advance(600));
+    context.expect(pace.observe({.x_cm = 3000, .z_cm = 0, .tick = 600}) == Verdict::kOk, "nhận bước xa");
+    static_cast<void>(pace.advance(600));
+    context.expect(pace.anchor().x_cm <= guard::kBankCm + kEpsilon, "cú lao chỉ nhảy tối đa quỹ");
+    context.expect(pace.anchor().x_cm >= guard::kBankCm - kEpsilon, "quỹ đầy sau khi đứng yên");
+    context.expect(pace.pending(), "phần còn lại vẫn chờ");
 }
 
-void repeated_overspeed_is_speed(Context& context) {
+// Chạy gấp đôi: không phạt, không đóng phiên; vị trí máy chủ bị bóp ở tốc độ trần.
+void overspeed_is_clamped_not_punished(Context& context) {
     Pace pace = anchored(0, 0);
-    static_cast<void>(walk(pace, 80, 1));
-    static_cast<void>(walk(pace, 160, 2));
-    context.expect(walk(pace, 240, 3) == Verdict::kSpeed, "ba tick vượt tốc là speed");
+    const int refused = run(pace, 2.0F * kTickCm, 0, 100);
+    const float cap_cm = 100.0F * kTickCm * guard::kSlack;
+    context.expect(refused == 0, "chạy gấp đôi trong 3 giây vẫn được nhận");
+    context.expect(pace.anchor().x_cm <= cap_cm + kEpsilon, "vị trí máy chủ không vượt tốc độ trần");
+    context.expect(pace.anchor().x_cm > 0.9F * cap_cm, "máy chủ vẫn đi hết tốc độ trần");
+    context.expect(pace.pending(), "client đã chạy xa hơn máy chủ");
 }
 
-void two_jumps_are_teleport(Context& context) {
+// Khi client dừng, máy chủ đi nốt đường đã nhận rồi khép lại, không bỏ phần nào.
+void server_catches_up_when_client_stops(Context& context) {
     Pace pace = anchored(0, 0);
-    context.expect(walk(pace, 20000, 1) == Verdict::kRejected, "cú nhảy đầu: kéo về, chưa phạt");
-    context.expect(walk(pace, 40000, 2) == Verdict::kTeleport, "hai cú nhảy là dịch chuyển");
+    static_cast<void>(run(pace, 2.0F * kTickCm, 0, 100));
+    const float goal_cm = pace.anchor().x_cm + pace.lag_cm();
+    for (std::uint32_t tick = 101; tick <= 400 && pace.pending(); ++tick)
+        static_cast<void>(pace.advance(tick));
+    context.expect(!pace.pending(), "hết đường chờ sau khi client dừng");
+    context.expect(pace.anchor().x_cm > goal_cm - kEpsilon, "mốc tới đúng chỗ client khai cuối");
 }
 
-// G6: tick lùi không dời mốc và không được nhận.
-void rewound_tick_does_not_move(Context& context) {
+// Gấp bốn lần: lệch tích luỹ vượt hạn thì kéo về mốc, không phạt, bước kế từ mốc được nhận lại.
+void far_lag_pulls_back_without_penalty(Context& context) {
+    Pace pace = anchored(0, 0);
+    int resyncs = 0;
+    float x = 0;
+    for (std::uint32_t tick = 1; tick <= 300 && resyncs == 0; ++tick) {
+        x += 4.0F * kTickCm;
+        const Verdict verdict = walk(pace, x, tick);
+        if (verdict == Verdict::kResync) ++resyncs;
+        context.expect(verdict == Verdict::kOk || verdict == Verdict::kResync, "chỉ nhận hoặc kéo về");
+    }
+    context.expect(resyncs == 1, "gấp bốn lần bị kéo về trong 10 giây");
+    context.expect(!pace.pending(), "kéo về thì bỏ đường chờ");
+    const float back = pace.anchor().x_cm;
+    context.expect(walk(pace, back + 10.0F, 301) == Verdict::kOk, "bước kế từ mốc được nhận, không phạt");
+}
+
+// Mạng đứng 9 giây rồi dồn hết Move: không kéo về (người thật), mốc nhảy tối đa quỹ.
+void stall_then_burst_is_kept(Context& context) {
+    Pace pace = anchored(0, 0);
+    int refused = 0;
+    float x = 0;
+    for (std::uint32_t tick = 1; tick <= 270; ++tick) {
+        x += kTickCm;
+        const Step step{.x_cm = x, .z_cm = 0, .tick = tick};
+        if (pace.observe(step) != Verdict::kOk) ++refused;
+    }
+    context.expect(refused == 0, "gói dồn sau 9 giây đứng mạng đều được nhận");
+    static_cast<void>(pace.advance(270));
+    context.expect(pace.anchor().x_cm <= guard::kBankCm + kEpsilon, "mốc chỉ nhảy tối đa quỹ");
+    for (std::uint32_t tick = 271; tick <= 600 && pace.pending(); ++tick)
+        static_cast<void>(pace.advance(tick));
+    context.expect(!pace.pending(), "máy chủ khép lại khi client dừng");
+    context.expect(pace.anchor().x_cm > x - 1.0F, "mốc tới chỗ client khai cuối");
+}
+
+// G2: client khai tick vọt 300 trong khi máy chủ mới qua một tick không mua thêm quãng đường.
+void client_tick_buys_no_distance(Context& context) {
+    Pace pace = anchored(0, 0);
+    context.expect(pace.observe({.x_cm = 4000, .z_cm = 0, .tick = 300}) == Verdict::kOk, "nhận bước");
+    static_cast<void>(pace.advance(1));
+    context.expect(pace.anchor().x_cm <= 1.05F * kTickCm + kEpsilon, "mốc chỉ đi theo tick máy chủ");
+}
+
+// G6: tick lùi, NaN và vô cực không được nhận, bỏ đường chờ; bước hợp lệ sau đó vẫn được nhận.
+void invalid_steps_are_rejected(Context& context) {
     Pace pace = anchored(0, 5);
-    context.expect(walk(pace, 9000, 4) == Verdict::kRejected, "tick lùi bị từ chối");
-    context.expect(pace.anchor().x_cm == 0, "tick lùi không dời mốc");
-    context.expect(walk(pace, 15, 6) == Verdict::kOk, "mốc vẫn là bước đã nhận");
+    context.expect(walk(pace, 10, 6) == Verdict::kOk, "bước hợp lệ");
+    context.expect(pace.observe({.x_cm = 12, .z_cm = 0, .tick = 4}) == Verdict::kRejected, "tick lùi");
+    context.expect(!pace.pending(), "bước từ chối bỏ đường chờ");
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    const float inf = std::numeric_limits<float>::infinity();
+    context.expect(pace.observe({.x_cm = nan, .z_cm = 0, .tick = 7}) == Verdict::kRejected, "NaN");
+    context.expect(pace.observe({.x_cm = inf, .z_cm = 0, .tick = 7}) == Verdict::kRejected, "vô cực");
+    const float back = pace.anchor().x_cm;
+    context.expect(walk(pace, back + 5.0F, 8) == Verdict::kOk, "bước hợp lệ sau đó vẫn nhận");
 }
 
-void jump_then_walk_is_still_teleport(Context& context) {
+// Máy chủ đi dọc các chỗ client đã khai, không cắt góc: điểm góc nằm trong những chỗ báo zone.
+void path_goes_through_corner(Context& context) {
     Pace pace = anchored(0, 0);
-    context.expect(walk(pace, 20000, 1) == Verdict::kRejected, "cú nhảy đầu chưa phạt");
-    context.expect(walk(pace, 20020, 2) == Verdict::kTeleport, "bước thường sau cú nhảy vẫn đo từ mốc cũ");
+    context.expect(pace.observe({.x_cm = 100, .z_cm = 0, .tick = 1}) == Verdict::kOk, "đoạn thứ nhất");
+    context.expect(pace.observe({.x_cm = 100, .z_cm = 100, .tick = 2}) == Verdict::kOk, "đoạn thứ hai");
+    const guard::Trail trail = pace.advance(60);
+    bool at_corner = false;
+    for (const Anchor& spot : trail.view())
+        at_corner = at_corner || (spot.x_cm == 100.0F && spot.z_cm == 0.0F);
+    context.expect(at_corner, "đi qua đúng góc");
+    const Anchor last = trail.view().back();
+    context.expect(last.x_cm == 100.0F && last.z_cm == 100.0F, "điểm cuối là mốc mới");
 }
 
-// G5: bước cùng tick đo với thời gian 0.
-void same_tick_jump_is_measured(Context& context) {
-    Pace pace = anchored(0, 3);
-    context.expect(walk(pace, 9000, 3) == Verdict::kRejected, "nhảy trong cùng tick bị từ chối");
-    context.expect(walk(pace, 9010, 4) == Verdict::kTeleport, "mốc không bị dời bởi bước cùng tick");
-}
-
-void rewound_tick_keeps_anchor(Context& context) {
-    Pace pace = anchored(0, 5);
-    static_cast<void>(walk(pace, 9000, 4));
-    static_cast<void>(walk(pace, 9000, 6));
-    context.expect(walk(pace, 9000, 7) == Verdict::kTeleport, "tick lùi không thành mốc");
-}
-
-// G2: client khai tick vọt 300 tick trong khi máy chủ mới qua 1 tick. Trước đây 300 tick cho phép
-// đi ~49 m; nay chỉ được tính 1 + kJitterTicks tick.
-void client_tick_cannot_buy_distance(Context& context) {
-    Pace pace = anchored(0, 0);
-    context.expect(pace.observe({.x_cm = 4000, .z_cm = 0, .tick = 300}, 1) != Verdict::kOk,
-        "tick client vọt không mua thêm quãng đường");
-    context.expect(pace.anchor().x_cm == 0, "mốc giữ nguyên");
-    context.expect(pace.observe({.x_cm = 4000, .z_cm = 0, .tick = 300}, 300) == Verdict::kOk,
-        "đủ thời gian máy chủ thì nhận");
-}
-
-// G3: xen bước thường giữa các cú vượt (vượt, thường, vượt, thường, vượt) vẫn bị phạt.
-// Chuỗi cũ đặt lại về 0 ở mỗi bước thường nên không bao giờ phạt.
-void interleaved_overspeed_is_speed(Context& context) {
+// Hàng đợi đầy: kéo về thay vì cấp thêm; bộ nhớ của một ô không lớn theo client.
+void full_queue_pulls_back(Context& context) {
     Pace pace = anchored(0, 0);
     Verdict last = Verdict::kOk;
-    for (std::uint32_t tick = 1; tick <= 20 && last != Verdict::kSpeed; ++tick) {
-        const bool burst = (tick % 2U) == 1U;
-        const float target = pace.anchor().x_cm + (burst ? 60.0F : 10.0F);
-        last = walk(pace, target, tick);
-    }
-    context.expect(last == Verdict::kSpeed, "vượt xen kẽ vẫn thành speed");
+    for (std::size_t at = 1; at <= guard::kNodes + 1 && last == Verdict::kOk; ++at)
+        last = pace.observe({.x_cm = 0.1F * static_cast<float>(at), .z_cm = 0, .tick = 1});
+    context.expect(last == Verdict::kResync, "quá số bước chờ thì kéo về");
+    context.expect(!pace.pending(), "bỏ đường chờ");
 }
 
-// Vượt lẻ tẻ (mạng giật) cách nhau lâu thì ngân sách rò hết, không phạt oan.
-void rare_bursts_leak_away(Context& context) {
+void reset_clears_path_and_bank(Context& context) {
     Pace pace = anchored(0, 0);
-    bool penalized = false;
-    std::uint32_t tick = 0;
-    for (int round = 0; round < 10; ++round) {
-        tick += 60;
-        const Verdict burst = walk(pace, pace.anchor().x_cm + 2000, tick);
-        penalized = penalized || burst == Verdict::kSpeed || burst == Verdict::kTeleport;
-        tick += 1;
-        static_cast<void>(walk(pace, pace.anchor().x_cm + 10, tick));
-    }
-    context.expect(!penalized, "vượt cách nhau 2 giây không bị phạt");
-}
-
-void reset_clears_debt(Context& context) {
-    Pace pace = anchored(0, 0);
-    static_cast<void>(walk(pace, 80, 1));
-    static_cast<void>(walk(pace, 160, 2));
-    pace.reset(Anchor{.x_cm = 500, .z_cm = 0}, 3, 3);
-    context.expect(walk(pace, 580, 4) == Verdict::kRejected, "sau reset chưa phạt ngay");
-    context.expect(pace.anchor().x_cm == 500, "mốc là chỗ máy chủ đặt");
-}
-
-void nan_is_rejected(Context& context) {
-    Pace pace = anchored(0, 0);
-    const float nan = std::numeric_limits<float>::quiet_NaN();
-    context.expect(pace.observe({.x_cm = nan, .z_cm = 0, .tick = 1}, 1) != Verdict::kOk, "NaN không được nhận");
-    context.expect(pace.anchor().x_cm == 0, "NaN không thành mốc");
+    static_cast<void>(pace.advance(600));
+    context.expect(pace.observe({.x_cm = 900, .z_cm = 0, .tick = 600}) == Verdict::kOk, "nhận bước");
+    pace.reset(Anchor{.x_cm = 500, .z_cm = 0}, 601, 601, kResyncCm);
+    context.expect(!pace.pending(), "mốc mới bỏ đường chờ");
+    static_cast<void>(pace.advance(601));
+    context.expect(pace.anchor().x_cm == 500.0F, "mốc là chỗ máy chủ đặt, quỹ về 0");
+    static_cast<void>(pace.observe({.x_cm = 900, .z_cm = 0, .tick = 602}));
+    static_cast<void>(pace.advance(601));
+    context.expect(pace.anchor().x_cm == 500.0F, "chưa qua tick nào thì chưa đi");
 }
 
 const std::array kCases{
-    Case{.name = "legal_walk_is_kept", .body = &legal_walk_is_kept},
+    Case{.name = "legal_walk_is_followed", .body = &legal_walk_is_followed},
     Case{.name = "no_anchor_no_trust", .body = &no_anchor_no_trust},
-    Case{.name = "one_burst_is_rejected_not_penalized", .body = &one_burst_is_rejected_not_penalized},
-    Case{.name = "repeated_overspeed_is_speed", .body = &repeated_overspeed_is_speed},
-    Case{.name = "two_jumps_are_teleport", .body = &two_jumps_are_teleport},
-    Case{.name = "rewound_tick_does_not_move", .body = &rewound_tick_does_not_move},
-    Case{.name = "jump_then_walk_is_still_teleport", .body = &jump_then_walk_is_still_teleport},
-    Case{.name = "same_tick_jump_is_measured", .body = &same_tick_jump_is_measured},
-    Case{.name = "rewound_tick_keeps_anchor", .body = &rewound_tick_keeps_anchor},
-    Case{.name = "client_tick_cannot_buy_distance", .body = &client_tick_cannot_buy_distance},
-    Case{.name = "interleaved_overspeed_is_speed", .body = &interleaved_overspeed_is_speed},
-    Case{.name = "rare_bursts_leak_away", .body = &rare_bursts_leak_away},
-    Case{.name = "reset_clears_debt", .body = &reset_clears_debt},
-    Case{.name = "nan_is_rejected", .body = &nan_is_rejected},
+    Case{.name = "jump_after_idle_is_capped_by_bank", .body = &jump_after_idle_is_capped_by_bank},
+    Case{.name = "overspeed_is_clamped_not_punished", .body = &overspeed_is_clamped_not_punished},
+    Case{.name = "server_catches_up_when_client_stops", .body = &server_catches_up_when_client_stops},
+    Case{.name = "far_lag_pulls_back_without_penalty", .body = &far_lag_pulls_back_without_penalty},
+    Case{.name = "stall_then_burst_is_kept", .body = &stall_then_burst_is_kept},
+    Case{.name = "client_tick_buys_no_distance", .body = &client_tick_buys_no_distance},
+    Case{.name = "invalid_steps_are_rejected", .body = &invalid_steps_are_rejected},
+    Case{.name = "path_goes_through_corner", .body = &path_goes_through_corner},
+    Case{.name = "full_queue_pulls_back", .body = &full_queue_pulls_back},
+    Case{.name = "reset_clears_path_and_bank", .body = &reset_clears_path_and_bank},
 };
 
 } // namespace

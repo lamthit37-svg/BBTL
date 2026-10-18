@@ -1,3 +1,18 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/config/gate.cpp
+ *  PHÂN HỆ   : Server / Config / Gate
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Đọc gate.toml: kiểm khoá lạ, miền giá trị, trần kết nối, lọc địa chỉ và
+ *    hai khoá tuỳ chọn của bình chứa Move.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "config/gate.hpp"
 
 #include "config/detail/node.hpp"
@@ -22,8 +37,9 @@ using detail::Node;
 constexpr std::array<std::string_view, 8> kRoot{
     "schema", "identity_key_file", "trusted_proxies", "listen", "limits", "client", "ip_filter", "resume"};
 constexpr std::array<std::string_view, 2> kListen{"game", "auth"};
-constexpr std::array<std::string_view, 7> kLimits{"max_connections", "per_ip_connections", "handshake_timeout_ms",
-    "idle_timeout_ms", "client_frame_bytes", "messages_per_second", "per_ip_prefix"};
+constexpr std::array<std::string_view, 9> kLimits{"max_connections", "per_ip_connections",
+    "handshake_timeout_ms", "idle_timeout_ms", "client_frame_bytes", "messages_per_second",
+    "per_ip_prefix", "moves_per_second", "move_burst"};
 constexpr std::array<std::string_view, 2> kResume{"bind_to_ip", "grace_ms"};
 // Dải gom: /16 tới /32. Rộng hơn /16 thì một nhà mạng NAT chặn cả vùng.
 constexpr detail::Bound kPrefix{.least = 16, .most = 32};
@@ -41,6 +57,22 @@ void read_listen(Bag& bag, const Node* table, GateListen& listen) {
     keep(cursor.endpoint("auth"), listen.auth);
 }
 
+// Ba khoá tuỳ chọn của [limits]: thiếu thì giữ mặc định của GateLimits.
+void read_optional_limits(Cursor& cursor, GateLimits& limits) {
+    if (cursor.has("per_ip_prefix")) {
+        const std::optional<std::int64_t> prefix = cursor.bounded("per_ip_prefix", kPrefix);
+        keep(prefix, limits.per_ip_prefix);
+    }
+    if (cursor.has("moves_per_second")) {
+        const std::optional<std::int64_t> rate = cursor.bounded("moves_per_second", detail::kCount);
+        keep(rate, limits.moves_per_second);
+    }
+    if (cursor.has("move_burst")) {
+        const std::optional<std::int64_t> burst = cursor.bounded("move_burst", detail::kCount);
+        keep(burst, limits.move_burst);
+    }
+}
+
 void read_limits(Bag& bag, const Node* table, GateLimits& limits) {
     if (table == nullptr) return;
     Cursor cursor{bag, *table};
@@ -51,7 +83,7 @@ void read_limits(Bag& bag, const Node* table, GateLimits& limits) {
     keep(cursor.millis("idle_timeout_ms"), limits.idle_timeout_ms);
     keep(cursor.bounded("client_frame_bytes", detail::kCount), limits.client_frame_bytes);
     keep(cursor.bounded("messages_per_second", detail::kCount), limits.messages_per_second);
-    if (cursor.has("per_ip_prefix")) keep(cursor.bounded("per_ip_prefix", kPrefix), limits.per_ip_prefix);
+    read_optional_limits(cursor, limits);
 }
 
 void read_resume(Bag& bag, const Node* table, GateResume& resume) {

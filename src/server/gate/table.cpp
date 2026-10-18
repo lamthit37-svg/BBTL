@@ -63,6 +63,37 @@ constexpr std::uint8_t kIpTomb = 2;
 constexpr std::size_t kFrameBytes = secure::kMaxPlainBytes;
 constexpr int kRecordBudget = 8;
 
+// Bình chứa tin: một tin tốn kMessageCredit; credit tính theo nghìn tin.
+constexpr std::int64_t kMessageCredit = 1000;
+
+struct Bucket {
+    std::int64_t credit = 0;
+    std::int64_t credit_ns = 0;
+};
+
+// Nạp per_second tin mỗi giây, chứa tối đa burst tin.
+struct Rate {
+    std::int64_t per_second = 0;
+    std::int64_t burst = 0;
+};
+
+[[nodiscard]] Rate shared_rate(const Limits& limits) noexcept {
+    return Rate{.per_second = limits.per_second, .burst = limits.per_second};
+}
+
+// Khác gốc: Move có bình riêng, sức chứa cho một client đứng mạng rồi xả dồn mọi Move đã giữ
+// (H1-B). Gốc không đóng phiên vì nhịp tin: mỗi nhịp chỉ xử lý tối đa 12 tin của một
+// người (Player::ProcessCommand, EXE_COUNT_PER_TICK) và giữ phần dư trong bộ đệm đầu vào 64 MB.
+// Gate không có bộ đệm không đáy nên vẫn ngắt khi xả Move liên tục: nạp move_per_second chỉ hơn
+// nhịp client thật chút ít.
+[[nodiscard]] Rate move_rate(const Limits& limits) noexcept {
+    return Rate{.per_second = limits.move_per_second, .burst = limits.move_burst};
+}
+
+[[nodiscard]] Bucket full_bucket(Rate rate, std::int64_t now) noexcept {
+    return Bucket{.credit = rate.burst * kMessageCredit, .credit_ns = now};
+}
+
 struct Slot {
     std::uint32_t generation = 1;
     bool live = false;
@@ -91,8 +122,9 @@ struct Slot {
     net::Ipv4 address{};
     std::int64_t born_ns = 0;
     std::int64_t seen_ns = 0;
-    std::int64_t credit = 0;
-    std::int64_t credit_ns = 0;
+    // Hai bình chứa tin của client: tin thường và riêng Move (xem spend).
+    Bucket shared;
+    Bucket moves;
     std::optional<secure::ServerHandshake> handshake;
     std::optional<secure::RecordPipe> pipe;
     std::array<std::byte, kFrameBytes> frame{};
@@ -105,6 +137,8 @@ struct Slot {
     std::vector<std::byte> scratch;
     // Đã Attach vào zone: gate báo vị trí chấp nhận và Detach khi ô đóng.
     bool attached = false;
+    // Đang nằm trong Engine::chasing (còn đường chờ để máy chủ đi theo).
+    bool chase_listed = false;
     // Khung zone gửi cho client mà hộp gửi chưa nhận kịp (cả khung, nối nhau). Thứ tự giữ nguyên: khi
     // còn tồn thì khung mới nối vào cuối thay vì chen lên trước.
     std::vector<std::byte> down;
@@ -265,6 +299,9 @@ struct Engine {
     ZoneLink zone;
     // Chỉ số các ô còn khung zone chờ gửi (Slot::down); mục cũ được bỏ khi duyệt.
     std::vector<std::uint32_t> backlog;
+    // Chỉ số các ô còn đường chờ trong guard::Pace (máy chủ chưa đi tới chỗ client khai); advance()
+    // đi tiếp cho chúng mỗi nhịp, mục hết đường hoặc ô đã đóng được bỏ khi duyệt.
+    std::vector<std::uint32_t> chasing;
     // Luồng tick đẩy asks và lấy answers; luồng thư ký làm ngược lại. Mỗi hàng đúng một bên đẩy.
     net::SpscMail<Ask, kAskRoom> asks;
     net::SpscMail<Answer, kAskRoom> answers;
@@ -685,15 +722,27 @@ constexpr protocol::DisconnectReason disconnect_for(protocol::ErrorCode code) no
                                                     : protocol::DisconnectReason::kShutdown;
 }
 
-void send_position(Engine& state, Slot& slot, std::uint32_t index, const protocol::Position& position);
+void send_position(Engine& state, Slot& slot, std::uint32_t index,
+    const protocol::Position& position);
 
-// Zone buộc người chơi về (x, z): đặt mốc mới ở đúng chỗ đó rồi báo client. Mốc tính theo đồng hồ gate lúc này,
-// không phải seen_ns của ô: dùng mốc thời gian cũ thì người chơi đứng yên lâu rồi cố ý đi vào tường sẽ được cộng dồn
-// quãng đường cho phép của cả khoảng đứng yên.
-void on_zone_place(Engine& state, Slot& slot, std::uint32_t index, const ipc::Place& spot, std::int64_t now) {
+// Quãng client được lệch khỏi mốc của máy chủ trước khi bị kéo về: quãng người thật chạy trong một
+// hạn idle (đứng mạng lâu hơn thế thì phiên đã đóng vì không có tin). Số này không phải ngưỡng gian
+// lận (tốc độ đã bị bóp ở guard::Pace), chỉ là chỗ cắt lệch tích luỹ. Khác gốc: gốc không cắt.
+[[nodiscard]] float resync_cm(const Engine& state) noexcept {
+    const std::int64_t seconds = state.limits.idle_ns / kNsPerSecond;
+    return guard::kRunCmPerSec * static_cast<float>(seconds);
+}
+
+// Zone buộc người chơi về (x, z): đặt mốc mới ở đúng chỗ đó rồi báo client. Mốc tính theo đồng hồ
+// gate lúc này, không phải seen_ns của ô: dùng mốc thời gian cũ thì người chơi đứng yên lâu rồi cố
+// ý đi vào tường sẽ được cộng dồn quãng đường cho phép của cả khoảng đứng yên.
+void on_zone_place(Engine& state, Slot& slot, std::uint32_t index, const ipc::Place& spot,
+    std::int64_t now) {
     constexpr auto kLimit = static_cast<float>(account::kSpotLimitCm);
     if (std::abs(spot.x_cm) > kLimit || std::abs(spot.z_cm) > kLimit) return;
-    send_position(state, slot, index, slot.motion.place(guard::Anchor{.x_cm = spot.x_cm, .z_cm = spot.z_cm}, now));
+    const guard::Anchor at{.x_cm = spot.x_cm, .z_cm = spot.z_cm};
+    const protocol::Position placed = slot.motion.place(at, now, resync_cm(state));
+    send_position(state, slot, index, placed);
 }
 
 void on_zone_frame(Engine& state, const ipc::Frame& frame, std::int64_t now) {
@@ -779,14 +828,45 @@ void pump_zone(Engine& state, std::int64_t now) {
     static_cast<void>(zone.link->pump());
 }
 
-// Báo vị trí vừa được chấp nhận cho zone.
-void relay_move(Engine& state, const Slot& slot, std::uint32_t index) {
-    if (!slot.attached || !state.zone.link) return;
-    const guard::Anchor at = slot.motion.anchor();
-    const std::vector<std::byte> body = ipc::encode_body(ipc::Moved{.x_cm = at.x_cm, .z_cm = at.z_cm});
-    const bool sent =
-        state.zone.link->send(ipc::value_of(ipc::Relay::kMoved), zone_session(index, slot.generation), body);
+// Báo zone một chỗ máy chủ vừa đi tới.
+void relay_spot(Engine& state, const Slot& slot, std::uint32_t index, guard::Anchor spot) {
+    const ipc::Moved moved{.x_cm = spot.x_cm, .z_cm = spot.z_cm};
+    const std::vector<std::byte> body = ipc::encode_body(moved);
+    const std::uint16_t kind = ipc::value_of(ipc::Relay::kMoved);
+    const bool sent = state.zone.link->send(kind, zone_session(index, slot.generation), body);
     if (!sent) state.zone.lost = true;
+}
+
+// Báo zone mọi chỗ máy chủ vừa đi qua, theo thứ tự: zone kiểm tường từng đoạn ngắn, không cắt góc.
+void relay_trail(Engine& state, const Slot& slot, std::uint32_t index, const guard::Trail& trail) {
+    if (!slot.attached || !state.zone.link) return;
+    for (const guard::Anchor& spot : trail.view()) {
+        if (state.zone.lost) return;
+        relay_spot(state, slot, index, spot);
+    }
+}
+
+// Máy chủ đi theo đường client đã khai tới now (docs/SERVER-DI-CHUYEN.md) và báo zone. Còn đường
+// chờ thì ghi ô vào Engine::chasing để các nhịp sau đi tiếp dù client không gửi thêm Move.
+void chase_one(Engine& state, Slot& slot, std::uint32_t index, std::int64_t now) {
+    const guard::Trail trail = slot.motion.chase(now);
+    relay_trail(state, slot, index, trail);
+    if (!slot.motion.pending() || slot.chase_listed) return;
+    slot.chase_listed = true;
+    state.chasing.push_back(index);
+}
+
+// Mỗi nhịp gate: đi tiếp cho các ô còn đường chờ. Ô đã đóng hoặc hết đường thì bỏ khỏi danh sách.
+void chase_all(Engine& state, std::int64_t now) {
+    std::size_t keep = 0;
+    for (std::size_t from = 0; from < state.chasing.size(); ++from) {
+        const std::uint32_t index = state.chasing[from];
+        Slot& slot = state.slots[index];
+        if (slot.live) chase_one(state, slot, index, now);
+        slot.chase_listed = slot.live && slot.motion.pending();
+        if (slot.chase_listed) state.chasing[keep++] = index;
+    }
+    state.chasing.resize(keep);
 }
 
 // Tin chơi của client (hội thoại và nhiệm vụ từ bản 5, chiến đấu từ bản 6): gate đã giải mã và kiểm hình dạng, phần còn
@@ -1303,8 +1383,9 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
         return;
     }
     if (!send_ui(state, slot, index)) return;
-    send_position(state, slot, index,
-        slot.motion.place(entry_anchor(entered, resumed_spot, resume_spot), slot.seen_ns));
+    const guard::Anchor entry = entry_anchor(entered, resumed_spot, resume_spot);
+    const protocol::Position placed = slot.motion.place(entry, slot.seen_ns, resync_cm(state));
+    send_position(state, slot, index, placed);
     if (!slot.live || !state.zone.link) return;
     const guard::Anchor spot = slot.motion.anchor();
     ipc::Attach arrival;
@@ -1331,15 +1412,14 @@ void finish_enter(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t 
     slot.attached = true;
 }
 
-// Mọi Move đi qua guard::Pace với đồng hồ của gate. Không nhận thì kéo về mốc; lặp lại thì đóng phiên.
-void on_move(Engine& state, Slot& slot, std::uint32_t index, const protocol::Move& move, std::int64_t now) {
-    const MotionOutcome outcome = slot.motion.judge(move, now);
+// Mọi Move được xếp vào đường đi của guard::Pace rồi máy chủ đi theo ngay bằng đồng hồ của gate.
+// Số hỏng, tick lùi hoặc client lệch quá xa thì kéo về mốc. Không đóng phiên vì tốc độ (H1-B).
+void on_move(Engine& state, Slot& slot, std::uint32_t index, const protocol::Move& move,
+    std::int64_t now) {
+    const MotionOutcome outcome = slot.motion.judge(move);
     switch (outcome.act) {
-    case MotionAct::kAccept: relay_move(state, slot, index); return;
+    case MotionAct::kAccept: chase_one(state, slot, index, now); return;
     case MotionAct::kCorrect: send_position(state, slot, index, outcome.position); return;
-    case MotionAct::kKick:
-        send_goodbye(state, slot, index, protocol::DisconnectReason::kKicked, Drop::kProtocol);
-        return;
     case MotionAct::kOutOfOrder:
         send_reject(state, slot, index, protocol::Move::kKind, protocol::ErrorCode::kOutOfOrder);
         return;
@@ -1455,17 +1535,27 @@ void clerk_main(Engine& state) {
     }
 }
 
-[[nodiscard]] bool spend(Slot& slot, const Limits& limits, std::int64_t now) noexcept {
-    std::int64_t span = now - slot.credit_ns;
-    if (span < 0) span = 0;
-    const std::int64_t cap = limits.per_second * static_cast<std::int64_t>(kMilli);
-    if (span >= kNsPerSecond) slot.credit = cap;
-    if (span < kNsPerSecond) slot.credit = std::min(cap, slot.credit + limits.per_second * span / kNsPerMs);
-    slot.credit_ns = now;
-    constexpr std::int64_t kOneMessage = 1000;
-    if (slot.credit < kOneMessage) return false;
-    slot.credit -= kOneMessage;
+// Lấy một tin từ bình. Nạp theo thời gian trôi, tối đa tới lúc đầy (cap / nhịp nạp) để phép nhân
+// không tràn.
+[[nodiscard]] bool spend(Bucket& bucket, Rate rate, std::int64_t now) noexcept {
+    const std::int64_t cap = rate.burst * kMessageCredit;
+    const std::int64_t full_ms = rate.per_second > 0 ? cap / rate.per_second : 0;
+    const std::int64_t waited = now - bucket.credit_ns;
+    const std::int64_t span = std::clamp(waited, std::int64_t{0}, full_ms * kNsPerMs);
+    const std::int64_t refill = rate.per_second * span / kNsPerMs;
+    bucket.credit = std::min(cap, bucket.credit + refill);
+    bucket.credit_ns = now;
+    if (bucket.credit < kMessageCredit) return false;
+    bucket.credit -= kMessageCredit;
     return true;
+}
+
+// Move dùng bình riêng, mọi tin khác dùng bình chung.
+[[nodiscard]] bool admit(Slot& slot, const Limits& limits, std::uint16_t kind,
+    std::int64_t now) noexcept {
+    const bool is_move = kind == protocol::Move::kKind;
+    if (is_move) return spend(slot.moves, move_rate(limits), now);
+    return spend(slot.shared, shared_rate(limits), now);
 }
 
 void dispatch_auth(SlotNow in, protocol::Frame frame, secure::ByteView body) {
@@ -1533,7 +1623,7 @@ void dispatch_game(SlotNow in, protocol::Frame frame, secure::ByteView body) {
 }
 
 void dispatch(SlotNow in, protocol::Frame frame, secure::ByteView body) {
-    if (!spend(in.slot, in.state.limits, in.now)) {
+    if (!admit(in.slot, in.state.limits, frame.kind, in.now)) {
         send_goodbye(in.state, in.slot, in.index, protocol::DisconnectReason::kKicked, Drop::kRate);
         return;
     }
@@ -1896,8 +1986,8 @@ Admit Table::admit(net::Ipv4 address, std::int64_t now, Door door) {
     slot.address = address;
     slot.born_ns = now;
     slot.seen_ns = now;
-    slot.credit_ns = now;
-    slot.credit = state_->limits.per_second * static_cast<std::int64_t>(kMilli);
+    slot.shared = full_bucket(shared_rate(state_->limits), now);
+    slot.moves = full_bucket(move_rate(state_->limits), now);
     slot.frame_at = 0;
     slot.out_from = 0;
     slot.out_at = 0;
@@ -1991,6 +2081,7 @@ void Table::advance(std::int64_t now) {
         if (now < due[index]) continue;
         clock_slot(*state_, TickAt{.index = index, .now = now});
     }
+    chase_all(*state_, now);
     const std::int64_t handshakes = std::exchange(state_->handshakes_since_tick, 0);
     metrics::Registry* const registry = state_->registry;
     if (registry == nullptr) return;

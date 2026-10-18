@@ -147,7 +147,10 @@ mới trong `gate.toml`) tính từ byte nhận cuối sau khi bắt tay xong. C
 trên mọi ô sống.
 
 Giới hạn tốc độ là thùng token, đơn vị một phần nghìn tin, nạp lại mỗi tick theo
-`messages_per_second`, trần bằng một giây tin. Hết token thì ngắt. `client_frame_bytes` là trần thân
+`messages_per_second`, trần bằng một giây tin. Hết token thì ngắt. `Move` có thùng riêng (H1-B): nạp
+`moves_per_second`, chứa `move_burst` Move (mặc định 25 và 320, đủ cho cả hạn idle 15 giây mạng đứng rồi xả dồn
+mà không đóng phiên người chơi thật; xả Move liên tục thì vẫn bị ngắt). Ràng buộc: `move_burst` ≥ nhịp Move của
+client (20 mỗi giây) × `idle_timeout_ms` / 1000. `client_frame_bytes` là trần thân
 khung; giá trị trên 4096 bị từ chối lúc khởi động vì protocol không nhận thân client lớn hơn thế.
 `Hello.version` phải nằm trong `[min_version, protocol::kVersion]`.
 

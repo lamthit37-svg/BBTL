@@ -1,5 +1,17 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/config/gate.hpp
+ *  PHÂN HỆ   : Server / Config / Gate
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ đọc gate.toml: khoá danh tính, cổng nghe, trần kết nối và lọc địa chỉ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Bộ đọc gate.toml: khoá danh tính, cổng nghe, trần kết nối và lọc địa chỉ.
 
 #include "config/issue.hpp"
 #include "config/types.hpp"
@@ -24,7 +36,14 @@ struct GateLimits {
     std::chrono::milliseconds idle_timeout_ms{0};
     std::int64_t client_frame_bytes = 0;
     std::int64_t messages_per_second = 0;
-    // Trần per_ip_connections tính theo dải /per_ip_prefix (32 = từng IP, 24 = cả dải /24). Tuỳ chọn.
+    // Bình chứa riêng cho Move (H1-B): nạp moves_per_second Move mỗi giây, chứa tối đa move_burst
+    // Move. Client thật gửi 20 Move mỗi giây. Ràng buộc: move_burst ≥ nhịp Move của client ×
+    // idle_timeout_ms (20 × 15 = 300, lấy 320), để mạng đứng chưa tới hạn idle không bị bình tin
+    // ngắt khi xả dồn. Tuỳ chọn.
+    std::int64_t moves_per_second = 25;
+    std::int64_t move_burst = 320;
+    // Trần per_ip_connections tính theo dải /per_ip_prefix (32 = từng IP, 24 = cả dải /24). Tuỳ
+    // chọn.
     std::int64_t per_ip_prefix = 32;
 };
 

@@ -1,6 +1,18 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/gate/table.hpp
+ *  PHÂN HỆ   : Server / Gate / Table
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng kết nối cấp một lần. Đường xử lý một tin không cấp phát thêm. Đồng hồ
+ *    là nano giây đơn điệu do bên gọi đưa, để test không phải ngủ.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
 #pragma once
-// Bảng kết nối cấp một lần. Đường xử lý một tin không cấp phát thêm.
-// Đồng hồ là nano giây đơn điệu do bên gọi đưa, để test không phải ngủ.
 
 #include "ipc/link.hpp"
 #include "net/net.hpp"
@@ -92,6 +104,11 @@ struct Limits {
     std::int64_t idle_ns = 0;
     std::size_t frame_bytes = 0;
     std::int64_t per_second = 0;
+    // Bình chứa riêng cho Move (gate.toml [limits] moves_per_second, move_burst): nạp
+    // move_per_second Move mỗi giây, chứa tối đa move_burst Move. Các tin khác dùng bình
+    // per_second.
+    std::int64_t move_per_second = 25;
+    std::int64_t move_burst = 320;
     std::uint16_t min_version = 1;
     // Rỗng (count = 0): mọi Hello.build đều được. Có phần tử: chỉ những số này.
     std::array<std::uint32_t, 32> allowed_builds{};

@@ -32,6 +32,7 @@
 #include "ui/panel/roles.hpp"
 #include "ui/panel/talk.hpp"
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <cmath>
@@ -525,17 +526,25 @@ void report_sends_moves_at_a_steady_pace(Context& context) {
     context.expect(fake.moves().size() == after, "vô cực không đi ra dây");
 }
 
-// Đếm Move mà guard::Pace của máy chủ không nhận. Đồng hồ máy chủ cho đi cùng tick client nên chỉ tick khai quyết định
+// Máy chủ làm chủ vị trí (guard::Pace, H1-B): đếm Move bị từ chối hoặc bắt đồng bộ lại, và đo độ trễ lớn nhất của
+// vị trí máy chủ so với chỗ client khai. Đồng hồ máy chủ cho đi cùng tick client nên chỉ tick khai quyết định
 // thời gian được tính cho mỗi bước.
-[[nodiscard]] std::size_t refused_by_pace(std::span<const protocol::Move> sent, guard::Anchor start) {
-    guard::Pace pace;
-    pace.reset(start, 0, 0);
+struct PaceRun {
     std::size_t refused = 0;
+    float worst_lag_cm = 0.0F;
+};
+
+[[nodiscard]] PaceRun run_pace(std::span<const protocol::Move> sent, guard::Anchor start) {
+    guard::Pace pace;
+    pace.reset(start, 0, 0, guard::kRunCmPerSec * 10.0F);
+    PaceRun run;
     for (const protocol::Move& move : sent) {
         const guard::Step step{.x_cm = move.x_cm, .z_cm = move.z_cm, .tick = move.tick};
-        if (pace.observe(step, move.tick) != guard::Verdict::kOk) ++refused;
+        if (pace.observe(step) != guard::Verdict::kOk) ++run.refused;
+        static_cast<void>(pace.advance(move.tick));
+        run.worst_lag_cm = std::max(run.worst_lag_cm, pace.lag_cm());
     }
-    return refused;
+    return run;
 }
 
 // Chạy đều ở tốc độ chạy với nhịp khung chừng 8 ms: không Move nào bị máy chủ kéo về. Hiệu tick giữa hai Move phải phủ
@@ -559,9 +568,10 @@ void running_moves_pass_the_pace(Context& context) {
     pump_for(bridge, notes, 150ms);
     const std::vector<protocol::Move> sent = fake.moves();
     context.expect(sent.size() >= 10, "đủ gói để đo");
-    const std::size_t refused = refused_by_pace(sent, guard::Anchor{.x_cm = 16500.0F, .z_cm = 16900.0F});
-    context.expect(refused == 0, "không Move nào bị guard::Pace từ chối khi chạy đều");
-    if (refused != 0) std::println("  {} trên {} Move bị từ chối", refused, sent.size());
+    const PaceRun run = run_pace(sent, guard::Anchor{.x_cm = 16500.0F, .z_cm = 16900.0F});
+    context.expect(run.refused == 0, "không Move nào bị guard::Pace từ chối khi chạy đều");
+    context.expect(run.worst_lag_cm < 60.0F, "vị trí máy chủ theo kịp người chạy đều");
+    if (run.refused != 0) std::println("  {} trên {} Move bị từ chối", run.refused, sent.size());
 }
 
 void pull_back_rebases_the_tick(Context& context) {

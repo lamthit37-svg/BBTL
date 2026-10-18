@@ -1,4 +1,18 @@
-// Vòng tick của gate: chờ I/O tới hạn tick, đọc có ngân sách, chạy đồng hồ, đẩy hộp gửi.
+/*==============================================================================
+ *  THIENLONG  |  GAME SERVER
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/server/gate/front.cpp
+ *  PHÂN HỆ   : Server / Gate / Front
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Vòng tick của gate: chờ I/O tới hạn tick, đọc có ngân sách, chạy đồng hồ,
+ *    đẩy hộp gửi.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "gate/front.hpp"
 
 #include "account/ipc_key.hpp"
@@ -142,6 +156,8 @@ void store_build(Limits& limits, const config::Gate& gate, std::size_t index) no
     limits.idle_ns = gate.limits.idle_timeout_ms.count() * kNsPerMs;
     limits.frame_bytes = static_cast<std::size_t>(gate.limits.client_frame_bytes);
     limits.per_second = gate.limits.messages_per_second;
+    limits.move_per_second = gate.limits.moves_per_second;
+    limits.move_burst = gate.limits.move_burst;
     limits.min_version = static_cast<std::uint16_t>(gate.client.min_version);
     const std::size_t builds = build_count(gate);
     limits.allowed_build_count = static_cast<std::uint8_t>(builds);

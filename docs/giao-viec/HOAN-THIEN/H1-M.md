@@ -10,8 +10,8 @@ Làn M (`thienlong-6a`, từ 2026-10-18 chiều `bd` tiếp quản), nền `77d4
 - **H1 phương án A** (quỹ quãng đường nạp ở tốc độ trần): KHÔNG ĐẠT điểm 1 (kiểm chéo K: quỹ 2 s đóng phiên người chơi thật
   khi mạng đứng từ 2,4 s). Đã thử cỡ quỹ 2, 5, 10, 15 s: không cỡ nào thoả cả hai (mục "Phương án A đã bỏ"). Bỏ, lưu ở
   `D:\THIENLONG-luu-tru\h1-phuong-an-a\`.
-- **H1 phương án B** (port ngữ nghĩa gốc: máy chủ làm chủ vị trí): điều phối `5f` chọn 2026-10-18. Làm sau G2-M, gói riêng
-  (mục "Phương án B, đã chọn"). HEAD không xấu đi trong lúc chờ (Pace vẫn là bản cũ).
+- **H1 phương án B** (port ngữ nghĩa gốc: máy chủ làm chủ vị trí): điều phối `5f` chọn 2026-10-18. ĐÃ LÀM trên cây tách
+  `.worktrees/h1b` (mục "Phương án B, đã làm"), chờ kiểm chéo `c5` rồi commit.
 
 ## Bằng chứng gốc (mã máy chủ 2008, `D:\TÀI LIỆU TLBB\tlbb_server\Server\GameServer\Server`)
 
@@ -87,40 +87,102 @@ tối đa của kẻ gian.
 Gấp 4 lần: đóng ở 0,15 s với mọi cỡ. Điều phối bác vì không có số trong gốc, quỹ lớn mở cú lao 49 m, quỹ nhỏ phạt oan. Bản vá,
 mô phỏng và README: `D:\THIENLONG-luu-tru\h1-phuong-an-a\`.
 
-## Phương án B, đã chọn 2026-10-18
+## Phương án B, đã làm (2026-10-18, cây tách `.worktrees/h1b`)
 
-Port ngữ nghĩa gốc: máy chủ làm chủ vị trí, không đóng phiên vì tốc độ. Làm sau G2-M, gói riêng, kiểm chéo `c5`.
+Port ngữ nghĩa gốc: máy chủ làm chủ vị trí, không đóng phiên vì tốc độ. Mọi phần không có trong gốc ghi `// Khác gốc:`.
 
-Thiết kế (mọi phần không có trong gốc ghi `// Khác gốc:`):
+### Thiết kế
 
-- `Pace::observe` thêm kết quả `kClamped`: Move vượt quỹ thì mốc chỉ dời tới chỗ quỹ cho phép, theo hướng về vị trí client; gate
-  relay vị trí đã cắt (`Pace::anchor()`) thay vì vị trí client. Không phạt, không đóng phiên. Quỹ nhỏ bằng
-  `DEF_SERVER_ADJUST_POS_WARP_DIST` = 500 cm, nạp ở 488 cm/s: đứng yên bao lâu rồi lao cũng chỉ nhảy tối đa 500 cm; chạy gấp
-  1,5 hay 2 lần bị bóp ở 488 cm/s.
-- Đứng mạng: không đóng. Sau gói dồn vị trí máy chủ trễ client `v·S − 500` cm và khép lại ở 488 cm/s khi client dừng (giống gốc:
-  máy chủ đi theo đường đã nhận). Ước tính theo mô hình (chưa dựng): S = 3 s trễ 895 cm, S = 10 s trễ 4150 cm.
-- Đồng bộ lại: client lệch khỏi mốc quá `465 cm/s × idle_timeout_ms` (người thật không thể lệch hơn vì kết nối đã đứt) thì gửi
-  Position kéo về, không phạt. Số này không phải ngưỡng gian lận (hack đã bị bóp) mà chỉ là chỗ cắt lệch tích luỹ.
-- Đường đi theo lưới đi được như `FindPath` của gốc: dùng kiểm đoạn của B19 cho tường. Chưa quyết: đuổi thẳng tới vị trí client
-  (đơn giản, quanh góc có thể chạm tường và bị hoàn bước) hay giữ hàng đợi các điểm client đã khai (mỗi đoạn đã qua kiểm đoạn)
-  rồi đi dọc chúng. Quyết khi đọc `Scene::moved` và đường relay; ghi vào mục này.
-- Bỏ nợ vi phạm (`speed_debt_`, `teleport_debt_`) và `kSpeed`/`kTeleport` nếu không còn ai dùng; `kRejected` giữ cho tick lùi
-  và số không hợp lệ.
-- Test: `guard_tests` viết lại theo `kClamped` (chỉ các ca có hợp đồng mới); không thêm ca logic ngoài đó.
+- `guard::Pace` (`src/server/guard/pace.*`): `Move` hợp lệ chỉ xếp một nút vào hàng đợi đường đi của ô (`kNodes` = 512). `advance` mỗi tick
+  máy chủ (30 Hz) đi dọc hàng đợi bằng quỹ quãng đường: nạp 465 × 1,05 cm/s (16,275 cm mỗi tick), trần `kBankCm` = 500 cm
+  (`DEF_SERVER_ADJUST_POS_WARP_DIST`). Mốc chỉ do Pace dời; không bao giờ lấy từ con số client khai. Kết quả: `kOk`, `kRejected`
+  (tick lùi, NaN, vô cực), `kResync` (hàng đợi dài hơn `resync_cm` hoặc đầy), `kNoAnchor`. Đã bỏ `kSpeed`, `kTeleport` và nợ vi phạm.
+- `gate::Motion` + `gate/table.cpp`: gọi `chase` ngay sau mỗi `Move` và mỗi nhịp của vòng gate cho các ô còn đường chờ
+  (`Engine::chasing`), để client dừng gửi thì máy chủ vẫn đi nốt phần đã nhận. Mỗi điểm đi qua (cách nhau tối thiểu 20 cm, tối đa
+  27 điểm một lần) báo `ipc::Moved` cho zone; kiểm đoạn B19 của zone giữ nguyên.
+- Quyết định chưa chốt ở bản thảo (đuổi thẳng hay hàng đợi): chọn hàng đợi. Gate không có lưới đi như `FindPath` của gốc, mà mọi
+  đoạn client đã đi nằm trên lưới đi của client; đi dọc đường đó thì không cắt góc qua tường, đuổi thẳng từ chỗ trễ vài mét thì có.
+- Hằng số nằm trong mã, không vào `rules/*.toml`: gốc không có cấu hình tương ứng (`DEF_SERVER_ADJUST_POS_WARP_DIST` là `#define`),
+  `default_move_speed` chưa xác lập đơn vị (`NGHI-NGO.md` 81). `resync_cm` suy từ `idle_timeout_ms`: 465 × 15 s = 6975 cm.
+- Bình chứa tin của `Move` riêng (khác gốc, `NGHI-NGO.md` 89): `gate.toml [limits] moves_per_second` = 25, `move_burst` = 320, thiếu khoá
+  thì dùng hai số đó. Lý do: bình chung 60 tin đóng phiên người chơi thật khi mạng đứng quá ~3 giây rồi xả dồn Move (đo trên cụm HEAD,
+  log "vượt số tin mỗi giây"). Gốc không đóng phiên vì nhịp tin (`Player::ProcessCommand`, `EXE_COUNT_PER_TICK` = 12, bộ đệm đầu vào
+  64 MB), nhưng gate không có bộ đệm không đáy nên vẫn ngắt khi xả liên tục. Ràng buộc (điều phối chốt): `move_burst` ≥ nhịp Move của
+  client × `idle_timeout_ms` / 1000, để mạng đứng chưa tới hạn idle không bị bình tin ngắt.
+- `idle_timeout_ms` nâng 10000 → 15000 (điều phối chốt 2026-10-18): đủ cho mạng đứng 10 giây có dư mà socket chết vẫn được giải phóng
+  nhanh. Khác gốc: gốc kick sau `KickUserTime` 300000 ms (`Player.cpp`), gate không có bộ đệm không đáy nên giữ ngắn.
+- Triển khai: `gate.toml` có hai khoá mới nên `thienlong_server` (giám sát), `thienlong_gate` và `thienlong_lint` phải dựng lại cùng lượt; giám sát
+  cũ từ chối "khoá lạ moves_per_second" và cụm không khởi động (đo 2026-10-18, `build/e2e/H1B/`).
+- Test giữ ở ca có hợp đồng: `guard_tests` 12 ca, `gate_motion_tests` 10 ca, `config_tests` thêm `gate_move_bucket_is_bounded`; `online_tests.cpp`
+  của làn K chỉ đổi chỗ gọi Pace (`run_pace`).
 
-E2E và tiêu chí đạt:
+### Mô phỏng (mã Pace thật, client chạy 4,65 m/s, Move 50 ms, chase 30 Hz)
 
-- Mô phỏng đứng mạng 1 đến 12 s: không đóng phiên, mọi Move được nhận hoặc cắt; bảng ghi vào mục này.
-- Đứng yên rồi dồn Move xa: mốc chỉ nhảy tối đa 500 cm.
-- Chạy gấp 1,5 và 2 lần: vị trí máy chủ bị bóp ở 488 cm/s (đo bằng bot quan sát thứ hai thấy `EntityPos` của bot gian lận).
-- `thienlong_bot --rush` không còn bị đá: thoát 0 khi bot quan sát thấy vị trí máy chủ của bot gian lận bị cắt; sửa `--rush` cho khớp
-  (bản cũ lưu trong `D:\THIENLONG-luu-tru\h1-phuong-an-a\bot-rush-leap.patch`).
-- Không phạt oan: `--count 4` đi vòng và đi thẳng như B19, `e2e_g0.py` 6/6.
+Đứng mạng S giây (client chạy 3 s trước, đi tiếp S + 3 s, rồi dừng):
 
-### Tồn đọng
+| S (s) | Kéo về | Từ chối | Lệch tối đa (cm) | Nhảy lúc dồn gói (cm) | Khép sau khi client dừng (s) |
+|---|---|---|---|---|---|
+| 1 | 0 | 0 | 480 | 488 | 0 |
+| 3 | 0 | 0 | 1410 | 500 | 1,73 |
+| 5 | 0 | 0 | 2340 | 500 | 3,63 |
+| 8 | 0 | 0 | 3728 | 500 | 6,47 |
+| 10 | 0 | 0 | 4658 | 500 | 8,42 |
+| 12 | 0 | 0 | 5588 | 500 | 10,32 |
+| 14 | 0 | 0 | 6518 | 500 | 12,22 |
+| 14,5 | 0 | 0 | 6750 | 500 | 12,68 |
+| 15 | 1 | 0 | 6983 | 0 | không (kéo về) |
 
-- Trần số mẫu của kiểm đoạn (kiểm chéo B19 của `c5`, không chặn): `Scene::clear_line` lấy số mẫu tỉ lệ độ dài đoạn đi (quãng chia
-  20 cm), và gate Pace chỉ chuyển tiếp nước đi `kOk`, nên sau một lúc đứng lâu, client khai một đoạn dài vẫn bị xét hết các mẫu.
-  Phương án B bóp quãng mỗi lần ở quỹ 500 cm nên tối đa 25 mẫu mỗi Move; ghi trần đó thành hằng khi làm B.
-- B1 (khung zone lớn hơn một bản ghi mật 4104 byte bị bỏ): gói riêng sau G2-M. Đã đo: chưa có tin thật nào vượt (`NGHI-NGO.md`
-  75).
+(`resync_cm` = 6975 cm cho idle 15 giây; bản idle 10 giây cho cùng cột nhưng kéo về từ S = 10.) Đứng yên S giây rồi một Move xa 3000 cm:
+nhảy 49 cm (S = 0,1), 488 cm (S = 1), 500 cm (S từ 5 tới 120). Client chạy gấp F lần trong 60 s:
+
+| F | Tốc độ máy chủ tối đa, cửa sổ 1 s (cm/s) | Kéo về lần đầu (s) | Số lần kéo về |
+|---|---|---|---|
+| 1,00 | 464,5 | không | 0 |
+| 1,05 | 487,7 | không | 0 |
+| 1,20 | 487,7 | không | 0 |
+| 1,50 | 487,7 | 33,22 | 1 |
+| 2,00 | 487,7 | 15,80 | 3 |
+| 4,00 | 487,7 | 5,12 | 11 |
+
+### E2E trên cụm thật (`build/e2e/H1B/`; `red` = HEAD v10; `final` = bản H1-B chốt: `idle_timeout_ms` 15000, `move_burst` 320)
+
+Cặp bot: bot gian lận (`thienlong_bot`) và bot quan sát (`--peers 1`) đọc `EntityPos` của nó. Kết luận lấy từ dòng in ra của bot, vì
+`Start-Process -PassThru` không trả mã thoát trên máy này. Cụm chạy `thienlong_gate`, `thienlong_server`, `thienlong_lint`, `thienlong_bot` dựng
+từ cây tách, `gate.toml` của cây tách; `final/gate-ngat.txt` là các lý do gate ngắt kết nối trong cả đợt.
+
+| Ca | HEAD v10 (đỏ) | H1-B chốt (xanh, `final/`) |
+|---|---|---|
+| `--stall 1`, `3`, `5`, `9` | `5`, `9` bị đóng phiên (bình 60 tin) | còn phiên, 0 lần kéo về, chỗ máy chủ cuối trùng chỗ client khai; quan sát 1 s: 700 / 712 / 495 / 494 cm/s |
+| `--stall 10`, `12`, `14` | không đo | còn phiên, 0 lần kéo về, chỗ máy chủ cuối trùng chỗ client khai; quan sát 495 / 495 / 503 cm/s (14 s xả 280 Move, dưới 320) |
+| `--stall 16` | không đo | bị đóng phiên bởi `idle_timeout_ms` = 15000 (log "im lặng quá hạn"), không do Pace hay bình tin |
+| `--flood 60` (thật 58 Move/s) | không đo | bị đóng ở 9,7 s, log "vượt số tin mỗi giây" (320 / (58 - 25) = 9,7 s) |
+| `--rush 150`, `200` | 150: máy chủ đi 592 cm/s, không bóp; 200: bị đóng phiên | còn phiên, máy chủ đi 502 và 495 cm/s (trần 560), 0 lần kéo về |
+| `--rush 400` | bị đóng phiên | còn phiên, máy chủ 494 cm/s, kéo về 9 lần (nguyên nhân chưa tách: hết hạn `resync_cm` hay zone kéo về do tường); chỗ máy chủ cuối (16416, 16882) cách chỗ client khai (16557, 17211) |
+| `--jump 8` (đứng 8 s rồi một Move 1500 cm) | bước nhảy 1499 cm một lần | bước lớn nhất 499 cm rồi đi dần tới đúng chỗ khai (15926, 18357) (`final2/`, chạy lại sau khi dữ liệu cảnh trở về) |
+| `--leap 1 --walk` (B19) | không đo | "tường bị đặt lại, thông được nhận", 1 lần kéo về (`final2/`) |
+
+- Quan sát 700 và 712 cm/s ở `--stall 1`, `3` cao hơn trần đi đều vì cửa sổ 1 giây chứa phần xả quỹ 500 cm; giới hạn lý thuyết của một cửa sổ là
+  quỹ 500 cm cộng 488 cm/s. Chưa tách được vì sao các ca 5 giây trở lên không lặp lại (giả thuyết: cú xả rơi giữa hai cửa sổ). Bước lớn nhất giữa
+  hai mẫu `EntityPos` là 306 cm (`--stall 1`) và 48 cm (các ca còn lại).
+- Cả đợt `final`: log cụm chỉ có đúng một dòng "im lặng quá hạn" (ca `stall16`) và một dòng "vượt số tin mỗi giây" (ca `flood60`).
+- `--flood` lần đầu (`green/flood60-*`, bot cũ) không hợp lệ: bot chỉ gửi ~32 Move/s (timer 15 ms của Windows), thấp hơn nhịp nạp 25 Move/s cộng
+  sức chứa nên chưa tới hạn. Sửa bot gửi theo đợt rồi chạy lại (`green2/`: 53 Move/s thật, 250 / (53 - 25) = 8,9 s khớp 8,7 s đo được).
+- Lượt chạy đầu với `gate.toml` mới hỏng vì cụm không khởi động: `thienlong_server` (v10) từ chối hai khoá mới (`green3/` toàn `lỗi=1`). Dựng và cài lại
+  `thienlong_server`, `thienlong_lint` cùng `thienlong_gate` rồi chạy lại (`final/`).
+- Không phạt oan (`final2/`): `--count 4 --seconds 8` 4 khách vào, thấy đủ nhau, 0 lần kéo về, 0 lệch; `--straight 1 --count 4` 675 lần kéo về do tường,
+  0 lệch; `e2e_g0.py` 6/6 ĐẠT (`talk` thoát 1 "chưa nhận được nhiệm vụ nào", như mốc B19, `e2e_g0.py` vẫn chấm ĐẠT theo bảng kỳ vọng của nó).
+- Lượt chốt đầu (`final/`) chạy `--jump`, `--leap` và `e2e_g0.py` đúng lúc `dev/server/scenes`, `dev/server/tables`, `dev/server/sql` của cây chính bị xoá
+  khỏi cây làm việc (4759 tệp ` D`, thư mục sửa lúc 12:50, không do H1-B; `5f` khôi phục bằng `git checkout --`): bot báo "không đọc được lưới
+  đi ... walk.path", `talk` và `fight` hỏng. Ba phép đó đã chạy lại (`final2/`) sau khi dữ liệu trở về và đều đạt. `final/` giữ làm bằng chứng của lượt hỏng.
+
+### Chưa kiểm và tồn đọng
+
+- Mạng đứng thật của client K (không giả bằng bot): chưa đo; hai số 25 và 320 suy từ nhịp 20 Move/s và hạn idle (`NGHI-NGO.md` 89).
+- Đứng mạng từ 15 s vẫn đóng phiên bởi `idle_timeout_ms`; muốn chịu lâu hơn thì đổi `gate.toml` (và `move_burst` theo ràng buộc), đánh đổi là hạn ngồi
+  không của kẻ giữ kết nối.
+- Vị trí máy chủ trễ client khi client còn chạy sau đứng mạng (`NGHI-NGO.md` 88); tốc độ cố định 488 cm/s, chưa theo ngựa hay buff (`NGHI-NGO.md` 87).
+- Giới hạn hàng đợi bước (`NGHI-NGO.md` 90).
+- Trần số mẫu của kiểm đoạn (kiểm chéo B19 của `c5`): nay tối đa 27 điểm mỗi lần `chase` nên mỗi `Moved` chỉ chứa quãng của quỹ, tối đa 25 mẫu tường.
+- `TOOLS/cfgtool/test_cfgtool.py` đỏ hai ca (`test_validator_matches_server_on_mutations`, `test_set_value_keeps_comment_and_alignment`) cả trên cây chính
+  chưa sửa: cfgtool chưa biết khoá `allowed_builds` của `[client]` (có từ trước H1-B). Ngoài phạm vi.
+- B1 (khung zone lớn hơn một bản ghi mật 4104 byte bị bỏ): gói riêng sau H1-B. Đã đo: chưa có tin thật nào vượt (`NGHI-NGO.md` 75).

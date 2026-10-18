@@ -19,7 +19,7 @@
 // Chạy: thienlong_bot --identity <identity.key> [--game 7100] [--auth 7101] [--count 4]
 //       [--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
 //       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>] [--roster 1] [--leap 1]
-//       [--probe 1] [--hud 1]
+//       [--probe 1] [--hud 1] [--rush <phần trăm>] [--stall <giây>] [--jump <giây>] [--cap <cm/s>]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --walk <walk.path>: tệp .path của cảnh vào (dev/server/scenes/<cảnh>/walk.path). --hunt, --talk,
 // --fight đi theo các điểm rẽ của luật đi client (nav::Field::plan_move, nhấp chuột tìm đường vòng
@@ -44,16 +44,26 @@
 // từng bước và thoát 1 nếu một bước sai mã mong đợi (G1-M): trần ba nhân vật (can_create), xoá id
 // của tài khoản khác, xoá lại id đã xoá, xoá nhân vật đang chơi qua kết nối thứ hai, xoá dồn dưới
 // 500 ms, xoá khi hết nhân vật.
-// --leap 1 (cần --walk): đứng yên 2,2 giây cho giới hạn từng bước của guard::Pace đủ dài, rồi gửi
-// một Move dài tới điểm đi được nằm sau tường (B19); zone phải đặt lại về chỗ cũ (Position). Sau đó
-// một Move cùng khoảng cách tới điểm thông phải được nhận, để biết việc đặt lại là do tường chứ
-// không do giới hạn quãng.
+// --leap 1 (cần --walk): đứng yên 1,1 giây cho quỹ quãng đường của guard::Pace đầy (500 cm), rồi
+// gửi một Move dài tới điểm đi được nằm sau tường (B19); zone phải đặt lại về chỗ cũ (Position).
+// Sau đó một Move cùng khoảng cách tới điểm thông phải được nhận, để biết việc đặt lại là do tường
+// chứ không do giới hạn quãng; máy chủ đi dần tới tường nên bot đọc thêm 2,5 giây sau mỗi Move.
 // --hud 1 (G2-M): vào cảnh rồi đối chiếu các tin của HUD với điều máy chủ phải gửi: SelfStats đủ
 // thuộc tính, SelfSkills đúng sáu chiêu DefaultChar [0, 1, 21, 22, 34, 35], WorldTime, BuffList của
 // mình, AskTarget (chính mình, thực thể khác, id lạ phải bị từ chối kNoSuchEntity, id 0 là bỏ
 // chọn), rồi ra chiêu 35 (打坐) lên chính mình để thấy một buff thật trong BuffList của mình và
 // trong bản của mục tiêu.
 // --seconds từ 155 trở lên thì đứng chờ thêm tới khi canh giờ đổi (một canh dài 150 giây).
+// --rush P (H1-B, cần --walk): chạy vòng tròn bán kính 200 cm ở P phần trăm tốc độ chạy (465 cm/s)
+// trong --seconds giây, mỗi 50 ms một Move như client thật. Máy chủ làm chủ vị trí nên bóp tốc độ
+// và kéo về khi lệch quá xa, không đóng phiên. Thoát 0 khi không bị đóng phiên. Chạy cùng một bot
+// --peers 1 --cap <cm/s> để thấy vị trí máy chủ của khách gian lận bị cắt.
+// --stall S (H1-B): chạy 3 giây bình thường, giữ lại các Move trong S giây như mạng đứng, gửi dồn
+// một lượt, chạy tiếp 3 giây rồi đứng. Thoát 0 khi không bị đóng phiên.
+// --jump S (H1-B, cần --walk): đứng yên S giây rồi gửi MỘT Move xa 1500 cm theo hướng thông; vị trí
+// máy chủ chỉ được nhảy tối đa quỹ rồi đi dần. Thoát 0 khi không bị đóng phiên.
+// --peers N --cap C (H1-B): bot quan sát; thoát 1 nếu một người chơi khác đi nhanh hơn C cm/s theo
+// EntityPos (đo cửa sổ 1 giây), hoặc không thấy ai đi. In bước nhảy lớn nhất giữa hai mẫu.
 
 #include "io/platform.hpp"
 #include "link/link.hpp"
@@ -123,6 +133,13 @@ struct Options {
     bool leap = false;
     // --hud 1: kiểm các tin của HUD (thuộc tính, sáu chiêu đầu, canh giờ, buff, AskTarget).
     bool hud = false;
+    // H1-B: --rush (phần trăm tốc độ chạy), --stall và --jump (giây), --flood (Move mỗi giây),
+    // --cap (cm/s); 0 là không dùng.
+    int rush = 0;
+    int stall = 0;
+    int jump = 0;
+    int flood = 0;
+    int cap = 0;
     // Điểm tới của --hunt, centimet.
     std::optional<std::pair<float, float>> hunt;
     // Điểm tới của --talk, centimet.
@@ -149,6 +166,11 @@ struct Tally {
     std::atomic<int> drifted{0};
     // Chỉ chế độ --leap: số khách mà bước xuyên tường bị đặt lại còn bước tới điểm thông được nhận.
     std::atomic<int> leaped{0};
+    // Chế độ --rush, --stall, --jump: khách không bị đóng phiên. Chế độ --peers: tốc độ nhanh nhất
+    // (cm/s) và bước nhảy lớn nhất (cm) của một người chơi khác theo EntityPos.
+    std::atomic<int> survived{0};
+    std::atomic<int> fastest_cm{0};
+    std::atomic<int> step_cm{0};
     // Chỉ chế độ --hunt: EntityPos của quái theo trạng thái, và khoảng gần nhất (cm) từ quái tới
     // khách.
     std::atomic<int> monster_walking{0};
@@ -241,7 +263,16 @@ struct Npc {
     float z_cm = 0.0F;
 };
 
+// Một mẫu vị trí của người chơi khác, theo lúc nhận (H1-B: đo tốc độ máy chủ cho người đó).
+struct Sample {
+    Clock::time_point at;
+    float x_cm = 0.0F;
+    float z_cm = 0.0F;
+};
+
 struct Seen {
+    // Các mẫu vị trí (EntityAppear, EntityPos) của từng người chơi khác, theo id thực thể.
+    std::unordered_map<std::uint32_t, std::vector<Sample>> tracks;
     // Loại của từng thực thể đã hiện, và chỗ khách đang đứng (để đo khoảng tới quái).
     std::unordered_map<std::uint32_t, protocol::EntityKind> kinds;
     // NPC chưa có cờ bấm được, và NPC đã có cờ bit 0 (bấm vào để nói chuyện).
@@ -285,6 +316,11 @@ void note_gap(Tally& tally, int gap) {
     }
 }
 
+void track_spot(Seen& seen, std::uint32_t id, float x_cm, float z_cm) {
+    const Sample sample{.at = Clock::now(), .x_cm = x_cm, .z_cm = z_cm};
+    seen.tracks[id].push_back(sample);
+}
+
 template <typename Place>
 void note_pos(const Place& moved, Seen& seen, Tally& tally) {
     ++tally.position;
@@ -295,6 +331,8 @@ void note_pos(const Place& moved, Seen& seen, Tally& tally) {
     }
     const auto kind = seen.kinds.find(moved.id);
     if (kind == seen.kinds.end()) return;
+    const bool is_player = kind->second == protocol::EntityKind::kPlayer;
+    if (is_player) track_spot(seen, moved.id, moved.x_cm, moved.z_cm);
     if (kind->second != protocol::EntityKind::kMonster) return;
     const bool walking = moved.state == protocol::EntityState::kWalk;
     if (walking) ++tally.monster_walking;
@@ -315,6 +353,14 @@ template <typename Held>
     return std::get_if<Held>(&message);
 }
 
+// Chỗ hiện ra của người chơi khác là mẫu đầu của đường theo dõi (H1-B).
+void track_appear(const protocol::GameServerMessage& message, Seen& seen) {
+    const auto* shown = held_in<protocol::EntityAppear>(message);
+    if (shown == nullptr) return;
+    if (shown->kind != protocol::EntityKind::kPlayer) return;
+    track_spot(seen, shown->id, shown->x_cm, shown->z_cm);
+}
+
 // Tin của HUD (G2-M): chỉ ghi lại, --hud tự đối chiếu.
 void note_hud(const protocol::GameServerMessage& message, Seen& seen) {
     if (const auto* one = held_in<protocol::SceneEnter>(message)) seen.self_id = one->self_id;
@@ -327,6 +373,7 @@ void note_hud(const protocol::GameServerMessage& message, Seen& seen) {
 
 void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) {
     note_hud(message, seen);
+    track_appear(message, seen);
     if (const auto* reject = std::get_if<protocol::Reject>(&message)) {
         std::println(stderr, "  server từ chối tin 0x{:04x}: mã {}", reject->request,
             static_cast<unsigned>(reject->code));
@@ -628,9 +675,13 @@ void stand(link::Link& line, Seen& seen, Tally& tally, int seconds) {
     }
 }
 
-// Chế độ --peers: đứng xem rồi thoát êm; phiên bị server đóng giữa chừng thì tính một lỗi.
+void report_peers(const Seen& seen, Tally& tally, std::string_view account);
+
+// Chế độ --peers: đứng xem rồi thoát êm; phiên bị server đóng giữa chừng thì tính một lỗi. In tốc
+// độ và bước nhảy của từng người chơi khác theo EntityPos (H1-B).
 void watch(link::Link& line, Seen& seen, Tally& tally, std::string_view account, int seconds) {
     stand(line, seen, tally, seconds);
+    report_peers(seen, tally, account);
     if (seen.refused) report(account, "bị server đóng giữa chừng");
     if (seen.refused) ++tally.failed;
     if (!seen.refused) static_cast<void>(send(line, protocol::Logout{}));
@@ -1006,7 +1057,8 @@ void fight(link::Link& line, Seen& seen, Tally& tally, const protocol::Position&
 
 // ---- Chế độ --leap: một Move dài xuyên tường (B19) ---------------------------------------------
 
-constexpr int kIdleMs = 2200;
+constexpr int kIdleMs = 1100;
+constexpr int kLeapReadMs = 2500;
 constexpr std::uint32_t kLeapTick = 70;
 constexpr float kLeapSampleCm = 20.0F;
 constexpr float kLeapSlackCm = 20.0F;
@@ -1069,8 +1121,8 @@ struct Leap {
     return Leap{.wall = *wall, .clear = *clear, .reach_cm = reach};
 }
 
-// Thử các khoảng 400, 600, 800 cm (dưới giới hạn của 2,2 giây đứng yên, khoảng 1000 cm) cho tới khi
-// có đủ cặp đích.
+// Thử các khoảng 400, 600, 800 cm cho tới khi có đủ cặp đích; máy chủ tới được trong chừng hai
+// giây (488 cm/s).
 [[nodiscard]] std::optional<Leap> pick_leap(const nav::Mesh& mesh, Goal from) {
     for (const float reach : {400.0F, 600.0F, 800.0F}) {
         const Leap leap = leap_on_ring(mesh, from, reach);
@@ -1087,14 +1139,15 @@ void drain_for(link::Link& line, Seen& seen, Tally& tally, std::chrono::millisec
     }
 }
 
-// Đứng yên kIdleMs cho giới hạn từng bước đủ dài, gửi một Move tới `target`, đọc thêm 700 ms. true
+// Đứng yên kIdleMs cho quỹ quãng đường đầy, gửi một Move tới `target`, đọc thêm kLeapReadMs để máy
+// chủ kịp đi tới tường (488 cm/s). true
 // khi bị đặt lại (nhận Position).
 [[nodiscard]] bool leap_pulled(link::Link& line, Seen& seen, Tally& tally, Goal target) {
     drain_for(line, seen, tally, std::chrono::milliseconds{kIdleMs});
     const int before = tally.corrections.load();
     const protocol::Move move{.x_cm = target.first, .z_cm = target.second, .tick = kLeapTick};
     if (!send(line, move)) return false;
-    drain_for(line, seen, tally, std::chrono::milliseconds{700});
+    drain_for(line, seen, tally, std::chrono::milliseconds{kLeapReadMs});
     return tally.corrections.load() > before;
 }
 
@@ -1115,6 +1168,284 @@ void run_leap(link::Link& line, Seen& seen, Tally& tally, std::string_view accou
     const std::string_view open_fate = is_clear_pulled ? "bị đặt lại" : "được nhận";
     const float reach = leap->reach_cm;
     std::println("[{}] leap {:.0f} cm: tường {}, thông {}", account, reach, wall_fate, open_fate);
+}
+
+// ---- Chế độ --rush, --stall, --jump: tốc độ và cú lao (H1-B) -----------------------------------
+
+// Bằng guard::kRunCmPerSec (bot không nối thư viện guard).
+constexpr float kRunCmPerSec = 465.0F;
+constexpr int kMoveMs = 50;
+constexpr float kRingCm = 200.0F;
+constexpr double kTicksPerSecond = 30.0;
+constexpr int kLeadSeconds = 3;
+constexpr int kSettleSeconds = 12;
+constexpr float kJumpCm = 1500.0F;
+
+// Đường chạy vòng tròn bán kính kRingCm từ điểm sinh: mỗi bước đi step_cm rồi rẽ cho vừa vòng.
+struct Lap {
+    Goal at;
+    float heading = 0.0F;
+    float step_cm = 0.0F;
+};
+
+// Kết quả một lượt chạy: Move đã gửi, quãng đã khai, và số lần máy chủ kéo về.
+struct Run {
+    int moves = 0;
+    float claimed_cm = 0.0F;
+    int pulled = 0;
+};
+
+// Khách đang chạy: kết nối, đường chạy, kết quả và gốc thời gian của tick.
+struct Racer {
+    link::Link* line = nullptr;
+    Seen* seen = nullptr;
+    Tally* tally = nullptr;
+    Lap lap;
+    Run run;
+    // Tick của Move gửi gần nhất và lúc tạo nó: tick kế = tick đó + thời gian trôi làm tròn lên,
+    // đúng cách client thật tính (session.cpp client_tick).
+    std::uint32_t tick = 0;
+    Clock::time_point tick_at;
+    // Số Move gửi liền nhau mỗi nhịp kMoveMs: 1 như client thật; --flood gửi nhiều để vượt nhịp
+    // mà timer hệ điều hành cho (khoảng 15 ms), vì ngủ ngắn hơn không đạt được.
+    int beat = 1;
+};
+
+[[nodiscard]] Racer make_racer(link::Link& line, Seen& seen, Tally& tally, float step_cm) {
+    Racer racer;
+    racer.line = &line;
+    racer.seen = &seen;
+    racer.tally = &tally;
+    racer.lap.at = Goal{seen.position->x_cm, seen.position->z_cm};
+    racer.lap.step_cm = step_cm;
+    racer.tick_at = Clock::now();
+    return racer;
+}
+
+// Move kế của vòng chạy; tick tính như client thật.
+[[nodiscard]] protocol::Move lap_move(Racer& racer) {
+    Lap& lap = racer.lap;
+    lap.heading += lap.step_cm / kRingCm;
+    lap.at.first += lap.step_cm * std::cos(lap.heading);
+    lap.at.second += lap.step_cm * std::sin(lap.heading);
+    const Clock::time_point now = Clock::now();
+    const std::chrono::duration<double> spent = now - racer.tick_at;
+    racer.tick += static_cast<std::uint32_t>(std::ceil(spent.count() * kTicksPerSecond));
+    racer.tick_at = now;
+    return protocol::Move{.x_cm = lap.at.first, .z_cm = lap.at.second, .tick = racer.tick};
+}
+
+// Đọc tin tới `end`. Position kéo về thì đặt lại chỗ khai như client thật.
+void read_until(Racer& racer, Clock::time_point end) {
+    while (Clock::now() < end) {
+        const auto message = read_game(*racer.line, net::Milliseconds{3});
+        if (!message) continue;
+        note(*message, *racer.seen, *racer.tally);
+        const auto* spot = std::get_if<protocol::Position>(&*message);
+        if (spot == nullptr) continue;
+        ++racer.run.pulled;
+        racer.lap.at = Goal{spot->x_cm, spot->z_cm};
+    }
+}
+
+// Gửi `beat` Move liền nhau. false khi gửi hỏng.
+[[nodiscard]] bool send_beat(Racer& racer) {
+    for (int at = 0; at < racer.beat; ++at) {
+        const protocol::Move move = lap_move(racer);
+        if (!send(*racer.line, move)) return false;
+        ++racer.run.moves;
+        racer.run.claimed_cm += racer.lap.step_cm;
+    }
+    return true;
+}
+
+// Chạy `seconds` giây, mỗi nhịp kMoveMs một đợt Move. false khi gửi hỏng hay phiên bị đóng.
+[[nodiscard]] bool run_for(Racer& racer, int seconds) {
+    const auto until = Clock::now() + std::chrono::seconds{seconds};
+    while (Clock::now() < until && !racer.seen->refused) {
+        if (!send_beat(racer)) return false;
+        read_until(racer, Clock::now() + std::chrono::milliseconds{kMoveMs});
+    }
+    return !racer.seen->refused;
+}
+
+// Mạng đứng: vẫn tạo Move đều đặn nhưng giữ lại `seconds` giây, rồi gửi dồn một lượt như TCP xả.
+[[nodiscard]] bool stall_for(Racer& racer, int seconds) {
+    std::vector<protocol::Move> held;
+    const auto until = Clock::now() + std::chrono::seconds{seconds};
+    while (Clock::now() < until) {
+        held.push_back(lap_move(racer));
+        std::this_thread::sleep_for(std::chrono::milliseconds{kMoveMs});
+    }
+    for (const protocol::Move& move : held)
+        if (!send(*racer.line, move)) return false;
+    racer.run.moves += static_cast<int>(held.size());
+    racer.run.claimed_cm += static_cast<float>(held.size()) * racer.lap.step_cm;
+    read_until(racer, Clock::now() + std::chrono::milliseconds{100});
+    return !racer.seen->refused;
+}
+
+void report_run(const Racer& racer, std::string_view account, std::string_view what,
+    bool is_alive) {
+    const Run& run = racer.run;
+    const Goal at = racer.lap.at;
+    const std::string_view fate = is_alive ? "còn phiên" : "bị đóng phiên";
+    std::println("[{}] {}: {} Move, khai {:.0f} cm", account, what, run.moves, run.claimed_cm);
+    std::println("[{}] {}: kéo về {} lần, {}", account, what, run.pulled, fate);
+    std::println("[{}] {}: chỗ khai cuối ({:.0f}, {:.0f})", account, what, at.first, at.second);
+    if (is_alive) ++racer.tally->survived;
+}
+
+[[nodiscard]] float step_of(int percent) {
+    const float share = static_cast<float>(percent) / 100.0F;
+    return share * kRunCmPerSec * static_cast<float>(kMoveMs) / 1000.0F;
+}
+
+// --rush: chạy vòng tròn ở `percent` phần trăm tốc độ chạy trong `seconds` giây rồi đứng cho máy
+// chủ khép lại. Không bị đóng phiên là đạt; vị trí máy chủ do bot --peers --cap đo.
+void run_rush(link::Link& line, Seen& seen, Tally& tally, std::string_view account, int percent,
+    int seconds) {
+    Racer racer = make_racer(line, seen, tally, step_of(percent));
+    const bool is_alive = run_for(racer, seconds);
+    if (is_alive) stand(line, seen, tally, kSettleSeconds);
+    report_run(racer, account, "rush", is_alive);
+}
+
+// --stall: chạy kLeadSeconds, đứng mạng `stall_s` giây (gửi dồn một lượt), chạy tiếp kLeadSeconds.
+void run_stall(link::Link& line, Seen& seen, Tally& tally, std::string_view account, int stall_s) {
+    Racer racer = make_racer(line, seen, tally, step_of(100));
+    bool is_alive = run_for(racer, kLeadSeconds);
+    is_alive = is_alive && stall_for(racer, stall_s);
+    is_alive = is_alive && run_for(racer, kLeadSeconds);
+    if (is_alive) stand(line, seen, tally, kSettleSeconds);
+    report_run(racer, account, "stall", is_alive);
+}
+
+// --flood: xả khoảng `rate` Move mỗi giây (client thật gửi 20), gửi theo đợt mỗi nhịp kMoveMs. Mỗi
+// Move khai một bước vừa để cả vòng chạy ở đúng tốc độ chạy, nên chỉ nhịp tin là bất thường. Đạt
+// khi gate ngắt phiên (Drop::kRate); in nhịp thật đã gửi tới lúc dừng.
+void run_flood(link::Link& line, Seen& seen, Tally& tally, std::string_view account, int rate,
+    int seconds) {
+    const float step_cm = kRunCmPerSec / static_cast<float>(rate);
+    Racer racer = make_racer(line, seen, tally, step_cm);
+    racer.beat = std::max(1, (rate * kMoveMs + 999) / 1000);
+    const Clock::time_point began = Clock::now();
+    const bool is_alive = run_for(racer, seconds);
+    const std::chrono::duration<double> spent = Clock::now() - began;
+    const double secs = spent.count();
+    const double sent = static_cast<double>(racer.run.moves) / secs;
+    std::println("[{}] flood: nhịp thật {:.0f} Move mỗi giây, {:.1f} giây", account, sent, secs);
+    report_run(racer, account, "flood", is_alive);
+}
+
+// Một chỗ cách `from` đúng `reach` cm mà zone cho đi thẳng tới không vướng gì (16 hướng thử).
+[[nodiscard]] std::optional<Goal> clear_spot(const nav::Mesh& mesh, Goal from, float reach) {
+    constexpr int kHeadings = 16;
+    for (int at = 0; at < kHeadings; ++at) {
+        const Goal spot = spot_at(from, reach, at, kHeadings);
+        if (zone_stands(mesh, spot) && !has_gap(mesh, from, spot)) return spot;
+    }
+    return std::nullopt;
+}
+
+// --jump: đứng yên `idle_s` giây rồi MỘT Move xa kJumpCm; máy chủ chỉ nhảy tối đa quỹ rồi đi dần.
+void run_jump(link::Link& line, Seen& seen, Tally& tally, std::string_view account, int idle_s) {
+    if (seen.field == nullptr) return report(account, "--jump cần --walk <walk.path>");
+    const Goal from{seen.position->x_cm, seen.position->z_cm};
+    const std::optional<Goal> spot = clear_spot(seen.field->mesh(), from, kJumpCm);
+    if (!spot) return report(account, "không thấy hướng thông 1500 cm quanh điểm sinh");
+    stand(line, seen, tally, idle_s);
+    const auto tick = static_cast<std::uint32_t>(static_cast<double>(idle_s) * kTicksPerSecond);
+    const protocol::Move move{.x_cm = spot->first, .z_cm = spot->second, .tick = tick};
+    if (!send(line, move)) return report(account, "gửi Move hỏng");
+    stand(line, seen, tally, kSettleSeconds);
+    const bool is_alive = !seen.refused;
+    if (is_alive) ++tally.survived;
+    const std::string_view fate = is_alive ? "còn phiên" : "bị đóng phiên";
+    std::println("[{}] jump: Move {:.0f} cm sau {} s đứng yên, {}", account, kJumpCm, idle_s, fate);
+}
+
+// ---- Bot quan sát (--peers): tốc độ và bước nhảy của người chơi khác theo EntityPos
+// --------------
+
+constexpr std::chrono::seconds kWindow{1};
+
+struct PeerRun {
+    std::size_t samples = 0;
+    float fastest_cm_s = 0.0F;
+    float step_cm = 0.0F;
+    float walked_cm = 0.0F;
+    Goal last;
+};
+
+[[nodiscard]] float hop_cm(const Sample& from, const Sample& to) {
+    return std::hypot(to.x_cm - from.x_cm, to.z_cm - from.z_cm);
+}
+
+[[nodiscard]] bool is_wide(std::span<const Sample> samples, std::size_t from, std::size_t at) {
+    return samples[at].at - samples[from].at >= kWindow;
+}
+
+// Mẫu muộn nhất cách mẫu `at` ít nhất một giây (hoặc `from` nếu chưa có).
+[[nodiscard]] std::size_t window_start(std::span<const Sample> samples, std::size_t from,
+    std::size_t at) {
+    while (from + 1 < at && is_wide(samples, from + 1, at))
+        ++from;
+    return from;
+}
+
+// Tốc độ (cm/s) trên cửa sổ từ mẫu `from` tới mẫu `at`: quãng đi cộng dồn chia thời gian.
+[[nodiscard]] float window_speed(std::span<const Sample> samples, std::span<const float> walked,
+    std::size_t from, std::size_t at) {
+    if (!is_wide(samples, from, at)) return 0.0F;
+    const std::chrono::duration<float> span = samples[at].at - samples[from].at;
+    return (walked[at] - walked[from]) / span.count();
+}
+
+[[nodiscard]] PeerRun measure(std::span<const Sample> samples) {
+    PeerRun out;
+    out.samples = samples.size();
+    if (samples.empty()) return out;
+    std::vector<float> walked(samples.size(), 0.0F);
+    std::size_t from = 0;
+    for (std::size_t at = 1; at < samples.size(); ++at) {
+        const float hop = hop_cm(samples[at - 1], samples[at]);
+        walked[at] = walked[at - 1] + hop;
+        out.step_cm = std::max(out.step_cm, hop);
+        from = window_start(samples, from, at);
+        const float speed = window_speed(samples, walked, from, at);
+        out.fastest_cm_s = std::max(out.fastest_cm_s, speed);
+    }
+    out.walked_cm = walked.back();
+    out.last = Goal{samples.back().x_cm, samples.back().z_cm};
+    return out;
+}
+
+void raise_max(std::atomic<int>& slot, float value) {
+    const int target = static_cast<int>(value);
+    int best = slot.load();
+    while (target > best && !slot.compare_exchange_weak(best, target)) {
+    }
+}
+
+void print_peer(std::string_view who, std::uint32_t id, const PeerRun& run) {
+    const float fast = run.fastest_cm_s;
+    const float step = run.step_cm;
+    const float walked = run.walked_cm;
+    std::println("[{}] peer {:#x}: mẫu {}, nhanh nhất {:.0f} cm/s", who, id, run.samples, fast);
+    std::println("[{}] peer {:#x}: bước lớn nhất {:.0f} cm, đi {:.0f} cm", who, id, step, walked);
+    const float last_x = run.last.first;
+    const float last_z = run.last.second;
+    std::println("[{}] peer {:#x}: chỗ cuối ({:.0f}, {:.0f})", who, id, last_x, last_z);
+}
+
+void report_peers(const Seen& seen, Tally& tally, std::string_view account) {
+    for (const auto& [id, samples] : seen.tracks) {
+        const PeerRun run = measure(samples);
+        print_peer(account, id, run);
+        raise_max(tally.fastest_cm, run.fastest_cm_s);
+        raise_max(tally.step_cm, run.step_cm);
+    }
 }
 
 // Nhân vật nam mới với lựa chọn nằm trong danh sách tạo được: mặt 100, tóc 5 (store.toml), ảnh chân
@@ -1180,6 +1511,12 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     const float share = static_cast<float>(index) / static_cast<float>(options.count);
     const float heading = 2.0F * std::numbers::pi_v<float> * share;
     if (options.leap) return run_leap(*line, seen, tally, account);
+    const int percent = options.rush;
+    if (percent > 0) return run_rush(*line, seen, tally, account, percent, options.seconds);
+    if (options.stall > 0) return run_stall(*line, seen, tally, account, options.stall);
+    if (options.jump > 0) return run_jump(*line, seen, tally, account, options.jump);
+    const int rate = options.flood;
+    if (rate > 0) return run_flood(*line, seen, tally, account, rate, options.seconds);
     if (options.hud) return hud(*line, seen, tally, options.seconds);
     bool walked = true;
     if (options.fight) {
@@ -1459,6 +1796,11 @@ void online_and_pace(Rig& rig, const Options& options, const secure::PublicKey& 
     if (key == "--hunt") return take_goal(options.hunt, value);
     if (key == "--talk") return take_goal(options.talk, value);
     if (key == "--fight") return take_goal(options.fight, value);
+    if (key == "--rush") return take_number(options.rush, value);
+    if (key == "--stall") return take_number(options.stall, value);
+    if (key == "--jump") return take_number(options.jump, value);
+    if (key == "--flood") return take_number(options.flood, value);
+    if (key == "--cap") return take_number(options.cap, value);
     if (key == "--prefix") options.prefix = value;
     if (key == "--straight") options.straight = value == "1";
     if (key == "--probe") options.probe = value == "1";
@@ -1518,11 +1860,20 @@ void online_and_pace(Rig& rig, const Options& options, const secure::PublicKey& 
     return 0;
 }
 
+// --cap: không người chơi khác nào đi nhanh hơn `cap` cm/s theo EntityPos, và đã thấy ai đó đi.
+[[nodiscard]] bool is_within_cap(int cap, const Tally& tally) {
+    if (cap == 0) return true;
+    const int fastest = tally.fastest_cm.load();
+    return fastest > 0 && fastest <= cap;
+}
+
 void print_usage() {
     std::println(stderr, "dùng: thienlong_bot --identity <khoá> [--game 7100] [--auth 7101]");
     std::println(stderr, "  [--count 4] [--seconds 6] [--prefix bot] [--straight 1] [--peers <n>]");
     std::println(stderr, "  [--probe 1] [--roster 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
     std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>] [--leap 1] [--hud 1]");
+    std::println(stderr, "  [--rush <phần trăm>] [--stall <giây>] [--jump <giây>] [--cap <cm/s>]");
+    std::println(stderr, "  [--flood <Move mỗi giây>]");
 }
 
 } // namespace
@@ -1563,8 +1914,17 @@ int main(int argc, char** argv) {
     if (tally.entered.load() != options->count) return 1;
     if (options->peers > 0) {
         const int seen_peers = tally.appear.load();
+        const int fastest = tally.fastest_cm.load();
+        const int step = tally.step_cm.load();
         std::println("đứng xem: thấy {} người chơi khác, cần {}", seen_peers, options->peers);
-        return seen_peers >= options->peers ? 0 : 1;
+        std::println("đứng xem: nhanh nhất {} cm/s, bước lớn nhất {} cm", fastest, step);
+        const bool is_seen = seen_peers >= options->peers;
+        return is_seen && is_within_cap(options->cap, tally) ? 0 : 1;
+    }
+    const bool is_cheat = options->rush > 0 || options->stall > 0 || options->jump > 0;
+    if (is_cheat) {
+        std::println("tốc độ: {} trên {} khách còn phiên", tally.survived.load(), options->count);
+        return tally.survived.load() == options->count ? 0 : 1;
     }
     if (options->fight) {
         std::println("chiến đấu: chiêu của mình={} sát thương={} quái chết={} vật rơi thấy={} đã nhặt={} kinh nghiệm +{}",

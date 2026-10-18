@@ -185,6 +185,8 @@ Bộ đọc: `config::read_gate (gate.cpp)`.
 | [limits] | `client_frame_bytes` | số nguyên; 1 – 2147483647; đơn vị byte | bắt buộc | Số byte tối đa của thân một tin từ client. | Giữ 4096 trừ khi protocol đổi. `4096` |
 | [limits] | `messages_per_second` | số nguyên; 1 – 2147483647 | bắt buộc | Số tin tối đa mỗi giây của một client; vượt thì ngắt. | 40–60. `60` |
 | [limits] | `per_ip_prefix` | số nguyên; 16 – 32 | tuỳ chọn (mặc định 32) | Gom trần per_ip_connections theo dải /N (32 = từng IP, 24 = cả dải /24). | 32 mặc định; 24 khi bị tấn công từ cả dải. `32` |
+| [limits] | `moves_per_second` | số nguyên; 1 – 2147483647 | tuỳ chọn (mặc định 25) | Nhịp nạp của bình chứa riêng cho Move (Move mỗi giây); các tin khác dùng messages_per_second. | Hơn nhịp Move của client thật (20 mỗi giây) chút ít. `25` |
+| [limits] | `move_burst` | số nguyên; 1 – 2147483647 | tuỳ chọn (mặc định 320) | Sức chứa của bình chứa Move; vượt thì ngắt. Chứa Move của một lần mạng đứng rồi xả dồn. | Không nhỏ hơn nhịp Move của client (20 mỗi giây) × idle_timeout_ms / 1000, tức 300 với 15 giây. `320` |
 | [client] | `min_version` | số nguyên; 1 – 2147483647 | bắt buộc | Phiên bản protocol thấp nhất được vào; thấp hơn bị từ chối. | Nâng khi phát hành client bắt buộc cập nhật. `1` |
 | [ip_filter] | `allow` | mảng dải CIDR IPv4 "a.b.c.d/n" | bắt buộc | Dải được nối; rỗng là mọi địa chỉ đều được nối. | Thường rỗng; dùng khi chỉ mở cho LAN/khu vực. `[]` |
 | [ip_filter] | `deny` | mảng dải CIDR IPv4 "a.b.c.d/n" | bắt buộc | Dải bị từ chối; xét trước allow. | Thêm dải đang tấn công. `[]` |

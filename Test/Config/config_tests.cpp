@@ -342,7 +342,7 @@ void real_gate(Context& context) {
     context.expect(is_listen, "khoá danh tính và cổng nghe");
     const config::GateLimits& limits = gate->limits;
     const bool is_limits = limits.max_connections == 2000 && limits.per_ip_connections == 8 &&
-        limits.handshake_timeout_ms.count() == 5000 && limits.idle_timeout_ms.count() == 10000 &&
+        limits.handshake_timeout_ms.count() == 5000 && limits.idle_timeout_ms.count() == 15000 &&
         limits.client_frame_bytes == 4096 && limits.messages_per_second == 60 && gate->client.min_version == 10;
     context.expect(is_limits, "trần chống lạm dụng");
     context.expect(gate->ip_filter.allow.empty() && gate->ip_filter.deny.empty(), "lọc địa chỉ");
@@ -487,6 +487,16 @@ void gate_resume_and_prefix_are_bounded(Context& context) {
     context.expect(!gate_ok_with(context, "bind_to_ip = true", "bind_to_ip = 1"), "bind_to_ip phải là bool");
 }
 
+// Bình chứa riêng cho Move (H1-B): hai khoá tuỳ chọn, giá trị gate.toml khớp mặc định, miền từ 1.
+void gate_move_bucket_is_bounded(Context& context) {
+    const std::optional gate = real(context, "gate.toml", config::read_gate);
+    if (!gate) return;
+    context.expect(gate->limits.moves_per_second == 25 && gate->limits.move_burst == 320, "bình Move trong gate.toml");
+    context.expect(gate_ok_with(context, "move_burst           = 320", "move_burst = 200"), "sức chứa 200 hợp lệ");
+    context.expect(!gate_ok_with(context, "move_burst           = 320", "move_burst = 0"), "sức chứa 0 bị từ chối");
+    context.expect(!gate_ok_with(context, "moves_per_second     = 25", "moves_per_second = 0"), "nhịp nạp 0 bị từ chối");
+}
+
 void real_admin(Context& context) {
     const std::optional admin = real(context, "admin.toml", config::read_admin);
     if (!admin) return;
@@ -549,6 +559,7 @@ constexpr std::array kCases{
     Case{.name = "real_store", .body = &real_store},
     Case{.name = "store_security_is_optional_and_bounded", .body = &store_security_is_optional_and_bounded},
     Case{.name = "gate_resume_and_prefix_are_bounded", .body = &gate_resume_and_prefix_are_bounded},
+    Case{.name = "gate_move_bucket_is_bounded", .body = &gate_move_bucket_is_bounded},
     Case{.name = "real_admin", .body = &real_admin},
     Case{.name = "secrets_shape", .body = &secrets_shape},
     Case{.name = "real_startup", .body = &real_startup},

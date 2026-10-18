@@ -25,14 +25,18 @@ auth = "127.0.0.1:7101"   # Cổng xác thực: đăng ký, đăng nhập lấy 
 # Trần chống lạm dụng
 #==================================================
 # Kết nối vượt trần bị từ chối hoặc bị ngắt.
+# idle_timeout_ms = 15000 chịu mạng đứng 10 giây có dư. Khác gốc: gốc kick sau KickUserTime = 300000 ms
+# (Player.cpp); gate không có bộ đệm không đáy nên giữ ngắn để socket chết được giải phóng sớm.
 [limits]
 max_connections      = 2000    # Tổng số kết nối client cùng lúc (số tạm)
 per_ip_connections   = 8       # Số kết nối cùng lúc từ một địa chỉ IP (số tạm)
 handshake_timeout_ms = 5000    # Hạn xong bắt tay bảo mật, mili giây; quá hạn thì ngắt (số tạm)
-idle_timeout_ms      = 10000   # Hạn im lặng sau bắt tay, mili giây; quá hạn thì ngắt (số tạm)
+idle_timeout_ms      = 15000   # Hạn im lặng sau bắt tay, mili giây; quá hạn thì ngắt (số tạm)
 client_frame_bytes   = 4096    # Số byte tối đa của thân một tin từ client
 per_ip_prefix        = 32      # Gom trần per_ip_connections theo dải /N (16 tới 32; 24 là cả dải /24)
-messages_per_second  = 60      # Số tin tối đa mỗi giây của một client; vượt thì ngắt (số tạm)
+messages_per_second  = 60      # Số tin tối đa mỗi giây của một client, trừ Move; vượt thì ngắt (số tạm)
+moves_per_second     = 25      # Nhịp nạp bình chứa Move, Move mỗi giây; client thật gửi 20 (tuỳ chọn)
+move_burst           = 320     # Sức chứa bình chứa Move; phải ≥ 20 × idle_timeout giây (tuỳ chọn)
 
 #==================================================
 # Bản client
