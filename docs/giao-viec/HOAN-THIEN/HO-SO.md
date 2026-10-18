@@ -521,22 +521,28 @@ Theo mục 0.1, chủ dự án yêu cầu "làm đồng bộ và chuẩn xác tu
 
 - `zh` và `en` có cùng 120 604 khoá, không trùng, không rỗng. `vi` có 120 643 khoá, thừa 39 khoá không có
   ở zh/en (ví dụ `BHKF_150323_198`, `DLJM_XML_46`).
-- 16 mục ở `en` và 16 mục ở `vi` vẫn nguyên chữ Hán giống `zh`.
-- Mã client có 104 dòng chuỗi chữ Hán ở 19 tệp (`npc_talk.cpp` 26, `maps.cpp` 22, `online.cpp` 12,
-  `servers.cpp` 11…).
+- Chữ Hán trong `en` và `vi`: con số 16 mục ghi lúc giao là sai. 43 đo lại và điều phối tái hiện
+  được: 0 giá trị giống `zh`, 0 giá trị còn chữ Hán ngoài thẻ `#{...}`. Có 164 giá trị chỉ còn chữ
+  Hán bên trong thẻ `#{...}`; đó là dữ liệu dẫn đường tới NPC, giữ nguyên.
+- 39 khoá thừa của `vi` đều có trong `StrDictionary` gốc và được `SelectServer.lua` cùng
+  `select_server.cpp` dùng, nên không có khoá mồ côi.
+- Mã client có 117 chuỗi chữ Hán viết cứng (literal ngoài comment) ở 19 tệp: `npc_talk.cpp` 27,
+  `maps.cpp` 22, `servers.cpp` 17, `online.cpp` 12… Lúc giao ghi 104 vì đếm theo dòng.
 - Thoại máy chủ có `dialogue.zh.txt` 3703 dòng và `dialogue.vi.txt` 3699 dòng, chưa có `dialogue.en.txt`.
 
 Việc:
 
 1. Cổng kiểm chạy trong ctest, đỏ khi:
    - ba bộ khoá lệch nhau;
-   - en hay vi còn chữ Hán (trừ thuật ngữ giữ nguyên trong glossary);
+   - en hay vi còn chữ Hán ngoài thẻ `#{...}`;
    - khoá mà mã, layout hay script dùng bị thiếu;
    - ba bản thoại máy chủ lệch khoá;
    - chuỗi Hán hiển thị viết cứng trong `src/client`, với danh sách nền chỉ được co lại.
+   Luật "khoá dùng mà thiếu" có danh sách nền chỉ được co lại cho layout (306 khoá) và script Lua
+   gốc (15 575 khoá): dịch một lúc 16 nghìn khoá là trái mục 0.1. Khoá mã C++ dùng (72) không vào
+   danh sách nền mà sửa hết trong I1, vì đó là mã của ta.
 2. Sửa chỗ lệch hiện có:
-   - 39 khoá: tìm nguồn trong client gốc; mồ côi thì bỏ kèm bằng chứng;
-   - 16 mục chưa dịch: dịch theo glossary;
+   - thêm 39 khoá vào `zh` (chữ gốc) và `en` (dịch theo glossary);
    - tạo `dialogue.en.txt`;
    - bù 4 dòng lệch của vi.
 3. Chuỗi cứng trong các tệp đợt này đã chạm chuyển sang khoá i18n.
@@ -581,6 +587,9 @@ Kiểm: cổng xanh (cài lỗi cố ý thấy đỏ), ctest đủ, ảnh bản 
    tự push. Trước khi push, điều phối đọc `git log origin/chuan-hoa..HEAD` ở một lệnh riêng; commit
    nào trong đó chưa kiểm trên HEAD thì kiểm xong mới push (hai lần 2026-10-18 lượt push hồ sơ kéo
    theo commit của làn chưa kiểm: `8030927b`, `81bb6785`, cả hai kiểm bù đạt).
+8. Configure mọi cây với `-DVCPKG_MANIFEST_INSTALL=OFF` (chốt 2026-10-18). Cây
+   `C:\dev\third_party\installed` dùng chung với Dragon; cài theo manifest gỡ gói của dự án kia.
+   Thiếu gói thì nhắn điều phối, không tự bật lại.
 
 ## 7. Lệnh kiểm thực E2E
 
