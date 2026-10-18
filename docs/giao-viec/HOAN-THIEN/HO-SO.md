@@ -1,6 +1,6 @@
 # Hồ sơ đợt hoàn thiện tính năng giao diện client và máy chủ (2026-10-18)
 
-Người điều phối: phiên `thienlong-f7`. Ba làn: `thienlong-14` (làn K, client), `thienlong-6a` (làn
+Người điều phối: phiên `thienlong-f7`, từ 2026-10-18 chiều là `thienlong-5f` (cùng memory; ba phiên làn mở lại, xem mục 4 và 9). Ba làn: `thienlong-14` (làn K, client), `thienlong-6a` (làn
 M, máy chủ) và `thienlong-1e` (làn N, nội dung: chuỗi nhiệm vụ, phụ bản, boss, sự kiện; thêm ngày
 2026-10-18). Commit nền: `c85f0491` trên `chuan-hoa`, đã push lên `origin`. Chỉ `thienlong-f7` sửa
 tệp này; làn nào cần đổi thì nhắn điều phối.
@@ -156,9 +156,9 @@ và đăng nhập phải bấm chuột, nên không chạy song song làm trọn
 
 | Làn | Phiên | Phần việc | Tệp được sửa |
 |---|---|---|---|
-| K | `thienlong-14` | Client: hoàn thiện cửa sổ (script gốc, hoặc panel C++ nếu tốt hơn theo mục 2), hàm game tầng B, kho dữ liệu, sự kiện, công cụ E2E phía client | `src/client/**`, `engine/**`, `Test/` các thư mục của client và engine, `TOOLS/run/**`, `TOOLS/port/**`, `TOOLS/content/**`, `dev/client/**`, `assets/**` (trừ `assets/logo.png`), `android/**`, `apple/**` |
-| M | `thienlong-6a` | Máy chủ và giao thức: tin mới, nối module, luật gốc, log kiểm, bot | `src/server/**` trừ phần của N, `src/shared/**` trừ catalog giao thức, `Test/` các thư mục của máy chủ và shared trừ phần của N, `TOOLS/server/**` trừ phần của N, `dev/server/**` (phần git theo dõi) trừ bảng nội dung, `cmake/server/**`, `docs/SERVER-*.md` trừ `SERVER-MISSION.md`, `docs/KE-HOACH-SERVER.md` |
-| N | `thienlong-1e` | Nội dung: NPC, hội thoại, chuỗi nhiệm vụ, phụ bản, boss, sự kiện, cả phần máy chủ lẫn cửa sổ client của nội dung | `src/server/mission/**`, `src/server/talk/**`, `src/server/ops/**`, module nội dung mới (phụ bản, sự kiện, boss) dưới `src/server/`, `Test/Mission`, `Test/Talk`, `Test/Ops`, `Test/Quest`, `TOOLS/server/lua_*.py`, `dialogue_*.py`, `newquest.py`, `quest_chains.py` và test của chúng, bảng nhiệm vụ, thoại và nội dung trong `dev/server/tables/**`, `docs/SERVER-MISSION.md`, `docs/NHIEM-VU-NGUON.md`; client: `src/client/face/ui/panel/npc_talk.*`, `quest_log.*` và tệp mới cho cửa sổ và hàm game của nội dung |
+| K | `thienlong-43` (trước là `thienlong-14`) | Client: hoàn thiện cửa sổ (script gốc, hoặc panel C++ nếu tốt hơn theo mục 2), hàm game tầng B, kho dữ liệu, sự kiện, công cụ E2E phía client | `src/client/**`, `engine/**`, `Test/` các thư mục của client và engine, `TOOLS/run/**`, `TOOLS/port/**`, `TOOLS/content/**`, `dev/client/**`, `assets/**` (trừ `assets/logo.png`), `android/**`, `apple/**` |
+| M | `thienlong-bd` (trước là `thienlong-6a`) | Máy chủ và giao thức: tin mới, nối module, luật gốc, log kiểm, bot | `src/server/**` trừ phần của N, `src/shared/**` trừ catalog giao thức, `Test/` các thư mục của máy chủ và shared trừ phần của N, `TOOLS/server/**` trừ phần của N, `dev/server/**` (phần git theo dõi) trừ bảng nội dung, `cmake/server/**`, `docs/SERVER-*.md` trừ `SERVER-MISSION.md`, `docs/KE-HOACH-SERVER.md` |
+| N | `thienlong-c5` (trước là `thienlong-1e`) | Nội dung: NPC, hội thoại, chuỗi nhiệm vụ, phụ bản, boss, sự kiện, cả phần máy chủ lẫn cửa sổ client của nội dung | `src/server/mission/**`, `src/server/talk/**`, `src/server/ops/**`, module nội dung mới (phụ bản, sự kiện, boss) dưới `src/server/`, `Test/Mission`, `Test/Talk`, `Test/Ops`, `Test/Quest`, `TOOLS/server/lua_*.py`, `dialogue_*.py`, `newquest.py`, `quest_chains.py` và test của chúng, bảng nhiệm vụ, thoại và nội dung trong `dev/server/tables/**`, `docs/SERVER-MISSION.md`, `docs/NHIEM-VU-NGUON.md`; client: `src/client/face/ui/panel/npc_talk.*`, `quest_log.*` và tệp mới cho cửa sổ và hàm game của nội dung |
 | Chung | cả ba | Theo luật khoá bên dưới | `CMakeLists.txt`, `cmake/*.cmake`, catalog giao thức `src/shared/protocol/catalog/*.tsv` cùng tệp sinh và `docs/PROTOCOL-TIN.md` (M và N), `docs/DU-AN.md`, `docs/TIEN-DO.md`, `docs/NGHI-NGO.md`, `docs/BAY-DA-BIET.md`, `AGENTS.md` |
 
 Làn N cần móc vào tệp của làn khác (ví dụ `src/server/play/**`, `src/server/zone/**` cho phụ bản,
@@ -569,6 +569,21 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 | G7 | chưa | chưa | |
 | G8 | chưa | chưa | |
 | G9 | chưa | chưa | |
+
+### Dừng và mở lại 2026-10-18
+
+Chủ dự án dừng ba làn để máy nghỉ, đóng phiên trước khi các làn kịp ghi bàn giao. Ổ D đầy (499 MB), nên cây build
+thừa (`msvc-release-dev*`, `msvc-release-r1`, `laneA`, `android-zc`, `android-pace`, `lane-*`, `i18n-vi`, `build` trong
+hai worktree) chuyển sang `E:\THIENLONG-build-cu` (không xoá). `main` fast-forward tới `chuan-hoa` `77d444a0` và push.
+Việc dở chưa kiểm của ba làn chụp ở nhánh `luu-tam/2026-10-18-viec-do` (`9c8da77a`, đã push); cây làm việc giữ nguyên:
+
+- K: SelectRole chạy script (`native_login.cpp`, `login_port.hpp`, khối đăng ký, `hud.cpp`, `bridge` kiểm phạm vi
+  portrait, `ui_flow_tests` bớt ba ca); E2E SelectRole chưa chạy.
+- M: H1 quỹ quãng đường KHÔNG ĐẠT điểm 1 (kiểm chéo 14: quỹ 2 s đóng phiên khi mạng đứng từ 2,4 s rồi dồn gói, Pace
+  cũ không đóng ở 1–10 s, quỹ 5 s chịu khoảng 3 s; mô phỏng ở `D:\THIENLONG-luu-tru\kiem-cheo\2026-10-18-h1\`); B19 ổn.
+- N: `quest/misdesc` và `quest_misdesc_tests`; các sửa clang-tidy sau lần dựng cuối chưa dựng lại.
+
+`CMakeLists.txt` trong cây chứa hunk của K (native_login) lẫn N (quest/misdesc): mỗi làn chỉ đưa hunk của mình vào index.
 
 | Gói N | Trạng thái | Ghi chú |
 |---|---|---|
