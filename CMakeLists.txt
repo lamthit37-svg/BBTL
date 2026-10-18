@@ -1647,13 +1647,13 @@ if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/mission
     target_compile_definitions(quest_tests PRIVATE
         GAME_CLIENT_DATA="${PROJECT_SOURCE_DIR}/dev/client/assets")
 endif()
-# Bảng, sách kỹ năng và hệ action của sách võ công; ca trên bảng thật chỉ dịch khi đã xuất đủ tám
 # Bộ đọc khối MisDesc; ca cuối quét cả Config/event của cây nguồn nên thiết bị không thấy cây nguồn bỏ qua.
 game_test(quest_misdesc game_quest game_io)
 if(NOT ANDROID AND TARGET quest_misdesc_tests)
     target_compile_definitions(quest_misdesc_tests PRIVATE
         GAME_EVENT_DIR="${PROJECT_SOURCE_DIR}/src/client/script/Config/event")
 endif()
+# Bảng, sách kỹ năng và hệ action của sách võ công; ca trên bảng thật chỉ dịch khi đã xuất đủ tám
 # bảng bằng export_config.py (bảy bảng, formation_levels.tsv là bảng mới nhất) và export_icons.py.
 game_test(skill game_skill game_io)
 if(NOT ANDROID AND EXISTS "${PROJECT_SOURCE_DIR}/dev/client/assets/Table/life_skill_levels.tsv"
