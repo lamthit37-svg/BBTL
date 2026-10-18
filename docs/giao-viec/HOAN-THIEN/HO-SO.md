@@ -62,6 +62,18 @@ Chỉ áp cho phần đang chạm trong việc đang làm; không mở đợt đ
    Một bảng ánh xạ duy nhất gốc → pinyin, giữ tên gốc để đối chiếu client gốc. Đổi ở công cụ chuyển đổi
    và ở mọi bảng, cảnh trỏ tới tệp đó, trong cùng commit. Ảnh trước và sau phải giống nhau. Làn K dựng công
    cụ và bảng ánh xạ ở lần đầu cần đổi (phiếu ngắn trước khi làm); chủ dự án chỉnh quy ước thì sửa ở đây.
+4. **Giọng dịch và bản dịch không thống nhất.** Chủ dự án nói (2026-10-18): "Dịch theo chuẩn
+   trong game kiểu như FPT ngày xưa nhé. đừng chỉ dịch là dịch ngang là xong", và "Tất cả những
+   bản dịch ko thống nhất lưu lại txt. hoặc tra cứu TLBB việt nam, ko thấy thì lưu lại tôi dịch
+   tay". Áp như sau:
+   - Cùng một chữ `zh` mà `vi` hay `en` dịch khác nhau là "không thống nhất", kể cả khi chỉ khác
+     chữ hoa.
+   - Tra tên dùng trong Thiên Long Bát Bộ bản Việt Nam. Thấy thì dùng tên đó và ghi nguồn (URL hay
+     tệp).
+   - Không thấy thì không tự chọn: giữ giá trị đang có ở HEAD và ghi vào `docs/DICH-TAY.txt` để chủ
+     dự án dịch tay.
+   - Chủ dự án dịch xong thì đưa vào `glossary.tsv` rồi áp cho mọi khoá. `glossary.tsv` chỉ giữ tên
+     đã có nguồn hoặc do chủ dự án chốt.
 
 ## 1. Hiện trạng
 
@@ -541,10 +553,16 @@ Việc:
    Luật "khoá dùng mà thiếu" có danh sách nền chỉ được co lại cho layout (306 khoá) và script Lua
    gốc (15 575 khoá): dịch một lúc 16 nghìn khoá là trái mục 0.1. Khoá mã C++ dùng (72) không vào
    danh sách nền mà sửa hết trong I1, vì đó là mã của ta.
+   Thêm luật (f): cùng chữ `zh` mà bản dịch khác nhau. Danh sách nền chỉ được co lại, sinh từ
+   số đo 2026-10-18: `vi` có 269 nhóm (202 nhóm chữ ngắn tới 8 ký tự), `en` có 80 nhóm.
 2. Sửa chỗ lệch hiện có:
    - thêm 39 khoá vào `zh` (chữ gốc) và `en` (dịch theo glossary);
    - tạo `dialogue.en.txt`;
-   - bù 4 dòng lệch của vi.
+   - bù 4 dòng lệch của vi;
+   - lập `docs/DICH-TAY.txt` theo mục 0.1 điểm 4. Mỗi nhóm không thống nhất là một dòng, xếp theo
+     số khoá giảm dần, các cột tách bằng tab: chữ `zh`, ngôn ngữ, các bản đang dùng kèm số khoá,
+     khoá ví dụ, kết quả tra bản Việt Nam (nguồn, hoặc "không thấy"), và cột trống cho chủ dự án.
+     Nhóm tra thấy nguồn thì áp luôn rồi gỡ khỏi danh sách nền (f).
 3. Chuỗi cứng trong các tệp đợt này đã chạm chuyển sang khoá i18n.
 
 Kiểm: cổng xanh (cài lỗi cố ý thấy đỏ), ctest đủ, ảnh bản `zh` và một bản dịch. Kiểm chéo: K.
