@@ -23,6 +23,7 @@
 #include "core/check.hpp"
 #include "look/appearance.hpp"
 #include "look/look.hpp"
+#include "look/sect.hpp"
 #include "look/skill.hpp"
 #include "look/weapon.hpp"
 #include "table/tsv.hpp"
@@ -658,12 +659,46 @@ void tsv_rules(Context& context) {
     context.expect(!table::parse_tsv("# chỉ chú thích\n").has_value(), "không có dòng tên cột");
 }
 
+// Hồi quy: 鬼谷 (môn 11) cầm gậy bằng Slot của locator 武器特效点, không có lưới gậy trong EntityList của
+// sect_models, nên người mẫu màn tạo nhân vật đứng tay không. sect_held trả khe để nối vào figure.held.
+void sect_held_rows(Context& context) {
+    constexpr std::string_view table =
+        "# chú thích\n"
+        "race\tsect\tobject\tmeshes\tbone\tx\ty\tz\tqx\tqy\tqz\tqw\ttranslate_first\n"
+        "0\t11\tgay.obj\tgay.mesh|dau.mesh\tBone_wuqi\t2.5\t-0.5\t-0.25\t-1\t0.5\t0.25\t-1.5\t1\n"
+        "1\t11\tgay.obj\tgay.mesh\tBip01_Prop1\t0\t0\t13.5\t-0.5\t-0.5\t-0.5\t-2\t0\n";
+    const auto female = look::sect_held(table, Race::kFemale, 11);
+    context.expect(female && female->has_value(), "nữ 11 có khe");
+    if (!female || !*female) return;
+    const look::Held& staff = **female;
+    context.expect(staff.object == "gay.obj" && staff.meshes.size() == 2, "mẫu và hai lưới");
+    context.expect(staff.locator.bone == "Bone_wuqi" && staff.locator.is_translate_first, "xương và cờ áp lệch");
+    context.expect(staff.locator.offset[0] == 2.5F && staff.locator.offset[2] == -0.25F, "vị trí lệch");
+    context.expect(staff.locator.axis[0] == -1.0F && staff.locator.angle == -1.5F, "trục và góc radian");
+    context.expect(staff.scale[0] == 1.0F && staff.hold == look::Hold::kRight, "tỉ lệ 1, khe phải");
+    const auto male = look::sect_held(table, Race::kMale, 11);
+    context.expect(male && male->has_value(), "nam 11 có khe");
+    if (!male || !*male) return;
+    context.expect((*male)->locator.bone == "Bip01_Prop1" && !(*male)->locator.is_translate_first, "nam theo xương khác");
+    context.expect((*male)->locator.offset[2] == 13.5F && (*male)->meshes.size() == 1, "nam: lệch và một lưới");
+    const auto bare = look::sect_held(table, Race::kFemale, 5);
+    context.expect(bare && !bare->has_value(), "môn không có dòng thì không gắn gì");
+    context.expect(!look::sect_held(table, Race::kFemale, look::kSectCount), "môn ngoài 0..14 là lỗi");
+    const std::string_view no_mesh = "race\tsect\tobject\tmeshes\tbone\tx\ty\tz\tqx\tqy\tqz\tqw\ttranslate_first\n"
+                                     "0\t11\tgay.obj\t\tBone_wuqi\t0\t0\t0\t1\t0\t0\t0\t1\n";
+    context.expect(!look::sect_held(no_mesh, Race::kFemale, 11), "dòng không có lưới là lỗi");
+    const std::string_view bad_cell = "race\tsect\tobject\tmeshes\tbone\tx\ty\tz\tqx\tqy\tqz\tqw\ttranslate_first\n"
+                                      "0\t11\tgay.obj\tgay.mesh\tBone_wuqi\tabc\t0\t0\t1\t0\t0\t0\t1\n";
+    context.expect(!look::sect_held(bad_cell, Race::kFemale, 11), "ô số hỏng là lỗi");
+}
+
 constexpr std::array kCases{
     Case{.name = "default_male", .body = &default_male},
     Case{.name = "fallbacks", .body = &fallbacks},
     Case{.name = "weapon_kind_picks_clips", .body = &weapon_kind_picks_clips},
     Case{.name = "weapon_kind_belongs_to_item", .body = &weapon_kind_belongs_to_item},
     Case{.name = "held_follows_slots", .body = &held_follows_slots},
+    Case{.name = "sect_held_rows", .body = &sect_held_rows},
     Case{.name = "weapon_table_rules", .body = &weapon_table_rules},
     Case{.name = "gem_effect_rules", .body = &gem_effect_rules},
     Case{.name = "held_carries_gem_effect", .body = &held_carries_gem_effect},

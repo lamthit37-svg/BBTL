@@ -2,7 +2,8 @@
 # lưới của bộ mặc định (mặt, tóc và phụ kiện tóc, áo, tay, giày), các tệp skeleton chứa clip của
 # anim_sets theo loại vũ khí đã chọn, mọi mặt và tóc chọn được lúc tạo nhân vật (creatable = 1, kèm
 # bản cao mô id + 10000 mà màn tạo dùng cho người mẫu), ba bộ đồ tân thủ của newbie_outfits.tsv,
-# 30 người mẫu xem trước môn phái của sect_models.tsv, lưới của mọi mẫu vũ khí trong objects.tsv (do
+# 30 người mẫu xem trước môn phái của sect_models.tsv cùng lưới đồ gắn khe của sect_held.tsv (do
+# export_sect_held.py sinh), lưới của mọi mẫu vũ khí trong objects.tsv (do
 # export_weapons.py sinh), tệp skeleton chứa clip đòn đánh và tuyệt chiêu của skill_clips.tsv (do export_skills.py
 # sinh), và ảnh mà GLB của chúng trỏ tới. Giữ nguyên bố cục tương đối
 # (Model/<tên>.glb, Material/<ảnh>.png) để URI ảnh trong GLB vẫn đúng. Chỉ chép, không đổi nội dung.
@@ -94,6 +95,21 @@ def add_sect_models(collector: Collector, table_dir: str) -> None:
                 collector.add_mesh(mesh)
 
 
+def add_sect_held(collector: Collector, table_dir: str) -> None:
+    """Lưới của đồ gắn khe trên người mẫu môn phái (鬼谷 cầm gậy bằng khe).
+
+    Thiếu sect_held.tsv là THIẾU, không bỏ qua: client đọc bảng này cùng sect_models.tsv, thiếu thì
+    cả màn tạo nhân vật mất người mẫu (player.cpp), nên lỗi phải hiện ở bước gom này."""
+    path = os.path.join(table_dir, "sect_held.tsv")
+    if not os.path.isfile(path):
+        collector.missing.append(("table", "sect_held.tsv (chạy export_sect_held.py)"))
+        return
+    for row in read_table(path):
+        for mesh in row["meshes"].split("|"):
+            if mesh:
+                collector.add_mesh(mesh)
+
+
 def add_weapons(collector: Collector, table_dir: str) -> None:
     """Lưới của mọi mẫu vũ khí (mọi khe) mà weapons.tsv dẫn tới; chưa có objects.tsv thì không gom gì."""
     path = os.path.join(table_dir, "objects.tsv")
@@ -135,6 +151,7 @@ def main() -> int:
         add_clips(collector, table_dir, body, weapons)
     add_creation_parts(collector, table_dir)
     add_sect_models(collector, table_dir)
+    add_sect_held(collector, table_dir)
     add_weapons(collector, table_dir)
     add_skill_clips(collector, table_dir)
     sizes = copy_files(collector)

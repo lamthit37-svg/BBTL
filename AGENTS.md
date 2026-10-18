@@ -396,7 +396,10 @@
   - Dữ liệu người chơi: `python TOOLS/content/export_look.py <_raw> <_glb> dev/client/assets` (bảng
     `Table/*.tsv` từ Config nhị phân của client; `faces.tsv`, `hairs.tsv` giữ mọi dòng theo thứ tự
     tệp gốc kèm `name`, `choice` cho màn tạo nhân vật), `export_config.py` (dòng dưới, cho
-    `newbie_outfits.tsv`), rồi `python TOOLS/content/collect_avatar.py <_raw> <_glb> dev/client/assets`
+    `newbie_outfits.tsv`), `python TOOLS/content/export_sect_held.py <_raw> dev/client/assets` (đồ gắn khe
+    của người mẫu môn phái, `Table/sect_held.tsv`: 鬼谷 cầm gậy bằng khe; sau `export_look.py`, trước
+    `collect_avatar.py`, thiếu bảng này thì `collect_avatar.py` báo THIẾU), rồi
+    `python TOOLS/content/collect_avatar.py <_raw> <_glb> dev/client/assets`
     (GLB và ảnh của bộ mặc định, mọi mặt, tóc, bộ đồ chọn được lúc tạo và 30 người mẫu xem trước
     môn phái của `Table/sect_models.tsv` do `export_look.py` sinh; danh sách
     `Table/avatar.files.tsv`; APK đóng theo danh sách đó). `Table/portraits.tsv` (ảnh chân dung kèm

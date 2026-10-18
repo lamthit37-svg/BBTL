@@ -98,14 +98,37 @@ struct Built {
     bool demo = false;
 };
 
-// Người mẫu môn phái: bảng sect_models, không vũ khí, fidget theo dòng mẫu.
-[[nodiscard]] core::Result<Built> sect_figure(const PlayerDesc& desc, std::uint8_t sect) {
-    const std::string path = (desc.data_root / "Table" / "sect_models.tsv").string();
+// Bảng Table/<name> của người mẫu môn phái; đọc không được là kNotFound kèm đường dẫn.
+[[nodiscard]] core::Result<std::string> sect_table(const PlayerDesc& desc, std::string_view name) {
+    const std::string path = (desc.data_root / "Table" / name).string();
     const auto text = read_table(path);
-    if (!text) return core::fail(core::ErrorCode::kNotFound, "không đọc được bảng người mẫu môn phái");
+    if (!text) return core::fail(core::ErrorCode::kNotFound, "bảng người mẫu môn phái", path);
+    return *text;
+}
+
+// Đồ gắn khe của người mẫu (sect_held.tsv): 鬼谷 cầm gậy bằng Slot của mẫu, không bằng lưới trong
+// bảng sect_models. Môn không có dòng thì không gắn gì.
+[[nodiscard]] core::Result<std::optional<look::Held>> sect_held(const PlayerDesc& desc,
+    std::uint8_t sect) {
+    const auto text = sect_table(desc, "sect_held.tsv");
+    if (!text) return std::unexpected(text.error());
+    auto held = look::sect_held(*text, desc.race, sect);
+    if (!held) return core::fail(core::ErrorCode::kCorrupt, "đồ gắn môn phái", held.error());
+    return std::move(*held);
+}
+
+// Người mẫu môn phái: bảng sect_models cùng đồ gắn khe của sect_held, không vũ khí trong tay theo
+// bộ hành động (weapon kNone), fidget theo dòng mẫu.
+[[nodiscard]] core::Result<Built> sect_figure(const PlayerDesc& desc, std::uint8_t sect) {
+    const auto text = sect_table(desc, "sect_models.tsv");
+    if (!text) return std::unexpected(text.error());
     auto figure = look::sect_figure(*text, desc.race, sect);
-    if (!figure) return core::fail(core::ErrorCode::kCorrupt, "không giải được người mẫu môn phái", figure.error());
-    return Built{.figure = std::move(figure->figure), .weapon = look::Weapon::kNone, .fidget = figure->has_fidget, .demo = true};
+    if (!figure) return core::fail(core::ErrorCode::kCorrupt, "người mẫu môn phái", figure.error());
+    auto held = sect_held(desc, sect);
+    if (!held) return std::unexpected(held.error());
+    if (*held) figure->figure.held.push_back(std::move(**held));
+    Built built{.figure = std::move(figure->figure), .fidget = figure->has_fidget, .demo = true};
+    return built;
 }
 
 // Khối đã chọn, không thì bộ mặc định của giới, rồi vũ khí đang cầm.

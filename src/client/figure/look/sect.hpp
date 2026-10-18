@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <expected>
+#include <optional>
 #include <string>
 #include <string_view>
 
@@ -27,6 +28,13 @@ struct SectFigure {
 
 // Dòng (race, sect) của bảng có chữ là text; O(số dòng). Lỗi là câu tiếng Việt: bảng sai dạng, môn
 // ngoài 0..14, không có dòng, hay dòng thiếu lưới.
-[[nodiscard]] std::expected<SectFigure, std::string> sect_figure(std::string_view text, Race race, std::uint8_t sect);
+[[nodiscard]] std::expected<SectFigure, std::string> sect_figure(std::string_view text, Race race,
+    std::uint8_t sect);
+
+// Đồ gắn khe của người mẫu (Table/sect_held.tsv do export_sect_held.py sinh): 鬼谷 cầm gậy bằng
+// Slot của locator 武器特效点, không bằng lưới trong EntityList của mẫu. Môn không có dòng thì
+// nullopt (không gắn gì); lỗi là câu tiếng Việt như sect_figure. Kết quả nối vào figure.held.
+[[nodiscard]] std::expected<std::optional<Held>, std::string> sect_held(std::string_view text,
+    Race race, std::uint8_t sect);
 
 } // namespace game::look
