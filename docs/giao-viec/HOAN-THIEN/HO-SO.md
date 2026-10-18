@@ -656,8 +656,8 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 | Gói | K | M | Ghi chú |
 |---|---|---|---|
 | G0 | đạt (`9adc2de5`, `d08b9b6e`) | đạt (`bba77680`) | Điều phối chạy lại trên HEAD 2026-10-18: bot 6/6 đạt; client tạo nhân vật, vào game, đi, bot quan sát thấy. Đã push |
-| G1 | đang làm; phần 1 đạt (`a9ab3e1a`: SceneTrans chạy script gốc, sửa Move đầu); phần 2 đạt (`8030927b`: host chạy ở màn đăng nhập, SoftKeyBoard chạy script gốc); `41f14873` nút duyệt thú chỉ với `--mount`; phần 3a đạt (`4762aaac`: client giao thức v9, nền script SelectRole); còn SelectRole chạy script | đạt (`81bb6785` D4 điểm sinh; `77be2269` D1–D3 xoá nhân vật bảy bước, v9 chân dung và bộ đồ) | Điều phối kiểm chuỗi trên HEAD `4762aaac`: `--roster` 14/14 mã đúng bảng D2; client v9 tạo nhân vật tài khoản mới và vào game; bot 6/6 (v9) |
-| G2 | đang làm; phần 1 đạt (`020df092`: tên, thanh máu, chữ bay vẽ dưới cửa sổ) | chưa | Điều phối kiểm `020df092`: ảnh 任务日志 mở che tên 赵天师, 都大爽 |
+| G1 | đang làm; phần 1 đạt (`a9ab3e1a`: SceneTrans chạy script gốc, sửa Move đầu); phần 2 đạt (`8030927b`: host chạy ở màn đăng nhập, SoftKeyBoard chạy script gốc); `41f14873` nút duyệt thú chỉ với `--mount`; phần 3a đạt (`4762aaac`: client giao thức v9, nền script SelectRole); phần 3b đạt (`f9bdfb39`: SelectRole và hộp thông báo đăng nhập chạy script gốc; E2E `g1-selectrole` v10 38/38); còn 3c gỡ panel C++ SelectRole | đạt (`81bb6785` D4 điểm sinh; `77be2269` D1–D3 xoá nhân vật bảy bước, v9 chân dung và bộ đồ) | Điều phối kiểm chuỗi trên HEAD `4762aaac`: `--roster` 14/14 mã đúng bảng D2; client v9 tạo nhân vật tài khoản mới và vào game; bot 6/6 (v9) |
+| G2 | đang làm; phần 1 đạt (`020df092`: tên, thanh máu, chữ bay vẽ dưới cửa sổ); MiniMap sai so với gốc, đang đọc mã máy | đạt (`f054e4d2`: giao thức v10, SelfStats, EntityVitals, AskTarget, BuffList, WorldTime) | Điều phối kiểm `020df092`: ảnh 任务日志 mở che tên 赵天师, 都大爽. Kiểm `f9bdfb39` trên HEAD: MSVC 0 cảnh báo, ctest 191/192 (server_data_lint đỏ sẵn ở worktree), APK android-arm64 0 cảnh báo; push `ef61a110` |
 | G3 | — | — | Làn N làm cả gói (N1) |
 | G4 | chưa | chưa | |
 | G5 | chưa | chưa | |
