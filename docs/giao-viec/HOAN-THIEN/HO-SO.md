@@ -34,6 +34,35 @@ biệt: không chiếm chuột (cấm `click_shot.py`, `probe_drag.py`), mọi l
 chạy nền, build 0 cảnh báo và đọc hết log (tìm `D9002`), `shape.js --diff .` sạch, khung đầu tệp qua
 `py -X utf8 TOOLS/source_headers/source_headers.py --fix <tệp>`, chữ người chơi thấy là `zh` (bản dựng mặc định).
 
+### 0.1 Luật chữ (chủ dự án chốt 2026-10-18)
+
+Nguyên văn: "làm tới đâu triển khai i18n Anh Trung Việt ngay lập tức. và ngôn ngữ trong server dùng để
+config hay các tsv trong sv chuyển hết về tiếng việt có dấu. những file models thì đổi hết toàn bộ sang
+chuẩn pinyin cho cả assets và tsv quản lý. tới đâu làm tới đó ko mở rộng 1 lúc".
+
+Chỉ áp cho phần đang chạm trong việc đang làm; không mở đợt đổi hàng loạt.
+
+1. **i18n ba thứ tiếng.** Chữ người chơi thấy của tính năng vừa làm phải có đủ khoá ở
+   `assets/i18n/zh.tsv`, `en.tsv`, `vi.tsv` trong cùng commit. Thuật ngữ theo `assets/i18n/glossary.tsv`
+   (thuật ngữ mới thì thêm vào đó trước). Không chữ cứng trong mã. Kiểm: ảnh bản `zh` và một bản dịch.
+2. **Máy chủ tiếng Việt có dấu.** Bảng TSV (`dev/server/tables/**`) hay tệp config (`dev/server/config/**`)
+   nào đang chạm thì header cột, khoá, chú thích và nhãn chuyển sang tiếng Việt có dấu. Bộ đọc, công cụ
+   sinh và test của bảng đó đổi trong cùng commit, để lượt xuất sau không đổi ngược. Một nguồn thuật ngữ:
+   thêm cột `vi` ở `TOOLS/server/column_terms.tsv`. Chữ người chơi thấy (thoại, tên vật phẩm) không dịch
+   tại chỗ mà đi qua i18n, giữ nguồn `zh` của gốc. Định danh trong mã C++ vẫn tiếng Anh; tên cột tiếng
+   Việt là chuỗi UTF-8.
+3. **Tên model sang pinyin.** Tệp model, khung xương, hoạt ảnh tên chữ Hán (31 900 trên 39 883 tệp ở
+   `dev/client/assets/Model`, đo 2026-10-18) đổi theo quy ước:
+   - Hanyu Pinyin không dấu thanh, chữ thường ASCII, ü viết `v`;
+   - âm tiết của một cụm chữ Hán viết liền (巨树 → `jushu`), giữ nguyên phần ASCII, số, dấu ngăn có sẵn
+     và đuôi tệp; cụm Hán dính liền chữ ASCII thì chèn `_`;
+   - chữ đa âm theo từ điển cụm từ của `pypinyin` (ghim phiên bản), sửa tay ở bảng ghi đè;
+   - trùng tên trong một thư mục thì thêm `_2`, `_3` theo thứ tự tên gốc.
+
+   Một bảng ánh xạ duy nhất gốc → pinyin, giữ tên gốc để đối chiếu client gốc. Đổi ở công cụ chuyển đổi
+   và ở mọi bảng, cảnh trỏ tới tệp đó, trong cùng commit. Ảnh trước và sau phải giống nhau. Làn K dựng công
+   cụ và bảng ánh xạ ở lần đầu cần đổi (phiếu ngắn trước khi làm); chủ dự án chỉnh quy ước thì sửa ở đây.
+
 ## 1. Hiện trạng
 
 ### Client
@@ -484,6 +513,35 @@ Mỗi gói N có phiếu `N<n>.md` như gói G. Tiêu chí đạt chung: kịch 
 tới thưởng (client thật cho phần có giao diện, bot cho phần lặp nhiều), mỗi bước có ảnh, dòng log
 mạng và dòng kiểm của máy chủ; số thưởng, giờ, giới hạn trùng script gốc (trích dòng). Kiểm chéo:
 M kiểm phần máy chủ, K kiểm phần client.
+
+### 5.13 Gói I1 — đồng bộ i18n (làn N, giao 2026-10-18)
+
+Theo mục 0.1, chủ dự án yêu cầu "làm đồng bộ và chuẩn xác tuyệt đối". Hiện trạng do điều phối đo
+2026-10-18:
+
+- `zh` và `en` có cùng 120 604 khoá, không trùng, không rỗng. `vi` có 120 643 khoá, thừa 39 khoá không có
+  ở zh/en (ví dụ `BHKF_150323_198`, `DLJM_XML_46`).
+- 16 mục ở `en` và 16 mục ở `vi` vẫn nguyên chữ Hán giống `zh`.
+- Mã client có 104 dòng chuỗi chữ Hán ở 19 tệp (`npc_talk.cpp` 26, `maps.cpp` 22, `online.cpp` 12,
+  `servers.cpp` 11…).
+- Thoại máy chủ có `dialogue.zh.txt` 3703 dòng và `dialogue.vi.txt` 3699 dòng, chưa có `dialogue.en.txt`.
+
+Việc:
+
+1. Cổng kiểm chạy trong ctest, đỏ khi:
+   - ba bộ khoá lệch nhau;
+   - en hay vi còn chữ Hán (trừ thuật ngữ giữ nguyên trong glossary);
+   - khoá mà mã, layout hay script dùng bị thiếu;
+   - ba bản thoại máy chủ lệch khoá;
+   - chuỗi Hán hiển thị viết cứng trong `src/client`, với danh sách nền chỉ được co lại.
+2. Sửa chỗ lệch hiện có:
+   - 39 khoá: tìm nguồn trong client gốc; mồ côi thì bỏ kèm bằng chứng;
+   - 16 mục chưa dịch: dịch theo glossary;
+   - tạo `dialogue.en.txt`;
+   - bù 4 dòng lệch của vi.
+3. Chuỗi cứng trong các tệp đợt này đã chạm chuyển sang khoá i18n.
+
+Kiểm: cổng xanh (cài lỗi cố ý thấy đỏ), ctest đủ, ảnh bản `zh` và một bản dịch. Kiểm chéo: K.
 
 ## 6. Quy trình một gói và kiểm chéo
 
