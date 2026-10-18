@@ -2027,7 +2027,7 @@ lua.7200a958  	  $N, ngọn gió nào đưa ngươi đến đây vậy? Làm huy
 lua.76d9c6a5  	Xa Đến Thương Mang Sơn
 ## 200094:-1  珍珑棋会
 lua.350a5616  	  Nghe danh đại hiệp $N đã lâu, hôm nay được gặp quả nhiên phong thái bất phàm, đúng là Trường Giang sóng sau xô sóng trước!
-lua.5e4dab7d  	Trân Lung Kỳ Hội
+lua.5e4dab7d  	Trân Long Kỳ Hội
 ## 200096:-1  一剑上天山
 lua.8e1b2e53  	Một Kiếm Lên Thiên Sơn
 lua.fc181bf8  	  Lý Thu Thuỷ, mấy hôm trước lão Tôn Chủ cứ nhắc mãi cái tên này. Nhưng rốt cuộc bà ấy là người thế nào, chúng ta cũng không rõ lắm.
@@ -2482,15 +2482,20 @@ lua.ff545706  	      Đã lâu không gặp ngươi, với thiên tư như ngư�
 lua.ffe8087e  	Giới thiệu gia nhập môn phái
 ## 400962:-1  obj/changbai/ochangbai_chargetransfer.lua
 lua.f3f92cca  	Lạc Dương
+## 401001:1
+lua.89386b13  	Trân Long Kỳ Cuộc [Thường]
+lua.8a0f62e4  	#GTrân Long Kỳ Cuộc [Nhanh]
 ## 402000:-1  obj/fuben/ofuben_1_zhenlong.lua
 lua.84e4d575  	  {0}, mau đến đây đi.␣
 ## 402001:-1  obj/fuben/ofuben_1_zhenlongRest.lua
-lua.2c43a5a4  	Giới thiệu Kỳ Cục
+lua.1dcae260  	Giới thiệu chế độ nhanh Kỳ Cuộc
+lua.2c43a5a4  	Giới thiệu Kỳ Cuộc
 lua.527c6f5c  	Rời phòng nghỉ
 lua.72242338  	Cách nhận thêm nhiều kinh nghiệm khi phá kỳ
+lua.a63d1bd1  	Trân Long Kỳ Cuộc
 ## 402001:11  obj/fuben/ofuben_1_zhenlongRest.lua
 lua.271e4b44  	Xác nhận
-lua.5dfd5bdd  	  Nếu đồng đội của ngươi đều đang ở phòng nghỉ mà ngươi một mình rời đi, họ sẽ vì thế không thể vào Kỳ Cục. Ngươi xác nhận muốn rời đi chứ?
+lua.5dfd5bdd  	  Nếu đồng đội của ngươi đều đang ở phòng nghỉ mà ngươi một mình rời đi, họ sẽ vì thế không thể vào Kỳ Cuộc. Ngươi xác nhận muốn rời đi chứ?
 lua.9cdb9be3  	Huỷ
 ## 402040:2
 lua.352b0900  	Hoành Tảo Mẫu Đơn Oản [Chế độ thường]
@@ -2536,7 +2541,6 @@ lua.0344935f  	Đại sư Dược Lý
 lua.81b68d33  	Đại sư Dưỡng Sinh Pháp
 ## 500000:8
 lua.7ab605a6  	Tào Vận Sứ Lạc Dương
-lua.a63d1bd1  	Trân Lung Kỳ Cục
 ## 500000:9
 lua.4fce9263  	Nguyệt Hạ Lão Nhân
 lua.e0324bdd  	Ta muốn kết hôn:
@@ -2667,7 +2671,7 @@ lua.ba84a3ae  	Đại sư câu cá
 lua.bdc686cf  	Ta muốn học kỹ năng sinh hoạt:
 ## 500020:6
 lua.043d4e4f  	Phó bản liên hoàn
-lua.08f4ecd7  	Kỳ Cục
+lua.08f4ecd7  	Kỳ Cuộc
 lua.584e32f1  	Hoa Sơn Luận Kiếm
 lua.cc9d1e75  	Nhiệm vụ trừng hung
 lua.f21cf547  	Tào Vận Sứ Tô Châu
@@ -2742,7 +2746,7 @@ lua.e62bcd39  	Hô Diên Báo
 lua.185112d7  	Ngô Giới
 lua.da7392a5  	Tổng bộ đầu Tô Châu Ngô Giới (224,226) ở Phong Kiều Nhai, ông đang tìm người giúp trừng trị hung đồ, có thể nhận được tàng bảo đồ đấy. Nhấn phím TAB, trên bản đồ sẽ hiện ký hiệu nhấp nháy.
 ## 500024:4
-lua.c3d5c1a8  	Sứ giả hoạt động Kỳ Cục Trương Dịch Quốc (267,243) ở trong Trạng Nguyên Trường. Nhấn phím TAB, trên bản đồ sẽ hiện ký hiệu nhấp nháy.
+lua.c3d5c1a8  	Sứ giả hoạt động Kỳ Cuộc Trương Dịch Quốc (267,243) ở trong Trạng Nguyên Trường. Nhấn phím TAB, trên bản đồ sẽ hiện ký hiệu nhấp nháy.
 lua.eabbf1fe  	Trương Dịch Quốc
 ## 500024:5
 lua.14939e70  	Tô Kiếm Lĩnh
@@ -3536,8 +3540,8 @@ lua.75b09f9f  	#YNhận nhiệm vụ: Một Nắm Cát Rời
 lua.179fef4f  	#YHoàn thành nhiệm vụ: Xa Đến Thương Mang Sơn
 lua.b132da0e  	#YNhận nhiệm vụ: Xa Đến Thương Mang Sơn
 ## quest:200094
-lua.290cf1d4  	#YNhận nhiệm vụ: Trân Lung Kỳ Hội
-lua.6f753d47  	#YHoàn thành nhiệm vụ: Trân Lung Kỳ Hội
+lua.290cf1d4  	#YNhận nhiệm vụ: Trân Long Kỳ Hội
+lua.6f753d47  	#YHoàn thành nhiệm vụ: Trân Long Kỳ Hội
 ## quest:200096
 lua.023b38e5  	#YHoàn thành nhiệm vụ: Một Kiếm Lên Thiên Sơn
 lua.e5d7a9a4  	#YNhận nhiệm vụ: Một Kiếm Lên Thiên Sơn

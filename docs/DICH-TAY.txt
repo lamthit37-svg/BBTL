@@ -1,0 +1,1264 @@
+# Bản dịch chưa thống nhất, chờ tra bản Việt Nam hoặc chủ dự án dịch tay (luật chữ, HO-SO mục 0.1 điểm 4).
+# Sinh bằng scratchpad của phiên 43 từ assets/i18n/{zh,en,vi}.tsv ngày 2026-10-18; cổng i18n (TOOLS/content/check_i18n.py,
+# phép f) giữ cùng danh sách trong TOOLS/content/i18n.baseline (các dòng "lệch"). Dịch xong một nhóm thì áp cho mọi khoá
+# của nhóm, gỡ dòng khỏi tệp này và khỏi danh sách nền (check_i18n.py --co-lai).
+# Cột, cách nhau một tab: zh | ngôn ngữ | các bản đang dùng (số khoá) | khoá ví dụ | kết quả tra bản VN | chủ dự án chốt (để trống)
+# Xếp theo số khoá giảm dần. Dòng chú thích bắt đầu bằng "# " (có dấu cách); dòng dữ liệu có chữ zh mở đầu bằng thẻ màu "#Y" thì vẫn là dữ liệu.
+# Đã tra ở đâu (2026-10-18): tìm kiếm web và các bài hướng dẫn BlueStacks của Thiên Long Bát Bộ VNG (mobile) và Thiên Long Bát Bộ 2 VNG;
+# trên máy không có client hay dữ liệu bản Việt Nam (đã quét F:/tài liệu tlbb, G:/XJL7457, D:/THIENLONG-luu-tru).
+# Vì sao không dùng được: không có trang nào liệt kê thuật ngữ bản PC, và chính các bài đó cũng lẫn (Ám Khí/Ám khí, tọa kỵ/thú cưỡi),
+# nên không có căn cứ chọn một bản. "không thấy nguồn" là chủ dự án dịch tay; giá trị đang dùng ở cột 3 vẫn là giá trị HEAD.
+时装	en	Outfit (4620) | Fashion (2)	table/equips/10124000/type_name, table/equips/10124001/type_name, table/equips/10124002/type_name	không thấy nguồn	
+坐骑	vi	Toạ Kỵ (4371) | Thú Cưỡi (3) | Toạ kỵ (1)	INTERFACE_XML_911, table/equips/10141000/type_name, table/equips/10141001/type_name	bản VNG mobile viết cả "tọa kỵ" lẫn "thú cưỡi" trong một bài (https://www.bluestacks.com/vi/blog/game-guides/thien-long-bat-bo-2-vng/tlbb-mounts-guide-vi.html); chưa có nguồn bản PC	
+手套	vi	Găng Tay (1641) | Bao tay (1)	INTERFACE_XML_652, table/equips/10112000/type_name, table/equips/10112001/type_name	bản VNG mobile viết "bao tay" (https://www.bluestacks.com/vi/blog/game-guides/thien-long-bat-bo-vng/tlbbv-tips-tricks-vi.html); chưa có nguồn bản PC	
+衣服	vi	Áo (1638) | Y Phục (1)	table/equips/10113000/type_name, table/equips/10113001/type_name, table/equips/10113002/type_name	bản VNG mobile viết "áo" (https://www.bluestacks.com/vi/blog/game-guides/thien-long-bat-bo-vng/tlbbv-tips-tricks-vi.html); không thấy "Y Phục"	
+护肩	en	Shoulder Guards (1262) | Shoulders (1) | Pauldrons (1)	INTERFACE_XML_328, table/equips/10115000/type_name, table/equips/10115001/type_name	không thấy nguồn	
+护肩	vi	Hộ Kiên (1263) | Hộ kiên (1)	INTERFACE_XML_328, table/equips/10115000/type_name, table/equips/10115001/type_name	không thấy nguồn	
+护腕	vi	Hộ Uyển (1262) | Hộ uyển (1)	INTERFACE_XML_329, table/equips/10114000/type_name, table/equips/10114001/type_name	không thấy nguồn	
+护符	en	Amulet (594) | Charm (1)	INTERFACE_XML_326, ZSZB_090211_14, table/equips/10123001/type_name	không thấy nguồn	
+护符	vi	Hộ Phù (593) | Hộ phù (2)	INTERFACE_XML_326, ZSZB_090211_14, table/equips/10123001/type_name	không thấy nguồn	
+腰带	vi	Đai Lưng (560) | Đai lưng (1)	INTERFACE_XML_813, table/equips/10121001/type_name, table/equips/10121002/type_name	không thấy nguồn	
+项链	vi	Dây Chuyền (495) | Dây chuyền (1)	INTERFACE_XML_756, table/equips/10120001/type_name, table/equips/10120002/type_name	bản VNG mobile viết "dây chuyền" (https://www.bluestacks.com/vi/blog/game-guides/thien-long-bat-bo-vng/tlbbv-tips-tricks-vi.html); chưa rõ hoa thường	
+打造图	en	Crafting Plan (252) | Crafting Patterns (1)	YBSD_081225_010, table/items/20308001/type_name, table/items/20308002/type_name	không thấy nguồn	
+打造图	vi	Bản vẽ chế tạo (252) | Đồ Phổ (1)	YBSD_081225_010, table/items/20308001/type_name, table/items/20308002/type_name	không thấy nguồn	
+烟花	vi	Pháo hoa (237) | Pháo Hoa (3)	table/items/30505005/type_name, table/items/30505006/type_name, table/items/30505007/type_name	không thấy nguồn	
+雕纹图样	vi	Đồ mẫu điêu văn (180) | Đồ Mẫu Điêu Văn (1)	table/items/30120001/type_name, table/items/30120002/type_name, table/items/30120003/type_name	không thấy nguồn	
+称号	vi	Danh hiệu (79) | Danh Hiệu (3)	INTERFACE_XML_173, CHYH_180523_2, table/campaign_items/39921340/type_name	không thấy nguồn	
+护体元丹	en	Body Guard Elixir (55) | Protective Core Pills (1)	ZSND_230428_112, table/items/38007119/type_name, table/items/38007120/type_name	không thấy nguồn	
+确定	vi	Xác nhận (53) | Đồng ý (1)	INTERFACE_XML_557, HYCT_20210629_24, INTERFACE_XML_1058	không thấy nguồn	
+动作包	vi	Gói động tác (42) | Gói Động Tác (1)	table/items/20800022/type_name, table/items/30103065/type_name, table/items/30103066/type_name	không thấy nguồn	
+制胜元丹	en	Victory Elixir (41) | Victory Core Pills (1)	ZSND_230428_111, table/items/38007167/type_name, table/items/38007168/type_name	không thấy nguồn	
+增益元丹	en	Buff Elixir (39) | Buff Core Pills (1)	ZSND_230428_113, table/items/38007101/type_name, table/items/38007102/type_name	không thấy nguồn	
+秘籍	en	Secret Manual (30) | Secret Manuals (1)	WLMJ_130121_54, table/items/30308002/type_name, table/items/30308003/type_name	không thấy nguồn	
+秘籍	vi	Bí Tịch (30) | Sách (1)	WLMJ_130121_54, table/items/30308002/type_name, table/items/30308003/type_name	không thấy nguồn	
+江湖盛名	en	Jianghu Fame (27) | Jianghu Renown (1)	table/campaign_items/39924312/type_name, table/campaign_items/39924313/type_name, table/campaign_items/39924314/type_name	không thấy nguồn	
+高级食材	vi	Nguyên liệu nấu cao cấp (24) | Nguyên Liệu Nấu Cao Cấp (1)	table/items/20102054/type_name, table/items/20102055/type_name, table/items/20102056/type_name	không thấy nguồn	
+庄园萌宠	en	Manor Pet (23) | Manor Pets (1)	JYGZ_171114_01, table/items/33010011/type_name, table/items/33011011/type_name	không thấy nguồn	
+废弃	en	Discard (20) | Obsolete (2)	RXLB_240709_03, RXLB_240709_04, RXLB_240709_06	không thấy nguồn	
+废弃	vi	Vứt bỏ (20) | Bỏ (2)	RXLB_240709_03, RXLB_240709_04, RXLB_240709_06	không thấy nguồn	
+武学阶位	vi	Võ học giai vị (21) | Võ Học Giai Vị (1)	table/campaign_items/39924465/type_name, table/campaign_items/39924468/type_name, table/campaign_items/39924469/type_name	không thấy nguồn	
+马鞍	vi	Yên ngựa (12) | Yên Ngựa (4)	table/items/30008006/type_name, table/items/30008114/type_name, table/items/30505215/type_name	không thấy nguồn	
+可用	vi	Có Thể Dùng (11) | Có thể dùng (2)	table/skills/4985/name, table/skills/4986/name, table/items/38006665/name	không thấy nguồn	
+前一页	en	Previous Page (10) | Previous (1)	YBSD_081225_078, INTERFACE_XML_499, BWDH_241114_178	không thấy nguồn	
+后一页	en	Next Page (10) | Next (1)	YBSD_081225_079, INTERFACE_XML_325, BWDH_241114_180	không thấy nguồn	
+元宝票	en	Ingot Voucher (7) | Ingot Note (3)	table/items/30501036/type_name, table/items/30503203/type_name, table/items/38005699/type_name	không thấy nguồn	
+龙纹玉灵	en	Dragon Pattern Jade Spirit (5) | Dragon Jade Spirit (5)	table/items/38002106/type_name, table/items/38002107/type_name, table/campaign_items/39921309/type_name	không thấy nguồn	
+龙纹	vi	Long Văn (9) | Long văn (1)	LW_KVK_XML_34, table/equips/10157001/type_name, table/equips/10157002/type_name	không thấy nguồn	
+加为好友	vi	Kết bạn (8) | Kết Bạn (1)	INTERFACE_XML_356, INTERFACE_XML_358, INTERFACE_XML_359	không thấy nguồn	
+无用	vi	Vô Dụng (7) | Vô dụng (2)	table/skills/4820/name, table/skills/6030/name, table/items/38008394/name	không thấy nguồn	
+暗器	vi	Ám Khí (8) | Ám khí (1)	FBSJ_081209_77, table/equips/10155001/type_name, table/equips/10155002/type_name	bản VNG 2 viết cả "Ám Khí" lẫn "Ám khí" trong một bài (https://www.bluestacks.com/vi/blog/game-guides/thien-long-bat-bo-2-vng/tlbbt-secret-weapon-system-guide-vi.html); không quyết được hoa thường	
+设为私聊	vi	Nói riêng (8) | Nói Riêng (1)	INTERFACE_XML_607, BHSDZ_150310_59, BWJH_181102_168	không thấy nguồn	
+武魂	vi	Võ Hồn (7) | Hồn (1)	WH_xml_XX(95), table/equips/10156001/type_name, table/equips/10156002/type_name	không thấy nguồn	
+打孔材料	vi	Nguyên liệu đục lỗ (6) | Nguyên Liệu Đục Lỗ (1)	table/items/20109014/type_name, table/items/20109015/type_name, table/items/20109101/type_name	không thấy nguồn	
+门派	vi	Môn phái (6) | Môn Phái (1)	INTERFACE_XML_448, BWJH_181102_161, DFSZ_190613_169	bản VNG mobile viết thường "môn phái" trong câu; không thấy dạng tiêu đề	
+射	en	Shoot (5) | Archery (1)	KSTS_131212_16, table/skills/3318/name, table/skills/3341/name	không thấy nguồn	
+缀梦灵石	en	Dream Spirit Stone (5) | Dreamweave Spirit Stone (1)	HWSJ_201218_05, table/items/38001595/name, table/items/38001599/name	không thấy nguồn	
+申请加队	vi	Xin vào đội (5) | Xin Đội (1)	INTERFACE_XML_FY_001, INTERFACE_XML_622, INTERFACE_XML_621	không thấy nguồn	
+子女时装	en	Children's Fashion (3) | Child Outfit (2)	table/campaign_items/39923908/type_name, table/campaign_items/39924949/type_name, table/campaign_items/39920536/name	không thấy nguồn	
+蒲扇	en	Palm Fan (3) | Cattail Fan (2)	table/equips/10404005/type_name, table/equips/10404007/type_name, table/items/38002025/name	không thấy nguồn	
+子女时装	vi	Thời Trang Con Cái (3) | Thời trang con cái (2)	table/campaign_items/39923908/type_name, table/campaign_items/39924949/type_name, table/campaign_items/39920536/name	không thấy nguồn	
+蒲扇	vi	Quạt Cói (3) | Bồ Phiến (2)	table/equips/10404005/type_name, table/equips/10404007/type_name, table/items/38002025/name	không thấy nguồn	
+还原	vi	Hoàn nguyên (4) | Khôi phục (1)	INTERFACE_XML_332, SZZH_170111_19, ZSHP_180814_30	không thấy nguồn	
+邀请加队	vi	Mời vào đội (4) | Mời Đội (1)	INTERFACE_XML_FY_002, INTERFACE_XML_815, INTERFACE_XML_814	không thấy nguồn	
+钥匙	vi	Chìa khoá (4) | Chìa Khoá (1)	table/items/20309009/type_name, table/items/20310193/type_name, table/items/38000348/type_name	không thấy nguồn	
+一	en	1 (2) | One (2)	SRDZ_XML_1, BQB_XML_5, table/skills/3189/name	không thấy nguồn	
+已废弃	en	Obsolete (3) | Discarded (1)	BWPH_180815_05, table/items/30103116/name, table/items/38008597/name	không thấy nguồn	
+恢复	en	Restore (3) | Recover (1)	INTERFACE_XML_1153, SZPSZY_160314_13, BSQKY_20110506_06	không thấy nguồn	
+桃花岛	en	Peach Blossom Island (3) | Taohuadao (1)	XQ_MP_15, scene/桃花岛, THDBN_190614_01	không thấy nguồn	
+武器	en	Weapon (3) | Weapons (1)	INTERFACE_XML_722, YBSD_081225_102, table/campaign_items/39921073/type_name	không thấy nguồn	
+治疗	en	Heal (3) | Healing (1)	SJYH_210426_28, table/skills/582/name, table/skills/688/name	không thấy nguồn	
+玄铁扇	en	Dark Iron Fan (2) | Black Iron Fan (2)	table/equips/10404009/type_name, table/equips/10404011/type_name, table/equips/10404009/name	không thấy nguồn	
+珍兽	en	Treasure Beast (3) | Pet (1)	INTERFACE_XML_854, JZSHYH_140214_18, ZSND_230428_121	không thấy nguồn	
+绝情谷	en	Heartless Valley (3) | Juequinggu (1)	XMPHM_210604_01, scene/绝情谷, TLCJ_20240709_178	không thấy nguồn	
+一	vi	1 (2) | Nhất (2)	SRDZ_XML_1, BQB_XML_5, table/skills/3189/name	không thấy nguồn	
+加速	vi	Tăng tốc (3) | Tăng Tốc (1)	table/skills/4998/name, table/skills/5292/name, table/skills/5692/name	không thấy nguồn	
+已废弃	vi	Đã Bỏ (3) | Đã vứt bỏ (1)	BWPH_180815_05, table/items/30103116/name, table/items/38008597/name	không thấy nguồn	
+恢复	vi	Khôi phục (3) | Hồi phục (1)	INTERFACE_XML_1153, SZPSZY_160314_13, BSQKY_20110506_06	không thấy nguồn	
+无	vi	Không (2) | Vô (2)	SFJN_130608_11, INTERFACE_XML_720, table/skills/3197/name	không thấy nguồn	
+武器	vi	Vũ khí (3) | Đao Búa Thương (1)	INTERFACE_XML_722, YBSD_081225_102, table/campaign_items/39921073/type_name	không thấy nguồn	
+永恒之爱	vi	Tình Yêu Vĩnh Cửu (3) | Tình yêu vĩnh cửu (1)	table/skills/192/name, table/items/30509142/name, table/items/38001174/name	không thấy nguồn	
+治疗	vi	Trị Liệu (3) | Trị liệu (1)	SJYH_210426_28, table/skills/582/name, table/skills/688/name	không thấy nguồn	
+珍兽	vi	Trân thú (2) | Thú (1) | Trân Thú (1)	INTERFACE_XML_854, JZSHYH_140214_18, ZSND_230428_121	không thấy nguồn	
+芭蕉扇	vi	Ba Tiêu Phiến (2) | Quạt Ba Tiêu (2)	table/equips/10404010/type_name, table/equips/10404012/type_name, table/equips/10404010/name	không thấy nguồn	
+回复	en	Reply (2) | Recovery (1)	INTERFACE_XML_336, FJYX_110426_39, table/campaign_items/39925014/name	không thấy nguồn	
+心诀残印	en	Heart Formula Fragment (2) | Mind Art Seal Remnant (1)	XDBS_200417_7, XZJC_200309_28, table/campaign_items/39922468/name	không thấy nguồn	
+恶人谷	en	Villains Valley (1) | Erengu (1) | Villains' Valley (1)	GMGameInterface_Script_DataPool_Info_ERenGu, scene/恶人谷, TFXC_20220921_85	không thấy nguồn	
+放入	en	Put In (2) | Place (1)	JYSL_160518_132, table/skills/6041/name, table/skills/6051/name	không thấy nguồn	
+普通粽子	en	Common Zongzi (2) | Plain Zongzi (1)	LZZZ_150526_46, table/items/38001260/name, table/campaign_items/39920582/name	không thấy nguồn	
+材料	en	Material (2) | Materials (1)	INTERFACE_XML_146, table/items/20700013/type_name, table/campaign_items/39920159/type_name	không thấy nguồn	
+珠罗宝匣	en	Pearl Gauze Treasure Case (2) | Pearl Treasure Casket (1)	RCLS_200731_34, table/items/38004878/name, table/campaign_items/39922737/name	không thấy nguồn	
+真·重楼肩	en	True · Chonglou Pauldrons (2) | True Chonglou Shoulders (1)	CLTX_241119_15, table/equips/10415056/name, table/campaign_items/39920577/name	không thấy nguồn	
+秘技	en	Secret Technique (2) | Secret Art (1)	XDBS_200417_9, XZJC_200309_09, table/campaign_items/39922470/name	không thấy nguồn	
+重楼肩	en	Chonglou Pauldrons (2) | Chonglou Shoulder (1)	CLTX_241119_07, table/equips/10415055/name, table/campaign_items/39921122/name	không thấy nguồn	
+镶嵌	en	Inlay (2) | Inlaying (1)	BSLCYH_130529_56, BHZB_140521_66, table/life_skills/3/name	không thấy nguồn	
+鬼谷	en	Ghost Valley (2) | Guigu (1)	XQ_MP_14, scene/鬼谷, XMPGG_160524_02	không thấy nguồn	
+召唤坐骑	vi	Gọi thú cưỡi (2) | Triệu hồi toạ kỵ (1)	ZQGZ_110512_02, table/skills/21/name, table/skills/54/name	không thấy nguồn	
+回复	vi	Trả lời (2) | Hồi Phục (1)	INTERFACE_XML_336, FJYX_110426_39, table/campaign_items/39925014/name	không thấy nguồn	
+巡逻令	vi	Lệnh Tuần Tra (2) | Lệnh tuần tra (1)	table/items/30000001/type_name, table/items/30000001/name, table/items/40004413/name	không thấy nguồn	
+帮助	vi	Giúp (1) | Trợ giúp (1) | Giúp đỡ (1)	INTERFACE_XML_135, =帮助, table/skills/3296/name	không thấy nguồn	
+心诀残印	vi	Tâm Quyết Tàn Ấn (2) | Tàn Ấn Tâm Quyết (1)	XDBS_200417_7, XZJC_200309_28, table/campaign_items/39922468/name	không thấy nguồn	
+擂响鼓	vi	Đánh Trống Vang (2) | Đánh trống vang (1)	table/skills/4740/name, table/items/38005616/name, table/campaign_items/39923687/name	không thấy nguồn	
+放入	vi	Bỏ vào (2) | Đặt vào (1)	JYSL_160518_132, table/skills/6041/name, table/skills/6051/name	không thấy nguồn	
+整理	vi	Sắp xếp (2) | Xếp (1)	INTERFACE_XML_861, JYYH_160520_22, BSSCK_251119_14	không thấy nguồn	
+普通粽子	vi	Bánh Ú Thường (2) | Bánh ú thường (1)	LZZZ_150526_46, table/items/38001260/name, table/campaign_items/39920582/name	không thấy nguồn	
+材料	vi	Nguyên liệu (2) | Vật Tư (1)	INTERFACE_XML_146, table/items/20700013/type_name, table/campaign_items/39920159/type_name	không thấy nguồn	
+江湖指南	vi	Giang hồ chỉ nam (1) | Chỉ nam Giang Hồ (1) | Chỉ Nam Giang Hồ (1)	INTERFACE_XML_198, table/items/30308021/type_name, table/items/30308021/name	không thấy nguồn	
+流云矢·发劲1级	vi	Lưu Vân Thỉ · Phát Kình Cấp 1 (2) | Lưu Vân Thỉ · Phát Kình cấp 1 (1)	table/skills/2046/name, table/items/30310097/name, table/items/30310106/name	không thấy nguồn	
+特级粽子	vi	Bánh Ú Đặc Cấp (2) | Bánh ú đặc cấp (1)	LZZZ_150526_49, table/items/38001262/name, table/campaign_items/39920586/name	không thấy nguồn	
+真·重楼带	vi	Chân · Trùng Lâu Đới (2) | Chân · Trùng Lâu Đái (1)	MDJH_250530_10, table/equips/10421094/name, table/equips/10421095/name	không thấy nguồn	
+真·重楼肩	vi	Chân · Trùng Lâu Kiên (2) | Chân - Trùng Lâu Kiên (1)	CLTX_241119_15, table/equips/10415056/name, table/campaign_items/39920577/name	không thấy nguồn	
+秘技	vi	Bí kỹ (2) | Bí Kỹ (1)	XDBS_200417_9, XZJC_200309_09, table/campaign_items/39922470/name	không thấy nguồn	
+精品粽子	vi	Bánh Ú Tinh Phẩm (2) | Bánh ú tinh phẩm (1)	LZZZ_150526_48, table/items/38001261/name, table/campaign_items/39920585/name	không thấy nguồn	
+重楼带	vi	Trùng Lâu Đới (2) | Trùng Lâu Đái (1)	MDJH_250530_9, table/equips/10421092/name, table/equips/10421093/name	không thấy nguồn	
+铁蒺藜	vi	Thiết Tật Lê (2) | Thiết tật lê (1)	table/skills/2911/name, table/items/38006730/name, table/items/40004692/name	không thấy nguồn	
+镶嵌	vi	Khảm (2) | Khảm Nạm (1)	BSLCYH_130529_56, BHZB_140521_66, table/life_skills/3/name	không thấy nguồn	
+门派召集令	vi	Lệnh Triệu Tập Môn Phái (2) | Lệnh triệu tập môn phái (1)	table/skills/75/name, table/items/30501001/name, table/items/30501002/name	không thấy nguồn	
+#cfff263关闭	en	#cfff263Off (1) | #cfff263Close (1)	BTMS_230609_02, BHYH_140808_69	không thấy nguồn	
+#cfff263升级经验：	en	#cfff263EXP to Level: (1) | #cfff263Upgrade EXP: (1)	XFXL_151203_05, TLCJ_20240709_233	không thấy nguồn	
+#gFF0FA0自动战斗设置	en	#gFF0FA0Auto Battle Settings (1) | #gFF0FA0Auto Combat Settings (1)	ZDZD_200724_09, QKH_20220802_20	không thấy nguồn	
+乐	en	Music (1) | Joy (1)	KSTS_131212_15, table/items/30505033/name	không thấy nguồn	
+信件	en	Mail (1) | Letter (1)	INTERFACE_XML_767, table/items/38000113/type_name	không thấy nguồn	
+养生法	en	Health Regimen (1) | Health Preservation (1)	INTERFACE_XML_812, table/life_skills/28/name	không thấy nguồn	
+取消跟随	en	Stop Following (1) | Cancel Follow (1)	INTERFACE_XML_543, INTERFACE_XML_544	không thấy nguồn	
+地载阵	en	Earth-Bearing Formation (1) | Earth-bearing Formation (1)	JBGXW_150526_140, table/skills/3251/name	không thấy nguồn	
+天覆阵	en	Heaven-Covering Formation (1) | Heaven Cover Formation (1)	JBGXW_150526_139, table/skills/3250/name	không thấy nguồn	
+子女技能-冰抗	en	Child Skill - Ice Resistance (1) | Child Skill - Ice Resist (1)	table/campaign_items/39920468/type_name, table/campaign_items/39920468/name	không thấy nguồn	
+子女技能-减冰抗	en	Child Skill - Reduce Ice Resistance (1) | Child Skill - Ice Resist Reduction (1)	table/campaign_items/39920472/type_name, table/campaign_items/39920472/name	không thấy nguồn	
+子女技能-减毒抗	en	Child Skill - Reduce Poison Resistance (1) | Child Skill - Poison Resist Reduction (1)	table/campaign_items/39920473/type_name, table/campaign_items/39920473/name	không thấy nguồn	
+子女技能-减火抗	en	Child Skill - Reduce Fire Resistance (1) | Child Skill - Fire Resist Reduction (1)	table/campaign_items/39920471/type_name, table/campaign_items/39920471/name	không thấy nguồn	
+子女技能-减玄抗	en	Child Skill - Reduce Mystic Resistance (1) | Child Skill - Mystic Resist Reduction (1)	table/campaign_items/39920474/type_name, table/campaign_items/39920474/name	không thấy nguồn	
+子女技能-毒抗	en	Child Skill - Poison Resistance (1) | Child Skill - Poison Resist (1)	table/campaign_items/39920469/type_name, table/campaign_items/39920469/name	không thấy nguồn	
+子女技能-火抗	en	Child Skill - Fire Resistance (1) | Child Skill - Fire Resist (1)	table/campaign_items/39920467/type_name, table/campaign_items/39920467/name	không thấy nguồn	
+子女技能-玄抗	en	Child Skill - Mystic Resistance (1) | Child Skill - Mystic Resist (1)	table/campaign_items/39920470/type_name, table/campaign_items/39920470/name	không thấy nguồn	
+师徒亲密度	en	Master-Apprentice Intimacy (1) | Mentor Intimacy (1)	STGZ_150514_05, table/campaign_items/39920814/name	không thấy nguồn	
+归元阵	en	Return-to-Origin Formation (1) | Return Formation (1)	JBGXW_150526_138, table/skills/3229/name	không thấy nguồn	
+我	en	Me (1) | I (1)	JFHD_180803_17, table/items/30505094/name	không thấy nguồn	
+投降书	en	Letter of Surrender (1) | Surrender Letter (1)	table/items/30501035/type_name, table/items/30501035/name	không thấy nguồn	
+拒绝加我好友	en	Refuse friend requests (1) | Reject friend requests (1)	INTERFACE_XML_391, LTQH_XML_48	không thấy nguồn	
+拒绝所有信件	en	Refuse all mail (1) | Reject all mail (1)	INTERFACE_XML_394, LTQH_XML_47	không thấy nguồn	
+排名奖励	en	Ranking Rewards (1) | Ranking Reward (1)	JMWH_251017_64, table/campaign_items/39920386/name	không thấy nguồn	
+搜索结果	en	Search Results (1) | Search results (1)	LTQH_XML_14, DLYHQF_12121316	không thấy nguồn	
+摆摊	en	Stall (1) | Set Up Stall (1)	INTERFACE_XML_122, INTERFACE_XML_123	không thấy nguồn	
+漕运路引	en	Canal Pass (1) | Canal Transport Pass (1)	table/items/30308020/type_name, table/items/30308020/name	không thấy nguồn	
+点击批量购买按钮后，用鼠标左键点击您要批量购买的道具，并输入所需数量点击确认后进行购买。	en	Click Bulk Buy, left-click the item you want, enter the quantity and confirm to purchase. (1) | Click Bulk Buy, left-click the item to bulk buy, enter the quantity, and click OK to purchase. (1)	FFSDGZ_120615_131, SDSD_150514_14	không thấy nguồn	
+烹饪	en	Cook (1) | Cooking (1)	GEJY_181027_06, table/life_skills/1/name	không thấy nguồn	
+珍品礼物	en	Rare Gifts (1) | Precious Gift (1)	TYLW_200616_09, table/campaign_items/39923510/name	không thấy nguồn	
+祭谷红包	en	Grain Offering Red Envelope (1) | Grain Rite Red Envelope (1)	CJHB_181207_41, table/items/38002634/name	không thấy nguồn	
+融合	en	Fuse (1) | Fusion (1)	SSXDW_140819_38, table/skills/1788/name	không thấy nguồn	
+资料	en	Profile (1) | Info (1)	CKZL_260821_01, INTERFACE_XML_882	không thấy nguồn	
+迎财红包	en	Welcoming Wealth Red Envelope (1) | Wealth Welcome Red Envelope (1)	CJHB_181207_44, table/items/38002637/name	không thấy nguồn	
+返券商店	en	Voucher Shop (1) | Rebate Shop (1)	YBFQ_XML_3, FQ_XML_08	không thấy nguồn	
+选中该按钮后每次购买商品都会弹出购买确认窗口，以保证您不会因为误操作而买错商品。	en	When checked, a confirmation window appears for every purchase so you never buy the wrong item by mistake. (1) | When checked, every purchase shows a confirmation so you don't buy the wrong item by mistake. (1)	YBSD_081225_053, MHSD_191203_59	không thấy nguồn	
+重楼·召	en	Chonglou: Summon (1) | Chonglou · Summon (1)	CLTX_241119_10, table/equips/10422155/name	không thấy nguồn	
+重楼·归	en	Chonglou: Homecoming (1) | Chonglou · Return (1)	CLTX_241119_12, table/equips/10423064/name	không thấy nguồn	
+重楼·返	en	Chonglou: Return (1) | Chonglou · Return Again (1)	CLTX_241119_11, table/equips/10420091/name	không thấy nguồn	
+风扬阵	en	Rising Wind Formation (1) | Wind Formation (1)	JBGXW_150526_141, table/skills/3252/name	không thấy nguồn	
+#cff0000贵重	vi	#cff0000Quý (1) | #cff0000Quý giá (1)	GDWPBH_090507_4, ZSWG_181211_108	không thấy nguồn	
+#cfff263关闭	vi	#cfff263Tắt (1) | #cfff263Đóng (1)	BTMS_230609_02, BHYH_140808_69	không thấy nguồn	
+#cfff263升级经验：	vi	#cfff263Kinh nghiệm lên cấp: (1) | #cfff263Kinh nghiệm thăng cấp: (1)	XFXL_151203_05, TLCJ_20240709_233	không thấy nguồn	
+一叶障目·观心1级	vi	Nhất Diệp Chướng Mục · Quan Tâm cấp 1 (1) | Nhất Diệp Chướng Mục · Quan Tâm Cấp 1 (1)	table/skills/2053/name, table/items/30310104/name	không thấy nguồn	
+一叶障目·魅惑1级	vi	Nhất Diệp Chướng Mục · Mị Hoặc cấp 1 (1) | Nhất Diệp Chướng Mục · Mị Hoặc Cấp 1 (1)	table/skills/2049/name, table/items/30310100/name	không thấy nguồn	
+一拍两散·缚水1级	vi	Nhất Phách Lưỡng Tán · Phược Thuỷ cấp 1 (1) | Nhất Phách Lưỡng Tán · Phược Thuỷ Cấp 1 (1)	table/skills/1954/name, table/items/30310005/name	không thấy nguồn	
+一拍两散·风行1级	vi	Nhất Phách Lưỡng Tán · Phong Hành cấp 1 (1) | Nhất Phách Lưỡng Tán · Phong Hành Cấp 1 (1)	table/skills/1958/name, table/items/30310009/name	không thấy nguồn	
+一日丧命散·明1级	vi	Nhất Nhật Táng Mệnh Tán · Minh cấp 1 (1) | Nhất Nhật Táng Mệnh Tán · Minh Cấp 1 (1)	table/skills/2003/name, table/items/30310054/name	không thấy nguồn	
+一日丧命散·盲1级	vi	Nhất Nhật Táng Mệnh Tán · Manh cấp 1 (1) | Nhất Nhật Táng Mệnh Tán · Manh Cấp 1 (1)	table/skills/1999/name, table/items/30310050/name	không thấy nguồn	
+一气三清·知1级	vi	Nhất Khí Tam Thanh · Tri cấp 1 (1) | Nhất Khí Tam Thanh · Tri Cấp 1 (1)	table/skills/2061/name, table/items/30310113/name	không thấy nguồn	
+一气三清·附1级	vi	Nhất Khí Tam Thanh · Phụ cấp 1 (1) | Nhất Khí Tam Thanh · Phụ Cấp 1 (1)	table/skills/2057/name, table/items/30310109/name	không thấy nguồn	
+七星聚首·失魂1级	vi	Thất Tinh Tụ Thủ · Thất Hồn cấp 1 (1) | Thất Tinh Tụ Thủ · Thất Hồn Cấp 1 (1)	table/skills/1980/name, table/items/30310031/name	không thấy nguồn	
+七星聚首·护体1级	vi	Thất Tinh Tụ Thủ · Hộ Thể cấp 1 (1) | Thất Tinh Tụ Thủ · Hộ Thể Cấp 1 (1)	table/skills/1984/name, table/items/30310035/name	không thấy nguồn	
+万箭齐发·知1级	vi	Vạn Tiễn Tề Phát · Tri cấp 1 (1) | Vạn Tiễn Tề Phát · Tri Cấp 1 (1)	table/skills/2054/name, table/items/30310105/name	không thấy nguồn	
+万箭齐发·附1级	vi	Vạn Tiễn Tề Phát · Phụ cấp 1 (1) | Vạn Tiễn Tề Phát · Phụ Cấp 1 (1)	table/skills/2050/name, table/items/30310101/name	không thấy nguồn	
+三阳开泰·知1级	vi	Tam Dương Khai Thái · Tri cấp 1 (1) | Tam Dương Khai Thái · Tri Cấp 1 (1)	table/skills/2010/name, table/items/30310061/name	không thấy nguồn	
+三阳开泰·附1级	vi	Tam Dương Khai Thái · Phụ cấp 1 (1) | Tam Dương Khai Thái · Phụ Cấp 1 (1)	table/skills/2006/name, table/items/30310057/name	không thấy nguồn	
+上一步	vi	Quay Lại (1) | Bước trước (1)	INTERFACE_XML_600, DLJM_XML_4	không thấy nguồn	
+个人	vi	Riêng (1) | Cá nhân (1)	INTERFACE_XML_280, BHXZ_081103_102	không thấy nguồn	
+中冲剑·护壁1级	vi	Trung Xung Kiếm · Hộ Bích cấp 1 (1) | Trung Xung Kiếm · Hộ Bích Cấp 1 (1)	table/skills/2009/name, table/items/30310060/name	không thấy nguồn	
+中冲剑·无助1级	vi	Trung Xung Kiếm · Vô Trợ cấp 1 (1) | Trung Xung Kiếm · Vô Trợ Cấp 1 (1)	table/skills/2005/name, table/items/30310056/name	không thấy nguồn	
+乐	vi	Nhạc (1) | Lạc (1)	KSTS_131212_15, table/items/30505033/name	không thấy nguồn	
+九天揽月·知1级	vi	Cửu Thiên Lãm Nguyệt · Tri cấp 1 (1) | Cửu Thiên Lãm Nguyệt · Tri Cấp 1 (1)	table/skills/2051/name, table/items/30310102/name	không thấy nguồn	
+九天揽月·附1级	vi	Cửu Thiên Lãm Nguyệt · Phụ cấp 1 (1) | Cửu Thiên Lãm Nguyệt · Phụ Cấp 1 (1)	table/skills/2047/name, table/items/30310098/name	không thấy nguồn	
+九阴神爪·知1级	vi	Cửu Âm Thần Trảo · Tri cấp 1 (1) | Cửu Âm Thần Trảo · Tri Cấp 1 (1)	table/skills/1992/name, table/items/30310043/name	không thấy nguồn	
+九阴神爪·附1级	vi	Cửu Âm Thần Trảo · Phụ cấp 1 (1) | Cửu Âm Thần Trảo · Phụ Cấp 1 (1)	table/skills/1988/name, table/items/30310039/name	không thấy nguồn	
+乾坤引·发劲1级	vi	Càn Khôn Dẫn · Phát Kình cấp 1 (1) | Càn Khôn Dẫn · Phát Kình Cấp 1 (1)	table/skills/2055/name, table/items/30310107/name	không thấy nguồn	
+人之可诛·知1级	vi	Nhân Chi Khả Tru · Tri cấp 1 (1) | Nhân Chi Khả Tru · Tri Cấp 1 (1)	table/skills/3833/name, table/items/30310122/name	không thấy nguồn	
+人之可诛·附1级	vi	Nhân Chi Khả Tru · Phụ cấp 1 (1) | Nhân Chi Khả Tru · Phụ Cấp 1 (1)	table/skills/3829/name, table/items/30310118/name	không thấy nguồn	
+人胜红包	vi	Hồng bao Nhân Thắng (1) | Lì Xì Nhân Thắng (1)	CJHB_181207_46, table/items/38002647/name	không thấy nguồn	
+仙人指路·知1级	vi	Tiên Nhân Chỉ Lộ · Tri cấp 1 (1) | Tiên Nhân Chỉ Lộ · Tri Cấp 1 (1)	table/skills/1982/name, table/items/30310033/name	không thấy nguồn	
+仙人指路·附1级	vi	Tiên Nhân Chỉ Lộ · Phụ cấp 1 (1) | Tiên Nhân Chỉ Lộ · Phụ Cấp 1 (1)	table/skills/1978/name, table/items/30310029/name	không thấy nguồn	
+伏虎拳·发劲1级	vi	Phục Hổ Quyền · Phát Kình cấp 1 (1) | Phục Hổ Quyền · Phát Kình Cấp 1 (1)	table/skills/1950/name, table/items/30310001/name	không thấy nguồn	
+体力增加，影响外功防御和血上限	vi	Thể lực tăng, ảnh hưởng ngoại công phòng ngự và giới hạn máu (1) | Tăng Thể lực ảnh hưởng tới phòng ngự ngoại công và giới hạn Máu (1)	INTERFACE_XML_686, INTERFACE_XML_688	không thấy nguồn	
+八卦掌·发劲1级	vi	Bát Quái Chưởng · Phát Kình cấp 1 (1) | Bát Quái Chưởng · Phát Kình Cấp 1 (1)	table/skills/1977/name, table/items/30310028/name	không thấy nguồn	
+八门金锁·固步1级	vi	Bát Môn Kim Toả · Cố Bộ cấp 1 (1) | Bát Môn Kim Toả · Cố Bộ Cấp 1 (1)	table/skills/2007/name, table/items/30310058/name	không thấy nguồn	
+八门金锁·破阵1级	vi	Bát Môn Kim Toả · Phá Trận cấp 1 (1) | Bát Môn Kim Toả · Phá Trận Cấp 1 (1)	table/skills/2011/name, table/items/30310062/name	không thấy nguồn	
+八阵图·调息1级	vi	Bát Trận Đồ · Điều Tức cấp 1 (1) | Bát Trận Đồ · Điều Tức Cấp 1 (1)	table/skills/2029/name, table/items/30310080/name	không thấy nguồn	
+八阵图·逆脉1级	vi	Bát Trận Đồ · Nghịch Mạch cấp 1 (1) | Bát Trận Đồ · Nghịch Mạch Cấp 1 (1)	table/skills/2025/name, table/items/30310076/name	không thấy nguồn	
+兰花点穴手·解1级	vi	Lan Hoa Điểm Huyệt Thủ · Giải cấp 1 (1) | Lan Hoa Điểm Huyệt Thủ · Giải Cấp 1 (1)	table/skills/2021/name, table/items/30310072/name	không thấy nguồn	
+兰花点穴手·锁1级	vi	Lan Hoa Điểm Huyệt Thủ · Toả cấp 1 (1) | Lan Hoa Điểm Huyệt Thủ · Toả Cấp 1 (1)	table/skills/2017/name, table/items/30310068/name	không thấy nguồn	
+凤舞九天·知1级	vi	Phượng Vũ Cửu Thiên · Tri cấp 1 (1) | Phượng Vũ Cửu Thiên · Tri Cấp 1 (1)	table/skills/2018/name, table/items/30310069/name	không thấy nguồn	
+凤舞九天·附1级	vi	Phượng Vũ Cửu Thiên · Phụ cấp 1 (1) | Phượng Vũ Cửu Thiên · Phụ Cấp 1 (1)	table/skills/2014/name, table/items/30310065/name	không thấy nguồn	
+刃击千里·发劲1级	vi	Nhận Kích Thiên Lý · Phát Kình cấp 1 (1) | Nhận Kích Thiên Lý · Phát Kình Cấp 1 (1)	table/skills/4560/name, table/items/30310125/name	không thấy nguồn	
+剜心镰·发劲1级	vi	Oan Tâm Liêm · Phát Kình cấp 1 (1) | Oan Tâm Liêm · Phát Kình Cấp 1 (1)	table/skills/4650/name, table/items/30310134/name	không thấy nguồn	
+力量增加，影响外功攻击	vi	Tăng Sức mạnh ảnh hưởng tới công kích ngoại công (1) | Lực lượng tăng, ảnh hưởng ngoại công tấn công (1)	INTERFACE_XML_430, INTERFACE_XML_431	không thấy nguồn	
+升级宝石	vi	Bảo thạch thăng cấp (1) | Bảo Thạch Thăng Cấp (1)	table/items/30900008/type_name, table/items/30900008/name	không thấy nguồn	
+去智去故·失魂1级	vi	Khứ Trí Khứ Cố · Thất Hồn cấp 1 (1) | Khứ Trí Khứ Cố · Thất Hồn Cấp 1 (1)	table/skills/3830/name, table/items/30310119/name	không thấy nguồn	
+去智去故·护体1级	vi	Khứ Trí Khứ Cố · Hộ Thể cấp 1 (1) | Khứ Trí Khứ Cố · Hộ Thể Cấp 1 (1)	table/skills/3834/name, table/items/30310123/name	không thấy nguồn	
+取消跟随	vi	Thôi Theo (1) | Huỷ đi theo (1)	INTERFACE_XML_543, INTERFACE_XML_544	không thấy nguồn	
+可接任务	vi	Nhận Được (1) | Nhiệm vụ có thể nhận (1)	INTERFACE_XML_407, RWZZ_090601_02	không thấy nguồn	
+同生共死·解1级	vi	Đồng Sinh Cộng Tử · Giải cấp 1 (1) | Đồng Sinh Cộng Tử · Giải Cấp 1 (1)	table/skills/2020/name, table/items/30310071/name	không thấy nguồn	
+同生共死·锁1级	vi	Đồng Sinh Cộng Tử · Toả cấp 1 (1) | Đồng Sinh Cộng Tử · Toả Cấp 1 (1)	table/skills/2016/name, table/items/30310067/name	không thấy nguồn	
+含笑半步癫·断1级	vi	Hàm Tiếu Bán Bộ Điên · Đoạn cấp 1 (1) | Hàm Tiếu Bán Bộ Điên · Đoạn Cấp 1 (1)	table/skills/1998/name, table/items/30310049/name	không thấy nguồn	
+含笑半步癫·解1级	vi	Hàm Tiếu Bán Bộ Điên · Giải cấp 1 (1) | Hàm Tiếu Bán Bộ Điên · Giải Cấp 1 (1)	table/skills/2002/name, table/items/30310053/name	không thấy nguồn	
+团圆红包	vi	Hồng bao Đoàn Viên (1) | Lì Xì Đoàn Viên (1)	CJHB_181207_38, table/items/38002631/name	không thấy nguồn	
+大力金刚掌·知1级	vi	Đại Lực Kim Cương Chưởng · Tri cấp 1 (1) | Đại Lực Kim Cương Chưởng · Tri Cấp 1 (1)	table/skills/1955/name, table/items/30310006/name	không thấy nguồn	
+大力金刚掌·附1级	vi	Đại Lực Kim Cương Chưởng · Phụ cấp 1 (1) | Đại Lực Kim Cương Chưởng · Phụ Cấp 1 (1)	table/skills/1951/name, table/items/30310002/name	không thấy nguồn	
+大金球脚链	vi	Lắc chân bóng vàng lớn (1) | Lắc Chân Bóng Vàng Lớn (1)	table/skills/5284/name, table/items/38007707/name	không thấy nguồn	
+天下无狗·知1级	vi	Thiên Hạ Vô Cẩu · Tri cấp 1 (1) | Thiên Hạ Vô Cẩu · Tri Cấp 1 (1)	table/skills/1973/name, table/items/30310024/name	không thấy nguồn	
+天下无狗·附1级	vi	Thiên Hạ Vô Cẩu · Phụ cấp 1 (1) | Thiên Hạ Vô Cẩu · Phụ Cấp 1 (1)	table/skills/1969/name, table/items/30310020/name	không thấy nguồn	
+天地同寿·意守1级	vi	Thiên Địa Đồng Thọ · Ý Thủ cấp 1 (1) | Thiên Địa Đồng Thọ · Ý Thủ Cấp 1 (1)	table/skills/2000/name, table/items/30310051/name	không thấy nguồn	
+天地同寿·重击1级	vi	Thiên Địa Đồng Thọ · Trọng Kích cấp 1 (1) | Thiên Địa Đồng Thọ · Trọng Kích Cấp 1 (1)	table/skills/1996/name, table/items/30310047/name	không thấy nguồn	
+天外飞仙·失魂1级	vi	Thiên Ngoại Phi Tiên · Thất Hồn cấp 1 (1) | Thiên Ngoại Phi Tiên · Thất Hồn Cấp 1 (1)	table/skills/1981/name, table/items/30310032/name	không thấy nguồn	
+天外飞仙·护体1级	vi	Thiên Ngoại Phi Tiên · Hộ Thể cấp 1 (1) | Thiên Ngoại Phi Tiên · Hộ Thể Cấp 1 (1)	table/skills/1985/name, table/items/30310036/name	không thấy nguồn	
+天马飞瀑·知1级	vi	Thiên Mã Phi Bộc · Tri cấp 1 (1) | Thiên Mã Phi Bộc · Tri Cấp 1 (1)	table/skills/1983/name, table/items/30310034/name	không thấy nguồn	
+天马飞瀑·附1级	vi	Thiên Mã Phi Bộc · Phụ cấp 1 (1) | Thiên Mã Phi Bộc · Phụ Cấp 1 (1)	table/skills/1979/name, table/items/30310030/name	không thấy nguồn	
+太上忘情·知1级	vi	Thái Thượng Vong Tình · Tri cấp 1 (1) | Thái Thượng Vong Tình · Tri Cấp 1 (1)	table/skills/2060/name, table/items/30310112/name	không thấy nguồn	
+太上忘情·附1级	vi	Thái Thượng Vong Tình · Phụ cấp 1 (1) | Thái Thượng Vong Tình · Phụ Cấp 1 (1)	table/skills/2056/name, table/items/30310108/name	không thấy nguồn	
+奇珍异宝	vi	Kỳ Trân (1) | Kỳ trân dị bảo (1)	YBSD_081225_031, FMSD_220705_17	không thấy nguồn	
+子女	vi	Con (1) | Con cái (1)	ZNJCS_130825_7, ZNSZ_140718_114	không thấy nguồn	
+子女技能-冰抗	vi	Kỹ năng con cái - Kháng Băng (1) | Kỹ Năng Tử Nữ - Kháng Băng (1)	table/campaign_items/39920468/type_name, table/campaign_items/39920468/name	không thấy nguồn	
+子女技能-减冰抗	vi	Kỹ năng con cái - Giảm Kháng Băng (1) | Kỹ Năng Tử Nữ - Giảm Kháng Băng (1)	table/campaign_items/39920472/type_name, table/campaign_items/39920472/name	không thấy nguồn	
+子女技能-减毒抗	vi	Kỹ năng con cái - Giảm Kháng Độc (1) | Kỹ Năng Tử Nữ - Giảm Kháng Độc (1)	table/campaign_items/39920473/type_name, table/campaign_items/39920473/name	không thấy nguồn	
+子女技能-减火抗	vi	Kỹ năng con cái - Giảm Kháng Hoả (1) | Kỹ Năng Tử Nữ - Giảm Kháng Hoả (1)	table/campaign_items/39920471/type_name, table/campaign_items/39920471/name	không thấy nguồn	
+子女技能-减玄抗	vi	Kỹ năng con cái - Giảm Kháng Huyền (1) | Kỹ Năng Tử Nữ - Giảm Kháng Huyền (1)	table/campaign_items/39920474/type_name, table/campaign_items/39920474/name	không thấy nguồn	
+子女技能-毒抗	vi	Kỹ năng con cái - Kháng Độc (1) | Kỹ Năng Tử Nữ - Kháng Độc (1)	table/campaign_items/39920469/type_name, table/campaign_items/39920469/name	không thấy nguồn	
+子女技能-火抗	vi	Kỹ năng con cái - Kháng Hoả (1) | Kỹ Năng Tử Nữ - Kháng Hoả (1)	table/campaign_items/39920467/type_name, table/campaign_items/39920467/name	không thấy nguồn	
+子女技能-玄抗	vi	Kỹ năng con cái - Kháng Huyền (1) | Kỹ Năng Tử Nữ - Kháng Huyền (1)	table/campaign_items/39920470/type_name, table/campaign_items/39920470/name	không thấy nguồn	
+定苍生·固本1级	vi	Định Thương Sinh · Cố Bản cấp 1 (1) | Định Thương Sinh · Cố Bản Cấp 1 (1)	table/skills/4568/name, table/items/30310133/name	không thấy nguồn	
+定苍生·技穷1级	vi	Định Thương Sinh · Kỹ Cùng cấp 1 (1) | Định Thương Sinh · Kỹ Cùng Cấp 1 (1)	table/skills/4564/name, table/items/30310129/name	không thấy nguồn	
+师徒亲密度	vi	Độ thân mật sư đồ (1) | Độ Thân Mật Sư Đồ (1)	STGZ_150514_05, table/campaign_items/39920814/name	không thấy nguồn	
+幸福雪球	vi	Bóng tuyết hạnh phúc (1) | Bóng Tuyết Hạnh Phúc (1)	table/skills/240/name, table/items/30505146/name	không thấy nguồn	
+开市红包	vi	Hồng bao Khai Thị (1) | Lì Xì Khai Thị (1)	CJHB_181207_43, table/items/38002636/name	không thấy nguồn	
+弹指神功·知1级	vi	Đàn Chỉ Thần Công · Tri cấp 1 (1) | Đàn Chỉ Thần Công · Tri Cấp 1 (1)	table/skills/2027/name, table/items/30310078/name	không thấy nguồn	
+弹指神功·附1级	vi	Đàn Chỉ Thần Công · Phụ cấp 1 (1) | Đàn Chỉ Thần Công · Phụ Cấp 1 (1)	table/skills/2023/name, table/items/30310074/name	không thấy nguồn	
+归宁红包	vi	Hồng bao Quy Ninh (1) | Lì Xì Quy Ninh (1)	CJHB_181207_40, table/items/38002633/name	không thấy nguồn	
+怒火连斩·疾闪1级（废弃）	vi	Nộ Hoả Liên Trảm · Tật Thiểm cấp 1 (bỏ) (1) | Nộ Hoả Liên Trảm · Tật Thiểm Cấp 1 (bỏ) (1)	table/skills/2043/name, table/items/30310094/name	không thấy nguồn	
+怒火连斩·绝杀1级	vi	Nộ Hoả Liên Trảm · Tuyệt Sát cấp 1 (1) | Nộ Hoả Liên Trảm · Tuyệt Sát Cấp 1 (1)	table/skills/2042/name, table/items/30310093/name	không thấy nguồn	
+急冻剂	vi	Chất đông lạnh (1) | Chất Đông Lạnh (1)	table/skills/5285/name, table/items/38007709/name	không thấy nguồn	
+我	vi	Tôi (1) | Ngã (1)	JFHD_180803_17, table/items/30505094/name	không thấy nguồn	
+投降书	vi	Thư đầu hàng (1) | Thư Đầu Hàng (1)	table/items/30501035/type_name, table/items/30501035/name	không thấy nguồn	
+抢春红包	vi	Hồng bao Đoạt Xuân (1) | Lì Xì Giành Xuân (1)	CJHB_181207_39, table/items/38002632/name	không thấy nguồn	
+拒绝加我好友	vi	Từ chối kết bạn (1) | Từ chối kết bạn với tôi (1)	INTERFACE_XML_391, LTQH_XML_48	không thấy nguồn	
+拘魂·地·知1级	vi	Câu Hồn · Địa · Tri cấp 1 (1) | Câu Hồn · Địa · Tri Cấp 1 (1)	table/skills/4656/name, table/items/30310140/name	không thấy nguồn	
+拘魂·地·附1级	vi	Câu Hồn · Địa · Phụ cấp 1 (1) | Câu Hồn · Địa · Phụ Cấp 1 (1)	table/skills/4652/name, table/items/30310136/name	không thấy nguồn	
+挥刃封喉·失魂1级	vi	Huy Nhận Phong Hầu · Thất Hồn cấp 1 (1) | Huy Nhận Phong Hầu · Thất Hồn Cấp 1 (1)	table/skills/4563/name, table/items/30310128/name	không thấy nguồn	
+挥刃封喉·护体1级	vi	Huy Nhận Phong Hầu · Hộ Thể cấp 1 (1) | Huy Nhận Phong Hầu · Hộ Thể Cấp 1 (1)	table/skills/4567/name, table/items/30310132/name	không thấy nguồn	
+挥斥方遒·知1级	vi	Huy Xích Phương Tù · Tri cấp 1 (1) | Huy Xích Phương Tù · Tri Cấp 1 (1)	table/skills/4566/name, table/items/30310131/name	không thấy nguồn	
+挥斥方遒·附1级	vi	Huy Xích Phương Tù · Phụ cấp 1 (1) | Huy Xích Phương Tù · Phụ Cấp 1 (1)	table/skills/4562/name, table/items/30310127/name	không thấy nguồn	
+排名奖励	vi	Thưởng xếp hạng (1) | Phần Thưởng Xếp Hạng (1)	JMWH_251017_64, table/campaign_items/39920386/name	không thấy nguồn	
+探营取将·解1级	vi	Thám Doanh Thủ Tướng · Giải cấp 1 (1) | Thám Doanh Thủ Tướng · Giải Cấp 1 (1)	table/skills/2039/name, table/items/30310090/name	không thấy nguồn	
+探营取将·锁1级	vi	Thám Doanh Thủ Tướng · Toả cấp 1 (1) | Thám Doanh Thủ Tướng · Toả Cấp 1 (1)	table/skills/2035/name, table/items/30310086/name	không thấy nguồn	
+摆摊	vi	Sạp (1) | Bày sạp (1)	INTERFACE_XML_122, INTERFACE_XML_123	không thấy nguồn	
+摧心掌·发劲1级	vi	Tồi Tâm Chưởng · Phát Kình cấp 1 (1) | Tồi Tâm Chưởng · Phát Kình Cấp 1 (1)	table/skills/1959/name, table/items/30310010/name	không thấy nguồn	
+摧魂定魄·知1级	vi	Tồi Hồn Định Phách · Tri cấp 1 (1) | Tồi Hồn Định Phách · Tri Cấp 1 (1)	table/skills/4655/name, table/items/30310139/name	không thấy nguồn	
+摧魂定魄·附1级	vi	Tồi Hồn Định Phách · Phụ cấp 1 (1) | Tồi Hồn Định Phách · Phụ Cấp 1 (1)	table/skills/4651/name, table/items/30310135/name	không thấy nguồn	
+星河虹吸·止1级	vi	Tinh Hà Hồng Hấp · Chỉ cấp 1 (1) | Tinh Hà Hồng Hấp · Chỉ Cấp 1 (1)	table/skills/2034/name, table/items/30310085/name	không thấy nguồn	
+星河虹吸·疾1级	vi	Tinh Hà Hồng Hấp · Tật cấp 1 (1) | Tinh Hà Hồng Hấp · Tật Cấp 1 (1)	table/skills/2038/name, table/items/30310089/name	không thấy nguồn	
+星河虹吸·知1级	vi	Tinh Hà Hồng Hấp · Tri Cấp 1 (1) | Tinh Hà Hồng Hấp · Tri cấp 1 (1)	table/items/30310088/name, table/skills/2037/name	không thấy nguồn	
+星河虹吸·附1级	vi	Tinh Hà Hồng Hấp · Phụ Cấp 1 (1) | Tinh Hà Hồng Hấp · Phụ cấp 1 (1)	table/items/30310084/name, table/skills/2033/name	không thấy nguồn	
+普通木棍	vi	Gậy gỗ thường (1) | Gậy Gỗ Thường (1)	table/skills/5657/name, table/items/38007699/name	không thấy nguồn	
+暴雨梨花针·固步1级	vi	Bạo Vũ Lê Hoa Châm · Cố Bộ cấp 1 (1) | Bạo Vũ Lê Hoa Châm · Cố Bộ Cấp 1 (1)	table/skills/2048/name, table/items/30310099/name	không thấy nguồn	
+暴雨梨花针·破阵1级	vi	Bạo Vũ Lê Hoa Châm · Phá Trận cấp 1 (1) | Bạo Vũ Lê Hoa Châm · Phá Trận Cấp 1 (1)	table/skills/2052/name, table/items/30310103/name	không thấy nguồn	
+月落西山·明1级	vi	Nguyệt Lạc Tây Sơn · Minh cấp 1 (1) | Nguyệt Lạc Tây Sơn · Minh Cấp 1 (1)	table/skills/1993/name, table/items/30310044/name	không thấy nguồn	
+月落西山·盲1级	vi	Nguyệt Lạc Tây Sơn · Manh cấp 1 (1) | Nguyệt Lạc Tây Sơn · Manh Cấp 1 (1)	table/skills/1989/name, table/items/30310040/name	không thấy nguồn	
+未知物品	vi	Vật phẩm không rõ (1) | Vật Phẩm Không Rõ (1)	table/items/20005020/type_name, table/items/20005020/name	không thấy nguồn	
+极光喷冰枪	vi	Súng phun băng cực quang (1) | Súng Phun Băng Cực Quang (1)	table/skills/5659/name, table/items/38007701/name	không thấy nguồn	
+极光防爆盾	vi	Khiên chống nổ cực quang (1) | Khiên Chống Nổ Cực Quang (1)	table/skills/5660/name, table/items/38007704/name	không thấy nguồn	
+柳拂衣·发劲1级	vi	Liễu Phất Y · Phát Kình cấp 1 (1) | Liễu Phất Y · Phát Kình Cấp 1 (1)	table/skills/2031/name, table/items/30310082/name	không thấy nguồn	
+棒打狗头·解1级	vi	Bổng Đả Cẩu Đầu · Giải cấp 1 (1) | Bổng Đả Cẩu Đầu · Giải Cấp 1 (1)	table/skills/1976/name, table/items/30310027/name	không thấy nguồn	
+棒打狗头·锁1级	vi	Bổng Đả Cẩu Đầu · Toả cấp 1 (1) | Bổng Đả Cẩu Đầu · Toả Cấp 1 (1)	table/skills/1972/name, table/items/30310023/name	không thấy nguồn	
+横剑疆场·知1级	vi	Hoành Kiếm Cương Trường · Tri cấp 1 (1) | Hoành Kiếm Cương Trường · Tri Cấp 1 (1)	table/skills/2045/name, table/items/30310096/name	không thấy nguồn	
+横剑疆场·附1级	vi	Hoành Kiếm Cương Trường · Phụ cấp 1 (1) | Hoành Kiếm Cương Trường · Phụ Cấp 1 (1)	table/skills/2044/name, table/items/30310095/name	không thấy nguồn	
+横扫乾坤·知1级	vi	Hoành Tảo Càn Khôn · Tri cấp 1 (1) | Hoành Tảo Càn Khôn · Tri Cấp 1 (1)	table/skills/1974/name, table/items/30310025/name	không thấy nguồn	
+横扫乾坤·附1级	vi	Hoành Tảo Càn Khôn · Phụ cấp 1 (1) | Hoành Tảo Càn Khôn · Phụ Cấp 1 (1)	table/skills/1970/name, table/items/30310021/name	không thấy nguồn	
+正阳手·发劲1级	vi	Chính Dương Thủ · Phát Kình cấp 1 (1) | Chính Dương Thủ · Phát Kình Cấp 1 (1)	table/skills/2004/name, table/items/30310055/name	không thấy nguồn	
+清明敬香	vi	Dâng hương Thanh Minh (1) | Dâng Hương Thanh Minh (1)	table/skills/148/name, table/items/30505304/name	không thấy nguồn	
+溪山行旅·化解1级	vi	Khê Sơn Hành Lữ · Hoá Giải cấp 1 (1) | Khê Sơn Hành Lữ · Hoá Giải Cấp 1 (1)	table/skills/2028/name, table/items/30310079/name	không thấy nguồn	
+溪山行旅·精准1级	vi	Khê Sơn Hành Lữ · Chính Xác cấp 1 (1) | Khê Sơn Hành Lữ · Chính Xác Cấp 1 (1)	table/skills/2024/name, table/items/30310075/name	không thấy nguồn	
+漕运路引	vi	Lộ dẫn Tào vận (1) | Lộ Dẫn Tào Vận (1)	table/items/30308020/type_name, table/items/30308020/name	không thấy nguồn	
+火烧赤壁·知1级	vi	Hoả Thiêu Xích Bích · Tri cấp 1 (1) | Hoả Thiêu Xích Bích · Tri Cấp 1 (1)	table/skills/1965/name, table/items/30310016/name	không thấy nguồn	
+火烧赤壁·附1级	vi	Hoả Thiêu Xích Bích · Phụ cấp 1 (1) | Hoả Thiêu Xích Bích · Phụ Cấp 1 (1)	table/skills/1961/name, table/items/30310012/name	không thấy nguồn	
+灭此朝食·缓行1级（废弃）	vi	Diệt Thử Triêu Thực · Hoãn Hành cấp 1 (bỏ) (1) | Diệt Thử Triêu Thực · Hoãn Hành Cấp 1 (bỏ) (1)	table/skills/2040/name, table/items/30310091/name	không thấy nguồn	
+灭此朝食·风行1级（废弃）	vi	Diệt Thử Triêu Thực · Phong Hành cấp 1 (bỏ) (1) | Diệt Thử Triêu Thực · Phong Hành Cấp 1 (bỏ) (1)	table/skills/2041/name, table/items/30310092/name	không thấy nguồn	
+灯芯·缠	vi	Bấc đèn · Triền (1) | Bấc Đèn · Triền (1)	table/skills/5379/name, table/items/38007609/name	không thấy nguồn	
+灵气增加，影响内功攻击	vi	Tăng Linh khí ảnh hưởng tới công kích nội công (1) | Linh khí tăng, ảnh hưởng nội công tấn công (1)	INTERFACE_XML_438, INTERFACE_XML_439	không thấy nguồn	
+炉上青烟·固本1级	vi	Lô Thượng Thanh Yên · Cố Bản cấp 1 (1) | Lô Thượng Thanh Yên · Cố Bản Cấp 1 (1)	table/skills/4658/name, table/items/30310142/name	không thấy nguồn	
+炉上青烟·技穷1级	vi	Lô Thượng Thanh Yên · Kỹ Cùng cấp 1 (1) | Lô Thượng Thanh Yên · Kỹ Cùng Cấp 1 (1)	table/skills/4654/name, table/items/30310138/name	không thấy nguồn	
+炎龙无双·知1级	vi	Viêm Long Vô Song · Tri cấp 1 (1) | Viêm Long Vô Song · Tri Cấp 1 (1)	table/skills/1964/name, table/items/30310015/name	không thấy nguồn	
+炎龙无双·附1级	vi	Viêm Long Vô Song · Phụ cấp 1 (1) | Viêm Long Vô Song · Phụ Cấp 1 (1)	table/skills/1960/name, table/items/30310011/name	không thấy nguồn	
+点击批量购买按钮后，用鼠标左键点击您要批量购买的道具，并输入所需数量点击确认后进行购买。	vi	Nhấn Mua hàng loạt, nhấp chuột trái vào vật phẩm cần mua, nhập số lượng rồi xác nhận để mua. (1) | Sau khi nhấn nút mua hàng loạt, nhấn chuột trái vào đạo cụ muốn mua hàng loạt, nhập số lượng cần rồi nhấn xác nhận để mua. (1)	FFSDGZ_120615_131, SDSD_150514_14	không thấy nguồn	
+烈火燎情·知1级	vi	Liệt Hoả Liệu Tình · Tri cấp 1 (1) | Liệt Hoả Liệu Tình · Tri Cấp 1 (1)	table/skills/4565/name, table/items/30310130/name	không thấy nguồn	
+烈火燎情·附1级	vi	Liệt Hoả Liệu Tình · Phụ cấp 1 (1) | Liệt Hoả Liệu Tình · Phụ Cấp 1 (1)	table/skills/4561/name, table/items/30310126/name	không thấy nguồn	
+烹饪	vi	Nấu nướng (1) | Nấu Ăn (1)	GEJY_181027_06, table/life_skills/1/name	không thấy nguồn	
+烽火连城·刚身1级	vi	Phong Hoả Liên Thành · Cương Thân cấp 1 (1) | Phong Hoả Liên Thành · Cương Thân Cấp 1 (1)	table/skills/1967/name, table/items/30310018/name	không thấy nguồn	
+烽火连城·钝术1级	vi	Phong Hoả Liên Thành · Độn Thuật cấp 1 (1) | Phong Hoả Liên Thành · Độn Thuật Cấp 1 (1)	table/skills/1963/name, table/items/30310014/name	không thấy nguồn	
+爱神之箭	vi	Mũi tên thần tình yêu (1) | Mũi Tên Thần Tình Yêu (1)	table/skills/41/name, table/items/30501166/name	không thấy nguồn	
+珍品礼物	vi	Quà trân phẩm (1) | Trân Phẩm Lễ Vật (1)	TYLW_200616_09, table/campaign_items/39923510/name	không thấy nguồn	
+破天式·知1级（废弃）	vi	Phá Thiên Thức · Tri cấp 1 (bỏ) (1) | Phá Thiên Thức · Tri Cấp 1 (bỏ) (1)	table/skills/2036/name, table/items/30310087/name	không thấy nguồn	
+破天式·附1级（废弃）	vi	Phá Thiên Thức · Phụ cấp 1 (bỏ) (1) | Phá Thiên Thức · Phụ Cấp 1 (bỏ) (1)	table/skills/2032/name, table/items/30310083/name	không thấy nguồn	
+礼敬如来·天罡1级	vi	Lễ Kính Như Lai · Thiên Cương cấp 1 (1) | Lễ Kính Như Lai · Thiên Cương Cấp 1 (1)	table/skills/1952/name, table/items/30310003/name	không thấy nguồn	
+礼敬如来·疾闪1级	vi	Lễ Kính Như Lai · Tật Thiểm cấp 1 (1) | Lễ Kính Như Lai · Tật Thiểm Cấp 1 (1)	table/skills/1956/name, table/items/30310007/name	không thấy nguồn	
+祈福花灯	vi	Hoa đăng cầu phúc (1) | Hoa Đăng Cầu Phúc (1)	table/skills/3843/name, table/items/38002885/name	không thấy nguồn	
+祭谷红包	vi	Hồng bao Tế Cốc (1) | Lì Xì Tế Cốc (1)	CJHB_181207_41, table/items/38002634/name	không thấy nguồn	
+紫檀葫芦	vi	Hồ lô tử đàn (1) | Hồ Lô Tử Đàn (1)	table/skills/5299/name, table/items/38007585/name	không thấy nguồn	
+罪人不怨·固本1级	vi	Tội Nhân Bất Oán · Cố Bản cấp 1 (1) | Tội Nhân Bất Oán · Cố Bản Cấp 1 (1)	table/skills/3835/name, table/items/30310124/name	không thấy nguồn	
+罪人不怨·技穷1级	vi	Tội Nhân Bất Oán · Kỹ Cùng cấp 1 (1) | Tội Nhân Bất Oán · Kỹ Cùng Cấp 1 (1)	table/skills/3831/name, table/items/30310120/name	không thấy nguồn	
+美味火鸡	vi	Gà tây thơm ngon (1) | Gà Tây Thơm Ngon (1)	table/skills/139/name, table/items/38000064/name	không thấy nguồn	
+聚福水晶瓶	vi	Bình pha lê tụ phúc (1) | Bình Pha Lê Tụ Phúc (1)	table/skills/3103/name, table/items/40005002/name	không thấy nguồn	
+落英剑·发劲1级	vi	Lạc Anh Kiếm · Phát Kình cấp 1 (1) | Lạc Anh Kiếm · Phát Kình Cấp 1 (1)	table/skills/2022/name, table/items/30310073/name	không thấy nguồn	
+葵花点穴手·解1级	vi	Quỳ Hoa Điểm Huyệt Thủ · Giải cấp 1 (1) | Quỳ Hoa Điểm Huyệt Thủ · Giải Cấp 1 (1)	table/skills/1966/name, table/items/30310017/name	không thấy nguồn	
+葵花点穴手·锁1级	vi	Quỳ Hoa Điểm Huyệt Thủ · Toả cấp 1 (1) | Quỳ Hoa Điểm Huyệt Thủ · Toả Cấp 1 (1)	table/skills/1962/name, table/items/30310013/name	không thấy nguồn	
+蓝砂手·发劲1级	vi	Lam Sa Thủ · Phát Kình cấp 1 (1) | Lam Sa Thủ · Phát Kình Cấp 1 (1)	table/skills/1995/name, table/items/30310046/name	không thấy nguồn	
+融合	vi	Dung hợp (1) | Dung Hợp (1)	SSXDW_140819_38, table/skills/1788/name	không thấy nguồn	
+蟠龙击·发劲1级	vi	Bàn Long Kích · Phát Kình cấp 1 (1) | Bàn Long Kích · Phát Kình Cấp 1 (1)	table/skills/1968/name, table/items/30310019/name	không thấy nguồn	
+装备	vi	Đồ (1) | Trang bị (1)	INTERFACE_XML_877, XZXT_240517_24	không thấy nguồn	
+西子捧心·知1级	vi	Tây Tử Phủng Tâm · Tri cấp 1 (1) | Tây Tử Phủng Tâm · Tri Cấp 1 (1)	table/skills/1991/name, table/items/30310042/name	không thấy nguồn	
+西子捧心·附1级	vi	Tây Tử Phủng Tâm · Phụ cấp 1 (1) | Tây Tử Phủng Tâm · Phụ Cấp 1 (1)	table/skills/1987/name, table/items/30310038/name	không thấy nguồn	
+诛仙阵·明1级	vi	Tru Tiên Trận · Minh cấp 1 (1) | Tru Tiên Trận · Minh Cấp 1 (1)	table/skills/2030/name, table/items/30310081/name	không thấy nguồn	
+诛仙阵·盲1级	vi	Tru Tiên Trận · Manh cấp 1 (1) | Tru Tiên Trận · Manh Cấp 1 (1)	table/skills/2026/name, table/items/30310077/name	không thấy nguồn	
+请灶红包	vi	Hồng bao Thỉnh Táo (1) | Lì Xì Mời Táo (1)	CJHB_181207_42, table/items/38002635/name	không thấy nguồn	
+谋动干戈·知1级	vi	Mưu Động Can Qua · Tri cấp 1 (1) | Mưu Động Can Qua · Tri Cấp 1 (1)	table/skills/3832/name, table/items/30310121/name	không thấy nguồn	
+谋动干戈·附1级	vi	Mưu Động Can Qua · Phụ cấp 1 (1) | Mưu Động Can Qua · Phụ Cấp 1 (1)	table/skills/3828/name, table/items/30310117/name	không thấy nguồn	
+貂蝉拜月·发劲1级	vi	Điêu Thuyền Bái Nguyệt · Phát Kình cấp 1 (1) | Điêu Thuyền Bái Nguyệt · Phát Kình Cấp 1 (1)	table/skills/1986/name, table/items/30310037/name	không thấy nguồn	
+资料	vi	Hồ sơ (1) | Tư liệu (1)	CKZL_260821_01, INTERFACE_XML_882	không thấy nguồn	
+超级石灰包	vi	Gói vôi siêu cấp (1) | Gói Vôi Siêu Cấp (1)	table/skills/6021/name, table/items/38008376/name	không thấy nguồn	
+迎财红包	vi	Hồng bao Nghênh Tài (1) | Lì Xì Nghênh Tài (1)	CJHB_181207_44, table/items/38002637/name	không thấy nguồn	
+返券商店	vi	Phiếu Hoàn (1) | Cửa hàng phản phiếu (1)	YBFQ_XML_3, FQ_XML_08	không thấy nguồn	
+连珠腐尸毒·知1级	vi	Liên Châu Hủ Thi Độc · Tri cấp 1 (1) | Liên Châu Hủ Thi Độc · Tri Cấp 1 (1)	table/skills/2001/name, table/items/30310052/name	không thấy nguồn	
+连珠腐尸毒·附1级	vi	Liên Châu Hủ Thi Độc · Phụ cấp 1 (1) | Liên Châu Hủ Thi Độc · Phụ Cấp 1 (1)	table/skills/1997/name, table/items/30310048/name	không thấy nguồn	
+选中该按钮后每次购买商品都会弹出购买确认窗口，以保证您不会因为误操作而买错商品。	vi	Khi chọn, mỗi lần mua hàng sẽ hiện cửa sổ xác nhận để tránh mua nhầm. (1) | Sau khi chọn nút này, mỗi lần mua hàng đều bật cửa sổ xác nhận mua, đảm bảo bạn không mua nhầm do thao tác sai. (1)	YBSD_081225_053, MHSD_191203_59	không thấy nguồn	
+金刚伏魔圈·止1级	vi	Kim Cương Phục Ma Khuyên · Chỉ cấp 1 (1) | Kim Cương Phục Ma Khuyên · Chỉ Cấp 1 (1)	table/skills/1953/name, table/items/30310004/name	không thấy nguồn	
+金刚伏魔圈·疾1级	vi	Kim Cương Phục Ma Khuyên · Tật cấp 1 (1) | Kim Cương Phục Ma Khuyên · Tật Cấp 1 (1)	table/skills/1957/name, table/items/30310008/name	không thấy nguồn	
+锁魂斩·失魂1级	vi	Toả Hồn Trảm · Thất Hồn cấp 1 (1) | Toả Hồn Trảm · Thất Hồn Cấp 1 (1)	table/skills/4653/name, table/items/30310137/name	không thấy nguồn	
+锁魂斩·护体1级	vi	Toả Hồn Trảm · Hộ Thể cấp 1 (1) | Toả Hồn Trảm · Hộ Thể Cấp 1 (1)	table/skills/4657/name, table/items/30310141/name	không thấy nguồn	
+陶然一醉·失魂1级	vi	Đào Nhiên Nhất Tuý · Thất Hồn cấp 1 (1) | Đào Nhiên Nhất Tuý · Thất Hồn Cấp 1 (1)	table/skills/2058/name, table/items/30310110/name	không thấy nguồn	
+陶然一醉·护体1级	vi	Đào Nhiên Nhất Tuý · Hộ Thể cấp 1 (1) | Đào Nhiên Nhất Tuý · Hộ Thể Cấp 1 (1)	table/skills/2062/name, table/items/30310114/name	không thấy nguồn	
+障眼法·观心1级	vi	Chướng Nhãn Pháp · Quan Tâm cấp 1 (1) | Chướng Nhãn Pháp · Quan Tâm Cấp 1 (1)	table/skills/1994/name, table/items/30310045/name	không thấy nguồn	
+障眼法·魅惑1级	vi	Chướng Nhãn Pháp · Mị Hoặc cấp 1 (1) | Chướng Nhãn Pháp · Mị Hoặc Cấp 1 (1)	table/skills/1990/name, table/items/30310041/name	không thấy nguồn	
+雁南飞·发劲1级	vi	Nhạn Nam Phi · Phát Kình cấp 1 (1) | Nhạn Nam Phi · Phát Kình Cấp 1 (1)	table/skills/2013/name, table/items/30310064/name	không thấy nguồn	
+雅颂之音·发劲1级	vi	Nhã Tụng Chi Âm · Phát Kình cấp 1 (1) | Nhã Tụng Chi Âm · Phát Kình Cấp 1 (1)	table/skills/3827/name, table/items/30310116/name	không thấy nguồn	
+雪拥蓝关·移穴1级	vi	Tuyết Ủng Lam Quan · Di Huyệt cấp 1 (1) | Tuyết Ủng Lam Quan · Di Huyệt Cấp 1 (1)	table/skills/2012/name, table/items/30310063/name	không thấy nguồn	
+雪拥蓝关·穿刺1级	vi	Tuyết Ủng Lam Quan · Xuyên Thích cấp 1 (1) | Tuyết Ủng Lam Quan · Xuyên Thích Cấp 1 (1)	table/skills/2008/name, table/items/30310059/name	không thấy nguồn	
+雪泥鸿爪·调息1级	vi	Tuyết Nê Hồng Trảo · Điều Tức cấp 1 (1) | Tuyết Nê Hồng Trảo · Điều Tức Cấp 1 (1)	table/skills/1975/name, table/items/30310026/name	không thấy nguồn	
+雪泥鸿爪·逆脉1级	vi	Tuyết Nê Hồng Trảo · Nghịch Mạch cấp 1 (1) | Tuyết Nê Hồng Trảo · Nghịch Mạch Cấp 1 (1)	table/skills/1971/name, table/items/30310022/name	không thấy nguồn	
+预留	vi	Dự phòng (1) | Dự Trữ (1)	table/items/30401001/type_name, table/items/30401001/name	không thấy nguồn	
+预留2	vi	Dự Phòng 2 (1) | Dự phòng 2 (1)	scene/预留2, table/equips/10126000/type_name	không thấy nguồn	
+风云反覆·固本1级	vi	Phong Vân Phản Phúc · Cố Bản cấp 1 (1) | Phong Vân Phản Phúc · Cố Bản Cấp 1 (1)	table/skills/2063/name, table/items/30310115/name	không thấy nguồn	
+风云反覆·技穷1级	vi	Phong Vân Phản Phúc · Kỹ Cùng cấp 1 (1) | Phong Vân Phản Phúc · Kỹ Cùng Cấp 1 (1)	table/skills/2059/name, table/items/30310111/name	không thấy nguồn	
+风暴冰棍	vi	Kem que bão tố (1) | Kem Que Bão Tố (1)	table/skills/5658/name, table/items/38007700/name	không thấy nguồn	
+魔力小玩偶	vi	Búp bê ma lực (1) | Búp Bê Ma Lực (1)	table/skills/216/name, table/items/38000493/name	không thấy nguồn	
+鹰击长空·知1级	vi	Ưng Kích Trường Không · Tri cấp 1 (1) | Ưng Kích Trường Không · Tri Cấp 1 (1)	table/skills/2019/name, table/items/30310070/name	không thấy nguồn	
+鹰击长空·附1级	vi	Ưng Kích Trường Không · Phụ cấp 1 (1) | Ưng Kích Trường Không · Phụ Cấp 1 (1)	table/skills/2015/name, table/items/30310066/name	không thấy nguồn	
+# Thuật ngữ mới trong dialogue.en (dialogue.en.txt, 2026-10-18): tên riêng và thuật ngữ chưa có trong glossary.tsv hay en.tsv.
+# Phần lớn tên người là phiên âm pinyin máy móc; tên nhiệm vụ, kỹ năng, chức danh là bản dịch tạm của bản dịch song song.
+# Cột 2 là "en" (thoại); cột 3 là các bản đang dùng kèm phần của dialogue (1-8) đã dùng nó. Nhóm có từ hai bản đứng trước.
+# Chủ dự án chốt thì sửa dialogue.en.txt ở mọi chỗ dùng, thêm vào glossary.tsv, gỡ dòng khỏi phần này.
+漕运使	en (thoại)	Canal Commissioner (phần 4) | Canal Transport Commissioner (phần 6) | Canal Transport Envoy (phần 7)	lua.0ca00300	không thấy nguồn	
+为师门而战	en (thoại)	Fight for Your Sect (phần 6) | Fight for the Sect (phần 8)	lua.04316bbe	không thấy nguồn	
+共同进退	en (thoại)	Advance and Retreat Together (phần 5) | Through Thick and Thin (phần 8)	lua.ef191c24	không thấy nguồn	
+南海鳄神	en (thoại)	Crocodile God of the South Sea (phần 4) | South Sea Crocodile God (phần 5)	lua.240ad231	không thấy nguồn	
+受人之托	en (thoại)	A Task Entrusted (phần 6) | Entrusted (phần 8)	lua.f5db53b1	không thấy nguồn	
+四海为家	en (thoại)	At Home Across the Four Seas (phần 5) | The World Is My Home (phần 8)	lua.210e2495	không thấy nguồn	
+困兽犹斗	en (thoại)	A Cornered Beast Fights On (phần 6) | Cornered Beasts Still Fight (phần 8)	lua.c3dceed5	không thấy nguồn	
+夜长梦多	en (thoại)	Delays Breed Trouble (phần 5) | Delay Breeds Trouble (phần 8)	lua.43bfbb84	không thấy nguồn	
+天下武功出少林	en (thoại)	All Martial Arts Spring from Shaolin (phần 5) | All Martial Arts Come from Shaolin (phần 8)	lua.f9ea83ae	không thấy nguồn	
+天下英雄谁敌手	en (thoại)	Who Can Match the World's Heroes (phần 6) | Who Can Match the World's Heroes? (phần 8)	lua.62c28ec4	không thấy nguồn	
+天时不如地利	en (thoại)	Terrain Beats Timing (phần 5) | Terrain Trumps Timing (phần 8)	lua.9d5b1bcd	không thấy nguồn	
+姑苏慕容	en (thoại)	Gusu Murong (phần 6) | Murong of Gusu (phần 8)	lua.735e8874	không thấy nguồn	
+寒玉塔	en (thoại)	Cold Jade Pagoda (phần 3) | Cold Jade Tower (phần 4)	lua.e1ef110d	không thấy nguồn	
+封禅台竞技	en (thoại)	Fengshan Altar Contest (phần 2) | Fengshan Altar Arena (phần 5)	lua.85b4bd28	không thấy nguồn	
+尽点人事	en (thoại)	Do What You Can (phần 6) | Do All We Can (phần 8)	lua.e9fffd8a	không thấy nguồn	
+巡逻者营地	en (thoại)	Patrol Camp (phần 4) | Patrollers' Camp (phần 6)	lua.4c6e280a	không thấy nguồn	
+师门任务	en (thoại)	sect quest (phần 3) | Sect Quest (phần 4)	lua.aceabe06	không thấy nguồn	
+慧易	en (thoại)	Hui Yi (phần 5) | Huiyi (phần 7)	lua.85d44584	không thấy nguồn	
+放焰火啦	en (thoại)	Time for Fireworks! (phần 5) | Set Off the Fireworks! (phần 8)	lua.0c32ab3b	không thấy nguồn	
+曾经痴狂少年时	en (thoại)	Once a Reckless Youth (phần 6) | Those Mad Days of Youth (phần 8)	lua.f652a7b6	không thấy nguồn	
+李工部	en (thoại)	Minister Li (phần 2) | Li Gongbu (phần 6)	lua.c78364cf	không thấy nguồn	
+李老太太	en (thoại)	Old Madam Li (phần 4) | Granny Li (phần 5)	lua.62a156d4	không thấy nguồn	
+海风子	en (thoại)	Hai Fengzi (phần 5) | Haifengzi (phần 7)	lua.d23c8775	không thấy nguồn	
+深情的遥望	en (thoại)	Longing from Afar (phần 6) | A Tender Gaze from Afar (phần 8)	lua.c77dca00	không thấy nguồn	
+清除熊患	en (thoại)	Bear Infestation (phần 6) | Clearing the Bear Menace (phần 8)	lua.99d60716	không thấy nguồn	
+独战双雄	en (thoại)	One Against Two Champions (phần 5) | Facing Two Champions Alone (phần 8)	lua.c2cb10d9	không thấy nguồn	
+狼穴大营	en (thoại)	Wolf Den Camp (phần 6) | Wolf Den Encampment (phần 8)	lua.0c5547ba	không thấy nguồn	
+环佩空归月夜魂	en (thoại)	Jade Pendants, a Spirit in Moonlight (phần 5) | Pendants Return in Vain, a Soul in the Moonlight (phần 8)	lua.4206bc82	không thấy nguồn	
+盟主之印	en (thoại)	Leader's Seal (phần 1) | Alliance Leader Seal (phần 5)	lua.1f0438ad	không thấy nguồn	
+破贪	en (thoại)	Po Tan (phần 5) | Potan (phần 7)	lua.bd5de86c	không thấy nguồn	
+私通辽国	en (thoại)	Collusion with Liao (phần 6) | Collusion with the Liao (phần 8)	lua.9dc93407	không thấy nguồn	
+第一次杀怪	en (thoại)	First Kill (phần 5) | First Monster Kill (phần 8)	lua.cbe0e306	không thấy nguồn	
+群龙无首	en (thoại)	Dragons Without a Head (phần 5) | Leaderless (phần 8)	lua.ec2bd00e	không thấy nguồn	
+自立门户	en (thoại)	Found Your Own Sect (phần 6) | Establish Your Own Sect (phần 8)	lua.54d70d1a	không thấy nguồn	
+舵主	en (thoại)	Branch Leader (phần 3) | chapter chief (phần 7)	lua.e4f8b2e6	không thấy nguồn	
+英雄不怕远征难	en (thoại)	No Journey Too Far for a Hero (phần 6) | Heroes Fear Not the Long March (phần 8)	lua.ed3df61d	không thấy nguồn	
+英雄救美	en (thoại)	A Hero Rescues the Maiden (phần 5) | A Hero Rescues the Beauty (phần 8)	lua.45216efc	không thấy nguồn	
+草原的劫匪	en (thoại)	Bandits of the Grasslands (phần 6) | Bandits of the Steppe (phần 8)	lua.b95da77f	không thấy nguồn	
+虫鸟坊	en (thoại)	Bird and Insect Shop (phần 5) | Insect & Bird Shop (phần 7)	lua.c21dc6a8	không thấy nguồn	
+虽危实安	en (thoại)	Perilous, Yet Safe (phần 5) | Perilous Yet Safe (phần 8)	lua.fb17f841	không thấy nguồn	
+谁家子弟谁家院	en (thoại)	Whose Son, Whose Courtyard? (phần 5) | Whose Son, Whose House? (phần 8)	lua.7842bee3	không thấy nguồn	
+送布衣	en (thoại)	Deliver Cloth Garb (phần 5) | Deliver Cloth Robes (phần 8)	lua.5f01d491	không thấy nguồn	
+送矿锄	en (thoại)	Deliver a Mining Hoe (phần 5) | Deliver Mining Hoes (phần 8)	lua.cf5a147d	không thấy nguồn	
+送馒头	en (thoại)	Deliver a Steamed Bun (phần 5) | Deliver Steamed Buns (phần 8)	lua.b5d8ead5	không thấy nguồn	
+酒罢问君三语	en (thoại)	Three Questions After the Wine (phần 5) | Three Words After the Wine (phần 8)	lua.577e5182	không thấy nguồn	
+重建牧场	en (thoại)	Rebuilding the Ranch (phần 5) | Rebuild the Ranch (phần 8)	lua.45f67b00	không thấy nguồn	
+阿青	en (thoại)	A Qing (phần 4) | A'Qing (phần 5)	lua.f525255c	không thấy nguồn	
+雁门关太守府	en (thoại)	Yanmen Pass Governor's Manor (phần 3) | Yanmen Pass Prefect's Mansion (phần 6)	lua.cc468686	không thấy nguồn	
+青衫磊落险峰行	en (thoại)	In Azure Robes Over Perilous Peaks (phần 5) | Upright in Blue Robes, Walking the Perilous Peak (phần 8)	lua.6cd4b786	không thấy nguồn	
+顶天立地	en (thoại)	Standing Tall Between Heaven and Earth (phần 5) | Stand Tall (phần 8)	lua.af803aa3	không thấy nguồn	
+黄眉僧	en (thoại)	Monk Huangmei (phần 5) | Yellow-Browed Monk (phần 8)	lua.e045ddf0	không thấy nguồn	
+一剑上天山	en (thoại)	One Sword to Tianshan (phần 5,8)	lua.8e1b2e53	không thấy nguồn	
+一千零一个愿望	en (thoại)	One Thousand and One Wishes (phần 8)	lua.64a7d59e	không thấy nguồn	
+一呼百应	en (thoại)	One Call, a Hundred Answers (phần 8)	lua.d818db80	không thấy nguồn	
+一字长蛇	en (thoại)	Long Serpent Line (phần 8)	lua.e1a06f21	không thấy nguồn	
+一生有你	en (thoại)	A Lifetime With You (phần 5)	lua.1032ce17	không thấy nguồn	
+一盘散沙	en (thoại)	A Heap of Loose Sand (phần 5,8)	lua.241ae35a	không thấy nguồn	
+一笑人间万事	en (thoại)	Laughing Away All Worldly Affairs (phần 5)	lua.fcf931f7	không thấy nguồn	
+一键四孔	en (thoại)	One-Click 4 Sockets (phần 1)	lua.7c115679	không thấy nguồn	
+七星碎片	en (thoại)	Seven Star Fragments (phần 5)	lua.8177c7e8	không thấy nguồn	
+七星落长空	en (thoại)	Seven Stars Fall from the Sky (phần 8)	lua.650fc3b3	không thấy nguồn	
+七星透骨	en (thoại)	Seven Stars Pierce the Bone (phần 8)	lua.36d9d8b2	không thấy nguồn	
+万仙宫	en (thoại)	Wanxian Palace (phần 7)	lua.555c0572	không thấy nguồn	
+万国来朝	en (thoại)	All Nations Pay Homage (phần 8)	lua.8a093564	không thấy nguồn	
+三十六洞七十二岛	en (thoại)	Thirty-Six Caves and Seventy-Two Isles (phần 2)	lua.85794870	không thấy nguồn	
+三娘	en (thoại)	Sanniang (phần 2)	lua.0301d15c	không thấy nguồn	
+三清殿	en (thoại)	Sanqing Hall (phần 7)	lua.db06d91d	không thấy nguồn	
+三阴交	en (thoại)	Sanyinjiao (phần 8)	lua.48d03e78	không thấy nguồn	
+上关村	en (thoại)	Shangguan Village (phần 4)	lua.be91da02	không thấy nguồn	
+下关	en (thoại)	Xiaguan (phần 8)	lua.ba476d6f	không thấy nguồn	
+不归城	en (thoại)	Bugui City (phần 8)	lua.f70dc18a	không thấy nguồn	
+丐帮大院	en (thoại)	Beggars' Sect Compound (phần 6)	lua.894d96c1	không thấy nguồn	
+丐帮总舵	en (thoại)	Beggars' Sect Headquarters (phần 6)	lua.f2e3c4de	không thấy nguồn	
+东大街	en (thoại)	East Street (phần 7)	lua.1a5d83c9	không thấy nguồn	
+严白虎	en (thoại)	Yan Baihu (phần 5,6)	lua.1f866607	không thấy nguồn	
+严百草	en (thoại)	Yan Baicao (phần 6)	lua.05541c40	không thấy nguồn	
+中府	en (thoại)	Zhongfu (phần 8)	lua.1ccd9f67	không thấy nguồn	
+丹英	en (thoại)	Danying (phần 6)	lua.5c163752	không thấy nguồn	
+义愤填膺	en (thoại)	Righteous Fury (phần 8)	lua.0fd5a57c	không thấy nguồn	
+乌老大	en (thoại)	Boss Wu (phần 7)	lua.0e03d7b5	không thấy nguồn	
+乔复盛	en (thoại)	Qiao Fusheng (phần 6)	lua.4d37bd49	không thấy nguồn	
+九大门派传送人	en (thoại)	Nine Great Sect Teleporters (phần 7)	lua.b54c3956	không thấy nguồn	
+九日通	en (thoại)	Jiu Ritong (phần 8)	lua.86237e66	không thấy nguồn	
+云门	en (thoại)	Yunmen (phần 8)	lua.1ccd9f67	không thấy nguồn	
+云霏霏	en (thoại)	Yun Feifei (phần 7)	lua.36b1b372	không thấy nguồn	
+云骁	en (thoại)	Yunxiao (phần 6)	lua.14e0a414	không thấy nguồn	
+仇道人	en (thoại)	Qiu Daoren (phần 7)	lua.af5ba67b	không thấy nguồn	
+代理掌门人	en (thoại)	Acting Sect Master (phần 7)	lua.d2e22b6c	không thấy nguồn	
+任务发布人	en (thoại)	Quest Giver (phần 7)	lua.228862d4	không thấy nguồn	
+任务背包	en (thoại)	quest item bag (phần 4)	lua.64c5d216	không thấy nguồn	
+任飞虹	en (thoại)	Ren Feihong (phần 7)	lua.393755ab	không thấy nguồn	
+伏兔	en (thoại)	Futu (phần 8)	lua.ba476d6f	không thấy nguồn	
+众妙之门	en (thoại)	Gate of All Wonders (phần 8)	lua.1048f814	không thấy nguồn	
+伯颜	en (thoại)	Boyan (phần 5)	lua.9b852d38	không thấy nguồn	
+伸冤	en (thoại)	Plead Innocence (phần 4)	lua.4d1d452a	không thấy nguồn	
+何执中	en (thoại)	He Zhizhong (phần 8)	lua.63d79851	không thấy nguồn	
+何生财	en (thoại)	He Shengcai (phần 6)	lua.6c299ef7	không thấy nguồn	
+余化龙	en (thoại)	Yu Hualong (phần 7)	lua.97e4ebd4	không thấy nguồn	
+余婆	en (thoại)	Granny Yu (phần 7)	lua.bf10506f	không thấy nguồn	
+佛印	en (thoại)	Foyin (phần 7)	lua.e7740667	không thấy nguồn	
+侠白	en (thoại)	Xiabai (phần 8)	lua.1ccd9f67	không thấy nguồn	
+保护马夫人	en (thoại)	Protect Madame Ma (phần 5,8)	lua.8b103123	không thấy nguồn	
+俞远山	en (thoại)	Yu Yuanshan (phần 7)	lua.21b3726b	không thấy nguồn	
+修文台	en (thoại)	Xiuwen Terrace (phần 6)	lua.e30c16d7	không thấy nguồn	
+偃师	en (thoại)	Puppeteer (phần 4)	lua.a4bb85d8	không thấy nguồn	
+偏历	en (thoại)	Pianli (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+做一次大侠	en (thoại)	Be a Hero for Once (phần 5,8)	lua.6fff2336	không thấy nguồn	
+偷梁换柱	en (thoại)	Swap the Beams and Pillars (phần 8)	lua.95b48162	không thấy nguồn	
+傅当归	en (thoại)	Fu Danggui (phần 7)	lua.15fce0a4	không thấy nguồn	
+催心裂脾	en (thoại)	Rend Heart and Spleen (phần 8)	lua.4a32e14a	không thấy nguồn	
+兀术	en (thoại)	Wuzhu (phần 4)	lua.a0fb7ebe	không thấy nguồn	
+元宝商人	en (thoại)	Ingot Merchant (phần 6)	lua.2e91b33a	không thấy nguồn	
+先下手为强	en (thoại)	Strike First (phần 8)	lua.3a57a28b	không thấy nguồn	
+光明左使	en (thoại)	Left Envoy of Light (phần 7)	lua.2b47200c	không thấy nguồn	
+党项军团	en (thoại)	Tangut Legion (phần 3)	lua.6e50623e	không thấy nguồn	
+公孙	en (thoại)	Gongsun (phần 8)	lua.48d03e78	không thấy nguồn	
+公孙大叔	en (thoại)	Uncle Gongsun (phần 7)	lua.67be54fc	không thấy nguồn	
+六军辟易	en (thoại)	The Six Armies Give Way (phần 5)	lua.e1c4cc98	không thấy nguồn	
+兰剑	en (thoại)	Lan Jian (phần 7)	lua.b5f7a3b9	không thấy nguồn	
+兰陵郡	en (thoại)	Lanling Commandery (phần 6)	lua.80334981	không thấy nguồn	
+兰陵郡主	en (thoại)	Princess of Lanling (phần 4)	lua.5559ef4e	không thấy nguồn	
+关系值	en (thoại)	Relationship Value (phần 3,5)	lua.6d125721	không thấy nguồn	
+关门	en (thoại)	Guanmen (phần 8)	lua.ba476d6f	không thấy nguồn	
+兵器店	en (thoại)	Weapon Shop (phần 2,7)	lua.501fb472	không thấy nguồn	
+兵器铺	en (thoại)	weapon shop (phần 7)	lua.9feb482e	không thấy nguồn	
+兵部尚书	en (thoại)	Minister of War (phần 6)	lua.df589f23	không thấy nguồn	
+养生法大师	en (thoại)	Health Preservation Master (phần 6)	lua.81b68d33	không thấy nguồn	
+养雕人	en (thoại)	Eagle Keeper (phần 5)	lua.973f7526	không thấy nguồn	
+内功套装	en (thoại)	Inner Kung Fu Set (phần 3)	lua.932dfec0	không thấy nguồn	
+内庭	en (thoại)	Neiting (phần 8)	lua.ba476d6f	không thấy nguồn	
+再去找赵天师	en (thoại)	See Celestial Master Zhao Again (phần 5,8)	lua.f7abf661	không thấy nguồn	
+冯铸铁	en (thoại)	Feng Zhutie (phần 6)	lua.36ad2e08	không thấy nguồn	
+冯阿三	en (thoại)	Feng Asan (phần 7)	lua.2b06699f	không thấy nguồn	
+冲虚养气	en (thoại)	Nurture Qi in Emptiness (phần 8)	lua.abc26070	không thấy nguồn	
+冲门	en (thoại)	Chongmen (phần 8)	lua.48d03e78	không thấy nguồn	
+减字木兰花	en (thoại)	Magnolia Blossom (Abridged) (phần 4)	lua.5da5dae6	không thấy nguồn	
+凤凰琴	en (thoại)	Phoenix Zither (phần 7)	lua.b0a3e25e	không thấy nguồn	
+凤朝阳	en (thoại)	Feng Chaoyang (phần 7)	lua.5ed28cb2	không thấy nguồn	
+凭虚御风	en (thoại)	Ride the Wind (phần 8)	lua.bc29dd47	không thấy nguồn	
+出尘子	en (thoại)	Chuchenzi (phần 7)	lua.11a2d784	không thấy nguồn	
+击退山匪	en (thoại)	Repel the Mountain Bandits (phần 4)	lua.90a17463	không thấy nguồn	
+列缺	en (thoại)	Lieque (phần 8)	lua.1ccd9f67	không thấy nguồn	
+刘亦农	en (thoại)	Liu Yinong (phần 6)	lua.fb4fcf91	không thấy nguồn	
+刘健明	en (thoại)	Liu Jianming (phần 6)	lua.042fcd0f	không thấy nguồn	
+刘傲天	en (thoại)	Liu Aotian (phần 4)	lua.be11fc01	không thấy nguồn	
+刘寄奴	en (thoại)	Liu Jinu (phần 7)	lua.7e843dea	không thấy nguồn	
+制药大师	en (thoại)	Pharmacy Master (phần 6)	lua.19deaa63	không thấy nguồn	
+剑河桥	en (thoại)	Jianhe Bridge (phần 7)	lua.df5b96a6	không thấy nguồn	
+剑湖宫	en (thoại)	Jianhu Palace (phần 3)	lua.c169d4b0	không thấy nguồn	
+剧情循环任务	en (thoại)	Story Loop Quest (phần 3,5)	lua.968e6b68	không thấy nguồn	
+副帅	en (thoại)	Deputy Marshal (phần 3)	lua.cdcb6a50	không thấy nguồn	
+勇闯寒玉塔	en (thoại)	Brave the Cold Jade Tower (phần 4)	lua.3de45685	không thấy nguồn	
+勤王	en (thoại)	Rally to the Throne (phần 8)	lua.874c94fd	không thấy nguồn	
+包世荣	en (thoại)	Bao Shirong (phần 6)	lua.723a9125	không thấy nguồn	
+北市	en (thoại)	North Market (phần 7)	lua.e496a9c5	không thấy nguồn	
+十年	en (thoại)	Ten Years (phần 5,8)	lua.8e9a7900	không thấy nguồn	
+千寻台	en (thoại)	Qianxun Terrace (phần 7)	lua.281b1403	không thấy nguồn	
+南歌子	en (thoại)	Song of the South (phần 4)	lua.3e541ff7	không thấy nguồn	
+博拉	en (thoại)	Bola (phần 4)	lua.842beebf	không thấy nguồn	
+卢三七	en (thoại)	Lu Sanqi (phần 5,8)	lua.513675ca	không thấy nguồn	
+厉天佑	en (thoại)	Li Tianyou (phần 7)	lua.5c60fb29	không thấy nguồn	
+压扁狗背	en (thoại)	Flatten the Dog's Back (phần 8)	lua.9e21de03	không thấy nguồn	
+厚积薄发	en (thoại)	Gather, Then Unleash (phần 8)	lua.efed824a	không thấy nguồn	
+去看看布告	en (thoại)	Check the Notice Board (phần 5,8)	lua.fca9bf5d	không thấy nguồn	
+双峰贯耳	en (thoại)	Twin Peaks Strike the Ears (phần 8)	lua.d384a55f	không thấy nguồn	
+双桥	en (thoại)	Shuangqiao (phần 7)	lua.4ccd1ed8	không thấy nguồn	
+古大师	en (thoại)	Master Gu (phần 4)	lua.109b0fb0	không thấy nguồn	
+古来英雄皆寂寞	en (thoại)	Heroes Have Always Been Lonely (phần 6,8)	lua.0abe18c6	không thấy nguồn	
+可怕的真相	en (thoại)	The Terrible Truth (phần 5)	lua.91c8c910	không thấy nguồn	
+叶流凡	en (thoại)	Ye Liufan (phần 6)	lua.1d005db6	không thấy nguồn	
+司马光	en (thoại)	Sima Guang (phần 6)	lua.7e90043d	không thấy nguồn	
+司马林	en (thoại)	Sima Lin (phần 5)	lua.58e788ae	không thấy nguồn	
+合谷	en (thoại)	Hegu (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+同门相助	en (thoại)	Fellow Disciple Aid (phần 4)	lua.96b9d148	không thấy nguồn	
+后会有期	en (thoại)	Until We Meet Again (phần 8)	lua.1e15d77a	không thấy nguồn	
+向望海	en (thoại)	Xiang Wanghai (phần 5)	lua.f0733620	không thấy nguồn	
+吕惠卿	en (thoại)	Lü Huiqing (phần 1)	lua.2392d729	không thấy nguồn	
+听月桥	en (thoại)	Tingyue Bridge (phần 7)	lua.b23df19a	không thấy nguồn	
+听香	en (thoại)	Tingxiang (phần 7)	lua.d2e22b6c	không thấy nguồn	
+吴乞买	en (thoại)	Wuqimai (phần 4)	lua.94f6c7fa	không thấy nguồn	
+吴德昌	en (thoại)	Wu Dechang (phần 6)	lua.7a6e816e	không thấy nguồn	
+吴澎	en (thoại)	Wu Peng (phần 8)	lua.8128550a	không thấy nguồn	
+吴玠	en (thoại)	Wu Jie (phần 7)	lua.185112d7	không thấy nguồn	
+吴长风	en (thoại)	Wu Changfeng (phần 7)	lua.19a66cb2	không thấy nguồn	
+吴雪娇	en (thoại)	Wu Xuejiao (phần 7)	lua.0dd98b8b	không thấy nguồn	
+吴领军	en (thoại)	Wu Lingjun (phần 7)	lua.d38dc1db	không thấy nguồn	
+呼延庆	en (thoại)	Huyan Qing (phần 6)	lua.c27d001b	không thấy nguồn	
+唇亡齿寒	en (thoại)	Lips Gone, Teeth Cold (phần 8)	lua.54b918a9	không thấy nguồn	
+唐予诚	en (thoại)	Tang Yucheng (phần 7)	lua.3a10ae2b	không thấy nguồn	
+唐亦风	en (thoại)	Tang Yifeng (phần 7)	lua.2e51c92a	không thấy nguồn	
+唐岳冲	en (thoại)	Tang Yuechong (phần 7)	lua.5432412b	không thấy nguồn	
+唐春	en (thoại)	Tang Chun (phần 7)	lua.5b26812d	không thấy nguồn	
+唐暮翔	en (thoại)	Tang Muxiang (phần 7)	lua.91c725f8	không thấy nguồn	
+唐楮机	en (thoại)	Tang Chuji (phần 7)	lua.11f1eecf	không thấy nguồn	
+唐清秋	en (thoại)	Tang Qingqiu (phần 7)	lua.8b7fd830	không thấy nguồn	
+唐若兮	en (thoại)	Tang Ruoxi (phần 7)	lua.36d6ec28	không thấy nguồn	
+唐门姥姥	en (thoại)	Tang Clan Granny (phần 7)	lua.a931382a	không thấy nguồn	
+商丘	en (thoại)	Shangqiu (phần 8)	lua.48d03e78	không thấy nguồn	
+商人银票	en (thoại)	Merchant Silver Note (phần 2)	lua.ad0d692e	không thấy nguồn	
+商会传送人	en (thoại)	Chamber of Commerce Teleporter (phần 6)	lua.1db9d685	không thấy nguồn	
+商会总管	en (thoại)	Chamber of Commerce Manager (phần 6)	lua.351e395e	không thấy nguồn	
+商阳	en (thoại)	Shangyang (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+善恶值	en (thoại)	Good/Evil Points (phần 1,2)	lua.c1d44629	không thấy nguồn	
+四品叶人参	en (thoại)	Four-Pronged Ginseng (phần 8)	lua.70c79cdd	không thấy nguồn	
+四大善人	en (thoại)	Four Benefactors (phần 5)	lua.682af71b	không thấy nguồn	
+四白	en (thoại)	Sibai (phần 8)	lua.ba476d6f	không thấy nguồn	
+四绝殿	en (thoại)	Four Peerless Hall (phần 8)	lua.f715d79a	không thấy nguồn	
+四绝钟	en (thoại)	Four Peerless Bell (phần 8)	lua.f715d79a	không thấy nguồn	
+回风拂柳	en (thoại)	Returning Wind Brushes the Willows (phần 8)	lua.8440f68c	không thấy nguồn	
+圆月村	en (thoại)	Yuanyue Village (phần 4,5,6)	lua.7b27f764	không thấy nguồn	
+圣火台	en (thoại)	Holy Flame Platform (phần 7)	lua.09aa26f3	không thấy nguồn	
+圣物	en (thoại)	sacred relics (phần 4)	lua.3f32acda	không thấy nguồn	
+坐骑进阶	en (thoại)	Advance Mount (phần 1)	lua.634715f8	không thấy nguồn	
+塔林守护人	en (thoại)	Pagoda Forest Guardian (phần 7)	lua.a89c42ab	không thấy nguồn	
+夏雪宜	en (thoại)	Xia Xueyi (phần 4)	lua.ee07d1b6	không thấy nguồn	
+夕颜	en (thoại)	Xiyan (phần 4)	lua.b3297873	không thấy nguồn	
+外功套装	en (thoại)	Outer Kung Fu Set (phần 3)	lua.0f7f5bb9	không thấy nguồn	
+多罗叶指	en (thoại)	Tala Leaf Finger (phần 8)	lua.a935d80a	không thấy nguồn	
+大光明殿	en (thoại)	Grand Hall of Light (phần 6)	lua.27e7869b	không thấy nguồn	
+大包	en (thoại)	Dabao (phần 8)	lua.48d03e78	không thấy nguồn	
+大宗师	en (thoại)	Grandmaster (phần 6)	lua.7c6e09b2	không thấy nguồn	
+大帅	en (thoại)	Grand Marshal (phần 3)	lua.cdcb6a50	không thấy nguồn	
+大战万劫谷	en (thoại)	Battle of Wanjie Valley (phần 5,8)	lua.f147f85f	không thấy nguồn	
+大护法	en (thoại)	Great Guardian (phần 4)	lua.3e5b6619	không thấy nguồn	
+大横	en (thoại)	Daheng (phần 8)	lua.48d03e78	không thấy nguồn	
+大王	en (thoại)	Great King (phần 4)	lua.e65cf585	không thấy nguồn	
+大理皇宫	en (thoại)	Dali Imperial Palace (phần 5)	lua.651821a8	không thấy nguồn	
+大观	en (thoại)	Daguan (phần 7)	lua.2b06699f	không thấy nguồn	
+大象无形	en (thoại)	The Great Image Is Formless (phần 8)	lua.440c91da	không thấy nguồn	
+大都	en (thoại)	Dadu (phần 8)	lua.48d03e78	không thấy nguồn	
+大雄宝殿	en (thoại)	Mahavira Hall (phần 7)	lua.df1f85df	không thấy nguồn	
+大魁星	en (thoại)	Great Kui Star (phần 8)	lua.a16b94c1	không thấy nguồn	
+天下武学	en (thoại)	Martial Arts of the World (phần 2)	lua.059e506f	không thấy nguồn	
+天府	en (thoại)	Tianfu (phần 8)	lua.1ccd9f67	không thấy nguồn	
+天机傀儡	en (thoại)	Heavenly Secret Puppets (phần 3)	lua.34877cf9	không thấy nguồn	
+天枢	en (thoại)	Tianshu (phần 8)	lua.ba476d6f	không thấy nguồn	
+天溪	en (thoại)	Tianxi (phần 8)	lua.48d03e78	không thấy nguồn	
+天狼子	en (thoại)	Tianlangzi (phần 7)	lua.d5a68c9c	không thấy nguồn	
+天门鬼谷	en (thoại)	Ghost Valley of the Heavenly Gate (phần 6)	lua.abf6fb59	không thấy nguồn	
+天阶	en (thoại)	Heavenly Steps (phần 7)	lua.87e1fa81	không thấy nguồn	
+天马厩	en (thoại)	Tianma Stables (phần 7)	lua.2cc62606	không thấy nguồn	
+天鹰子	en (thoại)	Tianyingzi (phần 7)	lua.28a1bc13	không thấy nguồn	
+天鼎	en (thoại)	Tianding (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+天龙风情	en (thoại)	Tianlong Scenery (phần 6)	lua.ae5709e7	không thấy nguồn	
+太乙	en (thoại)	Taiyi (phần 8)	lua.ba476d6f	không thấy nguồn	
+太乙三才	en (thoại)	Taiyi Three Powers (phần 8)	lua.eddf08d9	không thấy nguồn	
+太渊	en (thoại)	Taiyuan (phần 8)	lua.1ccd9f67	không thấy nguồn	
+太湖水寨	en (thoại)	Taihu Water Fortress (phần 6)	lua.c27d001b	không thấy nguồn	
+太白	en (thoại)	Taibai (phần 8)	lua.48d03e78	không thấy nguồn	
+太老爷	en (thoại)	the Old Master (phần 2)	lua.3ef83b8d	không thấy nguồn	
+太阳花	en (thoại)	Taiyanghua (phần 4)	lua.f61f9dea	không thấy nguồn	
+太阿倒持	en (thoại)	Taie Held by the Blade (phần 8)	lua.ae80d856	không thấy nguồn	
+奚三祁	en (thoại)	Xi Sanqi (phần 7)	lua.855bf081	không thấy nguồn	
+妙笔生花	en (thoại)	Brush Blooms with Flowers (phần 8)	lua.9ec15517	không thấy nguồn	
+妙香别院	en (thoại)	Miaoxiang Courtyard (phần 7)	lua.2073f21d	không thấy nguồn	
+姑苏城	en (thoại)	Gusu City (phần 2)	lua.f0944a42	không thấy nguồn	
+姚伯当	en (thoại)	Yao Bodang (phần 5)	lua.58e788ae	không thấy nguồn	
+姜渔	en (thoại)	Jiang Yu (phần 6)	lua.1f34e27b	không thấy nguồn	
+子衿	en (thoại)	Zijin (phần 4)	lua.39f003df	không thấy nguồn	
+孔宗渊	en (thoại)	Kong Zongyuan (phần 1)	lua.0d496d2f	không thấy nguồn	
+孔最	en (thoại)	Kongzui (phần 8)	lua.1ccd9f67	không thấy nguồn	
+孙二娘	en (thoại)	Sun Erniang (phần 7)	lua.70951a51	không thấy nguồn	
+孙八爷	en (thoại)	Sun Baye (phần 5)	lua.fc19d69c	không thấy nguồn	
+孙子羽	en (thoại)	Sun Ziyu (phần 6,7)	lua.1987d351	không thấy nguồn	
+孙山	en (thoại)	Sun Shan (phần 1)	lua.1c24e828	không thấy nguồn	
+孟龙	en (thoại)	Meng Long (phần 6,7)	lua.8edf4bda	không thấy nguồn	
+学习技能	en (thoại)	Learn Skills (phần 8)	lua.7a6412ed	không thấy nguồn	
+学习骑乘技能	en (thoại)	Learn Riding Skill (phần 7)	lua.e7e6f7fb	không thấy nguồn	
+宁虚	en (thoại)	Ningxu (phần 7)	lua.840c57b1	không thấy nguồn	
+宁静之雨	en (thoại)	Rain of Tranquility (phần 8)	lua.8b4216f6	không thấy nguồn	
+完颜兀术	en (thoại)	Wanyan Wushu (phần 5)	lua.8b6c21f9	không thấy nguồn	
+完颜斡离不	en (thoại)	Wanyan Wolibu (phần 4,5)	lua.cd85e2cb	không thấy nguồn	
+完颜粘没喝	en (thoại)	Wanyan Nianmohe (phần 4,5)	lua.7ee3d921	không thấy nguồn	
+完颜讹里朵	en (thoại)	Wanyan Eliduo (phần 4,5)	lua.61650e75	không thấy nguồn	
+完颜部	en (thoại)	Wanyan tribe (phần 4)	lua.cc5e4227	không thấy nguồn	
+宝石合成工匠	en (thoại)	Gem Synthesis Craftsman (phần 6)	lua.95bfccbb	không thấy nguồn	
+宝石商人	en (thoại)	Gem Merchant (phần 6)	lua.13286468	không thấy nguồn	
+宝石工坊	en (thoại)	Gem Workshop (phần 1)	lua.2c647f8b	không thấy nguồn	
+寂寞高手	en (thoại)	Lonely Master (phần 6)	lua.2e6fb69b	không thấy nguồn	
+寒冰海域	en (thoại)	Frozen Seas (phần 8)	lua.ca773d0d	không thấy nguồn	
+寒梅映雪	en (thoại)	Winter Plum Against the Snow (phần 8)	lua.2653d7a0	không thấy nguồn	
+寒玉合成	en (thoại)	Cold Jade Synthesis (phần 2)	lua.b153ea04	không thấy nguồn	
+尊主	en (thoại)	our Lord (phần 2)	lua.85794870	không thấy nguồn	
+小乞丐	en (thoại)	Little Beggar (phần 5,8)	lua.c364c5b3	không thấy nguồn	
+小仙儿	en (thoại)	Xiao Xian'er (phần 8)	lua.eab0884f	không thấy nguồn	
+小娟	en (thoại)	Xiaojuan (phần 1)	lua.32bf63df	không thấy nguồn	
+小康	en (thoại)	Xiao Kang (phần 5)	lua.31b49bf7	không thấy nguồn	
+小桃园	en (thoại)	Little Peach Garden (phần 7)	lua.e7740667	không thấy nguồn	
+小钗	en (thoại)	Xiao Chai (phần 7)	lua.529df897	không thấy nguồn	
+小高	en (thoại)	Xiao Gao (phần 7)	lua.cdb61387	không thấy nguồn	
+少商	en (thoại)	Shaoshang (phần 8)	lua.1ccd9f67	không thấy nguồn	
+少林古刹	en (thoại)	Ancient Shaolin Temple (phần 6)	lua.b28821dc	không thấy nguồn	
+少林旧事	en (thoại)	Old Tales of Shaolin (phần 6,8)	lua.ebb3650f	không thấy nguồn	
+尚武台	en (thoại)	Shangwu Platform (phần 7)	lua.e585a342	không thấy nguồn	
+就地正法	en (thoại)	Execute on the Spot (phần 3)	lua.0a5ec83e	không thấy nguồn	
+尺泽	en (thoại)	Chize (phần 8)	lua.1ccd9f67	không thấy nguồn	
+山蛛	en (thoại)	Mountain Spider (phần 5,8)	lua.c983edde	không thấy nguồn	
+岩义殿	en (thoại)	Yanyi Hall (phần 7)	lua.278846fe	không thấy nguồn	
+岳仲秋	en (thoại)	Yue Zhongqiu (phần 4)	lua.719d80e5	không thấy nguồn	
+峨嵋天下秀	en (thoại)	Emei, Loveliest Under Heaven (phần 6)	lua.6aee5203	không thấy nguồn	
+崔绿华	en (thoại)	Cui Luhua (phần 7)	lua.6b90ff18	không thấy nguồn	
+崔逢九	en (thoại)	Cui Fengjiu (phần 7)	lua.c299e3bd	không thấy nguồn	
+工艺大师	en (thoại)	Crafting Master (phần 6)	lua.f0c8ccdd	không thấy nguồn	
+左季高	en (thoại)	Zuo Jigao (phần 6)	lua.4287c340	không thấy nguồn	
+左无双	en (thoại)	Zuo Wushuang (phần 6)	lua.0d5f6a5e	không thấy nguồn	
+巨骨	en (thoại)	Jugu (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+布告牌	en (thoại)	Notice Board (phần 5,8)	lua.651821a8	không thấy nguồn	
+布衣	en (thoại)	Cloth Garb (phần 5)	lua.17e0d3bb	không thấy nguồn	
+师门套	en (thoại)	Sect Set (phần 8)	lua.5169dd97	không thấy nguồn	
+师门贡献度	en (thoại)	sect contribution (phần 6)	lua.82139252	không thấy nguồn	
+帮会自订称号	en (thoại)	Guild Custom Title (phần 4)	lua.876fceaf	không thấy nguồn	
+平反水牢叛乱	en (thoại)	quell the Water Dungeon rebellion (phần 7)	lua.79a19942	không thấy nguồn	
+平定任务	en (thoại)	pacification quest (phần 3)	lua.7fa755ed	không thấy nguồn	
+广宁镇	en (thoại)	Guangning Town (phần 5)	lua.9b852d38	không thấy nguồn	
+庞万春	en (thoại)	Pang Wanchun (phần 7)	lua.3104503a	không thấy nguồn	
+康广陵	en (thoại)	Kang Guangling (phần 7)	lua.c2110f87	không thấy nguồn	
+张中行	en (thoại)	Zhang Zhongxing (phần 6,7)	lua.e2ec637b	không thấy nguồn	
+张全祥	en (thoại)	Zhang Quanxiang (phần 7)	lua.5df6ac1e	không thấy nguồn	
+张君慕	en (thoại)	Zhang Junmu (phần 7)	lua.4d3816ca	không thấy nguồn	
+张君羡	en (thoại)	Zhang Junxian (phần 7)	lua.278846fe	không thấy nguồn	
+张将军	en (thoại)	General Zhang (phần 4)	lua.f9fc22d8	không thấy nguồn	
+张小河	en (thoại)	Zhang Xiaohe (phần 7)	lua.d252adf3	không thấy nguồn	
+张弈国	en (thoại)	Zhang Yiguo (phần 7)	lua.eabbf1fe	không thấy nguồn	
+张明景	en (thoại)	Zhang Mingjing (phần 6)	lua.6a7593c6	không thấy nguồn	
+张玄素	en (thoại)	Zhang Xuansu (phần 7)	lua.790479c0	không thấy nguồn	
+张耒	en (thoại)	Zhang Lei (phần 1)	lua.ef2484d0	không thấy nguồn	
+张获	en (thoại)	Zhang Huo (phần 5,7)	lua.5387dcb3	không thấy nguồn	
+张遗	en (thoại)	Zhang Yi (phần 8)	lua.ee0c1447	không thấy nguồn	
+弯刀马匪	en (thoại)	Scimitar Bandit (phần 6)	lua.057c2cf3	không thấy nguồn	
+归云亭	en (thoại)	Guiyun Pavilion (phần 5)	lua.2ac87fe3	không thấy nguồn	
+当铺	en (thoại)	Pawnshop (phần 2,7)	lua.2d8607cb	không thấy nguồn	
+彩云	en (thoại)	Caiyun (phần 7)	lua.b59fc311	không thấy nguồn	
+彭怀玉	en (thoại)	Peng Huaiyu (phần 6)	lua.88955740	không thấy nguồn	
+微服私访	en (thoại)	Travel Incognito (phần 8)	lua.4c78e045	không thấy nguồn	
+忠烈堂	en (thoại)	Zhonglie Hall (phần 7)	lua.19a66cb2	không thấy nguồn	
+快乐度	en (thoại)	Happiness (phần 2)	lua.325c79ce	không thấy nguồn	
+快活三	en (thoại)	Happy Three (phần 8)	lua.3a278b4c	không thấy nguồn	
+怎么捉珍兽啊	en (thoại)	How Do I Catch a Treasure Beast? (phần 5,8)	lua.94cea6aa	không thấy nguồn	
+思恩	en (thoại)	Si'en (phần 7)	lua.333f3cba	không thấy nguồn	
+总捕头	en (thoại)	Chief Constable (phần 7)	lua.da7392a5	không thấy nguồn	
+恩科	en (thoại)	special examination (phần 1)	lua.cc387051	không thấy nguồn	
+恶猴	en (thoại)	Wicked Monkeys (phần 3)	lua.ba0b6d4d	không thấy nguồn	
+恶贯满盈	en (thoại)	Brimming with Evil (phần 8)	lua.be177693	không thấy nguồn	
+惩凶任务	en (thoại)	Villain Hunt Quest (phần 6)	lua.cc9d1e75	không thấy nguồn	
+慈航普渡	en (thoại)	Salvation Voyage (phần 8)	lua.e15250a4	không thấy nguồn	
+慕容杰	en (thoại)	Murong Jie (phần 7)	lua.6d2d8d2e	không thấy nguồn	
+慕容胜	en (thoại)	Murong Sheng (phần 2)	lua.cd9f7684	không thấy nguồn	
+慕容长老	en (thoại)	Elder Murong (phần 4)	lua.b3297873	không thấy nguồn	
+慧方	en (thoại)	Huifang (phần 2,6,7)	lua.2b6add1d	không thấy nguồn	
+慧轮	en (thoại)	Huilun (phần 7)	lua.9978d72a	không thấy nguồn	
+我的爱情不是梦	en (thoại)	My Love Is No Dream (phần 8)	lua.9ab28041	không thấy nguồn	
+我能入门派啦	en (thoại)	I Can Join a Sect! (phần 5,8)	lua.af7f2841	không thấy nguồn	
+战区重楼兑换	en (thoại)	War Zone Chonglou Exchange (phần 1)	lua.4d835476	không thấy nguồn	
+战斗特色	en (thoại)	Combat Traits (phần 6)	lua.0b4ad585	không thấy nguồn	
+户部尚书	en (thoại)	Minister of Revenue (phần 6)	lua.095ffd8d	không thấy nguồn	
+扈三娘	en (thoại)	Hu Sanniang (phần 7)	lua.9f543afe	không thấy nguồn	
+手三里	en (thoại)	Shousanli (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+手五里	en (thoại)	Shouwuli (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+手太阴肺经	en (thoại)	Hand-Taiyin Lung Meridian (phần 8)	lua.1ccd9f67	không thấy nguồn	
+手阳明大肠经	en (thoại)	Hand-Yangming Large Intestine Meridian (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+打小木人巷啦	en (thoại)	Off to Small Wooden Dummy Alley! (phần 8)	lua.00fe8a41	không thấy nguồn	
+打木人巷啦	en (thoại)	Into the Dummy Alley! (phần 5)	lua.ec7f7fec	không thấy nguồn	
+打草谷	en (thoại)	gathering fodder and grain (phần 3)	lua.ec204857	không thấy nguồn	
+扬明	en (thoại)	Yang Ming (phần 4)	lua.60b98c8b	không thấy nguồn	
+承泣	en (thoại)	Chengqi (phần 8)	lua.ba476d6f	không thấy nguồn	
+抱残守缺	en (thoại)	Cling to the Old Ways (phần 8)	lua.d218e9c5	không thấy nguồn	
+拈花寺	en (thoại)	Nianhua Temple (phần 2,3,5)	lua.462f3a31	không thấy nguồn	
+拜师介绍人	en (thoại)	Apprenticeship Guide (phần 7)	lua.5f6ba872	không thấy nguồn	
+拨狗朝天	en (thoại)	Prod the Dog Skyward (phần 8)	lua.7e58ee16	không thấy nguồn	
+择日再战	en (thoại)	Fight Another Day (phần 8)	lua.afe377f3	không thấy nguồn	
+指点群豪戏	en (thoại)	Giving the Heroes a Lesson (phần 8)	lua.6220ca47	không thấy nguồn	
+捉住珍兽啦	en (thoại)	Treasure Beast Caught! (phần 8)	lua.7062f0ee	không thấy nguồn	
+捉迷藏	en (thoại)	Hide and Seek (phần 5,8)	lua.307d4b0f	không thấy nguồn	
+掌门	en (thoại)	Sect Master (phần 7)	lua.80620a61	không thấy nguồn	
+探测器	en (thoại)	Detector (phần 8)	lua.bd5502bc	không thấy nguồn	
+接引	en (thoại)	Reception (phần 7)	lua.9486df81	không thấy nguồn	
+接引使	en (thoại)	guide for newcomers (phần 6)	lua.632e1a3a	không thấy nguồn	
+搜宝专家	en (thoại)	Treasure Hunt Expert (phần 6)	lua.bd4b23f9	không thấy nguồn	
+摘星子	en (thoại)	Zhaixingzi (phần 7)	lua.1956b178	không thấy nguồn	
+教主	en (thoại)	Cult Leader (phần 7)	lua.97658a58	không thấy nguồn	
+新人权杖	en (thoại)	Newcomer Scepter (phần 8)	lua.5169dd97	không thấy nguồn	
+新兵夺宝	en (thoại)	Recruit Treasure Grab (phần 1)	lua.3ac51053	không thấy nguồn	
+方七佛	en (thoại)	Fang Qifo (phần 7)	lua.ff37ed92	không thấy nguồn	
+方丈	en (thoại)	Abbot (phần 7)	lua.b4eda878	không thấy nguồn	
+方丈殿	en (thoại)	Fangzhang Hall (phần 7)	lua.228862d4	không thấy nguồn	
+方天定	en (thoại)	Fang Tianding (phần 7)	lua.de5b1421	không thấy nguồn	
+方百花	en (thoại)	Fang Baihua (phần 7)	lua.d25ffefe	không thấy nguồn	
+方腊	en (thoại)	Fang La (phần 7)	lua.2b47200c	không thấy nguồn	
+施主	en (thoại)	Benefactor (phần 3,4)	lua.f034fd2f	không thấy nguồn	
+施全	en (thoại)	Shi Quan (phần 7)	lua.555c0572	không thấy nguồn	
+无众生相	en (thoại)	No Notion of Beings (phần 8)	lua.f4f04a2d	không thấy nguồn	
+无敌侠客	en (thoại)	Invincible Knight-Errant (phần 6)	lua.4efb79e4	không thấy nguồn	
+无相劫指	en (thoại)	Formless Tribulation Finger (phần 8)	lua.b2cbe71b	không thấy nguồn	
+无量派	en (thoại)	Wuliang Sect (phần 3)	lua.c169d4b0	không thấy nguồn	
+日月宫	en (thoại)	Riyue Palace (phần 7)	lua.020adca2	không thấy nguồn	
+早产植物	en (thoại)	Fast-Growing Crops (phần 8)	lua.9d59a20e	không thấy nguồn	
+明尊坛	en (thoại)	Mingzun Altar (phần 7)	lua.6985f3b7	không thấy nguồn	
+明教传送使	en (thoại)	Ming Cult Teleport Envoy (phần 7)	lua.ff37ed92	không thấy nguồn	
+易容阁	en (thoại)	Disguise Pavilion (phần 1)	lua.b303be29	không thấy nguồn	
+星宿春秋	en (thoại)	Xingxiu Chronicles (phần 6)	lua.62f8f8f4	không thấy nguồn	
+星宿老仙	en (thoại)	Xingxiu Immortal (phần 7)	lua.06fadaf0	không thấy nguồn	
+晚产植物	en (thoại)	Slow-Growing Crops (phần 8)	lua.68168fcb	không thấy nguồn	
+智化	en (thoại)	Zhi Hua (phần 7)	lua.7f6e96c3	không thấy nguồn	
+智清大师	en (thoại)	Master Zhiqing (phần 1)	lua.9269fb46	không thấy nguồn	
+曲池	en (thoại)	Quchi (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+曲阳	en (thoại)	Qu Yang (phần 6)	lua.450e90ad	không thấy nguồn	
+曾三省	en (thoại)	Zeng Sansheng (phần 7)	lua.b74ff5af	không thấy nguồn	
+最后一击	en (thoại)	The Final Blow (phần 5,8)	lua.38509b9f	không thấy nguồn	
+月下老人	en (thoại)	Matchmaker (phần 6)	lua.4fce9263	không thấy nguồn	
+月季	en (thoại)	Yueji (phần 5)	lua.1f866607	không thấy nguồn	
+有巢氏	en (thoại)	Youchao Clan (phần 8)	lua.1a65c5d7	không thấy nguồn	
+有常无常	en (thoại)	Permanence and Impermanence (phần 8)	lua.aac1c981	không thấy nguồn	
+服饰店	en (thoại)	Apparel Shop (phần 7)	lua.19fdaad0	không thấy nguồn	
+望梅止渴	en (thoại)	Gaze at Plums to Quench Thirst (phần 8)	lua.718f3c62	không thấy nguồn	
+望洋兴叹	en (thoại)	Sigh at the Ocean (phần 8)	lua.04c0826e	không thấy nguồn	
+望雪崖	en (thoại)	Snow-Gazing Cliff (phần 4)	lua.f7caeb19	không thấy nguồn	
+朝三暮四	en (thoại)	Three in the Morning, Four at Night (phần 8)	lua.fd0d9cfa	không thấy nguồn	
+木头人	en (thoại)	Wooden Dummy (phần 5)	lua.0e4672d0	không thấy nguồn	
+本凡	en (thoại)	Benfan (phần 6,7)	lua.7145690a	không thấy nguồn	
+本参	en (thoại)	Bencan (phần 7)	lua.281b1403	không thấy nguồn	
+本因	en (thoại)	Benyin (phần 7)	lua.7c962217	không thấy nguồn	
+本相	en (thoại)	Benxiang (phần 7)	lua.9a9a6113	không thấy nguồn	
+本观	en (thoại)	Benguan (phần 7)	lua.8853ecc9	không thấy nguồn	
+杀更多的怪	en (thoại)	Slay More Monsters (phần 5,8)	lua.15d48da3	không thấy nguồn	
+杂货商人	en (thoại)	General Merchant (phần 6)	lua.a55d2627	không thấy nguồn	
+杂货店	en (thoại)	General Store (phần 2,7)	lua.c79ea8bb	không thấy nguồn	
+杂货铺	en (thoại)	General Store (phần 5)	lua.973f7526	không thấy nguồn	
+李乘风	en (thoại)	Li Chengfeng (phần 6,7)	lua.507d6d17	không thấy nguồn	
+李傀儡	en (thoại)	Li Kuilei (phần 7)	lua.b0a3e25e	không thấy nguồn	
+李十二娘	en (thoại)	Li Shi'erniang (phần 7)	lua.f5e41b4e	không thấy nguồn	
+李大嘴	en (thoại)	Li Dazui (phần 6)	lua.90e17ec3	không thấy nguồn	
+李日越	en (thoại)	Li Riyue (phần 7)	lua.b2efed54	không thấy nguồn	
+李继隆	en (thoại)	Li Jilong (phần 8)	lua.4baa9c8c	không thấy nguồn	
+杏子林	en (thoại)	Xingzi Forest (phần 1)	lua.2d9d9bec	không thấy nguồn	
+材料加工介绍	en (thoại)	Material Processing Guide (phần 7)	lua.2ec6b164	không thấy nguồn	
+杜子飞	en (thoại)	Du Zifei (phần 7)	lua.11fbbdf8	không thấy nguồn	
+来由	en (thoại)	Origins (phần 6)	lua.221c4266	không thấy nguồn	
+杨四娘	en (thoại)	Yang Siniang (phần 7)	lua.b23df19a	không thấy nguồn	
+杨熙平	en (thoại)	Yang Xiping (phần 6)	lua.ffe456f7	không thấy nguồn	
+杨白牛	en (thoại)	Yang Bainiu (phần 7)	lua.d0ef242e	không thấy nguồn	
+杨青牛	en (thoại)	Yang Qingniu (phần 7)	lua.2cc62606	không thấy nguồn	
+林和靖	en (thoại)	Lin Hejing (phần 7)	lua.5a4680c9	không thấy nguồn	
+林岩	en (thoại)	Lin Yan (phần 6,7)	lua.bdd19301	không thấy nguồn	
+林海溪谷	en (thoại)	Linhai Valley (phần 8)	lua.4c92b72c	không thấy nguồn	
+林灵素	en (thoại)	Lin Lingsu (phần 7)	lua.35105efc	không thấy nguồn	
+枫侨街	en (thoại)	Fengqiao Street (phần 7)	lua.da7392a5	không thấy nguồn	
+枫桥街	en (thoại)	Fengqiao Street (phần 6)	lua.1987d351	không thấy nguồn	
+柴大官人	en (thoại)	Squire Chai (phần 2)	lua.bd6504dd	không thấy nguồn	
+校尉	en (thoại)	Captain (phần 7)	lua.ae138805	không thấy nguồn	
+栾提傲天	en (thoại)	Luanti Aotian (phần 4)	lua.be11fc01	không thấy nguồn	
+桃园	en (thoại)	Peach Garden (phần 7)	lua.512259b8	không thấy nguồn	
+梁道士	en (thoại)	Taoist Liang (phần 2)	lua.121a553c	không thấy nguồn	
+梁门	en (thoại)	Liangmen (phần 8)	lua.ba476d6f	không thấy nguồn	
+梁阿婆	en (thoại)	Granny Liang (phần 4)	lua.50a981e2	không thấy nguồn	
+梅剑	en (thoại)	Mei Jian (phần 5,7)	lua.499b0b3d	không thấy nguồn	
+梅花桩	en (thoại)	plum blossom posts (phần 1)	lua.12edd3fe	không thấy nguồn	
+梦溪笔谈	en (thoại)	Dream Pool Essays (phần 4)	lua.7a1b5acc	không thấy nguồn	
+梦郎	en (thoại)	Dream Lover (phần 5)	lua.f3a041cc	không thấy nguồn	
+棋圣	en (thoại)	Chess Sage (phần 6)	lua.961cf6b4	không thấy nguồn	
+棋局活动使者	en (thoại)	Chess Puzzle Event Envoy (phần 7)	lua.c3d5c1a8	không thấy nguồn	
+楚大人	en (thoại)	Lord Chu (phần 1)	lua.20446736	không thấy nguồn	
+楚王	en (thoại)	Prince of Chu (phần 5)	lua.cf200974	không thấy nguồn	
+横扫牡丹碗	en (thoại)	Sweep Peony Bowl (phần 6)	lua.352b0900	không thấy nguồn	
+欧冶子	en (thoại)	Ou Yezi (phần 7)	lua.c05bc80b	không thấy nguồn	
+欲擒故纵	en (thoại)	Let Go to Catch (phần 8)	lua.348cd882	không thấy nguồn	
+武夷山	en (thoại)	Mount Wuyi (phần 6)	lua.450e90ad	không thấy nguồn	
+武当仙风	en (thoại)	Wudang's Immortal Grace (phần 6)	lua.7bdb56ab	không thấy nguồn	
+武馆馆主	en (thoại)	Dojo Master (phần 7)	lua.6da5cb9d	không thấy nguồn	
+段郎	en (thoại)	my beloved Duan (phần 4)	lua.793a4796	không thấy nguồn	
+气户	en (thoại)	Qihu (phần 8)	lua.ba476d6f	không thấy nguồn	
+气贯全身	en (thoại)	Qi Floods the Body (phần 8)	lua.4dd32267	không thấy nguồn	
+水仙	en (thoại)	Shuixian (phần 4)	lua.b189db81	không thấy nguồn	
+水调歌头	en (thoại)	Prelude to Water Melody (phần 4)	lua.a85e5418	không thấy nguồn	
+汉军团	en (thoại)	Han Legion (phần 3)	lua.544fa397	không thấy nguồn	
+汪旱	en (thoại)	Wang Han (phần 6)	lua.7bf93b1c	không thấy nguồn	
+沈先生	en (thoại)	Mr. Shen (phần 4)	lua.b066acbb	không thấy nguồn	
+沈大人	en (thoại)	Lord Shen (phần 4)	lua.7a1b5acc	không thấy nguồn	
+沈括	en (thoại)	Shen Kuo (phần 6)	lua.fa3bab25	không thấy nguồn	
+沈澄	en (thoại)	Shen Cheng (phần 6)	lua.f097694d	không thấy nguồn	
+沈老板	en (thoại)	Boss Shen (phần 4)	lua.f2776099	không thấy nguồn	
+法念	en (thoại)	Fanian (phần 4,6)	lua.953045ec	không thấy nguồn	
+洛阳水席	en (thoại)	Luoyang Water Banquet (phần 1)	lua.0dbfa605	không thấy nguồn	
+洛阳送信任务	en (thoại)	Luoyang Delivery Quest (phần 1)	lua.8d4ea3f9	không thấy nguồn	
+洪通	en (thoại)	Hong Tong (phần 6,7)	lua.894d96c1	không thấy nguồn	
+涿鹿古战场	en (thoại)	Zhuolu Ancient Battlefield (phần 1)	lua.d60cd856	không thấy nguồn	
+淩波微步	en (thoại)	Lingbo Weibu (phần 8)	lua.69b30045	không thấy nguồn	
+淩波逍遥	en (thoại)	Lingbo Xiaoyao (phần 6)	lua.b8ce070d	không thấy nguồn	
+清音阁	en (thoại)	Qingyin Pavilion (phần 7)	lua.6b90ff18	không thấy nguồn	
+渔夫	en (thoại)	Fisherman (phần 7)	lua.8f132445	không thấy nguồn	
+温溜	en (thoại)	Wenliu (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+游山玩水	en (thoại)	Sightseeing Tour (phần 6)	lua.50229be4	không thấy nguồn	
+满怒治疗	en (thoại)	Full Rage Healing (phần 1)	lua.4dc4b8f6	không thấy nguồn	
+漏谷	en (thoại)	Lougu (phần 8)	lua.48d03e78	không thấy nguồn	
+演武场	en (thoại)	Training Ground (phần 3)	lua.d4b3f80b	không thấy nguồn	
+澹台子羽	en (thoại)	Tantai Ziyu (phần 5,7)	lua.83776f8e	không thấy nguồn	
+瀛洲殿	en (thoại)	Yingzhou Hall (phần 7)	lua.1956b178	không thấy nguồn	
+火星冲日	en (thoại)	Mars Strikes the Sun (phần 8)	lua.7044f082	không thấy nguồn	
+灭世火窟	en (thoại)	World-Ending Fire Cavern (phần 8)	lua.2c5c3e43	không thấy nguồn	
+灭此朝食	en (thoại)	Crush Them Before Breakfast (phần 6)	lua.b1d01651	không thấy nguồn	
+灵泉	en (thoại)	Lingquan Spring (phần 7)	lua.33c7d080	không thấy nguồn	
+灵鹫峰	en (thoại)	Lingjiu Peak (phần 3)	lua.3faddecf	không thấy nguồn	
+点苍山	en (thoại)	Diancang peaks (phần 4)	lua.f7caeb19	không thấy nguồn	
+热布巴拉	en (thoại)	Rebubala (phần 5)	lua.5377e6e5	không thấy nguồn	
+烹饪大师	en (thoại)	Cooking Master (phần 6)	lua.aceb71ed	không thấy nguồn	
+焦头烂额	en (thoại)	Singed and Battered (phần 8)	lua.a4b49991	không thấy nguồn	
+燕子抄水	en (thoại)	Swallow Skims the Water (phần 8)	lua.4753769a	không thấy nguồn	
+爱神之吻	en (thoại)	Cupid's Kiss (phần 1)	lua.660f2b5a	không thấy nguồn	
+犯人头目	en (thoại)	convict leader (phần 6)	lua.253bb29c	không thấy nguồn	
+状元场	en (thoại)	Zhuangyuan Square (phần 6,7)	lua.3ba0740e	không thấy nguồn	
+狮吼子	en (thoại)	Shihouzi (phần 7)	lua.bc165d64	không thấy nguồn	
+猿猱	en (thoại)	apes (phần 3)	lua.3b2b7ef1	không thấy nguồn	
+玄女雕像	en (thoại)	Mystic Maiden statue (phần 7)	lua.338df91a	không thấy nguồn	
+玄寂	en (thoại)	Xuanji (phần 5,7)	lua.edd1f064	không thấy nguồn	
+玄渡	en (thoại)	Xuandu (phần 7)	lua.d9ceea10	không thấy nguồn	
+玄澄	en (thoại)	Xuancheng (phần 7)	lua.afbf44b3	không thấy nguồn	
+玄灭	en (thoại)	Xuanmie (phần 7)	lua.0941a492	không thấy nguồn	
+玄生	en (thoại)	Xuansheng (phần 7)	lua.d158626e	không thấy nguồn	
+玄阴至阳	en (thoại)	Mystic Yin, Supreme Yang (phần 8)	lua.d9b04edb	không thấy nguồn	
+玄难	en (thoại)	Xuannan (phần 5,7)	lua.edd1f064	không thấy nguồn	
+玄鸣	en (thoại)	Xuanming (phần 7)	lua.a0672548	không thấy nguồn	
+玉华坛	en (thoại)	Yuhua Altar (phần 2)	lua.9cd2789a	không thấy nguồn	
+玉洱巷	en (thoại)	Yu'er Lane (phần 5)	lua.bcfbf2e8	không thấy nguồn	
+玉门关	en (thoại)	Yumen Pass (phần 3)	lua.1344c96e	không thấy nguồn	
+王大将军	en (thoại)	General Wang (phần 2)	lua.e91f4c66	không thấy nguồn	
+王妃	en (thoại)	the Princess Consort (phần 2)	lua.dad3a675	không thấy nguồn	
+王审芝	en (thoại)	Wang Shenzhi (phần 7)	lua.96031db6	không thấy nguồn	
+王府	en (thoại)	Prince's Mansion (phần 6)	lua.961cf6b4	không thấy nguồn	
+王彦	en (thoại)	Wang Yan (phần 6)	lua.38f330be	không thấy nguồn	
+王德富	en (thoại)	Wang Defu (phần 6)	lua.a5dea7d9	không thấy nguồn	
+王德贵	en (thoại)	Wang Degui (phần 6)	lua.dcb8d576	không thấy nguồn	
+王栩之	en (thoại)	Wang Xuzhi (phần 7)	lua.e0997de6	không thấy nguồn	
+王玄风	en (thoại)	Wang Xuanfeng (phần 6,8)	lua.1857d19c	không thấy nguồn	
+王禅一	en (thoại)	Wang Chanyi (phần 8)	lua.e6900975	không thấy nguồn	
+王积薪	en (thoại)	Wang Jixin (phần 6)	lua.8ab0ec98	không thấy nguồn	
+王若禹	en (thoại)	Wang Ruoyu (phần 7)	lua.7addef96	không thấy nguồn	
+王韶	en (thoại)	Wang Shao (phần 6)	lua.e30c16d7	không thấy nguồn	
+王颖	en (thoại)	Wang Ying (phần 7)	lua.bf01aeb0	không thấy nguồn	
+环佩归魂	en (thoại)	Pendants Return the Soul (phần 8)	lua.53f87129	không thấy nguồn	
+珍兽驯养	en (thoại)	Treasure Beast Taming (phần 1)	lua.7874af71	không thấy nguồn	
+珍珑棋会	en (thoại)	Zhenlong Chess Gathering (phần 5,8)	lua.5e4dab7d	không thấy nguồn	
+珠宝商人	en (thoại)	Jewelry Merchant (phần 6)	lua.da3e3629	không thấy nguồn	
+琉球	en (thoại)	Liuqiu (phần 4)	lua.240ad231	không thấy nguồn	
+甄唯思	en (thoại)	Zhen Weisi (phần 6)	lua.618c3049	không thấy nguồn	
+生命之泉	en (thoại)	Spring of Life (phần 8)	lua.392497ae	không thấy nguồn	
+生活特色	en (thoại)	Life Traits (phần 6)	lua.084f30bd	không thấy nguồn	
+田骁鸣	en (thoại)	Tian Xiaoming (phần 6)	lua.3b3feb8e	không thấy nguồn	
+白兰	en (thoại)	Bai Lan (phần 4)	lua.683e8dda	không thấy nguồn	
+白景武	en (thoại)	Bai Jingwu (phần 4)	lua.c0db0ec7	không thấy nguồn	
+白水秋风	en (thoại)	Baishui Qiufeng (phần 7)	lua.94af88b7	không thấy nguồn	
+白狼王	en (thoại)	White Wolf King (phần 5)	lua.9b852d38	không thấy nguồn	
+白猿	en (thoại)	White Ape (phần 8)	lua.b872616c	không thấy nguồn	
+白苗人	en (thoại)	White Miao (phần 6)	lua.a41ee7e8	không thấy nguồn	
+白萌生	en (thoại)	Bai Mengsheng (phần 6)	lua.1a7bedc0	không thấy nguồn	
+白金旗	en (thoại)	Platinum Banner (phần 7)	lua.5c60fb29	không thấy nguồn	
+白颖明	en (thoại)	Bai Yingming (phần 6)	lua.f0c8161d	không thấy nguồn	
+白马寺	en (thoại)	White Horse Temple (phần 1)	lua.a8fc61ad	không thấy nguồn	
+皇太叔	en (thoại)	Imperial Uncle (phần 5)	lua.cf200974	không thấy nguồn	
+皇太妃	en (thoại)	Grand Consort (phần 5)	lua.8d2f040f	không thấy nguồn	
+监军	en (thoại)	Army Overseer (phần 3)	lua.cdcb6a50	không thấy nguồn	
+监寺	en (thoại)	Prior (phần 7)	lua.bc05af0a	không thấy nguồn	
+盖世英雄	en (thoại)	Hero of the Age (phần 6)	lua.00be3223	không thấy nguồn	
+盖千鸣	en (thoại)	Gai Qianming (phần 1)	lua.d5929455	không thấy nguồn	
+盛如兰	en (thoại)	Sheng Rulan (phần 7)	lua.2073f21d	không thấy nguồn	
+盟主七宝腰带	en (thoại)	Alliance Leader Seven Treasures Belt (phần 1)	lua.cd8a75b3	không thấy nguồn	
+盟主铜腰带碎片	en (thoại)	Alliance Leader Bronze Belt Fragment (phần 5)	lua.0874c686	không thấy nguồn	
+相会在万劫谷	en (thoại)	Meeting at Wanjie Valley (phần 8)	lua.be403aae	không thấy nguồn	
+相濡以沫	en (thoại)	Mutual Succor (phần 8)	lua.ff60306c	không thấy nguồn	
+真人	en (thoại)	the Master (phần 2)	lua.2546b2ba	không thấy nguồn	
+瞒天过海	en (thoại)	Deceive Heaven, Cross the Sea (phần 8)	lua.a5002ab2	không thấy nguồn	
+知客丐	en (thoại)	Guest Beggar (phần 3)	lua.932306f9	không thấy nguồn	
+知客使	en (thoại)	Guest Envoy (phần 3)	lua.538b7eea	không thấy nguồn	
+知客僧	en (thoại)	Guest Monk (phần 3)	lua.77d5628b	không thấy nguồn	
+知客弟子	en (thoại)	Guest Disciple (phần 3)	lua.2fab4b35	không thấy nguồn	
+知客道人	en (thoại)	Guest Taoist (phần 3)	lua.f6e9e0ce	không thấy nguồn	
+石嫂	en (thoại)	Madam Shi (phần 7)	lua.d484cfb0	không thấy nguồn	
+石宝	en (thoại)	Shi Bao (phần 5,7)	lua.88091cc2	không thấy nguồn	
+石清露	en (thoại)	Shi Qinglu (phần 7)	lua.333f3cba	không thấy nguồn	
+石甘霖	en (thoại)	Shi Ganlin (phần 7)	lua.4ed42a44	không thấy nguồn	
+破军子	en (thoại)	Pojunzi (phần 7)	lua.020adca2	không thấy nguồn	
+破嗔	en (thoại)	Pochen (phần 7)	lua.bf25536a	không thấy nguồn	
+碎冰戽	en (thoại)	Suibinghu (phần 7)	lua.bf10506f	không thấy nguồn	
+祁六	en (thoại)	Qi Liu (phần 5)	lua.f0733620	không thấy nguồn	
+神光离合	en (thoại)	Divine Light Parts and Joins (phần 8)	lua.f84f94cf	không thấy nguồn	
+神器铸造	en (thoại)	Artifact Forging (phần 1)	lua.3731dfae	không thấy nguồn	
+神木鼎	en (thoại)	Shenmu Cauldron (phần 7)	lua.06fadaf0	không thấy nguồn	
+神行百变	en (thoại)	Hundred Swift Changes (phần 8)	lua.32ca188c	không thấy nguồn	
+神鹿管理员	en (thoại)	Divine Deer Keeper (phần 7)	lua.dd9f7c33	không thấy nguồn	
+祭司	en (thoại)	Priestess (existing item name uses Priest) (phần 4)	lua.c3968ffe	không thấy nguồn	
+种世衡	en (thoại)	Chong Shiheng (phần 6)	lua.398d5e93	không thấy nguồn	
+种植大师	en (thoại)	Planting Master (phần 6)	lua.a4eb42c6	không thấy nguồn	
+秦伯光	en (thoại)	Qin Boguang (phần 6)	lua.7559ec99	không thấy nguồn	
+秦家寨败兵	en (thoại)	routed Qin Fort soldier (phần 6)	lua.398d5e93	không thấy nguồn	
+秦家寨路霸	en (thoại)	Qin Fort highwayman (phần 6)	lua.7559ec99	không thấy nguồn	
+秦观	en (thoại)	Qin Guan (phần 7)	lua.64e2ed8a	không thấy nguồn	
+称青霜	en (thoại)	Cheng Qingshuang (phần 7)	lua.359c8e63	không thấy nguồn	
+移民接待使	en (thoại)	Migration Envoy (phần 1)	lua.8d1b7a43	không thấy nguồn	
+移魂大法	en (thoại)	Soul Shift Art (phần 8)	lua.82bee470	không thấy nguồn	
+程青霜	en (thoại)	Cheng Qingshuang (phần 5)	lua.8b9f2350	không thấy nguồn	
+穆子陵	en (thoại)	Mu Ziling (phần 7)	lua.9a314e3a	không thấy nguồn	
+空山禅房	en (thoại)	Kongshan Meditation Room (phần 7)	lua.9a9a6113	không thấy nguồn	
+立地成佛	en (thoại)	Instant Buddhahood (phần 8)	lua.61372a29	không thấy nguồn	
+童化铁	en (thoại)	Tong Huatie (phần 7)	lua.adbd3f8a	không thấy nguồn	
+童大人	en (thoại)	Lord Tong (phần 1)	lua.aa689da1	không thấy nguồn	
+竹剑	en (thoại)	Zhu Jian (phần 7)	lua.1d7d67a8	không thấy nguồn	
+笑口常开	en (thoại)	Ever Smiling (phần 8)	lua.4fe06e34	không thấy nguồn	
+笑语解颐	en (thoại)	Jest Brings a Smile (phần 8)	lua.19161df8	không thấy nguồn	
+符敏之	en (thoại)	Fu Minzhi (phần 6)	lua.8285d7f2	không thấy nguồn	
+符敏仪	en (thoại)	Fu Minyi (phần 6,7)	lua.6aacf66d	không thấy nguồn	
+第一个馒头	en (thoại)	First Steamed Bun (phần 5,8)	lua.e5dcaa46	không thấy nguồn	
+第一份药品	en (thoại)	First Medicine (phần 5,8)	lua.ac2b0725	không thấy nguồn	
+第一只珍兽	en (thoại)	First Treasure Beast (phần 5,8)	lua.8fda698a	không thấy nguồn	
+第一封推荐信	en (thoại)	First Recommendation Letter (phần 5,8)	lua.1d66b851	không thấy nguồn	
+第一把武器	en (thoại)	First Weapon (phần 5,8)	lua.5cf43cb9	không thấy nguồn	
+第一次送货	en (thoại)	First Delivery (phần 5,8)	lua.33c40fb2	không thấy nguồn	
+第一次问答	en (thoại)	First Quiz (phần 2,8)	lua.88408a9d	không thấy nguồn	
+第七封推荐信	en (thoại)	Seventh Recommendation Letter (phần 5,8)	lua.db1b2ad0	không thấy nguồn	
+第三封推荐信	en (thoại)	Third Recommendation Letter (phần 5,8)	lua.d01426d2	không thấy nguồn	
+第二块血迹	en (thoại)	The Second Bloodstain (phần 6,8)	lua.e5aad29c	không thấy nguồn	
+第二封推荐信	en (thoại)	Second Recommendation Letter (phần 5,8)	lua.a5ded46f	không thấy nguồn	
+第五封推荐信	en (thoại)	Fifth Recommendation Letter (phần 5,8)	lua.a6d298f7	không thấy nguồn	
+简宁	en (thoại)	Jian Ning (phần 5,7)	lua.09c571ee	không thấy nguồn	
+箕门	en (thoại)	Jimen (phần 8)	lua.48d03e78	không thấy nguồn	
+粒粒	en (thoại)	Lili (phần 8)	lua.cdeaf6b4	không thấy nguồn	
+索姆拉	en (thoại)	Suomula (phần 4)	lua.ac6fafa0	không thấy nguồn	
+紫薇	en (thoại)	Ziwei (phần 4)	lua.b189db81	không thấy nguồn	
+紫霄大殿	en (thoại)	Zixiao Hall (phần 7)	lua.819da834	không thấy nguồn	
+纥石烈	en (thoại)	Heshilie (phần 4)	lua.70b6c038	không thấy nguồn	
+终南山	en (thoại)	Zhongnan Mountain (phần 8)	lua.3a833e77	không thấy nguồn	
+经渠	en (thoại)	Jingqu (phần 8)	lua.1ccd9f67	không thấy nguồn	
+经脉百决	en (thoại)	Hundred Meridian Secrets (phần 7)	lua.281b1403	không thấy nguồn	
+绝望之地	en (thoại)	Land of Despair (phần 4,5,8)	lua.48df901e	không thấy nguồn	
+缘根	en (thoại)	Yuan Gen (phần 3)	lua.610f6e07	không thấy nguồn	
+缝纫大师	en (thoại)	Tailoring Master (phần 6)	lua.8c4988de	không thấy nguồn	
+缥缈天山	en (thoại)	Misty Tianshan (phần 6)	lua.d196555f	không thấy nguồn	
+罗浮遗脉	en (thoại)	Luofu Remnants (phần 8)	lua.f70dc18a	không thấy nguồn	
+罪魁祸首	en (thoại)	The Chief Culprit (phần 6)	lua.644bac11	không thấy nguồn	
+老尊主	en (thoại)	old Sovereign (phần 5)	lua.fc181bf8	không thấy nguồn	
+老皇爷	en (thoại)	Retired Emperor (phần 3)	lua.942c69c8	không thấy nguồn	
+耶律金	en (thoại)	Yelü Jin (phần 5)	lua.481162ad	không thấy nguồn	
+聚义堂	en (thoại)	Juyi Hall (phần 7)	lua.855bf081	không thấy nguồn	
+胡繁	en (thoại)	Hu Fan (phần 6)	lua.74414b0e	không thấy nguồn	
+般若掌	en (thoại)	Prajna Palm (phần 8)	lua.6d721c87	không thấy nguồn	
+芙蓉	en (thoại)	Furong (phần 4)	lua.b189db81	không thấy nguồn	
+芦雨亭	en (thoại)	Lu Yuting (phần 7)	lua.33c7d080	không thấy nguồn	
+芮福祥	en (thoại)	Rui Fuxiang (phần 6)	lua.ae5b1d22	không thấy nguồn	
+苏剑岭	en (thoại)	Su Jianling (phần 7)	lua.14939e70	không thấy nguồn	
+苏学士	en (thoại)	Scholar Su (phần 1,4)	lua.75196b86	không thấy nguồn	
+苏星河	en (thoại)	Su Xinghe (phần 7)	lua.23511521	không thấy nguồn	
+苏芩	en (thoại)	Su Qin (phần 8)	lua.8f014bce	không thấy nguồn	
+苏飞的世界	en (thoại)	Su Fei's World (phần 5)	lua.4c7c702a	không thấy nguồn	
+范大成	en (thoại)	Fan Dacheng (phần 7)	lua.936b7d5a	không thấy nguồn	
+范纯仁	en (thoại)	Fan Chunren (phần 6)	lua.8b862188	không thấy nguồn	
+范统	en (thoại)	Fan Tong (phần 6)	lua.0a7827a5	không thấy nguồn	
+茍读	en (thoại)	Gou Du (phần 7)	lua.dd9f7c33	không thấy nguồn	
+茗珍楼	en (thoại)	Mingzhen Tower (phần 1)	lua.0dbfa605	không thấy nguồn	
+茶马道	en (thoại)	Tea-Horse Road (phần 4)	lua.529bf67e	không thấy nguồn	
+荆棘	en (thoại)	Jingji (phần 4)	lua.3e5b6619	không thấy nguồn	
+药店	en (thoại)	Apothecary (phần 7)	lua.78fd4bed	không thấy nguồn	
+药理学大师	en (thoại)	Pharmacology Master (phần 6)	lua.0344935f	không thấy nguồn	
+药篓子	en (thoại)	medicine basket (phần 7)	lua.06fadaf0	không thấy nguồn	
+莫太冲	en (thoại)	Mo Taichong (phần 7)	lua.df5b96a6	không thấy nguồn	
+菊剑	en (thoại)	Ju Jian (phần 7)	lua.9020e1b4	không thấy nguồn	
+萝卜	en (thoại)	Luobo (phần 4)	lua.d4f3f986	không thấy nguồn	
+萝峰晴云	en (thoại)	Luofeng Qingyun (phần 7)	lua.0a28cae1	không thấy nguồn	
+萧湘水	en (thoại)	Xiao Xiangshui (phần 7)	lua.94af88b7	không thấy nguồn	
+萧蔷	en (thoại)	Xiao Qiang (phần 6)	lua.80334981	không thấy nguồn	
+萧香玉	en (thoại)	Xiao Xiangyu (phần 7)	lua.15f4e66a	không thấy nguồn	
+萨鲁	en (thoại)	Salu (phần 4)	lua.96c9ba26	không thấy nguồn	
+落木萧萧	en (thoại)	Rustling Leaves Fall (phần 8)	lua.48b9eb7c	không thấy nguồn	
+蒋光亭	en (thoại)	Jiang Guangting (phần 7)	lua.38e07355	không thấy nguồn	
+蒋平	en (thoại)	Jiang Ping (phần 7)	lua.b0f6a7af	không thấy nguồn	
+蒲老板	en (thoại)	Proprietor Pu (phần 2)	lua.501fb472	không thấy nguồn	
+蒲良	en (thoại)	Pu Liang (phần 8)	lua.567e4439	không thấy nguồn	
+蓬莱殿	en (thoại)	Penglai Hall (phần 7)	lua.a39802c6	không thấy nguồn	
+蔷薇	en (thoại)	Qiangwei (phần 6)	lua.160a9f95	không thấy nguồn	
+薛烛	en (thoại)	Xue Zhu (phần 7)	lua.00fedae3	không thấy nguồn	
+薛铜锤	en (thoại)	Xue Tongchui (phần 6)	lua.1aa863c7	không thấy nguồn	
+藏书水阁	en (thoại)	Waterside Library (phần 2)	lua.9508ae0a	không thấy nguồn	
+藏经阁	en (thoại)	Scripture Library (phần 3)	lua.45e249af	không thấy nguồn	
+虎啸龙吟	en (thoại)	Tiger's Roar, Dragon's Cry (phần 5)	lua.e2402486	không thấy nguồn	
+虎跑村	en (thoại)	Hupao Village (phần 4)	lua.a6da9885	không thấy nguồn	
+虫鸟坊坊主	en (thoại)	Bug and Bird Workshop Proprietor (phần 6)	lua.737e655c	không thấy nguồn	
+虽万千人吾往矣	en (thoại)	Though Ten Thousand Oppose, I Shall Go (phần 5)	lua.9cdb5d10	không thấy nguồn	
+蛊惑灵谷	en (thoại)	Bewitching Spirit Valley (phần 8)	lua.1ee9b528	không thấy nguồn	
+蜀中唐门	en (thoại)	Tang Clan of Shu (phần 6)	lua.9188ef6b	không thấy nguồn	
+蜀道白猿	en (thoại)	Shu Road White Ape (phần 5)	lua.7ef4c9c7	không thấy nguồn	
+蝴蝶阵	en (thoại)	Butterfly Formation (phần 8)	lua.3aff6ecf	không thấy nguồn	
+血战聚贤庄	en (thoại)	Bloody Battle at Juxian Manor (phần 4)	lua.5deddd62	không thấy nguồn	
+血浴神兵	en (thoại)	Blood-Bathed Divine Weapon (phần 1)	lua.3fb8422a	không thấy nguồn	
+血海	en (thoại)	Xuehai (phần 8)	lua.48d03e78	không thấy nguồn	
+行者无双	en (thoại)	Wayfarer Without Equal (phần 6)	lua.e6243682	không thấy nguồn	
+衍圣公	en (thoại)	Duke Yansheng (phần 1)	lua.0d496d2f	không thấy nguồn	
+袁平	en (thoại)	Yuan Ping (phần 4)	lua.842beebf	không thấy nguồn	
+装备工坊	en (thoại)	Gear Workshop (phần 1)	lua.b5cab398	không thấy nguồn	
+西京	en (thoại)	Western Capital (phần 1)	lua.a8fc61ad	không thấy nguồn	
+西京府	en (thoại)	Xijing Prefecture (phần 6)	lua.095ffd8d	không thấy nguồn	
+西厢房	en (thoại)	West Wing (phần 7)	lua.38e07355	không thấy nguồn	
+西大街	en (thoại)	West Street (phần 7)	lua.826ff350	không thấy nguồn	
+西市	en (thoại)	West Market (phần 7)	lua.956b1639	không thấy nguồn	
+观月亭	en (thoại)	Moon-Viewing Pavilion (phần 4)	lua.f7caeb19	không thấy nguồn	
+誉儿	en (thoại)	Yu'er (phần 2,5)	lua.0c3bbc4a	không thấy nguồn	
+认识新朋友	en (thoại)	Meet New Friends (phần 5,8)	lua.d7ee2c6e	không thấy nguồn	
+讨伐燕子坞	en (thoại)	Campaign Against Swallow Dock (phần 3)	lua.a1596406	không thấy nguồn	
+评分第一进阶	en (thoại)	1st-Place Rating Advance (phần 1)	lua.2f39b49b	không thấy nguồn	
+诚意的考验	en (thoại)	Test of Sincerity (phần 5)	lua.af8cafe2	không thấy nguồn	
+贺年	en (thoại)	He Nian (phần 1)	lua.ef2484d0	không thấy nguồn	
+贾作珍	en (thoại)	Jia Zuozhen (phần 6)	lua.55a2e5e7	không thấy nguồn	
+资治通鉴	en (thoại)	Zizhi Tongjian (phần 1)	lua.4b8613f5	không thấy nguồn	
+赠点商店	en (thoại)	Gift Point Shop (phần 5)	lua.0b116be6	không thấy nguồn	
+赫连将军	en (thoại)	General Helian (phần 1)	lua.f4120142	không thấy nguồn	
+赵明诚	en (thoại)	Zhao Mingcheng (phần 6)	lua.4be84f80	không thấy nguồn	
+超级旗手	en (thoại)	Super Flag Bearer (phần 6)	lua.2feff4ae	không thấy nguồn	
+越俎代庖	en (thoại)	Take the Cook's Place (phần 8)	lua.8b6d3549	không thấy nguồn	
+足三里	en (thoại)	Zusanli (phần 8)	lua.ba476d6f	không thấy nguồn	
+足阳明胃经	en (thoại)	Foot-Yangming Stomach Meridian (phần 8)	lua.48d03e78	không thấy nguồn	
+路三娘	en (thoại)	Lu Sanniang (phần 5,7)	lua.37d655e7	không thấy nguồn	
+轻功传授人	en (thoại)	Lightness Skill Instructor (phần 7)	lua.384ea154	không thấy nguồn	
+达摩院	en (thoại)	Damo Hall (phần 7)	lua.9121f907	không thấy nguồn	
+迁怒于人	en (thoại)	Take It Out on Others (phần 8)	lua.1153ebb1	không thấy nguồn	
+过三锤	en (thoại)	Guo Sanchui (phần 7)	lua.0ab8822b	không thấy nguồn	
+迎香	en (thoại)	Yingxiang (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+远赴苍茫山	en (thoại)	Journey to Cangmang Mountain (phần 5,8)	lua.76d9c6a5	không thấy nguồn	
+连斩狂客	en (thoại)	Chain Slash Maniac (phần 6)	lua.3f88a2c6	không thấy nguồn	
+连环任务	en (thoại)	Chain Quest (phần 1)	lua.a043a050	không thấy nguồn	
+连环副本	en (thoại)	Chain Dungeon (phần 6,7)	lua.043d4e4f	không thấy nguồn	
+退避三舍	en (thoại)	Retreat Three Leagues (phần 8)	lua.8600a959	không thấy nguồn	
+逍遥傀儡人	en (thoại)	Xiaoyao Puppet (phần 3)	lua.f793a2eb	không thấy nguồn	
+通天	en (thoại)	Tongtian (phần 5)	lua.2ac87fe3	không thấy nguồn	
+通灵御兽	en (thoại)	Spirit Beast Taming (phần 1)	lua.47654427	không thấy nguồn	
+逻些城	en (thoại)	Lhasa (phần 1)	lua.28163005	không thấy nguồn	
+遨游东海	en (thoại)	Roam the Eastern Sea (phần 8)	lua.d108bfd3	không thấy nguồn	
+邓元觉	en (thoại)	Deng Yuanjue (phần 7)	lua.f24a14ce	không thấy nguồn	
+郎夫人	en (thoại)	Madam Lang (phần 6)	lua.a7076ee7	không thấy nguồn	
+郑君可	en (thoại)	Zheng Junke (phần 4)	lua.7b5922bc	không thấy nguồn	
+郑圆	en (thoại)	Zheng Yuan (phần 6)	lua.930de3f6	không thấy nguồn	
+郑玄	en (thoại)	Zheng Xuan (phần 5)	lua.baa7594e	không thấy nguồn	
+酒店	en (thoại)	Tavern (phần 7)	lua.640947ad	không thấy nguồn	
+采矿大师	en (thoại)	Mining Master (phần 6)	lua.59b474fd	không thấy nguồn	
+采药大师	en (thoại)	Herbalism Master (phần 6)	lua.5e992c2f	không thấy nguồn	
+重新冶炼神器	en (thoại)	Re-smelt Artifact (phần 1)	lua.41e8d6e2	không thấy nguồn	
+重楼链·侯爵	en (thoại)	Chonglou Chain · Marquis (phần 1)	lua.c82d68f9	không thấy nguồn	
+重购配方	en (thoại)	Repurchase Recipe (phần 7)	lua.19f14dd7	không thấy nguồn	
+野马分鬃	en (thoại)	Wild Horse Parts Its Mane (phần 8)	lua.c952d4f8	không thấy nguồn	
+金六爷	en (thoại)	Sixth Master Jin (phần 6)	lua.271cdb8b	không thấy nguồn	
+金山寺	en (thoại)	Jinshan Temple (phần 4)	lua.9a0db7dc	không thấy nguồn	
+金戈荡寇鏖兵	en (thoại)	Golden Halberds Rout the Invaders (phần 5)	lua.39c867ce	không thấy nguồn	
+金盆洗手	en (thoại)	Golden Basin Hand-Washing (phần 1)	lua.04217cf3	không thấy nguồn	
+钓鱼大师	en (thoại)	Fishing Master (phần 6)	lua.ba84a3ae	không thấy nguồn	
+钟楼	en (thoại)	Bell Tower (phần 7)	lua.0941a492	không thấy nguồn	
+钟馗	en (thoại)	Zhong Kui (phần 4)	lua.7a1b5acc	không thấy nguồn	
+钱龙	en (thoại)	Qian Long (phần 5,8)	lua.99a8f556	không thấy nguồn	
+铁匠铺	en (thoại)	Blacksmith Shop (phần 3)	lua.adbfa052	không thấy nguồn	
+银川公主	en (thoại)	Princess Yinchuan (phần 1)	lua.fdd09e77	không thấy nguồn	
+铸造大师	en (thoại)	Forging Master (phần 6)	lua.bcf621f8	không thấy nguồn	
+镜湖剿匪	en (thoại)	Mirror Lake Bandit Hunt (phần 3)	lua.bb524be3	không thấy nguồn	
+镜湖水寨	en (thoại)	Mirror Lake Water Fortress (phần 3)	lua.1beb3e15	không thấy nguồn	
+长白山完颜部	en (thoại)	Wanyan Tribe of Changbai Mountain (phần 5)	lua.8b6c21f9	không thấy nguồn	
+门派任务	en (thoại)	Sect Quests (phần 7)	lua.2668abb9	không thấy nguồn	
+门派传送人	en (thoại)	Sect Teleporter (phần 7)	lua.664f7c13	không thấy nguồn	
+门派战斗技能	en (thoại)	Sect Combat Skills (phần 7)	lua.d5ce0bc7	không thấy nguồn	
+门派指路人	en (thoại)	Sect Guide (phần 7)	lua.0b9d18a9	không thấy nguồn	
+门派生活技能	en (thoại)	Sect Life Skills (phần 7)	lua.2ab26c7b	không thấy nguồn	
+门派辅助技能	en (thoại)	Sect Auxiliary Skills (phần 7)	lua.c2035c15	không thấy nguồn	
+阳关	en (thoại)	Yangguan Pass (phần 3)	lua.0daf339f	không thấy nguồn	
+阳奉阴违	en (thoại)	Feigned Obedience (phần 8)	lua.ddd2f3c7	không thấy nguồn	
+阳溪	en (thoại)	Yangxi (phần 8)	lua.5d6b8b1c	không thấy nguồn	
+阴市	en (thoại)	Yinshi (phần 8)	lua.ba476d6f	không thấy nguồn	
+阴阳天	en (thoại)	Yinyang Heaven (phần 5)	lua.e47a6452	không thấy nguồn	
+阿依娜	en (thoại)	Ayina (phần 4)	lua.ac6fafa0	không thấy nguồn	
+阿支的头颅	en (thoại)	A'Zhi's Head (phần 5)	lua.738a9126	không thấy nguồn	
+阿文	en (thoại)	Awen (phần 4)	lua.f2595873	không thấy nguồn	
+阿旺	en (thoại)	Awang (phần 4)	lua.c11e1984	không thấy nguồn	
+阿毛	en (thoại)	Amao (phần 4)	lua.01b178b9	không thấy nguồn	
+阿诗玛	en (thoại)	Ashima (phần 4,5)	lua.be3efd69	không thấy nguồn	
+阿里	en (thoại)	A Li (phần 8)	lua.18c90303	không thấy nguồn	
+阿黑	en (thoại)	Ahei (phần 4)	lua.be3efd69	không thấy nguồn	
+陆士铮	en (thoại)	Lu Shizheng (phần 7)	lua.74747fea	không thấy nguồn	
+陆松	en (thoại)	Lu Song (phần 2)	lua.e18d8082	không thấy nguồn	
+陈夫之	en (thoại)	Chen Fuzhi (phần 6)	lua.ab869e77	không thấy nguồn	
+陈孤雁	en (thoại)	Chen Guyan (phần 7)	lua.3f17b1c8	không thấy nguồn	
+除恶天劫楼	en (thoại)	Evil-Purging Tribulation Tower (phần 8)	lua.c815065d	không thấy nguồn	
+隐白	en (thoại)	Yinbai (phần 8)	lua.48d03e78	không thấy nguồn	
+隐身粉末	en (thoại)	Invisibility Powder (phần 8)	lua.260857fd	không thấy nguồn	
+隔岸观火	en (thoại)	Watch the Fire Across the River (phần 8)	lua.a1b08051	không thấy nguồn	
+雁门关包围圈	en (thoại)	Yanmen Pass Encirclement (phần 3)	lua.f5a14247	không thấy nguồn	
+雪怪	en (thoại)	snow monsters (phần 3)	lua.e8407b6f	không thấy nguồn	
+雪竹莲	en (thoại)	Xue Zhulian (phần 7)	lua.3ef77e1e	không thấy nguồn	
+雷峰塔	en (thoại)	Leifeng Pagoda (phần 4)	lua.9a0db7dc	không thấy nguồn	
+雷蒙	en (thoại)	Lei Meng (phần 4)	lua.1b58df13	không thấy nguồn	
+雷霆之怒	en (thoại)	Wrath of Thunder (phần 8)	lua.51ea3947	không thấy nguồn	
+青木旗	en (thoại)	Green Wood Banner (phần 7)	lua.d25ffefe	không thấy nguồn	
+静初	en (thoại)	Jingchu (phần 7)	lua.db06d91d	không thấy nguồn	
+韩永安	en (thoại)	Han Yong'an (phần 7)	lua.57e4a8d8	không thấy nguồn	
+颊车	en (thoại)	Jiache (phần 8)	lua.ba476d6f	không thấy nguồn	
+颜查散	en (thoại)	Yan Chasan (phần 1)	lua.2e94c323	không thấy nguồn	
+饰品店	en (thoại)	Accessory Shop (phần 7)	lua.4eb5c11c	không thấy nguồn	
+马夫人	en (thoại)	Madame Ma (phần 5)	lua.8b103123	không thấy nguồn	
+驱赶黑蜂	en (thoại)	Drive Off the Black Bees (phần 5,8)	lua.83ea653e	không thấy nguồn	
+驿站	en (thoại)	Post Station (phần 2,7)	lua.8335a3d1	không thấy nguồn	
+骊山仙姥	en (thoại)	Lishan Immortal Granny (phần 2)	lua.dfffe11f	không thấy nguồn	
+高丽	en (thoại)	Goryeo (phần 1)	lua.32eed456	không thấy nguồn	
+高升祥	en (thoại)	Gao Shengxiang (phần 7)	lua.49736cf9	không thấy nguồn	
+高昌古国	en (thoại)	ancient kingdom of Gaochang (phần 3)	lua.0daf339f	không thấy nguồn	
+鬼谷传送人	en (thoại)	Ghost Valley Teleporter (phần 5)	lua.d3471b2f	không thấy nguồn	
+魔兵天降	en (thoại)	Demon Soldiers Descend (phần 1)	lua.b8ef18f4	không thấy nguồn	
+魔道傀儡帝	en (thoại)	Demon Puppet Emperor (phần 3)	lua.8a8c2e6e	không thấy nguồn	
+鱼际	en (thoại)	Yuji (phần 8)	lua.1ccd9f67	không thấy nguồn	
+鲁平	en (thoại)	Lu Ping (phần 5)	lua.00ab228c	không thấy nguồn	
+鲁明月	en (thoại)	Lu Mingyue (phần 7)	lua.dc167c13	không thấy nguồn	
+鲍千灵	en (thoại)	Bao Qianling (phần 5)	lua.f0733620	không thấy nguồn	
+鸠摩智	en (thoại)	Jiumozhi (phần 3)	lua.eb221779	không thấy nguồn	
+鹤云	en (thoại)	Heyun (phần 7)	lua.87e1fa81	không thấy nguồn	
+麦友仁	en (thoại)	Mai Youren (phần 5)	lua.88a0b704	không thấy nguồn	
+黄公道	en (thoại)	Huang Gongdao (phần 7)	lua.bb2e57fa	không thấy nguồn	
+黄时雨	en (thoại)	Huang Shiyu (phần 6)	lua.632e1a3a	không thấy nguồn	
+黄绫波	en (thoại)	Huang Lingbo (phần 7)	lua.122ae5ad	không thấy nguồn	
+黄龙镇	en (thoại)	Huanglong Town (phần 4)	lua.3d4eac31	không thấy nguồn	
+黑苗酒	en (thoại)	Black Miao wine (phần 4)	lua.109b0fb0	không thấy nguồn	
+龙三少	en (thoại)	Long Sanshao (phần 6)	lua.60355b6c	không thấy nguồn	
+龙井村	en (thoại)	Longjing Village (phần 4)	lua.24a465d8	không thấy nguồn	
+龙树院	en (thoại)	Longshu Court (phần 7)	lua.d9ceea10	không thấy nguồn	
+龙泉断桥	en (thoại)	Longquan Broken Bridge (phần 5)	lua.2ac87fe3	không thấy nguồn	
+龙泉金山寺	en (thoại)	Longquan Jinshan Temple (phần 6)	lua.e8a139bb	không thấy nguồn	
+龟兹	en (thoại)	Kucha (phần 3)	lua.e8f78cb2	không thấy nguồn	
+# Thuật ngữ mới trong khoá từ điển của thoại (83 khoá #{KHOÁ} của dialogue.zh.txt, đã thêm vào assets/i18n/{zh,en,vi}.tsv, 2026-10-18).
+# Cột như phần trên; cột 2 là "en+vi", cột 3 là "en: ... | vi: ..." (nhiều bản thì cách nhau " // "), cột 4 là khoá nơi gặp và ghi chú.
+# Cần chủ dự án xem (agent dịch đã nêu): (1) 刻铭符: glossary 刻铭 = inscription nên đang "Inscription Talisman / Phù Khắc Minh",
+# nhưng table/items cũ ghi "Engrave Talisman"; (2) 南北奇货: YBSD_081225_006 = Exotic Goods / Tạp Hoá, WCBS_180307_308 = North-South Goods;
+# (3) 极冰咒 trùng en "Frost Curse" với 寒冰咒 ở table/skills nên đoạn nâng cấp viết Extreme Frost Curse; (4) mảnh nối câu phải
+# giữ nguyên khoảng trắng đầu/cuối nên một số chỗ kết bằng dấu "—" (FBYQ_090204_01, OBJ_dali_0013) và BHXZ_081211_14 mở đầu bằng #W
+# (chữ "honor points" ra màu trắng thay vì xanh); (5) 熔炼: vi.tsv lúc "Nung luyện" lúc "Luyện chảy"; (6) 释灵液: en.tsv
+# "Spirit Release Liquid" và YSSJ_140818_108 "Fluid"; (7) 两 trong function_help_057 dịch "taels" / "lạng", chưa rõ mệnh giá.
+一代捕王	en+vi (khoá từ điển)	en: Constable King of the Age | vi: Nhất Đại Bộ Vương	YWBOSS_140117_94	không thấy nguồn	
+三神幻境	en+vi (khoá từ điển)	en: Three Gods Illusion | vi: Tam Thần Ảo Cảnh	YSSJ_140818_3	không thấy nguồn	
+二级属性	en+vi (khoá từ điển)	en: secondary attributes | vi: thuộc tính cấp hai	YSSJ_140818_3	không thấy nguồn	
+云思儿	en+vi (khoá từ điển)	en: Yun Si'er | vi: Vân Tư Nhi	JNHC_81015_01	không thấy nguồn	
+云涵儿	en+vi (khoá từ điển)	en: Yun Han'er | vi: Vân Hàm Nhi	JNHC_81015_01	không thấy nguồn	
+传奇捕神	en+vi (khoá từ điển)	en: Legendary Divine Constable | vi: Truyền Kỳ Bộ Thần	YWBOSS_140117_95	không thấy nguồn	
+侠义捕快	en+vi (khoá từ điển)	en: Chivalrous Constable | vi: Hiệp Nghĩa Bộ Khoái	YWBOSS_140117_91	không thấy nguồn	
+克里木	en+vi (khoá từ điển)	en: Kelimu | vi: Khắc Lý Mộc	SJSJ_081021_004; SJSJ_081021_002	không thấy nguồn	
+关中名捕	en+vi (khoá từ điển)	en: Guanzhong Famed Constable | vi: Quan Trung Danh Bộ	YWBOSS_140117_93 (chuỗi danh hiệu 91-95: 侠义捕快, 铁面捕头, 关中名捕, 一代捕王, 传奇捕神)	không thấy nguồn	
+刻铭符	en+vi (khoá từ điển)	en: Inscription Talisman | vi: Phù Khắc Minh	function_help_044 (glossary: 刻铭=inscription; bảng item cũ ghi Engrave Talisman)	không thấy nguồn	
+发展任务	en+vi (khoá từ điển)	en: development quest | vi: nhiệm vụ phát triển	JKBS_081021_022	không thấy nguồn	
+噬毒咒	en+vi (khoá từ điển)	en: Venom-Devouring Curse | vi: Phệ Độc Chú	JNHC_81015_01 (theo 噬毒丹 = Phệ Độc Đan)	không thấy nguồn	
+四大善人	en+vi (khoá từ điển)	en: Four Benefactors | vi: Tứ Đại Thiện Nhân	OBJ_dali_0011	không thấy nguồn	
+国防任务	en+vi (khoá từ điển)	en: defense quest | vi: nhiệm vụ quốc phòng	JKBS_081021_022	không thấy nguồn	
+大理司马	en+vi (khoá từ điển)	en: Marshal of Dali | vi: Tư Mã Đại Lý	OBJ_dali_0005	không thấy nguồn	
+天降奇兽	en+vi (khoá từ điển)	en: Rare Beasts Descend | vi: Thiên Giáng Kỳ Thú	JNHC_81015_01 (tên hoạt động)	không thấy nguồn	
+契灵值	en+vi (khoá từ điển)	en: Contract Spirit | vi: Khế linh	YSSJ_140818_3	không thấy nguồn	
+宝石雕琢符	en+vi (khoá từ điển)	en: Gem Carving Talisman | vi: Phù Điêu Trác Bảo Thạch	INTERFACE_XML_GemCarve_6	không thấy nguồn	
+小将军	en+vi (khoá từ điển)	en: Young General | vi: tiểu tướng quân	OBJ_caoyuan_0008	không thấy nguồn	
+小郡主	en+vi (khoá từ điển)	en: Little Princess | vi: Tiểu Quận Chúa	OBJ_caoyuan_0009	không thấy nguồn	
+少爷	en+vi (khoá từ điển)	en: young master | vi: thiếu gia	OBJ_caoyuan_0005	không thấy nguồn	
+工程任务	en+vi (khoá từ điển)	en: construction quest | vi: nhiệm vụ công trình	JKBS_081021_022	không thấy nguồn	
+市集任务	en+vi (khoá từ điển)	en: market quest | vi: nhiệm vụ thị tập	JKBS_081021_022	không thấy nguồn	
+幻冥宝石	en+vi (khoá từ điển)	en: Huanming Gem | vi: bảo thạch Huyễn Minh	function_help_041	không thấy nguồn	
+开阳类	en+vi (khoá từ điển)	en: Mizar type | vi: loại Khai Dương	function_help_058	không thấy nguồn	
+彭怀玉	en+vi (khoá từ điển)	en: Peng Huaiyu | vi: Bành Hoài Ngọc	SJSJ_081021_004	không thấy nguồn	
+御兽诀	en+vi (khoá từ điển)	en: Beast Taming Art | vi: Ngự Thú Quyết	YSSJ_140818_3	không thấy nguồn	
+手动技能	en+vi (khoá từ điển)	en: manual skill | vi: kỹ năng thủ động	function_help_058	không thấy nguồn	
+打孔	en+vi (khoá từ điển)	en: Socket | vi: Đục lỗ	function_help_039	không thấy nguồn	
+扩张任务	en+vi (khoá từ điển)	en: expansion quest | vi: nhiệm vụ mở rộng	JKBS_081021_022	không thấy nguồn	
+智慧宝石	en+vi (khoá từ điển)	en: Wisdom Gem | vi: bảo thạch Trí Tuệ	function_help_041	không thấy nguồn	
+朱锋	en+vi (khoá từ điển)	en: Zhu Feng | vi: Chu Phong	SJSJ_081021_004	không thấy nguồn	
+杨铮	en+vi (khoá từ điển)	en: Yang Zheng | vi: Dương Tranh	OBJ_luoyang_0021	không thấy nguồn	
+极冰咒	en+vi (khoá từ điển)	en: Extreme Frost Curse | vi: Cực Băng Chú	JNHC_81015_01 (table/skills đang ghi en "Frost Curse", trùng 寒冰咒 nên đổi để phân biệt)	không thấy nguồn	
+极率之珠	en+vi (khoá từ điển)	en: Probability Pearl | vi: Châu Cực Suất	function_help_041 (theo bảng item 残破的极率之珠)	không thấy nguồn	
+极限打孔	en+vi (khoá từ điển)	en: Extreme Socketing | vi: Đục lỗ cực hạn	function_help_039	không thấy nguồn	
+武林大会	en+vi (khoá từ điển)	en: Martial Assembly | vi: Đại Hội Võ Lâm	OBJ_dali_0008	không thấy nguồn	
+灵兽丹·咒	en+vi (khoá từ điển)	en: Spirit Beast Pill · Curse | vi: Linh Thú Đan · Chú	JNHC_81015_01 (theo 灵兽丹·幻 = Spirit Beast Pill · Illusion)	không thấy nguồn	
+灵兽丹·虚	en+vi (khoá từ điển)	en: Spirit Beast Pill · Void | vi: Linh Thú Đan · Hư	JNHC_81015_01	không thấy nguồn	
+灵兽丹·震	en+vi (khoá từ điển)	en: Spirit Beast Pill · Quake | vi: Linh Thú Đan · Chấn	JNHC_81015_01	không thấy nguồn	
+灵兽丹·风	en+vi (khoá từ điển)	en: Spirit Beast Pill · Wind | vi: Linh Thú Đan · Phong	JNHC_81015_01	không thấy nguồn	
+烈喀巴	en+vi (khoá từ điển)	en: Liekaba | vi: Liệt Khách Ba	OBJ_caoyuan_0009	không thấy nguồn	
+珍兽宝宝	en+vi (khoá từ điển)	en: baby Treasure Beast | vi: trân thú con	function_help_058	không thấy nguồn	
+瑶光	en+vi (khoá từ điển)	en: Yaoguang | vi: Dao Quang	BHXZ_081211_26	không thấy nguồn	
+生命宝石	en+vi (khoá từ điển)	en: Life Gem | vi: bảo thạch Sinh Mệnh	function_help_041	không thấy nguồn	
+破军类	en+vi (khoá từ điển)	en: Pojun type | vi: loại Phá Quân	function_help_058	không thấy nguồn	
+科技任务	en+vi (khoá từ điển)	en: technology quest | vi: nhiệm vụ khoa kỹ	JKBS_081021_022	không thấy nguồn	
+程咬铁	en+vi (khoá từ điển)	en: Cheng Yaotie | vi: Trình Giảo Thiết	function_help_039	không thấy nguồn	
+精炼	en+vi (khoá từ điển)	en: Refining | vi: Tinh Luyện	SJSJ_081021_004	không thấy nguồn	
+精铁	en+vi (khoá từ điển)	en: Fine Iron | vi: Tinh Thiết	SJSJ_081021_004	không thấy nguồn	
+老大王	en+vi (khoá từ điển)	en: Old King | vi: lão đại vương // Lão Đại Vương	OBJ_caoyuan_0008; OBJ_caoyuan_0009	không thấy nguồn	
+老爷	en+vi (khoá từ điển)	en: master (head of the household) | vi: lão gia	OBJ_caoyuan_0005	không thấy nguồn	
+耶律延禧	en+vi (khoá từ điển)	en: Yelü Yanxi | vi: Gia Luật Diên Hi	OBJ_caoyuan_0005	không thấy nguồn	
+胜利宝石	en+vi (khoá từ điển)	en: Victory Gem | vi: Thắng Lợi Bảo Thạch	JKBS_081021_023 (JKBS_081021_002 đã ghi "Victory gem" / "Thắng Lợi bảo thạch" viết thường)	không thấy nguồn	
+自动技能	en+vi (khoá từ điển)	en: auto skill | vi: kỹ năng tự động	function_help_058	không thấy nguồn	
+荆嵌实	en+vi (khoá từ điển)	en: Jing Qianshi | vi: Kinh Khảm Thực	SJSJ_081021_003, SJSJ_081021_005 (bảng chuỗi đã có dạng rút gọn 荆嵌 = Jing Qian / Kinh Khảm); SJSJ_081021_004; function_help_104; SJSJ_081021_006	không thấy nguồn	
+草原	en+vi (khoá từ điển)	en: Grasslands | vi: Thảo Nguyên	OBJ_caoyuan_0003	không thấy nguồn	
+豪侠印	en+vi (khoá từ điển)	en: Hero Seal | vi: Hào Hiệp Ấn	function_help_039	không thấy nguồn	
+赵天师	en+vi (khoá từ điển)	en: Celestial Master Zhao | vi: Triệu Thiên Sư	OBJ_dali_0011	không thấy nguồn	
+邪炎	en+vi (khoá từ điển)	en: Evil Blaze | vi: Tà Diệm	BHXZ_081211_21	không thấy nguồn	
+铁面捕头	en+vi (khoá từ điển)	en: Iron-Faced Head Constable | vi: Thiết Diện Bộ Đầu	YWBOSS_140117_92	không thấy nguồn	
+阮实	en+vi (khoá từ điển)	en: Ruan Shi | vi: Nguyễn Thực	OBJ_caoyuan_0009	không thấy nguồn	
+阮诚	en+vi (khoá từ điển)	en: Ruan Cheng | vi: Nguyễn Thành	OBJ_caoyuan_0009	không thấy nguồn	
+雁北	en+vi (khoá từ điển)	en: Yanbei | vi: Nhạn Bắc	OBJ_caoyuan_0003	không thấy nguồn	
+雁门战场	en+vi (khoá từ điển)	en: Yanmen Battlefield | vi: chiến trường Nhạn Môn	OBJ_caoyuan_0005	không thấy nguồn	
+高级刻铭符	en+vi (khoá từ điển)	en: Advanced Engrave Talisman | vi: Phù Khắc Minh Cao Cấp	BHXZ_081211_7	không thấy nguồn	
+高级宝石摘除符	en+vi (khoá từ điển)	en: Advanced Gem Removal Talisman | vi: Phù Tháo Bảo Thạch Cao Cấp	function_help_042	không thấy nguồn	
+高级时装	en+vi (khoá từ điển)	en: Advanced Fashion | vi: Thời Trang Cao Cấp	BHXZ_081211_21	không thấy nguồn	
+魅力宝石	en+vi (khoá từ điển)	en: Charm Gem | vi: bảo thạch Mị Lực	function_help_041	không thấy nguồn	
