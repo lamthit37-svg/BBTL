@@ -65,9 +65,19 @@ public:
         std::int32_t x_cm = 0;
         std::int32_t z_cm = 0;
         std::uint8_t hp_percent = 100;
+        std::uint8_t mp_percent = 100;
+        std::int32_t rage = 0;
         bool dead = false;
         // Chỉ `unit()` điền tên (units_near để trống cho nhẹ).
         std::string name;
+    };
+    // Sinh lực và nội lực theo phần trăm cùng nộ khí của một thực thể: phần người nhìn thấy
+    // (EntityVitals).
+    struct Vitals {
+        std::uint8_t hp_percent = 100;
+        std::uint8_t mp_percent = 100;
+        std::int32_t rage = 0;
+        friend bool operator==(const Vitals&, const Vitals&) = default;
     };
     // Chỗ và mẫu của một vật rơi cần đặt vào cảnh.
     struct DropSpot {
@@ -100,8 +110,9 @@ public:
     virtual void units_near(Place place, std::vector<Unit>& out) const = 0;
     // Gửi một khung cho mọi người chơi trong vùng nhìn quanh `place.entity`; `include_self` là gồm cả chính nó nếu nó là người.
     virtual void tell(Place place, std::span<const std::byte> frame, bool include_self) = 0;
-    // Sinh lực theo phần trăm của thực thể đổi (báo EntityVitals cho người quanh).
-    virtual void hurt(Place place, std::uint8_t percent) = 0;
+    // Sinh lực, nội lực hay nộ khí của thực thể đổi (báo EntityVitals cho người quanh khi có trường
+    // khác giá trị đang giữ).
+    virtual void vitals(Place place, Vitals now) = 0;
     // Thực thể chết: nằm lại, quái hồi sinh theo bảng. EntityDied do nơi gọi phát qua tell.
     virtual void fell(Place place) = 0;
     // Người chơi hồi sinh tại (x_cm, z_cm) với sinh lực `percent`. Việc dời chính người ấy (Position) do nơi gọi đẩy qua

@@ -54,7 +54,11 @@ namespace {
 
 // Toạ độ client gửi cho chiêu nhắm đất ngoài khoảng này là bậy (cảnh lớn nhất cỡ vài chục nghìn mét).
 constexpr float kMaxGroundCm = 10'000'000.0F;
-constexpr std::uint16_t kPlainAttack = 0;  // skills.tsv id 0: đòn thường chung
+constexpr std::uint16_t kPlainAttack = 0; // skills.tsv id 0: đòn thường chung
+// Kỹ năng ban đầu của nhân vật mới, cấp 1: DefaultChar.ini [skill] bản 0859602 (dòng 29-36). Đứng
+// đầu là đòn thường 0 để client có chiêu mặc định. Chiêu phái không cấp sẵn mà học qua NPC
+// (append_learned).
+constexpr std::array<std::uint16_t, 6> kStartingSkills = {kPlainAttack, 1, 21, 22, 34, 35};
 constexpr std::int32_t kPickRangeCm = 300;
 // Quái trong tầm này quanh người ra chiêu được dựng Fighter để chiêu vùng quét tới, ngoài tầm đánh và bán kính chiêu.
 constexpr std::int32_t kReachSlackCm = 200;
@@ -118,10 +122,56 @@ constexpr std::array<Offset, 8> kRing{{{.x_cm = 0, .z_cm = 0}, {.x_cm = 80, .z_c
     if (!body.alive()) return 0;
     const std::int64_t most = std::max(body.stat(actor::Stat::kMaxHp), 1);
     const std::int64_t held = std::clamp<std::int64_t>(body.hp(), 0, most);
-    return static_cast<std::uint8_t>(std::clamp<std::int64_t>(((held * 100) + most - 1) / most, 1, 100));
+    const std::int64_t rounded = ((held * 100) + most - 1) / most;
+    return static_cast<std::uint8_t>(std::clamp<std::int64_t>(rounded, 1, 100));
 }
 
-// Hồi sinh tại chỗ: 30% sinh lực và nội lực (số tự đặt cho bản thử; bản gốc đọc từ global.toml [revive], chưa có bộ đọc).
+// Nội lực theo phần trăm làm tròn lên; không có nội lực tối đa thì coi là đầy.
+[[nodiscard]] std::uint8_t mp_percent_of(const actor::Body& body) noexcept {
+    const std::int64_t most = body.stat(actor::Stat::kMaxMp);
+    if (most <= 0) return 100;
+    const std::int64_t held = std::clamp<std::int64_t>(body.mp(), 0, most);
+    const std::int64_t percent = ((held * 100) + most - 1) / most;
+    return static_cast<std::uint8_t>(percent);
+}
+
+// Phần của thân người khác nhìn thấy (EntityVitals): sinh lực, nội lực theo phần trăm và nộ khí.
+[[nodiscard]] Surroundings::Vitals view_of(const actor::Body& body) noexcept {
+    Surroundings::Vitals view;
+    view.hp_percent = percent_of(body);
+    view.mp_percent = mp_percent_of(body);
+    view.rage = body.rage();
+    return view;
+}
+
+// Chi tiết một buff của chính mình: người gây, kỹ năng và thời gian còn lại (-1 là vô hạn).
+void add_detail(protocol::BuffEntry& entry, const combat::Buff& buff, std::int64_t hz) noexcept {
+    entry.sender = buff.caster.index;
+    entry.skill = static_cast<std::uint16_t>(buff.skill);
+    if (buff.continuance < 0) {
+        entry.remaining_ms = -1;
+        return;
+    }
+    const std::int64_t left = std::max<std::int64_t>(buff.continuance - buff.elapsed, 0);
+    const std::uint32_t millis = ms_of_ticks(left, hz);
+    entry.remaining_ms = static_cast<std::int32_t>(std::min<std::uint32_t>(millis, INT32_MAX));
+}
+
+[[nodiscard]] bool same_buff(const protocol::BuffEntry& one,
+    const protocol::BuffEntry& two) noexcept {
+    const bool same_source = one.sender == two.sender && one.skill == two.skill;
+    return same_source && one.effect == two.effect && one.serial == two.serial;
+}
+
+// Cùng tập buff khi mọi dòng khớp trừ thời gian còn lại (client tự đếm xuống nên không tính là
+// đổi).
+[[nodiscard]] bool same_buffs(const std::vector<protocol::BuffEntry>& left,
+    const std::vector<protocol::BuffEntry>& right) noexcept {
+    return std::ranges::equal(left, right, same_buff);
+}
+
+// Hồi sinh tại chỗ: 30% sinh lực và nội lực (số tự đặt cho bản thử; bản gốc đọc từ global.toml
+// [revive], chưa có bộ đọc).
 [[nodiscard]] actor::Revival revival_here() noexcept {
     return actor::Revival{.hp = actor::Amount{.percent = true, .value = 30},
         .mp = actor::Amount{.percent = true, .value = 30},
@@ -194,22 +244,13 @@ Battle::~Battle() {
 
 std::vector<combat::SkillEntry> Battle::starting_skills(const Player& player) const {
     std::vector<combat::SkillEntry> skills;
-    const std::int32_t sect = player.body().sect();
-    // Đòn thường (skills.tsv id 0) ai cũng biết, kể cả nhân vật chưa vào môn phái; đứng đầu danh sách để client có chiêu mặc định.
-    if (world_->combat().skill(kPlainAttack) != nullptr && world_->combat().level_of(kPlainAttack, 1) != nullptr) {
-        skills.push_back(combat::SkillEntry{.id = kPlainAttack, .level = 1});
+    const combat::Catalog& catalog = world_->combat();
+    for (const std::uint16_t id : kStartingSkills) {
+        if (catalog.skill(id) == nullptr || catalog.level_of(id, 1) == nullptr) continue;
+        const combat::SkillEntry entry{.id = id, .level = 1};
+        skills.push_back(entry);
     }
-    for (const combat::SkillTemplate& tmpl : world_->combat().skills()) {
-        if (skills.size() >= combat::kMaxSkills) break;
-        if (tmpl.id == kPlainAttack) continue;
-        const bool other_sect = tmpl.sect != sect || tmpl.user_class != 0;
-        const bool not_active = tmpl.passive || tmpl.type == combat::SkillType::kPassive;
-        if (other_sect || not_active) continue;
-        if (tmpl.skill_class < 0 || tmpl.instance.front() == 0) continue;
-        if (world_->combat().level_of(tmpl.id, 1) == nullptr) continue;
-        skills.push_back(combat::SkillEntry{.id = tmpl.id, .level = 1});
-    }
-    append_learned(skills, player, world_->combat());
+    append_learned(skills, player, catalog);
     return skills;
 }
 
@@ -238,11 +279,12 @@ bool Battle::join(const Seat& seat, const Env& env) {
     who.entity = seat.entity;
     who.home_x_cm = seat.x_cm;
     who.home_z_cm = seat.z_cm;
-    who.sent_percent = percent_of(placed->body);
+    who.sent_view = view_of(placed->body);
     Member& kept = members_.emplace(seat.session, who).first->second;
     by_entity_.emplace(seat.entity, seat.session);
     send_skills(seat.session, kept, env);
     push_vitals(seat.session, kept, env, true);
+    push_buffs(seat.session, kept, env, true);
     return true;
 }
 
@@ -312,10 +354,10 @@ void Battle::push_vitals(std::uint64_t session, Member& who, const Env& env, boo
     const std::int32_t max_hp = body.stat(actor::Stat::kMaxHp);
     const std::int32_t max_mp = body.stat(actor::Stat::kMaxMp);
     const std::int32_t max_rage = body.stat(actor::Stat::kMaxRage);
-    const std::uint8_t percent = percent_of(body);
-    if (percent != who.sent_percent) {
-        who.sent_percent = percent;
-        env.stage->hurt(place_of(who.entity), percent);
+    const Surroundings::Vitals view = view_of(body);
+    if (view != who.sent_view) {
+        who.sent_view = view;
+        env.stage->vitals(place_of(who.entity), view);
     }
     if (body.hp() == who.sent_hp && body.mp() == who.sent_mp && body.rage() == who.sent_rage && max_hp == who.sent_hp_max &&
         max_mp == who.sent_mp_max && max_rage == who.sent_rage_max) {
@@ -336,6 +378,83 @@ void Battle::push_vitals(std::uint64_t session, Member& who, const Env& env, boo
     vitals.rage = who.sent_rage;
     vitals.rage_max = max_rage;
     env.out->down(session, vitals);
+}
+
+std::vector<protocol::BuffEntry> Battle::buff_list(const combat::Fighter& fighter,
+    bool detailed) const {
+    std::vector<protocol::BuffEntry> list;
+    for (std::size_t slot = 0; slot < fighter.buff_count; ++slot) {
+        if (list.size() >= protocol::kBuffListBuffsCount) break;
+        const combat::Buff& buff = fighter.buffs.at(slot);
+        if (buff.fade_out) continue;
+        protocol::BuffEntry entry;
+        entry.effect = buff.effect;
+        entry.serial = buff.sn;
+        if (detailed) add_detail(entry, buff, hz_);
+        list.push_back(entry);
+    }
+    return list;
+}
+
+void Battle::push_own_buffs(std::uint64_t session, Member& who, const Env& env, bool force) {
+    const combat::Fighter* me = arena_.find(handle_of(who.entity));
+    if (me == nullptr) return;
+    const std::vector<protocol::BuffEntry> mine = buff_list(*me, true);
+    if (!force && same_buffs(mine, who.sent_buffs)) return;
+    who.sent_buffs = mine;
+    protocol::BuffList message;
+    message.id = who.entity;
+    message.buffs = mine;
+    env.out->down(session, message);
+}
+
+void Battle::push_target_buffs(std::uint64_t session, Member& who, const Env& env, bool force) {
+    if (who.asked == 0) return;
+    // Mục tiêu là chính mình: bản đủ chi tiết đã đi qua push_own_buffs mỗi lần đổi. Bản rút gọn
+    // cùng id sẽ đè mất người gây, chiêu và thời gian còn lại ở client, nên chỉ trả lại bản đủ khi
+    // được hỏi.
+    if (who.asked == who.entity) {
+        if (force) push_own_buffs(session, who, env, true);
+        return;
+    }
+    const combat::Fighter* target = arena_.find(handle_of(who.asked));
+    std::vector<protocol::BuffEntry> theirs;
+    if (target != nullptr) theirs = buff_list(*target, false);
+    if (!force && same_buffs(theirs, who.sent_target_buffs)) return;
+    who.sent_target_buffs = theirs;
+    protocol::BuffList message;
+    message.id = who.asked;
+    message.buffs = theirs;
+    env.out->down(session, message);
+}
+
+void Battle::push_buffs(std::uint64_t session, Member& who, const Env& env, bool force) {
+    push_own_buffs(session, who, env, force);
+    push_target_buffs(session, who, env, force);
+}
+
+void Battle::ask_target(std::uint64_t session, const protocol::AskTarget& message, const Env& env) {
+    const auto reject = [&](protocol::ErrorCode code) {
+        env.out->reject(session, protocol::AskTarget::kKind, code);
+    };
+    const auto found = members_.find(session);
+    if (found == members_.end()) return reject(protocol::ErrorCode::kNoSession);
+    Member& who = found->second;
+    who.asked = 0;
+    who.sent_target_buffs.clear();
+    if (message.id == 0) return;
+    std::vector<Surroundings::Unit> near;
+    env.stage->units_near(place_of(who.entity), near);
+    const auto seen = std::ranges::find(near, message.id, &Surroundings::Unit::entity);
+    if (seen == near.end()) return reject(protocol::ErrorCode::kNoSuchEntity);
+    protocol::EntityVitals vitals;
+    vitals.id = seen->entity;
+    vitals.hp_percent = seen->hp_percent;
+    vitals.mp_percent = seen->mp_percent;
+    vitals.rage = seen->rage;
+    env.out->down(session, vitals);
+    who.asked = seen->entity;
+    push_target_buffs(session, who, env, true);
 }
 
 void Battle::cast(std::uint64_t session, const protocol::CastSkill& message, const Env& env) {
@@ -502,7 +621,7 @@ void Battle::drain(const Env& env, bool from_cast) {
     for (const std::uint32_t entity : touched) {
         const combat::Fighter* fighter = arena_.find(handle_of(entity));
         if (fighter != nullptr && fighter->kind == combat::FighterKind::kMonster && fighter->alive()) {
-            stage.hurt(place_of(entity), percent_of(fighter->body));
+            stage.vitals(place_of(entity), view_of(fighter->body));
         }
     }
     for (const combat::Event& death : deaths) {
@@ -632,8 +751,10 @@ void Battle::respawn(std::uint64_t session, const protocol::Respawn& message, co
     out.note(session, Act::kRespawn, 0, std::to_underlying(message.place));
     arena_.clear_events();
     me->position = combat::Position{.x_cm = x_cm, .z_cm = z_cm};
-    who.sent_percent = percent_of(me->body);
-    env.stage->raise(place_of(who.entity), x_cm, z_cm, who.sent_percent);
+    who.sent_view = view_of(me->body);
+    env.stage->raise(place_of(who.entity), x_cm, z_cm, who.sent_view.hp_percent);
+    // raise chỉ đặt sinh lực; nội lực và nộ khí của cảnh còn giá trị lúc chết nên đặt lại ngay.
+    env.stage->vitals(place_of(who.entity), who.sent_view);
     push_vitals(session, who, env, true);
     // Position đi sau SelfVitals (hp > 0): client coi hp <= 0 là đang chết.
     out.place(session, x_cm, z_cm);
@@ -709,7 +830,10 @@ void Battle::step(const Env& env) {
         env.stage->sweep(place_of(entry.first));
         return true;
     });
-    for (auto& [session, who] : members_) push_vitals(session, who, env, false);
+    for (auto& [session, who] : members_)
+        push_vitals(session, who, env, false);
+    for (auto& [session, who] : members_)
+        push_buffs(session, who, env, false);
     if (tick_ % prune_every_ == 0) prune();
 }
 

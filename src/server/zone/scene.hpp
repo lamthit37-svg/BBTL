@@ -94,10 +94,12 @@ struct Point {
     }
 };
 
-// Đổi sinh lực theo phần trăm của một thực thể.
-struct HpChange {
+// Đổi sinh lực, nội lực theo phần trăm và nộ khí của một thực thể.
+struct VitalsChange {
     std::uint32_t id = 0;
-    std::uint8_t percent = 100;
+    std::uint8_t hp_percent = 100;
+    std::uint8_t mp_percent = 100;
+    std::int32_t rage = 0;
 };
 
 struct Delta {
@@ -137,6 +139,8 @@ struct Info {
     float x_cm = 0.0F;
     float z_cm = 0.0F;
     std::uint8_t hp_percent = 100;
+    std::uint8_t mp_percent = 100;
+    std::int32_t rage = 0;
     protocol::EntityState state = protocol::EntityState::kIdle;
     // Phiên của người chơi; 0 với thực thể khác.
     std::uint64_t session = 0;
@@ -198,7 +202,9 @@ public:
     void despawn(std::uint32_t id, Outbox& out);
     // Thực thể không phải người đi tới (x, z); id lạ thì bỏ.
     void move_entity(std::uint32_t id, Point to, Outbox& out);
-    void set_hp_percent(HpChange change, Outbox& out);
+    // Đổi sinh lực, nội lực, nộ khí của thực thể; có trường nào khác giá trị đang giữ thì báo
+    // EntityVitals cho người quanh và cho chính người chơi đó. Id lạ thì bỏ.
+    void set_vitals(VitalsChange change, Outbox& out);
     // Thực thể chết: nằm lại (state kDead, sinh lực 0), quái ngừng nghĩ; xác quái biến mất sau kCorpseTicks rồi quái có
     // respawn_ms hồi sinh ở chỗ đặt. EntityDied do nơi gọi phát (cảnh không biết ai hạ gục). Id lạ hay đã chết thì bỏ.
     void kill(std::uint32_t id);
@@ -258,6 +264,8 @@ private:
         std::uint16_t direction = 0;
         std::uint16_t speed_cm = 0;
         std::uint8_t hp_percent = 100;
+        std::uint8_t mp_percent = 100;
+        std::int32_t rage = 0;
         std::uint32_t script = 0;
         std::uint8_t flags = 0;
         std::uint32_t guid = 0;
@@ -317,6 +325,7 @@ private:
     [[nodiscard]] std::uint32_t id_at(std::uint32_t index) const noexcept;
     [[nodiscard]] std::optional<std::uint32_t> index_of(std::uint32_t id) const noexcept;
     [[nodiscard]] protocol::EntityAppear appear_of(std::uint32_t index) const;
+    [[nodiscard]] protocol::EntityVitals vitals_of(std::uint32_t index) const;
     // Khung EntityFlags của thực thể; rỗng khi cờ bằng 0 (client mặc định cờ 0 nên không cần gửi).
     [[nodiscard]] std::vector<std::byte> flags_frame(std::uint32_t index, Outbox& out) const;
     // Gửi cho người chơi `session` EntityAppear của thực thể, kèm EntityFlags khi có.

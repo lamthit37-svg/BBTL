@@ -2,7 +2,7 @@
 
 # Danh mục tin của giao thức
 
-Bản danh mục 9: 54 tin, 10 record, 14 enum.
+Bản danh mục 10: 57 tin, 11 record, 14 enum.
 Khung có 8 byte đầu (u32 số byte thân, u16 kind, u16 flags bằng 0), little-endian; thân tối đa 65 536 byte, tin client gửi tối đa 4 096 byte.
 Byte cao của kind là nhóm, bit 15 bật là tin server gửi. Trần của text tính bằng byte UTF-8, trần của list tính bằng số phần tử.
 
@@ -261,9 +261,10 @@ Thế giới: người chơi vào cảnh, thực thể xuất hiện, di chuyể
 | `0x8402` | EntityAppear | game | server | 4 | 81 |
 | `0x8403` | EntityDisappear | game | server | 4 | 4 |
 | `0x8404` | EntityPos | game | server | 4 | 19 |
-| `0x8405` | EntityVitals | game | server | 4 | 5 |
+| `0x8405` | EntityVitals | game | server | 4 | 10 |
 | `0x8406` | EntityFlags | game | server | 5 | 5 |
 | `0x8407` | EntityPosBatch | game | server | 7 | 990 |
+| `0x8408` | WorldTime | game | server | 10 | 1 |
 
 ### SceneEnter (0x8401)
 
@@ -330,14 +331,16 @@ Cổng game, server gửi, có từ bản 4. Thân tối đa 19 byte.
 
 ### EntityVitals (0x8405)
 
-Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+Sinh lực và nội lực theo phần trăm, nộ khí của một thực thể trong vùng nhìn (GCCharBaseAttrib 587 của Game.exe).
 
-Cổng game, server gửi, có từ bản 4. Thân tối đa 5 byte.
+Cổng game, server gửi, có từ bản 4. Thân tối đa 10 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `id` | `u32` | – | Id thực thể. |
 | 2 | `hp_percent` | `u8` | – | Sinh lực theo phần trăm 0..100. |
+| 3 | `mp_percent` | `u8` | – | Nội lực theo phần trăm 0..100. |
+| 4 | `rage` | `i32` | – | Nộ khí hiện có; gốc gửi số tuyệt đối, client chia cho nộ khí tối đa. |
 
 ### EntityFlags (0x8406)
 
@@ -359,6 +362,16 @@ Cổng game, server gửi, có từ bản 7. Thân tối đa 990 byte.
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `places` | `list:record:PosEntry` | 52 | Tối đa 52 vị trí: khung sau khi niêm phong phải vừa hộp gửi 1024 byte của gate. |
+
+### WorldTime (0x8408)
+
+Canh giờ trong game theo GCWorldTime (349) của Game.exe: một số 0 đến 11. Gửi sau SceneEnter và mỗi lần canh đổi.
+
+Cổng game, server gửi, có từ bản 10. Thân tối đa 1 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `period` | `u8` | – | Canh giờ 0..11 (WORLD_TIME của gốc), mỗi canh dài zone.toml period_change_ms. |
 
 ## Nhóm 05: auth
 
@@ -569,15 +582,15 @@ Trạng thái của chính nhân vật: cấp, kinh nghiệm, tiền.
 
 | Kind | Tin | Cổng | Chiều | Từ bản | Thân tối đa (byte) |
 |---|---|---|---|---|---|
-| `0x8701` | SelfStats | game | server | 5 | 26 |
+| `0x8701` | SelfStats | game | server | 5 | 131 |
 | `0x8702` | SelfVitals | game | server | 6 | 24 |
 | `0x8703` | SelfBag | game | server | 6 | 2 306 |
 
 ### SelfStats (0x8701)
 
-Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau SceneEnter và mỗi khi đổi.
+Cấp, kinh nghiệm, tiền và thuộc tính chi tiết của chính nhân vật theo GCDetailAttrib (687) của Game.exe. Gửi sau SceneEnter và mỗi khi có trường đổi.
 
-Cổng game, server gửi, có từ bản 5. Thân tối đa 26 byte.
+Cổng game, server gửi, có từ bản 5. Thân tối đa 131 byte.
 
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
@@ -585,6 +598,33 @@ Cổng game, server gửi, có từ bản 5. Thân tối đa 26 byte.
 | 2 | `exp` | `u64` | – | Kinh nghiệm hiện có trong cấp. |
 | 3 | `money` | `u64` | – | Tiền thường. |
 | 4 | `bound_money` | `u64` | – | Tiền khoá. |
+| 5 | `sect` | `u8` | – | Môn phái 0..15, như EntityAppear.school. |
+| 6 | `strength` | `i32` | – | Sức mạnh (STR). |
+| 7 | `spirit` | `i32` | – | Linh khí (SPR). |
+| 8 | `constitution` | `i32` | – | Thể chất (CON). |
+| 9 | `concentration` | `i32` | – | Định lực (INT). |
+| 10 | `dexterity` | `i32` | – | Thân pháp (DEX). |
+| 11 | `free_points` | `i32` | – | Điểm thuộc tính chưa cộng. |
+| 12 | `hp_restore` | `i32` | – | Hồi sinh lực mỗi nhịp. |
+| 13 | `mp_restore` | `i32` | – | Hồi nội lực mỗi nhịp. |
+| 14 | `physical_attack` | `i32` | – | Ngoại công. |
+| 15 | `physical_defence` | `i32` | – | Ngoại phòng. |
+| 16 | `magic_attack` | `i32` | – | Nội công. |
+| 17 | `magic_defence` | `i32` | – | Nội phòng. |
+| 18 | `hit` | `i32` | – | Trúng. |
+| 19 | `miss` | `i32` | – | Né. |
+| 20 | `critical_hit` | `i32` | – | Hội tâm. |
+| 21 | `strike_point` | `i32` | – | Điểm liên kích hiện có. |
+| 22 | `attack_speed` | `i32` | – | Tốc độ đánh. |
+| 23 | `move_speed` | `i32` | – | Giá trị thô của Stat::kMoveSpeed, tính bằng nghìn mét mỗi giây (mặc định 4000), chưa nhân hệ số chế độ chạy; xem NGHI-NGO.md. |
+| 24 | `cold_attack` | `i32` | – | Công băng. |
+| 25 | `cold_defence` | `i32` | – | Kháng băng. |
+| 26 | `fire_attack` | `i32` | – | Công hoả. |
+| 27 | `fire_defence` | `i32` | – | Kháng hoả. |
+| 28 | `lightning_attack` | `i32` | – | Công điện (huyền). |
+| 29 | `lightning_defence` | `i32` | – | Kháng điện (huyền). |
+| 30 | `poison_attack` | `i32` | – | Công độc. |
+| 31 | `poison_defence` | `i32` | – | Kháng độc. |
 
 ### SelfVitals (0x8702)
 
@@ -620,6 +660,7 @@ Chiến đấu: ra chiêu, hồi sinh, nhặt đồ; chiêu, số bay, cái ch�
 | `0x0801` | CastSkill | game | client | 6 | 16 |
 | `0x0802` | Respawn | game | client | 6 | 1 |
 | `0x0803` | PickUp | game | client | 6 | 4 |
+| `0x0804` | AskTarget | game | client | 10 | 4 |
 | `0x8801` | SkillCast | game | server | 6 | 21 |
 | `0x8802` | SkillCastEnd | game | server | 6 | 7 |
 | `0x8803` | CombatEvent | game | server | 6 | 16 |
@@ -627,6 +668,7 @@ Chiến đấu: ra chiêu, hồi sinh, nhặt đồ; chiêu, số bay, cái ch�
 | `0x8805` | DeathNotice | game | server | 6 | 16 |
 | `0x8806` | SelfSkills | game | server | 6 | 898 |
 | `0x8807` | SkillCooldown | game | server | 6 | 6 |
+| `0x8808` | BuffList | game | server | 10 | 582 |
 
 ### CastSkill (0x0801)
 
@@ -661,6 +703,16 @@ Cổng game, client gửi, có từ bản 6. Thân tối đa 4 byte.
 | Thứ tự | Trường | Kiểu | Trần | Ghi chú |
 |---|---|---|---|---|
 | 1 | `drop` | `u32` | – | EntityAppear.id của vật rơi. |
+
+### AskTarget (0x0804)
+
+Client hỏi thông tin của mục tiêu vừa chọn (CGCharAskBaseAttrib 1521 của Game.exe). Server đáp EntityVitals và BuffList của mục tiêu, rồi gửi lại hai tin ấy khi chúng đổi cho tới khi client chọn mục tiêu khác.
+
+Cổng game, client gửi, có từ bản 10. Thân tối đa 4 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | EntityAppear.id của mục tiêu vừa chọn. |
 
 ### SkillCast (0x8801)
 
@@ -748,6 +800,17 @@ Cổng game, server gửi, có từ bản 6. Thân tối đa 6 byte.
 | 1 | `skill` | `u16` | – | – |
 | 2 | `ms` | `u32` | – | Hồi chiêu mới, mili giây. |
 
+### BuffList (0x8808)
+
+Toàn bộ danh sách buff của một thực thể: của chính nhân vật (đủ người gây, kỹ năng, thời gian còn lại, theo GCDetailImpactListUpdate 168) hoặc của mục tiêu đã hỏi bằng AskTarget (chỉ dòng hiệu ứng và số thứ tự, theo GCCharImpactListUpdate 1353). Gửi cả danh sách mỗi khi đổi.
+
+Cổng game, server gửi, có từ bản 10. Thân tối đa 582 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `id` | `u32` | – | EntityAppear.id của thực thể có danh sách này (chính mình hoặc mục tiêu). |
+| 2 | `buffs` | `list:record:BuffEntry` | 32 | – |
+
 ## Record
 
 ### BagSlot
@@ -762,6 +825,20 @@ Thân tối đa 9 byte.
 | 2 | `item` | `u32` | – | Mẫu vật phẩm. |
 | 3 | `count` | `u16` | – | Số lượng chồng. |
 | 4 | `bound` | `bool` | – | Đã khoá (ràng buộc). |
+
+### BuffEntry
+
+Một buff đang mang trong BuffList: người gây, kỹ năng, dòng hiệu ứng, số thứ tự và thời gian còn lại.
+
+Thân tối đa 18 byte.
+
+| Thứ tự | Trường | Kiểu | Trần | Ghi chú |
+|---|---|---|---|---|
+| 1 | `effect` | `u32` | – | Dòng effects.tsv của buff. |
+| 2 | `serial` | `i32` | – | Số thứ tự của buff trong danh sách người mang (Buff::sn), để client phân biệt hai buff cùng dòng. |
+| 3 | `sender` | `u32` | – | EntityAppear.id của người gây; 0 khi không rõ hay khi là danh sách của mục tiêu. |
+| 4 | `skill` | `u16` | – | Kỹ năng sinh ra buff; 0 khi không có hay khi là danh sách của mục tiêu. |
+| 5 | `remaining_ms` | `i32` | – | Thời gian còn lại, mili giây, tại lúc gửi; -1 là vô hạn; 0 khi là danh sách của mục tiêu. |
 
 ### CharacterSummary
 

@@ -54,6 +54,9 @@ public:
         play::Gameplay::Settings play{};
         // true: ghi log kiểm theo việc người chơi (zone/trace.hpp); false thì không tốn gì.
         bool trace = false;
+        // Số tick của một canh giờ trong game (zone.toml [world_clock] period_change_ms); 0 là
+        // không gửi WorldTime.
+        std::uint32_t period_ticks = 0;
     };
 
     explicit Host(Config config);
@@ -94,6 +97,11 @@ private:
     void seed(Scene& scene, const std::vector<Seed>& seeds) const;
     // Nhớ vùng đang đứng lúc đặt chân, để bước sau chỉ chuyển cảnh khi vùng đổi.
     void remember_foot(std::uint64_t session, const Scene& scene);
+    // Canh giờ hiện tại 0..11 (đếm từ lúc zone chạy), gửi cho một phiên. Không có chu kỳ thì không
+    // gửi.
+    void tell_period(std::uint64_t session, Outbox& out) const;
+    // Canh đổi: báo mọi người chơi đang trong cảnh.
+    void tell_period_all(Outbox& out) const;
     void consider_gate(std::uint64_t session, Outbox& out);
     void transfer(std::uint64_t session, Scene& from, const AreaStand& stand, Outbox& out);
     // Dựng lại người chơi ở cảnh cũ sau khi cảnh đích không nhận. Card là hồ sơ trước khi rời.

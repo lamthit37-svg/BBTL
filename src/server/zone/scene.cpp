@@ -347,17 +347,29 @@ void Scene::move_entity(std::uint32_t id, Point to, Outbox& out) {
     relocate(*index, to, out);
 }
 
-void Scene::set_hp_percent(HpChange change, Outbox& out) {
-    const std::uint32_t id = change.id;
-    const std::optional<std::uint32_t> index = index_of(id);
+protocol::EntityVitals Scene::vitals_of(std::uint32_t index) const {
+    const Entity& who = entities_[index];
+    protocol::EntityVitals vitals;
+    vitals.id = id_at(index);
+    vitals.hp_percent = who.hp_percent;
+    vitals.mp_percent = who.mp_percent;
+    vitals.rage = who.rage;
+    return vitals;
+}
+
+void Scene::set_vitals(VitalsChange change, Outbox& out) {
+    const std::optional<std::uint32_t> index = index_of(change.id);
     if (!index) return;
     Entity& who = entities_[*index];
-    const std::uint8_t clamped = std::min<std::uint8_t>(change.percent, 100);
-    if (who.hp_percent == clamped) return;
-    who.hp_percent = clamped;
-    protocol::EntityVitals vitals;
-    vitals.id = id;
-    vitals.hp_percent = clamped;
+    const std::uint8_t hp = std::min<std::uint8_t>(change.hp_percent, 100);
+    const std::uint8_t mp = std::min<std::uint8_t>(change.mp_percent, 100);
+    const std::int32_t rage = std::max(change.rage, 0);
+    const bool same = who.hp_percent == hp && who.mp_percent == mp && who.rage == rage;
+    if (same) return;
+    who.hp_percent = hp;
+    who.mp_percent = mp;
+    who.rage = rage;
+    const protocol::EntityVitals vitals = vitals_of(*index);
     const std::vector<std::byte> frame = out.frame_of(vitals);
     broadcast(who.cell, *index, frame, out);
     // Người chơi cũng cần thấy sinh lực của chính mình đổi.
@@ -384,10 +396,9 @@ void Scene::revive(std::uint32_t id, Point at, std::uint8_t hp_percent, Outbox& 
     who.state = protocol::EntityState::kIdle;
     who.hp_percent = std::clamp<std::uint8_t>(hp_percent, 1, 100);
     relocate(*index, at, out);
-    protocol::EntityVitals vitals;
-    vitals.id = id;
-    vitals.hp_percent = who.hp_percent;
-    tell_near(id, out.frame_of(vitals), true, out);
+    const protocol::EntityVitals vitals = vitals_of(*index);
+    const std::vector<std::byte> frame = out.frame_of(vitals);
+    tell_near(id, frame, true, out);
 }
 
 // NOLINTNEXTLINE(bugprone-easily-swappable-parameters): id thực thể và cấp khác vai, nơi gọi nêu tên (HP-07)
@@ -398,15 +409,19 @@ void Scene::set_level(std::uint32_t id, std::uint16_t level) {
 
 std::optional<Info> Scene::info_at(std::uint32_t index, bool with_name) const {
     const Entity& who = entities_[index];
-    return Info{.kind = who.kind,
-        .template_id = who.template_id,
-        .level = who.level,
-        .x_cm = who.x_cm,
-        .z_cm = who.z_cm,
-        .hp_percent = who.hp_percent,
-        .state = who.state,
-        .session = who.session,
-        .name = with_name ? who.name : std::string{}};
+    Info seen;
+    seen.kind = who.kind;
+    seen.template_id = who.template_id;
+    seen.level = who.level;
+    seen.x_cm = who.x_cm;
+    seen.z_cm = who.z_cm;
+    seen.hp_percent = who.hp_percent;
+    seen.mp_percent = who.mp_percent;
+    seen.rage = who.rage;
+    seen.state = who.state;
+    seen.session = who.session;
+    if (with_name) seen.name = who.name;
+    return seen;
 }
 
 std::optional<Info> Scene::info(std::uint32_t id) const {

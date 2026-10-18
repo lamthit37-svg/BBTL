@@ -128,8 +128,12 @@ public:
         for (const auto& [id, one] : units) out.push_back(one);
     }
     void tell(Place, std::span<const std::byte> frame, bool) override { told.emplace_back(frame.begin(), frame.end()); }
-    void hurt(Place place, std::uint8_t percent) override {
-        if (const auto found = units.find(place.entity); found != units.end()) found->second.hp_percent = percent;
+    void vitals(Place place, Vitals now) override {
+        const auto found = units.find(place.entity);
+        if (found == units.end()) return;
+        found->second.hp_percent = now.hp_percent;
+        found->second.mp_percent = now.mp_percent;
+        found->second.rage = now.rage;
     }
     void fell(Place place) override {
         felled.push_back(place.entity);
@@ -580,8 +584,12 @@ struct Fight {
     int rejects = 0;
 };
 
-// Đánh con quái `entity` bằng Phục Hổ Quyền (kỹ năng 281 của Thiếu Lâm) cho tới khi nó chết hoặc hết 50 lượt.
-Fight fight_until_dead(Fixture& fixture, std::uint64_t& tick, std::uint32_t entity, std::uint16_t skill = 281) {
+// Chiêu đánh trong các ca dưới: đòn thường (id 0). Nhân vật mới chỉ có sáu chiêu DefaultChar [0, 1, 21, 22, 34, 35]; chiêu phái
+// (như 281 Phục Hổ Quyền của Thiếu Lâm) phải học qua NPC nên không có sẵn.
+constexpr std::uint16_t kFightSkill = 0;
+
+// Đánh con quái `entity` bằng chiêu `skill` cho tới khi nó chết hoặc hết 50 lượt.
+Fight fight_until_dead(Fixture& fixture, std::uint64_t& tick, std::uint32_t entity, std::uint16_t skill = kFightSkill) {
     Fight fight;
     for (int round = 0; round < 50 && !fight.died; ++round) {
         play::Output cast;
@@ -616,7 +624,12 @@ void kill_a_monster_end_to_end(Context& context) {
     const auto* vitals = first_of<protocol::SelfVitals>(start);
     context.expect(vitals != nullptr && vitals->hp > 0 && vitals->hp == vitals->hp_max, "vào cảnh nhận SelfVitals đầy máu");
     const auto* skills = first_of<protocol::SelfSkills>(start);
-    context.expect(skills != nullptr && !skills->skills.empty(), "vào cảnh nhận SelfSkills có kỹ năng của phái");
+    std::vector<std::uint16_t> held;
+    if (skills != nullptr) {
+        for (const protocol::SkillEntry& entry : skills->skills) held.push_back(entry.skill);
+    }
+    const std::vector<std::uint16_t> starting = {0, 1, 21, 22, 34, 35};
+    context.expect(held == starting, "vào cảnh nhận SelfSkills đúng sáu chiêu DefaultChar");
 
     std::uint64_t tick = 100;
     const std::uint64_t exp_before = fixture->gameplay->find(kSession)->exp();
@@ -629,7 +642,7 @@ void kill_a_monster_end_to_end(Context& context) {
     context.expect(hero != nullptr && hero->exp() > exp_before, "người đánh nhận kinh nghiệm");
     // Sau khi chết, đánh tiếp vào xác bị từ chối (mục tiêu đã chết), không đổi gì.
     play::Output again;
-    fixture->gameplay->intent(kSession, frame_of(protocol::CastSkill{.seq = 99, .skill = 281, .target = kMonsterEntity, .x_cm = 0.0F, .z_cm = 0.0F}),
+    fixture->gameplay->intent(kSession, frame_of(protocol::CastSkill{.seq = 99, .skill = kFightSkill, .target = kMonsterEntity, .x_cm = 0.0F, .z_cm = 0.0F}),
         fixture->around, again);
     const auto replies = decoded(again);
     const auto* refused = first_of<protocol::Reject>(replies);
@@ -737,15 +750,15 @@ void combat_refuses_hostile_input(Context& context) {
     using Code = protocol::ErrorCode;
     context.expect(refusal({.seq = 1, .skill = 60000, .target = kMonsterEntity, .x_cm = 0.0F, .z_cm = 0.0F}) == Code::kBadOption, "kỹ năng không có trong bảng: BadOption");
     // NaN và vô cực: tầng protocol đã không giải mã được khung; dù thế nào cũng không có SkillCast.
-    for (const protocol::CastSkill& bad : {protocol::CastSkill{.seq = 2, .skill = 281, .target = 0, .x_cm = kNan, .z_cm = 0.0F},
-             protocol::CastSkill{.seq = 3, .skill = 281, .target = 0, .x_cm = 0.0F, .z_cm = kInf}}) {
+    for (const protocol::CastSkill& bad : {protocol::CastSkill{.seq = 2, .skill = kFightSkill, .target = 0, .x_cm = kNan, .z_cm = 0.0F},
+             protocol::CastSkill{.seq = 3, .skill = kFightSkill, .target = 0, .x_cm = 0.0F, .z_cm = kInf}}) {
         play::Output out;
         fixture->gameplay->intent(kSession, frame_of(bad), fixture->around, out);
         context.expect(first_of<protocol::SkillCast>(decoded(out)) == nullptr, "toạ độ đất không hữu hạn không ra chiêu");
     }
-    context.expect(refusal({.seq = 4, .skill = 281, .target = 0, .x_cm = 3.0e9F, .z_cm = 0.0F}) == Code::kBadOption, "toạ độ đất quá trần: BadOption");
-    context.expect(refusal({.seq = 5, .skill = 281, .target = kPasserby, .x_cm = 0.0F, .z_cm = 0.0F}) == Code::kBadTarget, "đánh NPC: BadTarget");
-    context.expect(refusal({.seq = 6, .skill = 281, .target = 0xDEADBEEFU, .x_cm = 0.0F, .z_cm = 0.0F}) == Code::kNoSuchEntity, "mục tiêu không có trong cảnh: NoSuchEntity");
+    context.expect(refusal({.seq = 4, .skill = kFightSkill, .target = 0, .x_cm = 3.0e9F, .z_cm = 0.0F}) == Code::kBadOption, "toạ độ đất quá trần: BadOption");
+    context.expect(refusal({.seq = 5, .skill = kFightSkill, .target = kPasserby, .x_cm = 0.0F, .z_cm = 0.0F}) == Code::kBadTarget, "đánh NPC: BadTarget");
+    context.expect(refusal({.seq = 6, .skill = kFightSkill, .target = 0xDEADBEEFU, .x_cm = 0.0F, .z_cm = 0.0F}) == Code::kNoSuchEntity, "mục tiêu không có trong cảnh: NoSuchEntity");
 
     play::Output alive;
     fixture->gameplay->intent(kSession, frame_of(protocol::Respawn{.place = protocol::RespawnPlace::kTown}), fixture->around, alive);

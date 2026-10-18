@@ -658,6 +658,13 @@ void Gameplay::on(const Call& call, const protocol::CastSkill& message) {
     settle(report, *call.out);
 }
 
+void Gameplay::on(const Call& call, const protocol::AskTarget& message) {
+    Report report;
+    const Env env{.stage = call.around, .out = call.out, .report = &report};
+    battle(call.who->scene).ask_target(call.session, message, env);
+    settle(report, *call.out);
+}
+
 void Gameplay::on(const Call& call, const protocol::Respawn& message) {
     Report report;
     battle(call.who->scene).respawn(call.session, message, Env{.stage = call.around, .out = call.out, .report = &report});
@@ -823,6 +830,49 @@ void Gameplay::ui_commands(std::uint64_t session, const Entry& who, const missio
     }
 }
 
+namespace {
+
+// Thuộc tính chi tiết của chính nhân vật theo GCDetailAttrib (687): số thân đang có, đã gồm buff và
+// trang bị.
+[[nodiscard]] protocol::SelfStats stats_of(const Player& hero) {
+    const actor::Body& body = hero.body();
+    protocol::SelfStats stats;
+    stats.level = static_cast<std::uint16_t>(hero.level());
+    stats.exp = hero.exp();
+    stats.money = hero.money();
+    stats.bound_money = hero.bound();
+    stats.sect = body.sect();
+    stats.strength = body.stat(actor::Stat::kStr);
+    stats.spirit = body.stat(actor::Stat::kSpr);
+    stats.constitution = body.stat(actor::Stat::kCon);
+    stats.concentration = body.stat(actor::Stat::kInt);
+    stats.dexterity = body.stat(actor::Stat::kDex);
+    stats.free_points = body.record().remain_points;
+    stats.hp_restore = body.stat(actor::Stat::kHpRegen);
+    stats.mp_restore = body.stat(actor::Stat::kMpRegen);
+    stats.physical_attack = body.stat(actor::Stat::kAttackPhy);
+    stats.physical_defence = body.stat(actor::Stat::kDefencePhy);
+    stats.magic_attack = body.stat(actor::Stat::kAttackMagic);
+    stats.magic_defence = body.stat(actor::Stat::kDefenceMagic);
+    stats.hit = body.stat(actor::Stat::kHit);
+    stats.miss = body.stat(actor::Stat::kMiss);
+    stats.critical_hit = body.stat(actor::Stat::kCritical);
+    stats.strike_point = body.strike_points();
+    stats.attack_speed = body.stat(actor::Stat::kAttackSpeed);
+    stats.move_speed = body.stat(actor::Stat::kMoveSpeed);
+    stats.cold_attack = body.stat(actor::Stat::kAttackCold);
+    stats.cold_defence = body.stat(actor::Stat::kResistCold);
+    stats.fire_attack = body.stat(actor::Stat::kAttackFire);
+    stats.fire_defence = body.stat(actor::Stat::kResistFire);
+    stats.lightning_attack = body.stat(actor::Stat::kAttackLight);
+    stats.lightning_defence = body.stat(actor::Stat::kResistLight);
+    stats.poison_attack = body.stat(actor::Stat::kAttackPoison);
+    stats.poison_defence = body.stat(actor::Stat::kResistPoison);
+    return stats;
+}
+
+} // namespace
+
 void Gameplay::sync(std::uint64_t session, Entry& who, Output& out) {
     Player& hero = *who.player;
     if (!who.sent_once || !(hero.book() == who.sent_book)) {
@@ -846,14 +896,11 @@ void Gameplay::sync(std::uint64_t session, Entry& who, Output& out) {
         out.down(session, bag);
         who.sent_bag.assign(hero.bag().slots().begin(), hero.bag().slots().end());
     }
-    if (!who.sent_once || hero.level() != who.sent_level || hero.exp() != who.sent_exp || hero.money() != who.sent_money ||
-        hero.bound() != who.sent_bound) {
-        out.down(session, protocol::SelfStats{.level = static_cast<std::uint16_t>(hero.level()),
-                              .exp = hero.exp(), .money = hero.money(), .bound_money = hero.bound()});
-        who.sent_level = static_cast<std::uint16_t>(hero.level());
-        who.sent_exp = hero.exp();
-        who.sent_money = hero.money();
-        who.sent_bound = hero.bound();
+    const protocol::SelfStats stats = stats_of(hero);
+    if (!who.sent_once || !(stats == who.sent_stats)) {
+        out.down(session, stats);
+        who.sent_stats = stats;
+        who.sent_level = stats.level;
     }
     who.sent_once = true;
     std::optional<account::PlayRecord> now = hero.record();

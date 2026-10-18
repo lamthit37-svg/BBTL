@@ -233,6 +233,24 @@ void put_bag_slot(Writer& writer, const BagSlot& message) {
     return message;
 }
 
+void put_buff_entry(Writer& writer, const BuffEntry& message) {
+    writer.u32(message.effect);
+    writer.i32(message.serial);
+    writer.u32(message.sender);
+    writer.u16(message.skill);
+    writer.i32(message.remaining_ms);
+}
+
+[[nodiscard]] BuffEntry get_buff_entry(Reader& reader) {
+    BuffEntry message;
+    message.effect = reader.u32();
+    message.serial = reader.i32();
+    message.sender = reader.u32();
+    message.skill = reader.u16();
+    message.remaining_ms = reader.i32();
+    return message;
+}
+
 void put_character_summary(Writer& writer, const CharacterSummary& message) {
     writer.u64(message.id);
     writer.text(message.name, kCharacterSummaryNameBytes);
@@ -653,6 +671,16 @@ void put_pick_up(Writer& writer, const PickUp& message) {
     return message;
 }
 
+void put_ask_target(Writer& writer, const AskTarget& message) {
+    writer.u32(message.id);
+}
+
+[[nodiscard]] AskTarget get_ask_target(Reader& reader) {
+    AskTarget message;
+    message.id = reader.u32();
+    return message;
+}
+
 void put_welcome(Writer& writer, const Welcome& message) {
     writer.u16(message.version);
     put_millis64(writer, message.server_time);
@@ -874,12 +902,16 @@ void put_entity_pos(Writer& writer, const EntityPos& message) {
 void put_entity_vitals(Writer& writer, const EntityVitals& message) {
     writer.u32(message.id);
     writer.u8(message.hp_percent);
+    writer.u8(message.mp_percent);
+    writer.i32(message.rage);
 }
 
 [[nodiscard]] EntityVitals get_entity_vitals(Reader& reader) {
     EntityVitals message;
     message.id = reader.u32();
     message.hp_percent = reader.u8();
+    message.mp_percent = reader.u8();
+    message.rage = reader.i32();
     return message;
 }
 
@@ -920,6 +952,16 @@ void put_entity_pos_batch(Writer& writer, const EntityPosBatch& message) {
 [[nodiscard]] EntityPosBatch get_entity_pos_batch(Reader& reader) {
     EntityPosBatch message;
     message.places = get_list_4(reader);
+    return message;
+}
+
+void put_world_time(Writer& writer, const WorldTime& message) {
+    writer.u8(message.period);
+}
+
+[[nodiscard]] WorldTime get_world_time(Reader& reader) {
+    WorldTime message;
+    message.period = reader.u8();
     return message;
 }
 
@@ -1141,11 +1183,46 @@ void put_ui_command(Writer& writer, const UiCommand& message) {
     return message;
 }
 
+void put_self_stats_2_of_2(Writer& writer, const SelfStats& message) {
+    writer.i32(message.poison_defence);
+}
+
 void put_self_stats(Writer& writer, const SelfStats& message) {
     writer.u16(message.level);
     writer.u64(message.exp);
     writer.u64(message.money);
     writer.u64(message.bound_money);
+    writer.u8(message.sect);
+    writer.i32(message.strength);
+    writer.i32(message.spirit);
+    writer.i32(message.constitution);
+    writer.i32(message.concentration);
+    writer.i32(message.dexterity);
+    writer.i32(message.free_points);
+    writer.i32(message.hp_restore);
+    writer.i32(message.mp_restore);
+    writer.i32(message.physical_attack);
+    writer.i32(message.physical_defence);
+    writer.i32(message.magic_attack);
+    writer.i32(message.magic_defence);
+    writer.i32(message.hit);
+    writer.i32(message.miss);
+    writer.i32(message.critical_hit);
+    writer.i32(message.strike_point);
+    writer.i32(message.attack_speed);
+    writer.i32(message.move_speed);
+    writer.i32(message.cold_attack);
+    writer.i32(message.cold_defence);
+    writer.i32(message.fire_attack);
+    writer.i32(message.fire_defence);
+    writer.i32(message.lightning_attack);
+    writer.i32(message.lightning_defence);
+    writer.i32(message.poison_attack);
+    put_self_stats_2_of_2(writer, message);
+}
+
+void get_self_stats_2_of_2(Reader& reader, SelfStats& message) {
+    message.poison_defence = reader.i32();
 }
 
 [[nodiscard]] SelfStats get_self_stats(Reader& reader) {
@@ -1154,6 +1231,33 @@ void put_self_stats(Writer& writer, const SelfStats& message) {
     message.exp = reader.u64();
     message.money = reader.u64();
     message.bound_money = reader.u64();
+    message.sect = reader.u8();
+    message.strength = reader.i32();
+    message.spirit = reader.i32();
+    message.constitution = reader.i32();
+    message.concentration = reader.i32();
+    message.dexterity = reader.i32();
+    message.free_points = reader.i32();
+    message.hp_restore = reader.i32();
+    message.mp_restore = reader.i32();
+    message.physical_attack = reader.i32();
+    message.physical_defence = reader.i32();
+    message.magic_attack = reader.i32();
+    message.magic_defence = reader.i32();
+    message.hit = reader.i32();
+    message.miss = reader.i32();
+    message.critical_hit = reader.i32();
+    message.strike_point = reader.i32();
+    message.attack_speed = reader.i32();
+    message.move_speed = reader.i32();
+    message.cold_attack = reader.i32();
+    message.cold_defence = reader.i32();
+    message.fire_attack = reader.i32();
+    message.fire_defence = reader.i32();
+    message.lightning_attack = reader.i32();
+    message.lightning_defence = reader.i32();
+    message.poison_attack = reader.i32();
+    get_self_stats_2_of_2(reader, message);
     return message;
 }
 
@@ -1325,6 +1429,36 @@ void put_skill_cooldown(Writer& writer, const SkillCooldown& message) {
     return message;
 }
 
+// list:record:BuffEntry, tối đa kBuffListBuffsCount phần tử.
+void put_list_14(Writer& writer, const std::vector<BuffEntry>& values) {
+    writer.count(values.size(), kBuffListBuffsCount);
+    for (const auto& value : values) {
+        put_buff_entry(writer, value);
+    }
+}
+
+[[nodiscard]] std::vector<BuffEntry> get_list_14(Reader& reader) {
+    const std::size_t count = reader.count(kBuffListBuffsCount);
+    std::vector<BuffEntry> values;
+    values.reserve(count);
+    for (std::size_t i = 0; i < count && reader.is_ok(); ++i) {
+        values.push_back(get_buff_entry(reader));
+    }
+    return values;
+}
+
+void put_buff_list(Writer& writer, const BuffList& message) {
+    writer.u32(message.id);
+    put_list_14(writer, message.buffs);
+}
+
+[[nodiscard]] BuffList get_buff_list(Reader& reader) {
+    BuffList message;
+    message.id = reader.u32();
+    message.buffs = get_list_14(reader);
+    return message;
+}
+
 // Thân phải hết đúng lúc đọc xong trường cuối; lỗi đầu tiên của reader được giữ.
 template <class Message>
 [[nodiscard]] std::expected<Message, WireError> checked(const Reader& reader, Message message) {
@@ -1335,8 +1469,10 @@ template <class Message>
 
 [[nodiscard]] GameServerResult decode_game_server_2_of_2(std::uint16_t kind, Reader& reader) {
     switch (kind) {
+    case DeathNotice::kKind: return checked(reader, get_death_notice(reader));
     case SelfSkills::kKind: return checked(reader, get_self_skills(reader));
     case SkillCooldown::kKind: return checked(reader, get_skill_cooldown(reader));
+    case BuffList::kKind: return checked(reader, get_buff_list(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }
@@ -1538,6 +1674,12 @@ WireStatus encode(std::vector<std::byte>& out, const PickUp& message) {
     return writer.finish(PickUp::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const AskTarget& message) {
+    Writer writer{out};
+    put_ask_target(writer, message);
+    return writer.finish(AskTarget::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const Welcome& message) {
     Writer writer{out};
     put_welcome(writer, message);
@@ -1640,6 +1782,12 @@ WireStatus encode(std::vector<std::byte>& out, const EntityPosBatch& message) {
     return writer.finish(EntityPosBatch::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const WorldTime& message) {
+    Writer writer{out};
+    put_world_time(writer, message);
+    return writer.finish(WorldTime::kKind);
+}
+
 WireStatus encode(std::vector<std::byte>& out, const Ticket& message) {
     Writer writer{out};
     put_ticket(writer, message);
@@ -1736,6 +1884,12 @@ WireStatus encode(std::vector<std::byte>& out, const SkillCooldown& message) {
     return writer.finish(SkillCooldown::kKind);
 }
 
+WireStatus encode(std::vector<std::byte>& out, const BuffList& message) {
+    Writer writer{out};
+    put_buff_list(writer, message);
+    return writer.finish(BuffList::kKind);
+}
+
 GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     Reader reader{body};
     switch (frame.kind) {
@@ -1758,6 +1912,7 @@ GameClientResult decode_game_client(const Frame& frame, ByteView body) {
     case CastSkill::kKind: return checked(reader, get_cast_skill(reader));
     case Respawn::kKind: return checked(reader, get_respawn(reader));
     case PickUp::kKind: return checked(reader, get_pick_up(reader));
+    case AskTarget::kKind: return checked(reader, get_ask_target(reader));
     default: return std::unexpected(WireError::kUnknownKind);
     }
 }
@@ -1782,6 +1937,7 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case EntityVitals::kKind: return checked(reader, get_entity_vitals(reader));
     case EntityFlags::kKind: return checked(reader, get_entity_flags(reader));
     case EntityPosBatch::kKind: return checked(reader, get_entity_pos_batch(reader));
+    case WorldTime::kKind: return checked(reader, get_world_time(reader));
     case DialogOpen::kKind: return checked(reader, get_dialog_open(reader));
     case DialogClosed::kKind: return checked(reader, get_dialog_closed(reader));
     case QuestBook::kKind: return checked(reader, get_quest_book(reader));
@@ -1794,7 +1950,6 @@ GameServerResult decode_game_server(const Frame& frame, ByteView body) {
     case SkillCastEnd::kKind: return checked(reader, get_skill_cast_end(reader));
     case CombatEvent::kKind: return checked(reader, get_combat_event(reader));
     case EntityDied::kKind: return checked(reader, get_entity_died(reader));
-    case DeathNotice::kKind: return checked(reader, get_death_notice(reader));
     default: return decode_game_server_2_of_2(frame.kind, reader);
     }
 }

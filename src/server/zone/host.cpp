@@ -47,6 +47,8 @@ namespace {
 constexpr float kCmPerMeter = 100.0F;
 // EntityFlags bit 1: vật rơi nhặt được (bit 0 là bấm vào để nói chuyện).
 constexpr std::uint8_t kPickableFlag = 2;
+// WORLD_TIME của gốc (Common/GameDefine2.h:868-881): canh giờ 0..11 rồi quay về 0.
+constexpr std::uint32_t kWorldPeriods = 12;
 
 [[nodiscard]] Scene::Config config_of(const Host::Config& host, std::uint16_t id,
     SceneContent& content) {
@@ -114,8 +116,15 @@ public:
         scene->tell_near(place.entity, std::vector<std::byte>{frame.begin(), frame.end()}, include_self, *out_);
     }
 
-    void hurt(Place place, std::uint8_t percent) override {
-        if (Scene* scene = host_->find(place.scene)) scene->set_hp_percent(HpChange{.id = place.entity, .percent = percent}, *out_);
+    void vitals(Place place, Vitals now) override {
+        Scene* scene = host_->find(place.scene);
+        if (scene == nullptr) return;
+        VitalsChange change;
+        change.id = place.entity;
+        change.hp_percent = now.hp_percent;
+        change.mp_percent = now.mp_percent;
+        change.rage = now.rage;
+        scene->set_vitals(change, *out_);
     }
 
     void fell(Place place) override {
@@ -153,15 +162,18 @@ public:
 
 private:
     [[nodiscard]] static Unit unit_of(std::uint32_t id, const Info& seen) noexcept {
-        return Unit{.entity = id,
-            .kind = seen.kind,
-            .template_id = seen.template_id,
-            .level = seen.level,
-            .x_cm = static_cast<std::int32_t>(std::lround(seen.x_cm)),
-            .z_cm = static_cast<std::int32_t>(std::lround(seen.z_cm)),
-            .hp_percent = seen.hp_percent,
-            .dead = seen.state == protocol::EntityState::kDead,
-            .name = {}};
+        Unit unit;
+        unit.entity = id;
+        unit.kind = seen.kind;
+        unit.template_id = seen.template_id;
+        unit.level = seen.level;
+        unit.x_cm = static_cast<std::int32_t>(std::lround(seen.x_cm));
+        unit.z_cm = static_cast<std::int32_t>(std::lround(seen.z_cm));
+        unit.hp_percent = seen.hp_percent;
+        unit.mp_percent = seen.mp_percent;
+        unit.rage = seen.rage;
+        unit.dead = seen.state == protocol::EntityState::kDead;
+        return unit;
     }
 
     Host* host_;
@@ -312,7 +324,22 @@ void Host::attach(std::uint64_t session, const ipc::Frame& frame, Outbox& out) {
     }
     trace_.enter(session, *arrival, spot_of(session), ticks_);
     deliver(output, out);
+    tell_period(session, out);
     remember_foot(session, *scene);
+}
+
+void Host::tell_period(std::uint64_t session, Outbox& out) const {
+    if (config_.period_ticks == 0) return;
+    const std::uint32_t whole = ticks_ / config_.period_ticks;
+    protocol::WorldTime time;
+    time.period = static_cast<std::uint8_t>(whole % kWorldPeriods);
+    const std::vector<std::byte> frame = out.frame_of(time);
+    out.down_frame(session, frame);
+}
+
+void Host::tell_period_all(Outbox& out) const {
+    for (const auto& [session, scene_id] : where_)
+        tell_period(session, out);
 }
 
 void Host::detach(std::uint64_t session, Outbox& out) {
@@ -370,6 +397,8 @@ void Host::handle(const ipc::Frame& frame, Outbox& out) {
 void Host::advance(Outbox& out) {
     ++ticks_;
     clock_play();
+    const bool new_period = config_.period_ticks != 0 && ticks_ % config_.period_ticks == 0;
+    if (new_period) tell_period_all(out);
     const auto every = static_cast<std::uint32_t>(60 * config_.hz);
     const bool save_now = ticks_ % every == 0;
     for (auto& [id, scene] : scenes_) {

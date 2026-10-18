@@ -178,7 +178,9 @@ tạo và xoá nhân vật, in mã server trả cho từng bước (trần ba nh
 lại id đã xoá, xoá nhân vật đang chơi, xoá dồn dưới 500 ms, xoá khi hết nhân vật) và thoát 1
 nếu một bước sai mã mong đợi. `--leap 1 --walk <walk.path>` đứng yên 2,2 giây rồi gửi một
 Move dài xuyên tường, sau đó một Move cùng khoảng tới điểm thông; thoát 0 khi chỉ bước xuyên
-tường bị đặt lại (`Scene::blocked` kiểm cả đoạn đi). Ví dụ: `thienlong_bot --identity
+tường bị đặt lại (`Scene::blocked` kiểm cả đoạn đi). `--hud 1` vào cảnh rồi đối chiếu các tin của
+HUD: SelfStats đủ thuộc tính, SelfSkills đúng sáu chiêu DefaultChar, WorldTime, BuffList, AskTarget
+(`--seconds 155` trở lên chờ thêm tới khi canh giờ đổi). Ví dụ: `thienlong_bot --identity
 dev\server\data\gate\identity.key --count 2 --seconds 8 --prefix e2em1`. `--peers N` cho một bot đứng
 yên đủ `--seconds` giây rồi thoát 0 nếu thấy ít nhất N người chơi khác; đặt cạnh client thật trong
 kịch bản E2E. `--walk dev\server\scenes\dali\walk.path` cho `--hunt`, `--talk`, `--fight` đi theo luật

@@ -102,9 +102,7 @@ private:
         std::uint64_t character = 0;
         // Điều đã gửi / đã ghi: so với trạng thái hiện tại để chỉ gửi và ghi khi có đổi.
         mission::Book sent_book;
-        std::uint64_t sent_exp = 0;
-        std::uint64_t sent_money = 0;
-        std::uint64_t sent_bound = 0;
+        protocol::SelfStats sent_stats;
         std::uint16_t sent_level = 0;
         std::vector<BagSlot> sent_bag;
         bool sent_once = false;
@@ -136,6 +134,7 @@ private:
     void on(const Call& call, const protocol::QuestAbandon& message);
     void on(const Call& call, const protocol::DialogClose& message);
     void on(const Call& call, const protocol::CastSkill& message);
+    void on(const Call& call, const protocol::AskTarget& message);
     void on(const Call& call, const protocol::Respawn& message);
     void on(const Call& call, const protocol::PickUp& message);
     void on(const Call& call, const protocol::ExecuteScript& message);

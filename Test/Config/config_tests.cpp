@@ -1,5 +1,19 @@
-// Bộ đọc cấu hình. Ca đúng đọc nguyên văn tệp thật trong dev/server/config (đường dẫn do CMake đưa),
-// trừ secrets: test không bao giờ mở secrets.local.toml. Ca sai là chuỗi trong config_samples.hpp.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Config/config_tests.cpp
+ *  PHÂN HỆ   : Config / Config Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bộ đọc cấu hình. Ca đúng đọc nguyên văn tệp thật trong dev/server/config
+ *    (đường dẫn do CMake đưa), trừ secrets: test không bao giờ mở
+ *    secrets.local.toml. Ca sai là chuỗi trong config_samples.hpp.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "config/admin.hpp"
 #include "config/auth.hpp"
 #include "config/billing.hpp"
@@ -329,7 +343,7 @@ void real_gate(Context& context) {
     const config::GateLimits& limits = gate->limits;
     const bool is_limits = limits.max_connections == 2000 && limits.per_ip_connections == 8 &&
         limits.handshake_timeout_ms.count() == 5000 && limits.idle_timeout_ms.count() == 10000 &&
-        limits.client_frame_bytes == 4096 && limits.messages_per_second == 60 && gate->client.min_version == 9;
+        limits.client_frame_bytes == 4096 && limits.messages_per_second == 60 && gate->client.min_version == 10;
     context.expect(is_limits, "trần chống lạm dụng");
     context.expect(gate->ip_filter.allow.empty() && gate->ip_filter.deny.empty(), "lọc địa chỉ");
 }

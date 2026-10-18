@@ -294,7 +294,12 @@ void Scene::think_home(std::uint32_t index, Outbox& out) {
     mind.stuck = 0;
     entities_[index].speed_cm = mind.nature.walk_cm;
     // Về nhà thì hồi đầy sinh lực (RecoverHP); quái chưa bị đánh nên thường đã đầy.
-    set_hp_percent(HpChange{.id = id_at(index), .percent = 100}, out);
+    VitalsChange full;
+    full.id = id_at(index);
+    full.hp_percent = 100;
+    full.mp_percent = entities_[index].mp_percent;
+    full.rage = entities_[index].rage;
+    set_vitals(full, out);
     mind.wake = tick_ + 1U;
 }
 

@@ -116,6 +116,36 @@ template <class Message, class Result>
     return value;
 }
 
+[[nodiscard]] inline protocol::BuffEntry buff_entry_min() {
+    protocol::BuffEntry value;
+    value.effect = 0U;
+    value.serial = std::numeric_limits<std::int32_t>::min();
+    value.sender = 0U;
+    value.skill = 0U;
+    value.remaining_ms = std::numeric_limits<std::int32_t>::min();
+    return value;
+}
+
+[[nodiscard]] inline protocol::BuffEntry buff_entry_max() {
+    protocol::BuffEntry value;
+    value.effect = 4294967295U;
+    value.serial = 2147483647;
+    value.sender = 4294967295U;
+    value.skill = 65535U;
+    value.remaining_ms = 2147483647;
+    return value;
+}
+
+[[nodiscard]] inline protocol::BuffEntry buff_entry_typical() {
+    protocol::BuffEntry value;
+    value.effect = 1009U;
+    value.serial = -27;
+    value.sender = 3027U;
+    value.skill = 4036U;
+    value.remaining_ms = -66;
+    return value;
+}
+
 [[nodiscard]] inline protocol::CharacterSummary character_summary_min() {
     protocol::CharacterSummary value;
     value.id = 0U;
@@ -777,6 +807,24 @@ template <class Message, class Result>
     return value;
 }
 
+[[nodiscard]] inline protocol::AskTarget ask_target_min() {
+    protocol::AskTarget value;
+    value.id = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::AskTarget ask_target_max() {
+    protocol::AskTarget value;
+    value.id = 4294967295U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::AskTarget ask_target_typical() {
+    protocol::AskTarget value;
+    value.id = 1009U;
+    return value;
+}
+
 [[nodiscard]] inline protocol::Welcome welcome_min() {
     protocol::Welcome value;
     value.version = 0U;
@@ -1121,6 +1169,8 @@ template <class Message, class Result>
     protocol::EntityVitals value;
     value.id = 0U;
     value.hp_percent = 0U;
+    value.mp_percent = 0U;
+    value.rage = std::numeric_limits<std::int32_t>::min();
     return value;
 }
 
@@ -1128,6 +1178,8 @@ template <class Message, class Result>
     protocol::EntityVitals value;
     value.id = 4294967295U;
     value.hp_percent = 255U;
+    value.mp_percent = 255U;
+    value.rage = 2147483647;
     return value;
 }
 
@@ -1135,6 +1187,8 @@ template <class Message, class Result>
     protocol::EntityVitals value;
     value.id = 1009U;
     value.hp_percent = 226U;
+    value.mp_percent = 211U;
+    value.rage = -53;
     return value;
 }
 
@@ -1173,6 +1227,24 @@ template <class Message, class Result>
 [[nodiscard]] inline protocol::EntityPosBatch entity_pos_batch_typical() {
     protocol::EntityPosBatch value;
     value.places.assign(2, pos_entry_typical());
+    return value;
+}
+
+[[nodiscard]] inline protocol::WorldTime world_time_min() {
+    protocol::WorldTime value;
+    value.period = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::WorldTime world_time_max() {
+    protocol::WorldTime value;
+    value.period = 255U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::WorldTime world_time_typical() {
+    protocol::WorldTime value;
+    value.period = 241U;
     return value;
 }
 
@@ -1324,13 +1396,48 @@ template <class Message, class Result>
     return value;
 }
 
+inline void fill_self_stats_min_2_of_2(protocol::SelfStats& value) {
+    value.poison_defence = std::numeric_limits<std::int32_t>::min();
+}
+
 [[nodiscard]] inline protocol::SelfStats self_stats_min() {
     protocol::SelfStats value;
     value.level = 0U;
     value.exp = 0U;
     value.money = 0U;
     value.bound_money = 0U;
+    value.sect = 0U;
+    value.strength = std::numeric_limits<std::int32_t>::min();
+    value.spirit = std::numeric_limits<std::int32_t>::min();
+    value.constitution = std::numeric_limits<std::int32_t>::min();
+    value.concentration = std::numeric_limits<std::int32_t>::min();
+    value.dexterity = std::numeric_limits<std::int32_t>::min();
+    value.free_points = std::numeric_limits<std::int32_t>::min();
+    value.hp_restore = std::numeric_limits<std::int32_t>::min();
+    value.mp_restore = std::numeric_limits<std::int32_t>::min();
+    value.physical_attack = std::numeric_limits<std::int32_t>::min();
+    value.physical_defence = std::numeric_limits<std::int32_t>::min();
+    value.magic_attack = std::numeric_limits<std::int32_t>::min();
+    value.magic_defence = std::numeric_limits<std::int32_t>::min();
+    value.hit = std::numeric_limits<std::int32_t>::min();
+    value.miss = std::numeric_limits<std::int32_t>::min();
+    value.critical_hit = std::numeric_limits<std::int32_t>::min();
+    value.strike_point = std::numeric_limits<std::int32_t>::min();
+    value.attack_speed = std::numeric_limits<std::int32_t>::min();
+    value.move_speed = std::numeric_limits<std::int32_t>::min();
+    value.cold_attack = std::numeric_limits<std::int32_t>::min();
+    value.cold_defence = std::numeric_limits<std::int32_t>::min();
+    value.fire_attack = std::numeric_limits<std::int32_t>::min();
+    value.fire_defence = std::numeric_limits<std::int32_t>::min();
+    value.lightning_attack = std::numeric_limits<std::int32_t>::min();
+    value.lightning_defence = std::numeric_limits<std::int32_t>::min();
+    value.poison_attack = std::numeric_limits<std::int32_t>::min();
+    fill_self_stats_min_2_of_2(value);
     return value;
+}
+
+inline void fill_self_stats_max_2_of_2(protocol::SelfStats& value) {
+    value.poison_defence = 2147483647;
 }
 
 [[nodiscard]] inline protocol::SelfStats self_stats_max() {
@@ -1339,7 +1446,38 @@ template <class Message, class Result>
     value.exp = 18446744073709551615U;
     value.money = 18446744073709551615U;
     value.bound_money = 18446744073709551615U;
+    value.sect = 255U;
+    value.strength = 2147483647;
+    value.spirit = 2147483647;
+    value.constitution = 2147483647;
+    value.concentration = 2147483647;
+    value.dexterity = 2147483647;
+    value.free_points = 2147483647;
+    value.hp_restore = 2147483647;
+    value.mp_restore = 2147483647;
+    value.physical_attack = 2147483647;
+    value.physical_defence = 2147483647;
+    value.magic_attack = 2147483647;
+    value.magic_defence = 2147483647;
+    value.hit = 2147483647;
+    value.miss = 2147483647;
+    value.critical_hit = 2147483647;
+    value.strike_point = 2147483647;
+    value.attack_speed = 2147483647;
+    value.move_speed = 2147483647;
+    value.cold_attack = 2147483647;
+    value.cold_defence = 2147483647;
+    value.fire_attack = 2147483647;
+    value.fire_defence = 2147483647;
+    value.lightning_attack = 2147483647;
+    value.lightning_defence = 2147483647;
+    value.poison_attack = 2147483647;
+    fill_self_stats_max_2_of_2(value);
     return value;
+}
+
+inline void fill_self_stats_typical_2_of_2(protocol::SelfStats& value) {
+    value.poison_defence = -4;
 }
 
 [[nodiscard]] inline protocol::SelfStats self_stats_typical() {
@@ -1348,6 +1486,33 @@ template <class Message, class Result>
     value.exp = 2018U;
     value.money = 3027U;
     value.bound_money = 4036U;
+    value.sect = 181U;
+    value.strength = -79;
+    value.spirit = -92;
+    value.constitution = -5;
+    value.concentration = -18;
+    value.dexterity = -31;
+    value.free_points = -44;
+    value.hp_restore = -57;
+    value.mp_restore = -70;
+    value.physical_attack = -83;
+    value.physical_defence = -96;
+    value.magic_attack = -9;
+    value.magic_defence = -22;
+    value.hit = -35;
+    value.miss = -48;
+    value.critical_hit = -61;
+    value.strike_point = -74;
+    value.attack_speed = -87;
+    value.move_speed = -100;
+    value.cold_attack = -13;
+    value.cold_defence = -26;
+    value.fire_attack = -39;
+    value.fire_defence = -52;
+    value.lightning_attack = -65;
+    value.lightning_defence = -78;
+    value.poison_attack = -91;
+    fill_self_stats_typical_2_of_2(value);
     return value;
 }
 
@@ -1571,6 +1736,26 @@ template <class Message, class Result>
     protocol::SkillCooldown value;
     value.skill = 1009U;
     value.ms = 2018U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::BuffList buff_list_min() {
+    protocol::BuffList value;
+    value.id = 0U;
+    return value;
+}
+
+[[nodiscard]] inline protocol::BuffList buff_list_max() {
+    protocol::BuffList value;
+    value.id = 4294967295U;
+    value.buffs.assign(32, buff_entry_max());
+    return value;
+}
+
+[[nodiscard]] inline protocol::BuffList buff_list_typical() {
+    protocol::BuffList value;
+    value.id = 1009U;
+    value.buffs.assign(2, buff_entry_typical());
     return value;
 }
 
@@ -2989,6 +3174,69 @@ inline constexpr Sample kPickUpTypical{.name = "PickUp/typical",
     .decode = &decode_pick_up_typical,
     .decoders = kGameClient};
 
+[[nodiscard]] inline protocol::WireStatus encode_ask_target_min(Buffer& out) {
+    return protocol::encode(out, ask_target_min());
+}
+
+[[nodiscard]] inline Check decode_ask_target_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::AskTarget::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_client(frame, body);
+    return holds(result, ask_target_min());
+}
+
+inline constexpr std::array<std::uint8_t, 12> kAskTargetMinFrame{
+    0x04, 0x00, 0x00, 0x00, 0x04, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kAskTargetMin{.name = "AskTarget/min",
+    .frame = kAskTargetMinFrame,
+    .encode = &encode_ask_target_min,
+    .decode = &decode_ask_target_min,
+    .decoders = kGameClient};
+
+[[nodiscard]] inline protocol::WireStatus encode_ask_target_max(Buffer& out) {
+    return protocol::encode(out, ask_target_max());
+}
+
+[[nodiscard]] inline Check decode_ask_target_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::AskTarget::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_client(frame, body);
+    return holds(result, ask_target_max());
+}
+
+inline constexpr std::array<std::uint8_t, 12> kAskTargetMaxFrame{
+    0x04, 0x00, 0x00, 0x00, 0x04, 0x08, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF};
+
+inline constexpr Sample kAskTargetMax{.name = "AskTarget/max",
+    .frame = kAskTargetMaxFrame,
+    .encode = &encode_ask_target_max,
+    .decode = &decode_ask_target_max,
+    .decoders = kGameClient};
+
+[[nodiscard]] inline protocol::WireStatus encode_ask_target_typical(Buffer& out) {
+    return protocol::encode(out, ask_target_typical());
+}
+
+[[nodiscard]] inline Check decode_ask_target_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::AskTarget::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_client(frame, body);
+    return holds(result, ask_target_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 12> kAskTargetTypicalFrame{
+    0x04, 0x00, 0x00, 0x00, 0x04, 0x08, 0x00, 0x00, 0xF1, 0x03, 0x00, 0x00};
+
+inline constexpr Sample kAskTargetTypical{.name = "AskTarget/typical",
+    .frame = kAskTargetTypicalFrame,
+    .encode = &encode_ask_target_typical,
+    .decode = &decode_ask_target_typical,
+    .decoders = kGameClient};
+
 [[nodiscard]] inline protocol::WireStatus encode_welcome_min(Buffer& out) {
     return protocol::encode(out, welcome_min());
 }
@@ -3956,8 +4204,8 @@ inline constexpr Sample kEntityPosTypical{.name = "EntityPos/typical",
     return holds(result, entity_vitals_min());
 }
 
-inline constexpr std::array<std::uint8_t, 13> kEntityVitalsMinFrame{
-    0x05, 0x00, 0x00, 0x00, 0x05, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+inline constexpr std::array<std::uint8_t, 18> kEntityVitalsMinFrame{0x0A, 0x00, 0x00, 0x00, 0x05,
+    0x84, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80};
 
 inline constexpr Sample kEntityVitalsMin{.name = "EntityVitals/min",
     .frame = kEntityVitalsMinFrame,
@@ -3977,8 +4225,8 @@ inline constexpr Sample kEntityVitalsMin{.name = "EntityVitals/min",
     return holds(result, entity_vitals_max());
 }
 
-inline constexpr std::array<std::uint8_t, 13> kEntityVitalsMaxFrame{
-    0x05, 0x00, 0x00, 0x00, 0x05, 0x84, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+inline constexpr std::array<std::uint8_t, 18> kEntityVitalsMaxFrame{0x0A, 0x00, 0x00, 0x00, 0x05,
+    0x84, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F};
 
 inline constexpr Sample kEntityVitalsMax{.name = "EntityVitals/max",
     .frame = kEntityVitalsMaxFrame,
@@ -3998,8 +4246,8 @@ inline constexpr Sample kEntityVitalsMax{.name = "EntityVitals/max",
     return holds(result, entity_vitals_typical());
 }
 
-inline constexpr std::array<std::uint8_t, 13> kEntityVitalsTypicalFrame{
-    0x05, 0x00, 0x00, 0x00, 0x05, 0x84, 0x00, 0x00, 0xF1, 0x03, 0x00, 0x00, 0xE2};
+inline constexpr std::array<std::uint8_t, 18> kEntityVitalsTypicalFrame{0x0A, 0x00, 0x00, 0x00,
+    0x05, 0x84, 0x00, 0x00, 0xF1, 0x03, 0x00, 0x00, 0xE2, 0xD3, 0xCB, 0xFF, 0xFF, 0xFF};
 
 inline constexpr Sample kEntityVitalsTypical{.name = "EntityVitals/typical",
     .frame = kEntityVitalsTypicalFrame,
@@ -4195,6 +4443,69 @@ inline constexpr Sample kEntityPosBatchTypical{.name = "EntityPosBatch/typical",
     .frame = kEntityPosBatchTypicalFrame,
     .encode = &encode_entity_pos_batch_typical,
     .decode = &decode_entity_pos_batch_typical,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_world_time_min(Buffer& out) {
+    return protocol::encode(out, world_time_min());
+}
+
+[[nodiscard]] inline Check decode_world_time_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::WorldTime::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, world_time_min());
+}
+
+inline constexpr std::array<std::uint8_t, 9> kWorldTimeMinFrame{
+    0x01, 0x00, 0x00, 0x00, 0x08, 0x84, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kWorldTimeMin{.name = "WorldTime/min",
+    .frame = kWorldTimeMinFrame,
+    .encode = &encode_world_time_min,
+    .decode = &decode_world_time_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_world_time_max(Buffer& out) {
+    return protocol::encode(out, world_time_max());
+}
+
+[[nodiscard]] inline Check decode_world_time_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::WorldTime::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, world_time_max());
+}
+
+inline constexpr std::array<std::uint8_t, 9> kWorldTimeMaxFrame{
+    0x01, 0x00, 0x00, 0x00, 0x08, 0x84, 0x00, 0x00, 0xFF};
+
+inline constexpr Sample kWorldTimeMax{.name = "WorldTime/max",
+    .frame = kWorldTimeMaxFrame,
+    .encode = &encode_world_time_max,
+    .decode = &decode_world_time_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_world_time_typical(Buffer& out) {
+    return protocol::encode(out, world_time_typical());
+}
+
+[[nodiscard]] inline Check decode_world_time_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::WorldTime::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, world_time_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 9> kWorldTimeTypicalFrame{
+    0x01, 0x00, 0x00, 0x00, 0x08, 0x84, 0x00, 0x00, 0xF1};
+
+inline constexpr Sample kWorldTimeTypical{.name = "WorldTime/typical",
+    .frame = kWorldTimeTypicalFrame,
+    .encode = &encode_world_time_typical,
+    .decode = &decode_world_time_typical,
     .decoders = kGameServer};
 
 [[nodiscard]] inline protocol::WireStatus encode_ticket_min(Buffer& out) {
@@ -6926,9 +7237,16 @@ inline constexpr Sample kUiCommandTypical{.name = "UiCommand/typical",
     return holds(result, self_stats_min());
 }
 
-inline constexpr std::array<std::uint8_t, 34> kSelfStatsMinFrame{0x1A, 0x00, 0x00, 0x00, 0x01, 0x87,
+inline constexpr std::array<std::uint8_t, 139> kSelfStatsMinFrame{0x83, 0x00, 0x00, 0x00, 0x01,
+    0x87, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
+    0x00, 0x80, 0x00, 0x00, 0x00, 0x80};
 
 inline constexpr Sample kSelfStatsMin{.name = "SelfStats/min",
     .frame = kSelfStatsMinFrame,
@@ -6948,9 +7266,16 @@ inline constexpr Sample kSelfStatsMin{.name = "SelfStats/min",
     return holds(result, self_stats_max());
 }
 
-inline constexpr std::array<std::uint8_t, 34> kSelfStatsMaxFrame{0x1A, 0x00, 0x00, 0x00, 0x01, 0x87,
-    0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
+inline constexpr std::array<std::uint8_t, 139> kSelfStatsMaxFrame{0x83, 0x00, 0x00, 0x00, 0x01,
+    0x87, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0x7F};
 
 inline constexpr Sample kSelfStatsMax{.name = "SelfStats/max",
     .frame = kSelfStatsMaxFrame,
@@ -6970,9 +7295,16 @@ inline constexpr Sample kSelfStatsMax{.name = "SelfStats/max",
     return holds(result, self_stats_typical());
 }
 
-inline constexpr std::array<std::uint8_t, 34> kSelfStatsTypicalFrame{0x1A, 0x00, 0x00, 0x00, 0x01,
+inline constexpr std::array<std::uint8_t, 139> kSelfStatsTypicalFrame{0x83, 0x00, 0x00, 0x00, 0x01,
     0x87, 0x00, 0x00, 0xF1, 0x03, 0xE2, 0x07, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xD3, 0x0B, 0x00,
-    0x00, 0x00, 0x00, 0x00, 0x00, 0xC4, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+    0x00, 0x00, 0x00, 0x00, 0x00, 0xC4, 0x0F, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xB5, 0xB1, 0xFF,
+    0xFF, 0xFF, 0xA4, 0xFF, 0xFF, 0xFF, 0xFB, 0xFF, 0xFF, 0xFF, 0xEE, 0xFF, 0xFF, 0xFF, 0xE1, 0xFF,
+    0xFF, 0xFF, 0xD4, 0xFF, 0xFF, 0xFF, 0xC7, 0xFF, 0xFF, 0xFF, 0xBA, 0xFF, 0xFF, 0xFF, 0xAD, 0xFF,
+    0xFF, 0xFF, 0xA0, 0xFF, 0xFF, 0xFF, 0xF7, 0xFF, 0xFF, 0xFF, 0xEA, 0xFF, 0xFF, 0xFF, 0xDD, 0xFF,
+    0xFF, 0xFF, 0xD0, 0xFF, 0xFF, 0xFF, 0xC3, 0xFF, 0xFF, 0xFF, 0xB6, 0xFF, 0xFF, 0xFF, 0xA9, 0xFF,
+    0xFF, 0xFF, 0x9C, 0xFF, 0xFF, 0xFF, 0xF3, 0xFF, 0xFF, 0xFF, 0xE6, 0xFF, 0xFF, 0xFF, 0xD9, 0xFF,
+    0xFF, 0xFF, 0xCC, 0xFF, 0xFF, 0xFF, 0xBF, 0xFF, 0xFF, 0xFF, 0xB2, 0xFF, 0xFF, 0xFF, 0xA5, 0xFF,
+    0xFF, 0xFF, 0xFC, 0xFF, 0xFF, 0xFF};
 
 inline constexpr Sample kSelfStatsTypical{.name = "SelfStats/typical",
     .frame = kSelfStatsTypicalFrame,
@@ -7761,7 +8093,108 @@ inline constexpr Sample kSkillCooldownTypical{.name = "SkillCooldown/typical",
     .decode = &decode_skill_cooldown_typical,
     .decoders = kGameServer};
 
-inline constexpr std::array<Sample, 162> kSamples{kHelloMin, kHelloMax, kHelloTypical, kLoginMin,
+[[nodiscard]] inline protocol::WireStatus encode_buff_list_min(Buffer& out) {
+    return protocol::encode(out, buff_list_min());
+}
+
+[[nodiscard]] inline Check decode_buff_list_min(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::BuffList::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, buff_list_min());
+}
+
+inline constexpr std::array<std::uint8_t, 14> kBuffListMinFrame{
+    0x06, 0x00, 0x00, 0x00, 0x08, 0x88, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+
+inline constexpr Sample kBuffListMin{.name = "BuffList/min",
+    .frame = kBuffListMinFrame,
+    .encode = &encode_buff_list_min,
+    .decode = &decode_buff_list_min,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_buff_list_max(Buffer& out) {
+    return protocol::encode(out, buff_list_max());
+}
+
+[[nodiscard]] inline Check decode_buff_list_max(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::BuffList::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, buff_list_max());
+}
+
+inline constexpr std::array<std::uint8_t, 590> kBuffListMaxFrame{0x46, 0x02, 0x00, 0x00, 0x08, 0x88,
+    0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x20, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F, 0xFF, 0xFF,
+    0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x7F};
+
+inline constexpr Sample kBuffListMax{.name = "BuffList/max",
+    .frame = kBuffListMaxFrame,
+    .encode = &encode_buff_list_max,
+    .decode = &decode_buff_list_max,
+    .decoders = kGameServer};
+
+[[nodiscard]] inline protocol::WireStatus encode_buff_list_typical(Buffer& out) {
+    return protocol::encode(out, buff_list_typical());
+}
+
+[[nodiscard]] inline Check decode_buff_list_typical(protocol::ByteView body) {
+    protocol::Frame frame;
+    frame.kind = protocol::BuffList::kKind;
+    frame.body_bytes = body.size();
+    const auto result = protocol::decode_game_server(frame, body);
+    return holds(result, buff_list_typical());
+}
+
+inline constexpr std::array<std::uint8_t, 50> kBuffListTypicalFrame{0x2A, 0x00, 0x00, 0x00, 0x08,
+    0x88, 0x00, 0x00, 0xF1, 0x03, 0x00, 0x00, 0x02, 0x00, 0xF1, 0x03, 0x00, 0x00, 0xE5, 0xFF, 0xFF,
+    0xFF, 0xD3, 0x0B, 0x00, 0x00, 0xC4, 0x0F, 0xBE, 0xFF, 0xFF, 0xFF, 0xF1, 0x03, 0x00, 0x00, 0xE5,
+    0xFF, 0xFF, 0xFF, 0xD3, 0x0B, 0x00, 0x00, 0xC4, 0x0F, 0xBE, 0xFF, 0xFF, 0xFF};
+
+inline constexpr Sample kBuffListTypical{.name = "BuffList/typical",
+    .frame = kBuffListTypicalFrame,
+    .encode = &encode_buff_list_typical,
+    .decode = &decode_buff_list_typical,
+    .decoders = kGameServer};
+
+inline constexpr std::array<Sample, 171> kSamples{kHelloMin, kHelloMax, kHelloTypical, kLoginMin,
     kLoginMax, kLoginTypical, kResumeMin, kResumeMax, kResumeTypical, kPingMin, kPingMax,
     kPingTypical, kLogoutMin, kLogoutMax, kLogoutTypical, kCreateCharacterMin, kCreateCharacterMax,
     kCreateCharacterTypical, kDeleteCharacterMin, kDeleteCharacterMax, kDeleteCharacterTypical,
@@ -7772,25 +8205,27 @@ inline constexpr std::array<Sample, 162> kSamples{kHelloMin, kHelloMax, kHelloTy
     kQuestTurnInMax, kQuestTurnInTypical, kQuestAbandonMin, kQuestAbandonMax, kQuestAbandonTypical,
     kDialogCloseMin, kDialogCloseMax, kDialogCloseTypical, kExecuteScriptMin, kExecuteScriptMax,
     kExecuteScriptTypical, kCastSkillMin, kCastSkillMax, kCastSkillTypical, kRespawnMin,
-    kRespawnMax, kRespawnTypical, kPickUpMin, kPickUpMax, kPickUpTypical, kWelcomeMin, kWelcomeMax,
-    kWelcomeTypical, kSessionStartMin, kSessionStartMax, kSessionStartTypical, kContentKeyMin,
-    kContentKeyMax, kContentKeyTypical, kPongMin, kPongMax, kPongTypical, kRejectMin, kRejectMax,
-    kRejectTypical, kGoodbyeMin, kGoodbyeMax, kGoodbyeTypical, kContentStampMin, kContentStampMax,
-    kContentStampTypical, kUiConfigMin, kUiConfigMax, kUiConfigTypical, kCharacterListMin,
-    kCharacterListMax, kCharacterListTypical, kPositionMin, kPositionMax, kPositionTypical,
-    kSceneEnterMin, kSceneEnterMax, kSceneEnterTypical, kEntityAppearMin, kEntityAppearMax,
-    kEntityAppearTypical, kEntityDisappearMin, kEntityDisappearMax, kEntityDisappearTypical,
-    kEntityPosMin, kEntityPosMax, kEntityPosTypical, kEntityVitalsMin, kEntityVitalsMax,
-    kEntityVitalsTypical, kEntityFlagsMin, kEntityFlagsMax, kEntityFlagsTypical, kEntityPosBatchMin,
-    kEntityPosBatchMax, kEntityPosBatchTypical, kTicketMin, kTicketMax, kTicketTypical,
-    kDialogOpenMin, kDialogOpenMax, kDialogOpenTypical, kDialogClosedMin, kDialogClosedMax,
-    kDialogClosedTypical, kQuestBookMin, kQuestBookMax, kQuestBookTypical, kQuestNoticeMin,
-    kQuestNoticeMax, kQuestNoticeTypical, kUiCommandMin, kUiCommandMax, kUiCommandTypical,
-    kSelfStatsMin, kSelfStatsMax, kSelfStatsTypical, kSelfVitalsMin, kSelfVitalsMax,
-    kSelfVitalsTypical, kSelfBagMin, kSelfBagMax, kSelfBagTypical, kSkillCastMin, kSkillCastMax,
-    kSkillCastTypical, kSkillCastEndMin, kSkillCastEndMax, kSkillCastEndTypical, kCombatEventMin,
-    kCombatEventMax, kCombatEventTypical, kEntityDiedMin, kEntityDiedMax, kEntityDiedTypical,
-    kDeathNoticeMin, kDeathNoticeMax, kDeathNoticeTypical, kSelfSkillsMin, kSelfSkillsMax,
-    kSelfSkillsTypical, kSkillCooldownMin, kSkillCooldownMax, kSkillCooldownTypical};
+    kRespawnMax, kRespawnTypical, kPickUpMin, kPickUpMax, kPickUpTypical, kAskTargetMin,
+    kAskTargetMax, kAskTargetTypical, kWelcomeMin, kWelcomeMax, kWelcomeTypical, kSessionStartMin,
+    kSessionStartMax, kSessionStartTypical, kContentKeyMin, kContentKeyMax, kContentKeyTypical,
+    kPongMin, kPongMax, kPongTypical, kRejectMin, kRejectMax, kRejectTypical, kGoodbyeMin,
+    kGoodbyeMax, kGoodbyeTypical, kContentStampMin, kContentStampMax, kContentStampTypical,
+    kUiConfigMin, kUiConfigMax, kUiConfigTypical, kCharacterListMin, kCharacterListMax,
+    kCharacterListTypical, kPositionMin, kPositionMax, kPositionTypical, kSceneEnterMin,
+    kSceneEnterMax, kSceneEnterTypical, kEntityAppearMin, kEntityAppearMax, kEntityAppearTypical,
+    kEntityDisappearMin, kEntityDisappearMax, kEntityDisappearTypical, kEntityPosMin, kEntityPosMax,
+    kEntityPosTypical, kEntityVitalsMin, kEntityVitalsMax, kEntityVitalsTypical, kEntityFlagsMin,
+    kEntityFlagsMax, kEntityFlagsTypical, kEntityPosBatchMin, kEntityPosBatchMax,
+    kEntityPosBatchTypical, kWorldTimeMin, kWorldTimeMax, kWorldTimeTypical, kTicketMin, kTicketMax,
+    kTicketTypical, kDialogOpenMin, kDialogOpenMax, kDialogOpenTypical, kDialogClosedMin,
+    kDialogClosedMax, kDialogClosedTypical, kQuestBookMin, kQuestBookMax, kQuestBookTypical,
+    kQuestNoticeMin, kQuestNoticeMax, kQuestNoticeTypical, kUiCommandMin, kUiCommandMax,
+    kUiCommandTypical, kSelfStatsMin, kSelfStatsMax, kSelfStatsTypical, kSelfVitalsMin,
+    kSelfVitalsMax, kSelfVitalsTypical, kSelfBagMin, kSelfBagMax, kSelfBagTypical, kSkillCastMin,
+    kSkillCastMax, kSkillCastTypical, kSkillCastEndMin, kSkillCastEndMax, kSkillCastEndTypical,
+    kCombatEventMin, kCombatEventMax, kCombatEventTypical, kEntityDiedMin, kEntityDiedMax,
+    kEntityDiedTypical, kDeathNoticeMin, kDeathNoticeMax, kDeathNoticeTypical, kSelfSkillsMin,
+    kSelfSkillsMax, kSelfSkillsTypical, kSkillCooldownMin, kSkillCooldownMax, kSkillCooldownTypical,
+    kBuffListMin, kBuffListMax, kBuffListTypical};
 
 } // namespace game::test::samples

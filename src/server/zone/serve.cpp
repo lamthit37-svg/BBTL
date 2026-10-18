@@ -103,6 +103,11 @@ struct Settings {
     }
     settings.hz = zone.hz;
     settings.host.hz = zone.hz;
+    // Một canh giờ game dài period_change_ms mili giây thật; 0 hay âm thì không gửi WorldTime.
+    const std::int64_t period_ms = zone.period_change_ms.count();
+    const std::int64_t period_ticks = period_ms * zone.hz / 1000;
+    const std::int64_t held_ticks = std::max<std::int64_t>(period_ticks, 0);
+    settings.host.period_ticks = static_cast<std::uint32_t>(held_ticks);
     // cell_size tính bằng mét của cảnh; lưới tính centimet.
     settings.host.grid.cell_cm = static_cast<float>(zone.cell_size) * 100.0F;
     return true;

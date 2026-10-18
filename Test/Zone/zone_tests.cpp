@@ -389,11 +389,11 @@ void spawned_entities_are_seen(Context& context) {
     context.expect(appeared.size() == 1 && appeared[0].template_id == 42 && appeared[0].id == *wolf_id, "người chơi thấy quái");
     out.clear();
 
-    scene.set_hp_percent(zone::HpChange{.id = *wolf_id, .percent = 40}, out);
+    scene.set_vitals(zone::VitalsChange{.id = *wolf_id, .hp_percent = 40}, out);
     seen = seen_in(out);
     const auto vitals = of_kind<protocol::EntityVitals>(seen, 11);
     context.expect(vitals.size() == 1 && vitals[0].hp_percent == 40, "sinh lực đổi được báo");
-    scene.set_hp_percent(zone::HpChange{.id = *wolf_id, .percent = 40}, out);
+    scene.set_vitals(zone::VitalsChange{.id = *wolf_id, .hp_percent = 40}, out);
     context.expect(of_kind<protocol::EntityVitals>(seen_in(out), 11).size() == 1, "đặt cùng giá trị không báo lại");
     out.clear();
 

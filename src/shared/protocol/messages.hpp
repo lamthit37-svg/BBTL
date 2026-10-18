@@ -33,7 +33,7 @@
 namespace game::protocol {
 
 // Bản của danh mục; tin có since lớn hơn bản bên kia đang chạy thì bên kia chưa hiểu.
-inline constexpr std::uint16_t kVersion = 9;
+inline constexpr std::uint16_t kVersion = 10;
 
 enum class AvatarFrame : std::uint8_t {
     kRound = 1,
@@ -236,6 +236,7 @@ inline constexpr std::size_t kUiCommandIntsCount = 16;
 inline constexpr std::size_t kUiCommandStringsCount = 16;
 inline constexpr std::size_t kSelfBagSlotsCount = 256;
 inline constexpr std::size_t kSelfSkillsSkillsCount = 128;
+inline constexpr std::size_t kBuffListBuffsCount = 32;
 
 // Record: Một ô của túi đồ.
 struct BagSlot {
@@ -248,6 +249,23 @@ struct BagSlot {
     // Đã khoá (ràng buộc).
     bool bound = false;
     friend bool operator==(const BagSlot&, const BagSlot&) = default;
+};
+
+// Record: Một buff đang mang trong BuffList: người gây, kỹ năng, dòng hiệu ứng, số thứ tự và thời
+// gian còn lại.
+struct BuffEntry {
+    // Dòng effects.tsv của buff.
+    std::uint32_t effect = 0;
+    // Số thứ tự của buff trong danh sách người mang (Buff::sn), để client phân biệt hai buff cùng
+    // dòng.
+    std::int32_t serial = 0;
+    // EntityAppear.id của người gây; 0 khi không rõ hay khi là danh sách của mục tiêu.
+    std::uint32_t sender = 0;
+    // Kỹ năng sinh ra buff; 0 khi không có hay khi là danh sách của mục tiêu.
+    std::uint16_t skill = 0;
+    // Thời gian còn lại, mili giây, tại lúc gửi; -1 là vô hạn; 0 khi là danh sách của mục tiêu.
+    std::int32_t remaining_ms = 0;
+    friend bool operator==(const BuffEntry&, const BuffEntry&) = default;
 };
 
 // Record: Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -583,6 +601,16 @@ struct PickUp {
     friend bool operator==(const PickUp&, const PickUp&) = default;
 };
 
+// 0x0804, client gửi, cổng game, từ bản 10: Client hỏi thông tin của mục tiêu vừa chọn
+// (CGCharAskBaseAttrib 1521 của Game.exe). Server đáp EntityVitals và BuffList của mục tiêu, rồi
+// gửi lại hai tin ấy khi chúng đổi cho tới khi client chọn mục tiêu khác.
+struct AskTarget {
+    static constexpr std::uint16_t kKind = 0x0804;
+    // EntityAppear.id của mục tiêu vừa chọn.
+    std::uint32_t id = 0;
+    friend bool operator==(const AskTarget&, const AskTarget&) = default;
+};
+
 // 0x8101, server gửi, cổng both, từ bản 1: Server đáp Hello: phiên bản giao thức, giờ server và chu
 // kỳ nhịp tim.
 struct Welcome {
@@ -772,14 +800,18 @@ struct EntityPos {
     friend bool operator==(const EntityPos&, const EntityPos&) = default;
 };
 
-// 0x8405, server gửi, cổng game, từ bản 4: Sinh lực của một thực thể trong vùng nhìn, theo phần
-// trăm.
+// 0x8405, server gửi, cổng game, từ bản 4: Sinh lực và nội lực theo phần trăm, nộ khí của một thực
+// thể trong vùng nhìn (GCCharBaseAttrib 587 của Game.exe).
 struct EntityVitals {
     static constexpr std::uint16_t kKind = 0x8405;
     // Id thực thể.
     std::uint32_t id = 0;
     // Sinh lực theo phần trăm 0..100.
     std::uint8_t hp_percent = 0;
+    // Nội lực theo phần trăm 0..100.
+    std::uint8_t mp_percent = 0;
+    // Nộ khí hiện có; gốc gửi số tuyệt đối, client chia cho nộ khí tối đa.
+    std::int32_t rage = 0;
     friend bool operator==(const EntityVitals&, const EntityVitals&) = default;
 };
 
@@ -801,6 +833,15 @@ struct EntityPosBatch {
     // Tối đa 52 vị trí: khung sau khi niêm phong phải vừa hộp gửi 1024 byte của gate.
     std::vector<PosEntry> places;
     friend bool operator==(const EntityPosBatch&, const EntityPosBatch&) = default;
+};
+
+// 0x8408, server gửi, cổng game, từ bản 10: Canh giờ trong game theo GCWorldTime (349) của
+// Game.exe: một số 0 đến 11. Gửi sau SceneEnter và mỗi lần canh đổi.
+struct WorldTime {
+    static constexpr std::uint16_t kKind = 0x8408;
+    // Canh giờ 0..11 (WORLD_TIME của gốc), mỗi canh dài zone.toml period_change_ms.
+    std::uint8_t period = 0;
+    friend bool operator==(const WorldTime&, const WorldTime&) = default;
 };
 
 // 0x8501, server gửi, cổng auth, từ bản 1: Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập
@@ -880,8 +921,8 @@ struct UiCommand {
     friend bool operator==(const UiCommand&, const UiCommand&) = default;
 };
 
-// 0x8701, server gửi, cổng game, từ bản 5: Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau
-// SceneEnter và mỗi khi đổi.
+// 0x8701, server gửi, cổng game, từ bản 5: Cấp, kinh nghiệm, tiền và thuộc tính chi tiết của chính
+// nhân vật theo GCDetailAttrib (687) của Game.exe. Gửi sau SceneEnter và mỗi khi có trường đổi.
 struct SelfStats {
     static constexpr std::uint16_t kKind = 0x8701;
     std::uint16_t level = 0;
@@ -891,6 +932,61 @@ struct SelfStats {
     std::uint64_t money = 0;
     // Tiền khoá.
     std::uint64_t bound_money = 0;
+    // Môn phái 0..15, như EntityAppear.school.
+    std::uint8_t sect = 0;
+    // Sức mạnh (STR).
+    std::int32_t strength = 0;
+    // Linh khí (SPR).
+    std::int32_t spirit = 0;
+    // Thể chất (CON).
+    std::int32_t constitution = 0;
+    // Định lực (INT).
+    std::int32_t concentration = 0;
+    // Thân pháp (DEX).
+    std::int32_t dexterity = 0;
+    // Điểm thuộc tính chưa cộng.
+    std::int32_t free_points = 0;
+    // Hồi sinh lực mỗi nhịp.
+    std::int32_t hp_restore = 0;
+    // Hồi nội lực mỗi nhịp.
+    std::int32_t mp_restore = 0;
+    // Ngoại công.
+    std::int32_t physical_attack = 0;
+    // Ngoại phòng.
+    std::int32_t physical_defence = 0;
+    // Nội công.
+    std::int32_t magic_attack = 0;
+    // Nội phòng.
+    std::int32_t magic_defence = 0;
+    // Trúng.
+    std::int32_t hit = 0;
+    // Né.
+    std::int32_t miss = 0;
+    // Hội tâm.
+    std::int32_t critical_hit = 0;
+    // Điểm liên kích hiện có.
+    std::int32_t strike_point = 0;
+    // Tốc độ đánh.
+    std::int32_t attack_speed = 0;
+    // Giá trị thô của Stat::kMoveSpeed, tính bằng nghìn mét mỗi giây (mặc định 4000), chưa nhân hệ
+    // số chế độ chạy; xem NGHI-NGO.md.
+    std::int32_t move_speed = 0;
+    // Công băng.
+    std::int32_t cold_attack = 0;
+    // Kháng băng.
+    std::int32_t cold_defence = 0;
+    // Công hoả.
+    std::int32_t fire_attack = 0;
+    // Kháng hoả.
+    std::int32_t fire_defence = 0;
+    // Công điện (huyền).
+    std::int32_t lightning_attack = 0;
+    // Kháng điện (huyền).
+    std::int32_t lightning_defence = 0;
+    // Công độc.
+    std::int32_t poison_attack = 0;
+    // Kháng độc.
+    std::int32_t poison_defence = 0;
     friend bool operator==(const SelfStats&, const SelfStats&) = default;
 };
 
@@ -998,15 +1094,27 @@ struct SkillCooldown {
     friend bool operator==(const SkillCooldown&, const SkillCooldown&) = default;
 };
 
+// 0x8808, server gửi, cổng game, từ bản 10: Toàn bộ danh sách buff của một thực thể: của chính nhân
+// vật (đủ người gây, kỹ năng, thời gian còn lại, theo GCDetailImpactListUpdate 168) hoặc của mục
+// tiêu đã hỏi bằng AskTarget (chỉ dòng hiệu ứng và số thứ tự, theo GCCharImpactListUpdate 1353).
+// Gửi cả danh sách mỗi khi đổi.
+struct BuffList {
+    static constexpr std::uint16_t kKind = 0x8808;
+    // EntityAppear.id của thực thể có danh sách này (chính mình hoặc mục tiêu).
+    std::uint32_t id = 0;
+    std::vector<BuffEntry> buffs;
+    friend bool operator==(const BuffList&, const BuffList&) = default;
+};
+
 using GameClientMessage = std::variant<Hello, Login, Resume, Ping, Logout, CreateCharacter,
     DeleteCharacter, EnterGame, Move, Talk, DialogChoose, QuestAccept, QuestTurnIn, QuestAbandon,
-    DialogClose, ExecuteScript, CastSkill, Respawn, PickUp>;
+    DialogClose, ExecuteScript, CastSkill, Respawn, PickUp, AskTarget>;
 using GameClientResult = std::expected<GameClientMessage, WireError>;
 using GameServerMessage = std::variant<Welcome, SessionStart, ContentKey, Pong, Reject, Goodbye,
     ContentStamp, UiConfig, CharacterList, Position, SceneEnter, EntityAppear, EntityDisappear,
-    EntityPos, EntityVitals, EntityFlags, EntityPosBatch, DialogOpen, DialogClosed, QuestBook,
-    QuestNotice, UiCommand, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd, CombatEvent,
-    EntityDied, DeathNotice, SelfSkills, SkillCooldown>;
+    EntityPos, EntityVitals, EntityFlags, EntityPosBatch, WorldTime, DialogOpen, DialogClosed,
+    QuestBook, QuestNotice, UiCommand, SelfStats, SelfVitals, SelfBag, SkillCast, SkillCastEnd,
+    CombatEvent, EntityDied, DeathNotice, SelfSkills, SkillCooldown, BuffList>;
 using GameServerResult = std::expected<GameServerMessage, WireError>;
 using AuthClientMessage = std::variant<Hello, CreateAccount, SignIn>;
 using AuthClientResult = std::expected<AuthClientMessage, WireError>;
@@ -1035,6 +1143,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const CastSkill& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Respawn& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const PickUp& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const AskTarget& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Welcome& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SessionStart& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const ContentKey& message);
@@ -1052,6 +1161,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityVitals& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityFlags& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const EntityPosBatch& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const WorldTime& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const Ticket& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogOpen& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DialogClosed& message);
@@ -1068,6 +1178,7 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const DeathNotice& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SelfSkills& message);
 [[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const SkillCooldown& message);
+[[nodiscard]] WireStatus encode(std::vector<std::byte>& out, const BuffList& message);
 
 // Giải mã thân của một khung đã tách bằng peek_frame. Kind không thuộc cổng hoặc chiều của bộ giải
 // mã là kUnknownKind; còn byte sau trường cuối là kTrailingBytes.
@@ -1133,6 +1244,9 @@ using AuthServerResult = std::expected<AuthServerMessage, WireError>;
     case 0x8407: return 7;
     case 0x0607:
     case 0x8605: return 8;
+    case 0x0804:
+    case 0x8408:
+    case 0x8808: return 10;
     default: return 0;
     }
 }

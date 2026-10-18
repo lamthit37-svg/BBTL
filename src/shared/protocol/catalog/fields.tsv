@@ -89,6 +89,8 @@ UiString	1	text	text	255	Chuỗi UTF-8; tổng các chuỗi của một UiComman
 EntityPosBatch	1	places	list:record:PosEntry	52	Tối đa 52 vị trí: khung sau khi niêm phong phải vừa hộp gửi 1024 byte của gate.
 EntityVitals	1	id	u32		Id thực thể.
 EntityVitals	2	hp_percent	u8		Sinh lực theo phần trăm 0..100.
+EntityVitals	3	mp_percent	u8		Nội lực theo phần trăm 0..100.
+EntityVitals	4	rage	i32		Nộ khí hiện có; gốc gửi số tuyệt đối, client chia cho nộ khí tối đa.
 DialogLine	1	text	text	1024	Chữ đã dựng (tham số tên, cấp... đã thay), UTF-8; có thẻ màu #R #W... của game.
 DialogChoice	1	index	u16		Số client gửi lại trong DialogChoose; không phải id script.
 DialogChoice	2	icon	i32		Biểu tượng của mục; 0 là không có.
@@ -143,6 +145,33 @@ SelfStats	1	level	u16
 SelfStats	2	exp	u64		Kinh nghiệm hiện có trong cấp.
 SelfStats	3	money	u64		Tiền thường.
 SelfStats	4	bound_money	u64		Tiền khoá.
+SelfStats	5	sect	u8		Môn phái 0..15, như EntityAppear.school.
+SelfStats	6	strength	i32		Sức mạnh (STR).
+SelfStats	7	spirit	i32		Linh khí (SPR).
+SelfStats	8	constitution	i32		Thể chất (CON).
+SelfStats	9	concentration	i32		Định lực (INT).
+SelfStats	10	dexterity	i32		Thân pháp (DEX).
+SelfStats	11	free_points	i32		Điểm thuộc tính chưa cộng.
+SelfStats	12	hp_restore	i32		Hồi sinh lực mỗi nhịp.
+SelfStats	13	mp_restore	i32		Hồi nội lực mỗi nhịp.
+SelfStats	14	physical_attack	i32		Ngoại công.
+SelfStats	15	physical_defence	i32		Ngoại phòng.
+SelfStats	16	magic_attack	i32		Nội công.
+SelfStats	17	magic_defence	i32		Nội phòng.
+SelfStats	18	hit	i32		Trúng.
+SelfStats	19	miss	i32		Né.
+SelfStats	20	critical_hit	i32		Hội tâm.
+SelfStats	21	strike_point	i32		Điểm liên kích hiện có.
+SelfStats	22	attack_speed	i32		Tốc độ đánh.
+SelfStats	23	move_speed	i32		Giá trị thô của Stat::kMoveSpeed, tính bằng nghìn mét mỗi giây (mặc định 4000), chưa nhân hệ số chế độ chạy; xem NGHI-NGO.md.
+SelfStats	24	cold_attack	i32		Công băng.
+SelfStats	25	cold_defence	i32		Kháng băng.
+SelfStats	26	fire_attack	i32		Công hoả.
+SelfStats	27	fire_defence	i32		Kháng hoả.
+SelfStats	28	lightning_attack	i32		Công điện (huyền).
+SelfStats	29	lightning_defence	i32		Kháng điện (huyền).
+SelfStats	30	poison_attack	i32		Công độc.
+SelfStats	31	poison_defence	i32		Kháng độc.
 SkillEntry	1	skill	u16		Id kỹ năng (cột id của skills.tsv).
 SkillEntry	2	level	u8		Cấp kỹ năng.
 SkillEntry	3	cooldown_ms	u32		Hồi chiêu còn lại, mili giây; 0 là dùng được.
@@ -187,3 +216,12 @@ DeathNotice	2	money_lost	u64
 SelfSkills	1	skills	list:record:SkillEntry	128	
 SkillCooldown	1	skill	u16		
 SkillCooldown	2	ms	u32		Hồi chiêu mới, mili giây.
+BuffEntry	1	effect	u32		Dòng effects.tsv của buff.
+BuffEntry	2	serial	i32		Số thứ tự của buff trong danh sách người mang (Buff::sn), để client phân biệt hai buff cùng dòng.
+BuffEntry	3	sender	u32		EntityAppear.id của người gây; 0 khi không rõ hay khi là danh sách của mục tiêu.
+BuffEntry	4	skill	u16		Kỹ năng sinh ra buff; 0 khi không có hay khi là danh sách của mục tiêu.
+BuffEntry	5	remaining_ms	i32		Thời gian còn lại, mili giây, tại lúc gửi; -1 là vô hạn; 0 khi là danh sách của mục tiêu.
+AskTarget	1	id	u32		EntityAppear.id của mục tiêu vừa chọn.
+WorldTime	1	period	u8		Canh giờ 0..11 (WORLD_TIME của gốc), mỗi canh dài zone.toml period_change_ms.
+BuffList	1	id	u32		EntityAppear.id của thực thể có danh sách này (chính mình hoặc mục tiêu).
+BuffList	2	buffs	list:record:BuffEntry	32	

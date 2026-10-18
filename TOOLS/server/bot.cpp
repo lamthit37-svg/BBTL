@@ -19,7 +19,7 @@
 // Chạy: thienlong_bot --identity <identity.key> [--game 7100] [--auth 7101] [--count 4]
 //       [--seconds 6] [--prefix bot] [--straight 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]
 //       [--fight <x_m>,<z_m>] [--peers <n>] [--walk <walk.path>] [--roster 1] [--leap 1]
-//       [--probe 1]
+//       [--probe 1] [--hud 1]
 // Thoát 0 khi mọi khách vào được cảnh và thấy đủ những khách còn lại; khác 0 kèm lý do.
 // --walk <walk.path>: tệp .path của cảnh vào (dev/server/scenes/<cảnh>/walk.path). --hunt, --talk,
 // --fight đi theo các điểm rẽ của luật đi client (nav::Field::plan_move, nhấp chuột tìm đường vòng
@@ -48,6 +48,12 @@
 // một Move dài tới điểm đi được nằm sau tường (B19); zone phải đặt lại về chỗ cũ (Position). Sau đó
 // một Move cùng khoảng cách tới điểm thông phải được nhận, để biết việc đặt lại là do tường chứ
 // không do giới hạn quãng.
+// --hud 1 (G2-M): vào cảnh rồi đối chiếu các tin của HUD với điều máy chủ phải gửi: SelfStats đủ
+// thuộc tính, SelfSkills đúng sáu chiêu DefaultChar [0, 1, 21, 22, 34, 35], WorldTime, BuffList của
+// mình, AskTarget (chính mình, thực thể khác, id lạ phải bị từ chối kNoSuchEntity, id 0 là bỏ
+// chọn), rồi ra chiêu 35 (打坐) lên chính mình để thấy một buff thật trong BuffList của mình và
+// trong bản của mục tiêu.
+// --seconds từ 155 trở lên thì đứng chờ thêm tới khi canh giờ đổi (một canh dài 150 giây).
 
 #include "io/platform.hpp"
 #include "link/link.hpp"
@@ -115,6 +121,8 @@ struct Options {
     bool roster = false;
     // --leap 1: một Move dài xuyên tường sau khi đứng yên, mong bị đặt lại.
     bool leap = false;
+    // --hud 1: kiểm các tin của HUD (thuộc tính, sáu chiêu đầu, canh giờ, buff, AskTarget).
+    bool hud = false;
     // Điểm tới của --hunt, centimet.
     std::optional<std::pair<float, float>> hunt;
     // Điểm tới của --talk, centimet.
@@ -252,6 +260,14 @@ struct Seen {
     std::unordered_map<std::uint32_t, Npc> loot;
     std::optional<std::uint64_t> exp;
     std::optional<protocol::SelfBag> bag;
+    // Chế độ --hud (G2-M): thuộc tính mới nhất, các canh giờ đã nhận, id thực thể của chính mình,
+    // rồi EntityVitals và BuffList mới nhất theo id thực thể, và mã Reject mới nhất.
+    std::optional<protocol::SelfStats> stats;
+    std::vector<std::uint8_t> hours;
+    std::uint32_t self_id = 0;
+    std::unordered_map<std::uint32_t, protocol::EntityVitals> vitals;
+    std::unordered_map<std::uint32_t, protocol::BuffList> buffs;
+    std::optional<protocol::ErrorCode> last_reject;
     float x_cm = 0.0F;
     float z_cm = 0.0F;
     // Lưới đi của cảnh (mượn từ Options); null là đi thẳng.
@@ -294,7 +310,23 @@ void note_batch(const protocol::EntityPosBatch& batch, Seen& seen, Tally& tally)
         note_pos(place, seen, tally);
 }
 
+template <typename Held>
+[[nodiscard]] const Held* held_in(const protocol::GameServerMessage& message) {
+    return std::get_if<Held>(&message);
+}
+
+// Tin của HUD (G2-M): chỉ ghi lại, --hud tự đối chiếu.
+void note_hud(const protocol::GameServerMessage& message, Seen& seen) {
+    if (const auto* one = held_in<protocol::SceneEnter>(message)) seen.self_id = one->self_id;
+    if (const auto* one = held_in<protocol::SelfStats>(message)) seen.stats = *one;
+    if (const auto* one = held_in<protocol::WorldTime>(message)) seen.hours.push_back(one->period);
+    if (const auto* one = held_in<protocol::EntityVitals>(message)) seen.vitals[one->id] = *one;
+    if (const auto* one = held_in<protocol::BuffList>(message)) seen.buffs[one->id] = *one;
+    if (const auto* one = held_in<protocol::Reject>(message)) seen.last_reject = one->code;
+}
+
 void note(const protocol::GameServerMessage& message, Seen& seen, Tally& tally) {
+    note_hud(message, seen);
     if (const auto* reject = std::get_if<protocol::Reject>(&message)) {
         std::println(stderr, "  server từ chối tin 0x{:04x}: mã {}", reject->request,
             static_cast<unsigned>(reject->code));
@@ -625,6 +657,141 @@ void listen(link::Link& line, Seen& seen, Tally& tally, std::chrono::millisecond
         const auto message = read_game(line, net::Milliseconds{20});
         if (message) note(*message, seen, tally);
     }
+}
+
+// ---- Chế độ --hud: các tin của HUD (G2-M) -------------------------------------------------------
+
+void want(Tally& tally, std::string_view what, bool is_right) {
+    std::println("  hud: {} — {}", what, is_right ? "đạt" : "SAI");
+    if (!is_right) ++tally.failed;
+}
+
+// Có đủ EntityVitals và BuffList mang đúng id đã hỏi.
+[[nodiscard]] bool answered_whole(const Seen& seen, std::uint32_t id) {
+    const auto vitals = seen.vitals.find(id);
+    const bool has_vitals = vitals != seen.vitals.end() && vitals->second.id == id;
+    const auto buffs = seen.buffs.find(id);
+    const bool has_buffs = buffs != seen.buffs.end() && buffs->second.id == id;
+    return has_vitals && has_buffs;
+}
+
+// Hỏi một mục tiêu: xoá tin cũ, gửi AskTarget, chờ tối đa 1 giây cho câu đáp (hay Reject).
+void ask_target(link::Link& line, Seen& seen, Tally& tally, std::uint32_t id) {
+    seen.vitals.clear();
+    seen.buffs.clear();
+    seen.last_reject.reset();
+    const protocol::AskTarget ask{.id = id};
+    static_cast<void>(send(line, ask));
+    const auto is_done = [&] { return answered_whole(seen, id) || seen.last_reject.has_value(); };
+    listen(line, seen, tally, std::chrono::seconds{1}, is_done);
+}
+
+[[nodiscard]] const protocol::BuffEntry* first_buff(const Seen& seen, std::uint32_t id) {
+    const auto found = seen.buffs.find(id);
+    if (found == seen.buffs.end()) return nullptr;
+    if (found->second.buffs.empty()) return nullptr;
+    return &found->second.buffs.front();
+}
+
+// Chọn chính mình rồi ra chiêu 35 (打坐) lên mình: nó sinh một buff, nên BuffList cuối cùng của
+// mình phải mang buff do mình gây từ chiêu 35. Nếu bản rút gọn của mục tiêu đè lên bản đủ thì
+// người gây và chiêu về 0 (lỗi c5 tìm thấy). Hỏi lại chính mình thì bản trả về phải đủ như
+// cũ.
+void sit_down(link::Link& line, Seen& seen, Tally& tally) {
+    constexpr std::uint16_t kSit = 35;
+    ask_target(line, seen, tally, seen.self_id);
+    protocol::CastSkill cast{};
+    cast.seq = 1;
+    cast.skill = kSit;
+    cast.target = seen.self_id;
+    static_cast<void>(send(line, cast));
+    const auto has_buff = [&] { return first_buff(seen, seen.self_id) != nullptr; };
+    listen(line, seen, tally, std::chrono::seconds{2}, has_buff);
+    const auto never = [] { return false; };
+    listen(line, seen, tally, std::chrono::milliseconds{300}, never);
+    const protocol::BuffEntry* own = first_buff(seen, seen.self_id);
+    const bool is_own = own != nullptr && own->sender == seen.self_id && own->skill == kSit;
+    want(tally, "chọn mình rồi ngồi: BuffList mình mang người gây và chiêu 35", is_own);
+    if (own == nullptr) return;
+    const protocol::BuffEntry sent = *own;
+    std::println("  hud: buff chiêu 35: effect {} SN {}", sent.effect, sent.serial);
+    std::println("  hud: buff chiêu 35: còn {} ms", sent.remaining_ms);
+    ask_target(line, seen, tally, seen.self_id);
+    const protocol::BuffEntry* again = first_buff(seen, seen.self_id);
+    const bool has_again = again != nullptr;
+    const bool is_effect = has_again && again->effect == sent.effect;
+    const bool is_same = is_effect && again->serial == sent.serial;
+    want(tally, "AskTarget chính mình sau khi ngồi: cùng buff và SN", is_same);
+    const bool is_whole = is_same && again->sender == seen.self_id && again->skill == kSit;
+    want(tally, "bản trả về cho chính mình vẫn đủ người gây và chiêu", is_whole);
+}
+
+[[nodiscard]] std::optional<std::uint32_t> other_entity(const Seen& seen) {
+    if (!seen.monsters.empty()) return seen.monsters.begin()->first;
+    if (!seen.npcs.empty()) return seen.npcs.begin()->first;
+    return std::nullopt;
+}
+
+[[nodiscard]] std::vector<std::uint16_t> held_skills(const Seen& seen) {
+    std::vector<std::uint16_t> held;
+    for (const protocol::SkillEntry& entry : seen.skills)
+        held.push_back(entry.skill);
+    return held;
+}
+
+[[nodiscard]] std::int64_t primary_sum(const protocol::SelfStats& stats) {
+    const std::int64_t body = std::int64_t{stats.strength} + stats.constitution + stats.dexterity;
+    return body + stats.spirit + stats.concentration;
+}
+
+void show_stats(const protocol::SelfStats& now) {
+    std::println("  hud: cấp {} kinh nghiệm {} phái {}", now.level, now.exp, now.sect);
+    std::println("  hud: STR {} SPR {} CON {}", now.strength, now.spirit, now.constitution);
+    std::println("  hud: INT {} DEX {}", now.concentration, now.dexterity);
+    std::println("  hud: điểm tự do {}", now.free_points);
+    std::println("  hud: công ngoại {} thủ ngoại {}", now.physical_attack, now.physical_defence);
+    std::println("  hud: công nội {} thủ nội {}", now.magic_attack, now.magic_defence);
+    std::println("  hud: trúng {} né {} hội tâm {}", now.hit, now.miss, now.critical_hit);
+    std::println("  hud: liên kích {} tốc độ đánh {}", now.strike_point, now.attack_speed);
+    std::println("  hud: tốc độ chạy {} hồi HP {}", now.move_speed, now.hp_restore);
+    std::println("  hud: hồi MP {}", now.mp_restore);
+}
+
+// Kiểm tin HUD của máy chủ: thuộc tính, sáu chiêu đầu, canh giờ, buff của mình và AskTarget. Nhận
+// canh giờ thứ hai chỉ khi --seconds đủ dài (một canh dài 150 giây theo zone.toml).
+void hud(link::Link& line, Seen& seen, Tally& tally, int seconds) {
+    constexpr int kSettleSeconds = 2;
+    constexpr int kChangeSeconds = 155;
+    constexpr std::uint32_t kStranger = 0xDEADBEEFU;
+    seen.tolerate_reject = true;
+    stand(line, seen, tally, kSettleSeconds);
+    const bool has_stats = seen.stats.has_value();
+    const bool is_primary_set = has_stats && primary_sum(*seen.stats) > 0;
+    want(tally, "SelfStats có mặt và đủ thuộc tính chính", is_primary_set);
+    if (has_stats) show_stats(*seen.stats);
+    const std::vector<std::uint16_t> starting = {0, 1, 21, 22, 34, 35};
+    want(tally, "SelfSkills đúng sáu chiêu DefaultChar", held_skills(seen) == starting);
+    const bool has_hour = !seen.hours.empty() && seen.hours.front() <= 11;
+    want(tally, "WorldTime sau SceneEnter, canh 0..11", has_hour);
+    want(tally, "BuffList của chính mình khi vào cảnh", seen.buffs.contains(seen.self_id));
+    ask_target(line, seen, tally, seen.self_id);
+    const bool is_self_answered = answered_whole(seen, seen.self_id);
+    want(tally, "AskTarget chính mình đáp EntityVitals và BuffList", is_self_answered);
+    const std::optional<std::uint32_t> other = other_entity(seen);
+    want(tally, "có thực thể khác trong vùng nhìn", other.has_value());
+    if (other) ask_target(line, seen, tally, *other);
+    const bool is_other_answered = other && answered_whole(seen, *other);
+    if (other) want(tally, "AskTarget thực thể khác đáp đủ hai tin", is_other_answered);
+    ask_target(line, seen, tally, kStranger);
+    const bool is_unknown = seen.last_reject == protocol::ErrorCode::kNoSuchEntity;
+    want(tally, "AskTarget id lạ bị từ chối kNoSuchEntity", is_unknown);
+    ask_target(line, seen, tally, 0);
+    want(tally, "AskTarget 0 là bỏ chọn, không đáp", seen.vitals.empty() && !seen.last_reject);
+    sit_down(line, seen, tally);
+    if (seconds < kChangeSeconds) return;
+    stand(line, seen, tally, seconds);
+    const bool has_next = seen.hours.size() >= 2 && seen.hours[1] == (seen.hours[0] + 1) % 12;
+    want(tally, "WorldTime đổi canh sau một chu kỳ", has_next);
 }
 
 // NPC bấm được gần `from` nhất.
@@ -1013,6 +1180,7 @@ void run_bot(const Options& options, const secure::PublicKey& server, int index,
     const float share = static_cast<float>(index) / static_cast<float>(options.count);
     const float heading = 2.0F * std::numbers::pi_v<float> * share;
     if (options.leap) return run_leap(*line, seen, tally, account);
+    if (options.hud) return hud(*line, seen, tally, options.seconds);
     bool walked = true;
     if (options.fight) {
         fight(*line, seen, tally, *seen.position, *options.fight, options.seconds);
@@ -1296,8 +1464,9 @@ void online_and_pace(Rig& rig, const Options& options, const secure::PublicKey& 
     if (key == "--probe") options.probe = value == "1";
     if (key == "--roster") options.roster = value == "1";
     if (key == "--leap") options.leap = value == "1";
+    if (key == "--hud") options.hud = value == "1";
     const bool is_flag = key == "--prefix" || key == "--straight" || key == "--leap";
-    return is_flag || key == "--probe" || key == "--roster";
+    return is_flag || key == "--probe" || key == "--roster" || key == "--hud";
 }
 
 [[nodiscard]] std::optional<Options> parse(std::span<const char* const> args) {
@@ -1353,7 +1522,7 @@ void print_usage() {
     std::println(stderr, "dùng: thienlong_bot --identity <khoá> [--game 7100] [--auth 7101]");
     std::println(stderr, "  [--count 4] [--seconds 6] [--prefix bot] [--straight 1] [--peers <n>]");
     std::println(stderr, "  [--probe 1] [--roster 1] [--hunt <x_m>,<z_m>] [--talk <x_m>,<z_m>]");
-    std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>] [--leap 1]");
+    std::println(stderr, "  [--fight <x_m>,<z_m>] [--walk <walk.path>] [--leap 1] [--hud 1]");
 }
 
 } // namespace
@@ -1419,6 +1588,7 @@ int main(int argc, char** argv) {
         std::println("leap: {} trên {} khách bị đặt lại đúng", tally.leaped.load(), options->count);
         return tally.leaped.load() == options->count ? 0 : 1;
     }
+    if (options->hud) return 0;
     if (options->straight) return tally.corrections.load() > 0 && tally.drifted.load() == 0 ? 0 : 1;
     // Mỗi khách phải thấy mọi khách khác hiện ra ít nhất một lần.
     if (tally.appear.load() < options->count * want_seen) return 1;

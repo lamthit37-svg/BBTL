@@ -104,6 +104,10 @@ public:
     void cast(std::uint64_t session, const protocol::CastSkill& message, const Env& env);
     void respawn(std::uint64_t session, const protocol::Respawn& message, const Env& env);
     void pick_up(std::uint64_t session, const protocol::PickUp& message, const Env& env);
+    // Người chơi chọn mục tiêu (CGCharAskBaseAttrib 1521): đáp EntityVitals và BuffList của mục
+    // tiêu, rồi gửi lại BuffList mỗi khi nó đổi cho tới khi chọn mục tiêu khác. Mục tiêu phải đang
+    // trong vùng nhìn; id 0 là bỏ chọn.
+    void ask_target(std::uint64_t session, const protocol::AskTarget& message, const Env& env);
     // Một bước của nhịp zone: đấu trường chạy một tick, vật rơi hết hạn bị gỡ, sinh lực đổi thì
     // báo.
     void step(const Env& env);
@@ -127,7 +131,13 @@ private:
         std::int32_t sent_mp_max = -1;
         std::int32_t sent_rage_max = -1;
         std::uint64_t vitals_tick = 0;
-        std::uint8_t sent_percent = 100;
+        Surroundings::Vitals sent_view;
+        // Danh sách buff đã gửi (của mình, của mục tiêu đang chọn) và id mục tiêu đang chọn (0 là
+        // không chọn): gửi lại khi tập buff đổi; thời gian còn lại tự đếm ở client nên không tính
+        // là đổi.
+        std::vector<protocol::BuffEntry> sent_buffs;
+        std::vector<protocol::BuffEntry> sent_target_buffs;
+        std::uint32_t asked = 0;
     };
 
     // Vật rơi chờ nhặt: món đã cuộn, chủ nhặt và hạn.
@@ -163,6 +173,14 @@ private:
     void scatter_loot(const Member& killer, const Surroundings::Unit& unit, const Env& env);
     void push_vitals(std::uint64_t session, Member& who, const Env& env, bool force);
     void send_skills(std::uint64_t session, const Member& who, const Env& env);
+    // Danh sách buff của một Fighter. `detailed`: bản của chính mình (người gây, kỹ năng, thời gian
+    // còn lại); không thì chỉ dòng hiệu ứng và số thứ tự, như gốc gửi cho người khác.
+    [[nodiscard]] std::vector<protocol::BuffEntry> buff_list(const combat::Fighter& fighter,
+        bool detailed) const;
+    // Gửi BuffList của mình và của mục tiêu đang chọn khi tập buff đổi (`force` gửi dù không đổi).
+    void push_buffs(std::uint64_t session, Member& who, const Env& env, bool force);
+    void push_own_buffs(std::uint64_t session, Member& who, const Env& env, bool force);
+    void push_target_buffs(std::uint64_t session, Member& who, const Env& env, bool force);
     void prune();
 
     const World* world_;

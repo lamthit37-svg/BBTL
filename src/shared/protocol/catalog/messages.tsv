@@ -1,6 +1,6 @@
 # schema 1
 # source: TLBB Dev src/protocol/protocol.hpp @e0d89a6 (bản 2026-10-05, nhóm 01, 02, 05)
-# version 9
+# version 10
 # types: kind	ident	port	int	text
 kind	name	port	since	summary
 record	CharacterSummary			Tóm tắt một nhân vật trong danh sách chọn nhân vật.
@@ -13,6 +13,7 @@ record	SkillEntry			Một kỹ năng đã học của chính nhân vật, kèm h
 record	BagSlot			Một ô của túi đồ.
 record	PosEntry			Một vị trí tuyệt đối trong EntityPosBatch. Cùng bố cục 19 byte với thân EntityPos.
 record	UiString			Một chuỗi tham số của UiCommand.
+record	BuffEntry			Một buff đang mang trong BuffList: người gây, kỹ năng, dòng hiệu ứng, số thứ tự và thời gian còn lại.
 0x0101	Hello	both	1	Tin đầu tiên của mọi kết nối, báo phiên bản giao thức, nền tảng và bản dựng client.
 0x0102	Login	game	1	Đăng nhập cổng game bằng vé do cổng xác thực cấp, không bao giờ mang mật khẩu.
 0x0103	Resume	game	1	Nối lại phiên cũ bằng token phiên sau khi rớt mạng.
@@ -34,6 +35,7 @@ record	UiString			Một chuỗi tham số của UiCommand.
 0x0801	CastSkill	game	6	Ra chiêu (đánh thường cũng là một kỹ năng). Chỉ là ý định: server kiểm đã học, hồi chiêu, tiêu hao, tầm, mục tiêu rồi mới tính; lỗi trả Reject.
 0x0802	Respawn	game	6	Xin hồi sinh khi đã chết, ở thành hay tại chỗ; server áp phạt chết và đặt lại máu.
 0x0803	PickUp	game	6	Nhặt một vật rơi trong tầm 3 m; server kiểm luật chủ nhặt.
+0x0804	AskTarget	game	10	Client hỏi thông tin của mục tiêu vừa chọn (CGCharAskBaseAttrib 1521 của Game.exe). Server đáp EntityVitals và BuffList của mục tiêu, rồi gửi lại hai tin ấy khi chúng đổi cho tới khi client chọn mục tiêu khác.
 0x8101	Welcome	both	1	Server đáp Hello: phiên bản giao thức, giờ server và chu kỳ nhịp tim.
 0x8102	SessionStart	game	1	Server mở phiên và cấp token để nối lại sau này.
 0x8103	ContentKey	game	1	Khoá giải mã gói nội dung của phiên.
@@ -48,16 +50,17 @@ record	UiString			Một chuỗi tham số của UiCommand.
 0x8402	EntityAppear	game	4	Một thực thể (người, quái, NPC...) bước vào vùng nhìn của client.
 0x8403	EntityDisappear	game	4	Một thực thể rời vùng nhìn của client hoặc biến mất khỏi cảnh.
 0x8404	EntityPos	game	4	Vị trí mới của một thực thể trong vùng nhìn; client nội suy giữa hai lần nhận.
-0x8405	EntityVitals	game	4	Sinh lực của một thực thể trong vùng nhìn, theo phần trăm.
+0x8405	EntityVitals	game	4	Sinh lực và nội lực theo phần trăm, nộ khí của một thực thể trong vùng nhìn (GCCharBaseAttrib 587 của Game.exe).
 0x8406	EntityFlags	game	5	Cờ của một thực thể trong vùng nhìn; gửi ngay sau EntityAppear khi cờ khác 0 và mỗi khi cờ đổi.
 0x8407	EntityPosBatch	game	7	Nhiều vị trí tuyệt đối của cùng một tick cho một client. Không gửi khi rỗng.
+0x8408	WorldTime	game	10	Canh giờ trong game theo GCWorldTime (349) của Game.exe: một số 0 đến 11. Gửi sau SceneEnter và mỗi lần canh đổi.
 0x8501	Ticket	auth	1	Vé vào cổng game do cổng xác thực cấp sau khi đăng nhập đúng.
 0x8601	DialogOpen	game	5	Server mở hay thay hộp thoại của phiên: lời NPC, lựa chọn, dấu nhiệm vụ, bảng nhiệm vụ và phần thưởng.
 0x8602	DialogClosed	game	5	Server đóng phiên hội thoại và nêu lý do.
 0x8603	QuestBook	game	5	Toàn bộ sổ nhiệm vụ: ô đang giữ và tập nhiệm vụ đã xong. Gửi sau SceneEnter và mỗi khi sổ đổi.
 0x8604	QuestNotice	game	5	Thông báo của hệ nhiệm vụ cho người chơi: nhận, tiến độ, đủ điều kiện nộp, thưởng, chữ.
 0x8605	UiCommand	game	8	Server bảo client mở cửa sổ hay đẩy sự kiện UI_COMMAND theo GCUICommand (481) của Game.exe: chỉ số lệnh, chế độ, tối đa 16 số và 16 chuỗi.
-0x8701	SelfStats	game	5	Cấp, kinh nghiệm và tiền của chính nhân vật. Gửi sau SceneEnter và mỗi khi đổi.
+0x8701	SelfStats	game	5	Cấp, kinh nghiệm, tiền và thuộc tính chi tiết của chính nhân vật theo GCDetailAttrib (687) của Game.exe. Gửi sau SceneEnter và mỗi khi có trường đổi.
 0x8702	SelfVitals	game	6	Sinh lực, nội lực và nộ khí thật của chính nhân vật (người khác chỉ thấy phần trăm ở EntityVitals). Gộp, tối đa 5 lần mỗi giây.
 0x8703	SelfBag	game	6	Ảnh chụp toàn bộ túi đồ của chính nhân vật. Gửi sau SceneEnter và mỗi khi túi đổi.
 0x8801	SkillCast	game	6	Một thực thể bắt đầu ra chiêu: client chạy hành động và hiệu ứng, đạn tự nội suy từ nguồn tới đích. seq khác 0 chỉ khi là chiêu của chính client.
@@ -67,3 +70,4 @@ record	UiString			Một chuỗi tham số của UiCommand.
 0x8805	DeathNotice	game	6	Gửi riêng người chơi vừa chết: kinh nghiệm và tiền mất, để dựng bảng hồi sinh.
 0x8806	SelfSkills	game	6	Các kỹ năng đã học của chính nhân vật kèm hồi chiêu còn lại. Gửi sau SceneEnter và mỗi khi đổi.
 0x8807	SkillCooldown	game	6	Hồi chiêu mới của một kỹ năng sau khi ra chiêu thành công, để client vẽ nhịp hồi.
+0x8808	BuffList	game	10	Toàn bộ danh sách buff của một thực thể: của chính nhân vật (đủ người gây, kỹ năng, thời gian còn lại, theo GCDetailImpactListUpdate 168) hoặc của mục tiêu đã hỏi bằng AskTarget (chỉ dòng hiệu ứng và số thứ tự, theo GCCharImpactListUpdate 1353). Gửi cả danh sách mỗi khi đổi.

@@ -1304,3 +1304,48 @@ kết luận ngay dưới mục đó chứ không xoá.
     hay layout. (4) Phép (c) cho thoại tra khoá bằng `dialogue.zh.txt`; khoá do máy chủ ghép lúc chạy (không nằm trong tệp
     thoại) không được kiểm. (5) Phép (f) so theo chữ zh trùng nhau; hai chữ zh khác nhau mà cùng nghĩa không bị bắt.
     Cần: không cần làm gì cho tới khi gặp ca thật; ghi để người sửa cổng biết ranh giới.
+
+81. **`SelfStats.move_speed`: đơn vị đã đọc từ gốc, nhưng trần chạy 465 cm/s của gate không khớp số gốc** (2026-10-18, G2-M; `src/server/play/gameplay.cpp` `stats_of`, catalog `fields.tsv` SelfStats 23).
+    Gốc gửi `float GetMoveSpeed()` = `ATTR_MOVE_SPEED / 1000` nhân hệ số chế độ: chạy ×1,5, khập khiễng ×0,5,
+    nước rút ×5 (`Obj/Obj_Human_Attributes.cpp:529-580`); giá trị nền `DefaultMoveSpeed=4000`
+    (`TLBB_0859602_Win10_11/tlbb/Server/Config/ConfigInfo.ini:89`; bản XJL7457 ghi 5000). Ta gửi số thô của
+    `Stat::kMoveSpeed` (bot đo 4000 cho nhân vật mới): đơn vị là nghìn mét mỗi giây, chưa nhân hệ số chế độ, nên
+    client chia 1000 rồi tự nhân. Chưa chắc: trần chạy 465 cm/s dùng ở `guard::Pace` và H1 so với 4,0 × 1,5 = 6,0 m/s
+    của gốc; hai số không khớp và chưa rõ 465 lấy từ đâu (client 2026 hay một đo cũ). Cần: tìm nguồn của 465 (REA
+    trên Game.exe hay đo client gốc) trước khi làm H1 phương án B; K đừng dùng số này để dời nhân vật khi chưa chốt.
+
+82. **`SelfStats`: các trường `GCDetailAttrib` chưa có nguồn nên chưa gửi** (2026-10-18, G2-M; `docs/giao-viec/HOAN-THIEN/G2-M.md` mục 3).
+    Gói gốc 687 còn mang bang, `DataID`, ảnh chân dung, `ModelID`, `MountID`, thú đi theo, cờ khoá đi, cờ hành động,
+    phe, RMB, RMB kho, tinh lực. `stats_of` gửi 31 trường có nguồn (`actor::Body::stat`, Record) và bỏ các trường này.
+    Chặn bởi: bang (G9), trang bị và thú cưỡi (G5), thương thành. Script giao diện còn đọc qua `Player:GetData` những
+    khoá mà `SelfStats` chưa có (c5 đối chiếu khi kiểm chéo G2-M): CRITICALDEFENCE, RESISTOTHER{COLD,FIRE,LIGHT,POISON},
+    SUBRESISTLIMIT{...}, XIULIAN_*, YUANBAO, BIND_YUANBAO, NEEDEXP; PlayerFrame đọc TEP/MAXTEP/ENG/MAXENG,
+    HDSANDBOX*, CONGRENPOINT, GUIGUPOINT, HEADFRAME*, PORTRAIT (client trả 0 khi không có nguồn). Hậu quả: khung
+    nhân vật của client không có ô cho chúng cho tới các gói đó. Cần: thêm trường vào `SelfStats` (nâng version) khi
+    gói tương ứng có nguồn dữ liệu.
+
+83. **`WorldTime`: nấc canh giờ đếm từ lúc zone chạy, không từ lúc máy chủ thế giới chạy** (2026-10-18, G2-M; `src/server/zone/host.cpp` `tell_period`, `zone.toml [world_clock] period_change_ms`).
+    Gốc tăng một nấc mỗi `TimeChangeInterval` = 150000 ms bắt đầu từ nấc 0 lúc WorldServer chạy
+    (`WorldServer/World/WorldData/WorldTimeInfo.cpp:40-73`) và gửi `GCWorldTime` khi vào cảnh. Zone ta đếm tick của chính
+    nó, nên mỗi lần dựng lại cụm hay đổi zone là nấc 0, và hai zone chạy lệch nhau có thể báo hai canh khác nhau. Một
+    zone, một cụm dev thì không ảnh hưởng. Phần máy chủ của mục 22 (minimap luôn giờ Tý) đã có; phần client dùng nấc đó
+    là G2-K. Cần: lưu nấc và mốc vào store (hoặc world) nếu có tính năng phụ thuộc canh giờ ổn định qua lần dựng lại.
+
+84. **`BuffList` và `AskTarget`: ba chỗ lệch gốc và một giới hạn chưa xử lý** (2026-10-18, G2-M; `src/server/play/battle.cpp` `buff_list`, `ask_target`, `push_target_buffs`).
+    (1) Gốc gửi từng buff (`GCDetailBuff` 2249, `GCCharBuff` 485); ta gửi cả danh sách mỗi lần đổi (`BuffList`), tối đa
+    `kBuffListBuffsCount` buff, bỏ buff đang tắt dần. (2) Gốc phát buff và sinh lực của người trong vùng nhìn cho mọi người
+    quanh đó; ta chỉ gửi cho người đã `AskTarget` (khác gốc: tránh bão tin). (3) Thời gian còn lại (`remaining_ms`) chỉ có ở
+    bản của chính mình, tính từ `continuance - elapsed` theo nhịp Battle, và không tính là "đổi" khi so danh sách; client tự
+    đếm xuống. Giới hạn: mục tiêu đã hỏi rời vùng nhìn thì máy chủ vẫn đẩy danh sách buff của nó cho tới khi client gửi
+    `AskTarget` 0 hoặc hỏi mục tiêu khác (chỉ lộ id buff, nhưng lệch gốc). `AskTarget` chỉ bị giới hạn bởi trần tin của
+    gate và `Gameplay::allow()` (`play/gameplay.cpp:432`, mọi ý định đi qua nó). Cần: client gửi `AskTarget` 0 khi bỏ chọn (G2-K), hoặc kiểm tầm nhìn mỗi giây trong
+    `push_target_buffs` nếu thấy cần.
+
+85. **Xoá nhân vật theo kiểu chờ 3 đến 14 ngày qua NPC (关汉寿/周仓) chưa có ở máy chủ** (2026-10-18, G1-M, hỏi từ G1-K 3b; `src/server/account/sql.cpp:422`, `src/server/gate/table.cpp:1027-1050`).
+    Máy chủ ta xoá ngay bằng xoá mềm (`deleted_at = now()`), chỉ từ chối khi chưa đăng nhập, quá nhịp xoá hoặc nhân vật
+    đang online; giữ tên đã xoá cho tài khoản khác trong `name_reserve_days`. Máy chủ 2008 cũng xoá ngay: Login kiểm
+    chủ sở hữu và nhịp thao tác (`LoginServer/Login/Packets/CLAskDeleteCharHandler.cpp`), World trả ONLINE hay SUCCESS
+    (`WorldServer/World/Packets/LWAskDeleteCharHandler.cpp`), không kiểm cấp, không chờ. Client 2026 thì chặn xoá cấp >= 1
+    ở màn chọn ("角色不能马上删除", `SelectRole.lua:330-380`) và chỉ cho xoá qua NPC. Chưa biết: gói nào client 2026 gửi cho
+    luồng xoá qua NPC và máy chủ gốc 2026 giữ trạng thái chờ ra sao. Cần: đọc Game.exe bằng REA (tìm gói xoá qua NPC và
+    thời hạn 3 đến 14 ngày), rồi quyết định có làm không (nguyên tắc "gốc có gì ta có nấy").

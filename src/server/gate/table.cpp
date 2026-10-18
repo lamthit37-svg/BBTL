@@ -795,10 +795,19 @@ void relay_move(Engine& state, const Slot& slot, std::uint32_t index) {
 void send_reject(Engine& state, Slot& slot, std::uint32_t index, std::uint16_t request, protocol::ErrorCode code);
 
 [[nodiscard]] constexpr bool is_play_kind(std::uint16_t kind) noexcept {
-    return kind == protocol::Talk::kKind || kind == protocol::DialogChoose::kKind ||
-           kind == protocol::QuestAccept::kKind || kind == protocol::QuestTurnIn::kKind ||
-           kind == protocol::QuestAbandon::kKind || kind == protocol::DialogClose::kKind ||
-           kind == protocol::CastSkill::kKind || kind == protocol::Respawn::kKind || kind == protocol::PickUp::kKind;
+    switch (kind) {
+    case protocol::Talk::kKind:
+    case protocol::DialogChoose::kKind:
+    case protocol::QuestAccept::kKind:
+    case protocol::QuestTurnIn::kKind:
+    case protocol::QuestAbandon::kKind:
+    case protocol::DialogClose::kKind:
+    case protocol::CastSkill::kKind:
+    case protocol::Respawn::kKind:
+    case protocol::PickUp::kKind:
+    case protocol::AskTarget::kKind: return true;
+    default: return false;
+    }
 }
 
 void relay_up(Engine& state, Slot& slot, std::uint32_t index, const protocol::GameClientMessage& message) {
