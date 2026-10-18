@@ -175,6 +175,30 @@ từ cây tách, `gate.toml` của cây tách; `final/gate-ngat.txt` là các l�
   khỏi cây làm việc (4759 tệp ` D`, thư mục sửa lúc 12:50, không do H1-B; `5f` khôi phục bằng `git checkout --`): bot báo "không đọc được lưới
   đi ... walk.path", `talk` và `fight` hỏng. Ba phép đó đã chạy lại (`final2/`) sau khi dữ liệu trở về và đều đạt. `final/` giữ làm bằng chứng của lượt hỏng.
 
+### Xác nhận lại sau khi dữ liệu cảnh về (`build/e2e/H1B/xacnhan/`, `matran-cum-that/`, 2026-10-18 chiều)
+
+Cụm khởi động lại với `thienlong_zone` của lỗ #5 và bộ H1-B (`gate.toml` của HEAD), `tables/shared` 574 tệp, `variants` 61 tệp. Ma trận chạy
+đủ 13 ca trên cụm thật, không ca nào bị đóng hay kéo về ngoài thiết kế:
+
+| Ca | Kết quả trên cụm thật |
+|---|---|
+| `--stall 1`, `3`, `5`, `9`, `10`, `12`, `14` | còn phiên, 0 lần kéo về, chỗ máy chủ cuối trùng chỗ client khai; quan sát 1 s: 480 / 495 / 911 / 495 / 502 / 503 / 875 cm/s |
+| `--stall 16` | bị đóng bởi `idle_timeout_ms` (log "im lặng quá hạn") |
+| `--flood 60` (thật 58 Move/s) | bị đóng ở 9,7 s, log "vượt số tin mỗi giây" |
+| `--rush 150`, `200`, `400` | còn phiên; máy chủ đi 502, 502, 501 cm/s (quan sát 1 s); `400` kéo về 4 lần (lượt `final` là 9 lần) |
+| `--jump 8` | bước lớn nhất 499 cm, tới đúng chỗ khai (15926, 18357) |
+| `--leap 1 --walk` | 1 trên 1 khách bị đặt lại đúng |
+| `--count 4`, `--straight 1 --count 4` | 0 lần kéo về, 0 lệch; straight 689 lần kéo về do tường, 0 lệch |
+| `e2e_g0.py` | 6/6 ĐẠT |
+
+- Hai cửa sổ 1 giây của `--stall 5` (911 cm/s) và `--stall 14` (875 cm/s) cao hơn lượt `final` (495 và 503) vì cú xả quỹ rơi gọn trong một
+  cửa sổ; cả hai dưới trần lý thuyết 988 cm (quỹ 500 cm cộng 488 cm/s), bước đơn lớn nhất vẫn 48 cm. Giả thuyết cú xả rơi giữa hai cửa sổ
+  (mục trên) vì vậy được ủng hộ: cửa sổ phụ thuộc chỗ rơi, không phụ thuộc cấu hình.
+- Lỗ #5 trên đường thật: leap/walk/straight/e2e_g0 đều vào Đại Lý (log kiểm của zone `scene=2`, `kq=ok`), `leap` bị tường đặt lại nên cảnh có luật đi;
+  log cụm đếm 0 dòng "từ chối nạp cảnh". Chưa thử vào cảnh khác bằng cổng dịch chuyển (chỉ Đại Lý có kịch bản E2E).
+- Log cụm của cả đợt: đúng một dòng "im lặng quá hạn" (`stall16`) và một dòng "vượt số tin mỗi giây" (`flood60`), ngoài ra chỉ các dòng bot đóng
+  kết nối bình thường.
+
 ### Chưa kiểm và tồn đọng
 
 - Mạng đứng thật của client K (không giả bằng bot): chưa đo; hai số 25 và 320 suy từ nhịp 20 Move/s và hạn idle (`NGHI-NGO.md` 89).

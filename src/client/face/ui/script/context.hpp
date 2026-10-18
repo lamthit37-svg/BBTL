@@ -13,7 +13,9 @@
 #pragma once
 
 #include "hero/hero.hpp"
+#include "quest/defs.hpp"
 #include "quest/log.hpp"
+#include "quest/outline.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/panel/scene_table.hpp"
 #include "ui/script/combat_facts.hpp"
@@ -26,12 +28,17 @@
 #include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <map>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <utility>
 #include <vector>
+
+namespace game::ui::panel {
+class ItemNames;
+}
 
 namespace game::ui::script {
 
@@ -60,8 +67,22 @@ struct Facts {
     // Sổ 20 ô nhiệm vụ đang giữ (DataPool:GetPlayerMission_*, native_mission.cpp); nullptr thì coi
     // là sổ rỗng. Chủ host đặt lại mỗi khung; con trỏ chỉ dùng trong lúc script chạy.
     const quest::Log* missions = nullptr;
-    // Cờ loại máy chủ ở đối tượng hệ thống của gốc (DAT_141034c40 + 0x6f5868, 0x6f586c, 0x6f5874), Player:GetData đọc ra bằng
-    // "IsPKServer_JD", "IsOriginalJD", "Is2606S". Máy chủ ghi; hàm dựng của gốc đặt 0 (Game.exe 0x1400d1120 vùng khởi tạo).
+    // Định nghĩa nhiệm vụ theo id script (Script.dat và tệp event), nạp trễ khi
+    // GetPlayerMission_Description chạy; các getter GetPlayerMission_* đọc qua nó. nullptr thì mọi
+    // ô thấy bản ghi mặc định. Kho giữ bộ nhớ đệm nên con trỏ không const; chủ host đặt lại mỗi
+    // khung, con trỏ chỉ dùng trong lúc script chạy.
+    quest::DefBook* mission_defs = nullptr;
+    // Tên loại nhiệm vụ (Table/mission_kinds.tsv) cho DataPool:GetMissionInfo_Kind; rỗng thì loại
+    // nào cũng không có tên.
+    std::span<const quest::KindRow> mission_kinds;
+    // Chữ theo dõi theo id script (MissionTrack.txt, DBC "s_pMissionTrackDBC" của gốc);
+    // GetPlayerMissionTrackType trả 1 cho id có dòng. nullptr thì coi là không có dòng nào.
+    const std::map<std::int32_t, std::string>* track_texts = nullptr;
+    // Tên vật phẩm cho GetPlayerMissionDemand_Item; nullptr thì tên rỗng.
+    const panel::ItemNames* items = nullptr;
+    // Cờ loại máy chủ ở đối tượng hệ thống của gốc (DAT_141034c40 + 0x6f5868, 0x6f586c, 0x6f5874),
+    // Player:GetData đọc ra bằng "IsPKServer_JD", "IsOriginalJD", "Is2606S". Máy chủ ghi; hàm dựng
+    // của gốc đặt 0 (Game.exe 0x1400d1120 vùng khởi tạo).
     struct ServerFlags {
         std::int32_t pk_jd = 0;
         std::int32_t original_jd = 0;
@@ -113,8 +134,16 @@ struct Context {
     // trả về nullptr sau đó; con trỏ phải sống suốt lời gọi.
     const XParamRecord* xparam = nullptr;
     Facts facts;
-    // Giá trị mới nhất mà script đặt bằng DataPool:SetCanUseHotKey (gốc cất ở DAT_141034c40 + 0x5c1a48); nullopt khi chưa đặt. Phía
-    // game đọc để bật hay tắt phím tắt.
+    // Bản ghi định nghĩa mà getter nhiệm vụ gần nhất đã chọn (DAT_141035cd8 của Game.exe): StrList,
+    // Custom, RandomCustom, Bonus_* không nhận ô mà đọc bản ghi này. nullptr là chưa getter nào
+    // chạy; gốc khi đó đọc con trỏ rỗng, ở đây coi là bản ghi mặc định. Trỏ vào kho
+    // Facts::mission_defs nên chỉ sống trong lúc kho còn.
+    const quest::MissionDef* mission_cursor = nullptr;
+    // Bộ đệm dựng chuỗi trả về cho native (Memo): sống cùng Context nên longjmp của LuaPlus không
+    // làm rò (lua/native.hpp).
+    std::string scratch;
+    // Giá trị mới nhất mà script đặt bằng DataPool:SetCanUseHotKey (gốc cất ở DAT_141034c40 +
+    // 0x5c1a48); nullopt khi chưa đặt. Phía game đọc để bật hay tắt phím tắt.
     std::optional<std::int32_t> can_use_hotkey;
     // Chủ lớp hướng dẫn tân thủ đang mở (OpenFreshManGuideNew đặt, CloseFreshManGuide xoá, GetFreshManGuideOwner đọc; gốc cất ở
     // DAT_141034c10 + 0x550). Rỗng khi không có lớp. Khác gốc: cắt ở kGuideOwnerLimit byte.

@@ -16,6 +16,7 @@
  *  TELEGRAM  : @Hoon9xx
  *============================================================================*/
 
+#include "quest/defs.hpp"
 #include "quest/misdesc.hpp"
 
 #include "io/file.hpp"
@@ -25,9 +26,12 @@
 #include <cstddef>
 #include <cstdio>
 #include <filesystem>
+#include <optional>
 #include <print>
+#include <set>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace game::test {
 namespace {
@@ -190,6 +194,98 @@ void malformed_lines_are_reported(Context& context) {
     context.expect(none.has_value() && none->kind == -1, "tệp không có khối trả bản ghi mặc định");
 }
 
+void script_index_reads_like_the_loader(Context& context) {
+    // Bộ nạp 0x1406865b0: bỏ mọi dòng tới "MGR_TXT" (không phân biệt hoa thường) và dòng ';', lấy số
+    // trước '=' đầu tiên bằng atoi, id lặp thì dòng sau ghi đè, dòng không có '=' bị bỏ.
+    const std::string text =
+        "dòng trước tiêu đề bị bỏ\r\n"
+        "mgr_txt\r\n"
+        "\r\n"
+        "; chú thích\r\n"
+        "000012=\\obj\\luoyang\\a.lua\r\n"
+        "\t210262=\\event\\dali\\edali_newquest_001.lua \r\n"
+        "dòng không có dấu bằng\r\n"
+        "7x=\\a\\b.lua\r\n"
+        "210257=\\event\\dali\\old.lua\r\n"
+        "210257=\\event\\dali\\new.lua\r\n";
+    const auto index = quest::parse_script_index(text);
+    context.expect(index.has_value(), "đọc được bảng có tiêu đề viết thường");
+    if (!index) return;
+    context.expect(index->size() == 4, "bốn id: dòng chữ và dòng không dấu bằng bị bỏ");
+    context.expect(index->at(12) == "obj/luoyang/a.lua", "số 0 đầu bỏ, '\\' thành '/', bỏ '/' đầu");
+    context.expect(index->at(210262) == "event/dali/edali_newquest_001.lua", "cắt tab đầu và dấu cách cuối");
+    context.expect(index->at(7) == "a/b.lua", "atoi dừng ở chữ không phải số");
+    context.expect(index->at(210257) == "event/dali/new.lua", "id lặp: dòng sau thắng");
+    context.expect(!quest::parse_script_index("1=\\a.lua\r\n").has_value(), "thiếu MGR_TXT là lỗi");
+}
+
+void def_book_loads_on_demand(Context& context) {
+    const auto index = quest::parse_script_index(
+        "MGR_TXT\r\n210262=\\event\\dali\\a.lua\r\n5=\\event\\gone.lua\r\n6=\\event\\bad.lua\r\n");
+    context.expect(index.has_value(), "bảng đọc được");
+    if (!index) return;
+    int reads = 0;
+    const auto reader = [&reads](std::string_view path) -> std::optional<std::string> {
+        ++reads;
+        if (path == "event/dali/a.lua") return std::string(kNewbie);
+        if (path == "event/bad.lua") return std::string("--MisDescBegin\r\nx1_g_MissionKind\r\n--MisDescEnd\r\n");
+        return std::nullopt;
+    };
+    quest::DefBook book(*index, reader);
+    context.expect(book.find(210262).kind == -1 && reads == 0, "chưa nạp: bản ghi mặc định, chưa đọc tệp");
+    book.load(210262);
+    book.load(210262);
+    context.expect(reads == 1, "nạp một lần dù gọi hai lần");
+    context.expect(book.find(210262).kind == 13 && book.find(210262).name == "初涉江湖", "sau nạp có dữ liệu");
+    book.load(999);
+    context.expect(reads == 1, "id không có trong bảng thì không đọc tệp");
+    book.load(5);
+    book.load(6);
+    context.expect(book.find(5).kind == -1 && book.find(6).kind == -1, "tệp lỗi giữ bản ghi mặc định");
+    const std::vector<std::string> notes = book.take_notes();
+    context.expect(notes.size() == 3, "mỗi script lỗi một dòng ghi chú");
+    context.expect(book.take_notes().empty(), "lấy ghi chú xong thì rỗng");
+    context.expect(quest::DefBook().find(1).kind == -1, "kho rỗng vẫn trả bản ghi mặc định");
+}
+
+std::string lowered(std::string text) {
+    for (char& letter : text) {
+        if (letter >= 'A' && letter <= 'Z') letter = static_cast<char>(letter - 'A' + 'a');
+    }
+    return text;
+}
+
+// Số tệp .lua của cây event mà bảng không có dòng nào trỏ tới (so không phân biệt hoa thường, như Windows).
+std::size_t count_unlisted(const quest::ScriptIndex& index, const std::filesystem::path& config) {
+    std::set<std::string> listed;
+    for (const auto& entry : index) listed.insert(lowered(entry.second));
+    std::size_t unlisted = 0;
+    const std::filesystem::path events = config / "event";
+    for (const auto& entry : std::filesystem::recursive_directory_iterator(events)) {
+        if (entry.path().extension() != ".lua") continue;
+        const std::string relative = std::filesystem::relative(entry.path(), config).generic_string();
+        if (listed.contains(lowered(relative))) continue;
+        ++unlisted;
+        std::println(stderr, "không có trong Script.dat: {}", relative);
+    }
+    return unlisted;
+}
+
+void shipped_index_matches_event_tree(Context& context) {
+    if (kEventDir.empty()) return;
+    const std::filesystem::path config = io::path_from_utf8(kEventDir).parent_path();
+    const io::TextResult text = io::read_text(config / "Script.dat");
+    context.expect(text.has_value(), "đọc được Config/Script.dat");
+    if (!text) return;
+    const auto index = quest::parse_script_index(*text);
+    context.expect(index.has_value(), "Script.dat của client đọc được (CRLF)");
+    if (!index) return;
+    const auto found = index->find(210262);
+    context.expect(found != index->end() && found->second == "event/dali/edali_newquest_001.lua",
+        "id script của nhiệm vụ 1400");
+    context.expect(count_unlisted(*index, config) == 0, "mọi tệp event của client có dòng trong Script.dat");
+}
+
 void whole_event_tree_parses(Context& context) {
     if (kEventDir.empty()) return;
     std::size_t blocks = 0;
@@ -209,7 +305,7 @@ void whole_event_tree_parses(Context& context) {
     context.expect(bad == 0, "mọi khối MisDesc của kho đọc không lỗi");
 }
 
-constexpr std::array<Case, 8> kCases = {{
+constexpr std::array<Case, 11> kCases = {{
     {.name = "khối 1400 đọc như gốc", .body = newbie_block_reads_like_the_original},
     {.name = "máy số giữ quirk của gốc", .body = number_scans_keep_the_original_quirks},
     {.name = "vòng dòng: khối, chú thích, khối nhiều dòng", .body = blocks_and_comments_follow_the_line_loop},
@@ -218,6 +314,9 @@ constexpr std::array<Case, 8> kCases = {{
     {.name = "máy chuỗi bỏ một ký tự sau nháy đóng", .body = quote_machine_skips_the_char_after_the_closing_quote},
     {.name = "dòng hỏng được báo", .body = malformed_lines_are_reported},
     {.name = "cả kho Config/event đọc không lỗi", .body = whole_event_tree_parses},
+    {.name = "Script.dat: bộ nạp đọc như gốc", .body = script_index_reads_like_the_loader},
+    {.name = "DefBook nạp trễ và ghi lỗi một lần", .body = def_book_loads_on_demand},
+    {.name = "Script.dat của client khớp cây event", .body = shipped_index_matches_event_tree},
 }};
 
 } // namespace

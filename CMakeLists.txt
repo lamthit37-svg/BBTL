@@ -613,7 +613,7 @@ target_link_libraries(game_gui PUBLIC game_core game_io game_xml game_table)
 game_module(hero src/client/figure/hero/hero.cpp)
 target_link_libraries(game_hero PUBLIC game_core)
 # quest: sổ nhiệm vụ của người chơi và bảng nhiệm vụ nhận được, bộ lọc port từ mã máy client 2026.
-game_module(quest src/client/book/quest/outline.cpp src/client/book/quest/misdesc.cpp)
+game_module(quest src/client/book/quest/outline.cpp src/client/book/quest/misdesc.cpp src/client/book/quest/defs.cpp)
 target_link_libraries(game_quest PUBLIC game_table game_core)
 # skill: bảng của sách võ công, sách kỹ năng của người chơi và hệ action, port từ mã máy client 2026.
 game_module(skill src/client/book/skill/tables.cpp src/client/book/skill/book.cpp src/client/book/skill/actions.cpp)
@@ -699,6 +699,7 @@ game_module(ui_script
     src/client/face/ui/script/native_battle.cpp
     src/client/face/ui/script/native_character.cpp
     src/client/face/ui/script/native_mission.cpp
+    src/client/face/ui/script/mission_data.cpp
     src/client/face/ui/script/native_login.cpp)
 target_link_libraries(game_ui_script PUBLIC game_ui_panel game_hero game_gui game_table game_io game_lua game_luaplus game_luanum game_core)
 # Cấu hình dựng client nằm ở src/client/client.build.toml (chủ dự án chốt 2026-10-14: gắn thẳng vào

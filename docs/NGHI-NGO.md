@@ -1158,6 +1158,14 @@ kết luận ngay dưới mục đó chứ không xoá.
     (OgreMain `0x18005ff70`: nhân 255, CVTPS2DQ, PACKUSWB), bão hoà về [0, 255]; log Fairy của client gốc trên máy
     này báo SSE, MMX, MMXEXT có nên chạy nhánh này. 11 hiệu ứng có độ mờ ColourFading lớn hơn 1 nay kẹp alpha
     ở `fx_view.cpp`. Khác gốc còn lại: không lượng tử về 8 bit.
+    (k) Chủ dự án chụp 雪海雕 330 (người cưỡi đứng dưới đất) và 幽骨翼龙 393 (mảng đen trắng đặc), 2026-10-18.
+    Nguyên nhân 330: `all.obj` ghi `ride_zm_2023diao.obj`, CharModelEx ghi `ride_ZM_2023diao.obj`; `export_rides.py`
+    tra phân biệt hoa thường nên mất locator, hiệu ứng và entity của hai mẫu (329 远禅马, 330 雪海雕). Nay
+    `ObjectBook.named` (`export_look.py`) bỏ phân biệt hoa thường và bảng đã xuất lại: người ngồi lên lưng chim.
+    Nguyên nhân 393: tấm `scene_blend zero one_minus_src_colour` (ba mẫu: 骨龙02, 2025七夕黑金飞剑01,
+    2022mgyzhanma01) rơi vào trộn alpha. Nay có `Alpha::kDarken` và Pso `kModelDark`, `kModelDarkTwoSided` (cùng shader
+    với tấm cộng sáng). Còn mở: nạp lại `Effect/all.effect` bằng `collect_fx.py` để có `qc_宗门天山骑乘雕_*` và
+    `qc_宗门天龙骑乘马_*` (bản mới chỉ thêm khối, không bớt); chưa so ảnh 393 với client gốc.
 
 66. **Đăng nhập: máy chủ gốc gửi `LCRetLogin` 0x15, 0x17, 0x18 trong điều kiện nào** (2026-10-18, G1-K; handler
     `docs/TAILIEU/ghidra/login_packets.txt:1125-1190`). 0x15 đẩy sự kiện `0x1f5` OPEN_AGREEMENT_DLG (cửa sổ
@@ -1358,6 +1366,26 @@ kết luận ngay dưới mục đó chứ không xoá.
     ở màn chọn ("角色不能马上删除", `SelectRole.lua:330-380`) và chỉ cho xoá qua NPC. Chưa biết: gói nào client 2026 gửi cho
     luồng xoá qua NPC và máy chủ gốc 2026 giữ trạng thái chờ ra sao. Cần: đọc Game.exe bằng REA (tìm gói xoá qua NPC và
     thời hạn 3 đến 14 ngày), rồi quyết định có làm không (nguyên tắc "gốc có gì ta có nấy").
+
+86. **Sổ nhiệm vụ chạy bằng QuestLog.lua/MissionTrack.lua (N1 2b): các chỗ native chưa làm hoặc lệch gốc** (2026-10-18, N1; `src/client/face/ui/script/native_mission.cpp`, `src/client/book/quest/defs.cpp`, `TOOLS/content/unpack_script_index.py`).
+    Mọi hàm `DataPool:GetPlayerMission_*` đã port từ Game.exe có địa chỉ làm chứng ở chú thích từng hàm. Chỗ chưa làm:
+    (1) `GetPlayerMission_Description` chỉ nạp tệp event rồi chọn bản ghi, đẩy chuỗi rỗng; gốc còn dựng chuỗi mô tả và điền
+    toạ độ, tên NPC từ bảng NPC nhiệm vụ (DBC, `0xab`) cho vài id đặc biệt. QuestLog.lua và MissionTrack.lua vứt giá trị đó
+    nên chưa thấy sai. (2) `ActivePos`/`DelActivePos` chỉ chọn bản ghi, chưa vẽ dấu toạ độ trên bản đồ. (3) `Memo` chỉ thay
+    `%f` và `%s`; `%i` (vật phẩm), `%n` (NPC), `%p` (thú) giữ nguyên chữ, không dịch qua từ điển ngoại ngữ, không cắt ở
+    1023 byte. (4) `Demand_NPC` báo lỗi vì chưa xuất `MonsterAttrExTable` (29010 dòng). (5) `Demand_Item` loại 1..3 và
+    `Variable` bốn đối số bảng 1..3 báo lỗi: bảng tham số ngẫu nhiên `g_Parameter_*` chưa dựng (liên quan mục 76; sáu bộ
+    xử lý ở 0x1401db7b0, 0x1401dba60, 0x1401dbc70, 0x1401dbe50, 0x1401dc060, 0x1401dc240). (6) `TrackType` dải 1030000 luôn
+    0 vì chưa xuất `Mission_LootItem.txt`. (7) `DataRound` luôn 0 vì mảng dữ liệu nhiệm vụ (3932 số) chưa được máy chủ
+    gửi. (8) `EnumPlayerMission_ItemAction` không trả gì (client chưa có hệ hành động). (9) Chưa làm: `RemainTime`,
+    `RemainTimeEx`, `ItemCountNow` và các nhánh hiếm (Infant, SCM, JDTS, XinFu, Bounty, `PlayerPackage:*`,
+    `SystemSetup:GetDoubleExp`, `TServerUI:GetMonsterNamebyDataID`).
+    Hai chỗ lệch có chủ ý: nạp tệp event lỗi thì ghi một dòng rồi giữ bản ghi mặc định, không thử lại (gốc ném ngoại lệ và
+    thử lại ở lần gọi sau); chỉ số ngoài danh sách của `StrList`, `Custom`, `Bonus_Item`, `Demand_Item` là lỗi Lua (gốc đọc
+    ngoài vector). Một giả định chưa kiểm bằng mã: bộ lấy dòng `TDU_GetLineFromMemory` (nằm trong DLL) bỏ `'\r'` cuối dòng
+    của `Script.dat` CRLF, vì không thì gốc không nạp được chính tệp của nó; `parse_script_index` làm vậy. Cần: đọc DLL
+    chứa `TDU_GetLineFromMemory` để xác nhận; xuất `MonsterAttrExTable`, `Mission_LootItem.txt`, bảng NPC nhiệm vụ khi có
+    tính năng cần chúng; dựng `g_Parameter_*` cùng mục 76.
 
 87. **H1-B: tốc độ máy chủ cố định 488 cm/s, chưa theo thuộc tính, ngựa hay buff tốc độ** (2026-10-18, H1-B; `src/server/guard/pace.hpp` `kRunCmPerSec`, `kSlack`).
     Gốc đi theo `GetMoveSpeed()` của từng người (`Obj_Human_Attributes.cpp:529-580`). Phương án B (điều phối chốt) bóp mọi người ở

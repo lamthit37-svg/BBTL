@@ -3,6 +3,8 @@
 # trong sổ; tệp .lua khác của gói không chạy). Bố cục giữ đường dẫn trong gói: Script/Interface/<cửa sổ>/<tên>.lua.
 # Ghi Script/script.files.tsv ("kind<tab>đường dẫn", như danh sách của collect_map) để android/package_apk.py đóng
 # vào APK; iOS dùng cùng danh sách.
+# Cùng đợt chép thêm dữ liệu nhiệm vụ: Config/Script.dat (id script sang tệp, unpack_script_index.py) và mọi
+# Config/event/**/*.lua (khối MisDesc của từng nhiệm vụ, quest::DefBook nạp trễ theo bảng này), cũng dưới Script/Config/.
 # Chữ giữ nguyên byte UTF-8 của bản trong repo (chế độ chuỗi kUtf8 của TANG-C.md mục 4; bản zh đổi GBK là bước sau).
 # Tệp không đổi thì không ghi lại; tệp do lượt trước đưa vào mà sổ nay không nêu thì xoá (chỉ trong Script/, chỉ tệp
 # có trong danh sách cũ). Tên trong sổ tra không phân biệt hoa thường; tệp đích mang tên đúng như trên đĩa nguồn.
@@ -22,6 +24,8 @@ FOLDER = "Script"
 REGISTRY = "windows.tsv"
 LISTING = "script.files.tsv"
 SCRIPT_COLUMN = "script"
+QUEST_INDEX = "Config/Script.dat"
+QUEST_FOLDER = "Config/event"
 
 
 class StageError(Exception):
@@ -75,6 +79,17 @@ def old_listing(path: Path) -> list[str]:
     return [row[1] for row in rows if len(row) == 2]
 
 
+def quest_files(source: Path) -> list[tuple[str, Path]]:
+    """Script.dat và các script event của nhiệm vụ, theo (đường dẫn dưới dữ liệu client, tệp nguồn)."""
+    index = source / QUEST_INDEX
+    if not index.is_file():
+        raise StageError(f"thiếu {index}; chạy TOOLS/content/unpack_script_index.py")
+    found = [(f"{FOLDER}/{QUEST_INDEX}", index)]
+    for path in sorted((source / QUEST_FOLDER).rglob("*.lua")):
+        found.append((f"{FOLDER}/{path.relative_to(source).as_posix()}", path))
+    return found
+
+
 def stage(source: Path, data: Path) -> tuple[int, int, int]:
     """Trả (số tệp, số tệp ghi mới, số tệp cũ đã xoá)."""
     registry = source / REGISTRY
@@ -93,6 +108,7 @@ def stage(source: Path, data: Path) -> tuple[int, int, int]:
             wanted.append((f"{FOLDER}/{found.relative_to(source).as_posix()}", found))
     if missing:
         raise StageError(f"{len(missing)} script sổ nêu không có trong {source / 'Interface'}, đầu tiên: {missing[0]}")
+    wanted.extend(quest_files(source))
     target = data / FOLDER
     listing = target / LISTING
     written = 0
@@ -107,7 +123,7 @@ def stage(source: Path, data: Path) -> tuple[int, int, int]:
                 with contextlib.suppress(FileNotFoundError):
                     path.unlink()
                     removed += 1
-        lines = ["kind\tpath"] + [f"{'table' if relative.endswith('.tsv') else 'script'}\t{relative}" for relative, _ in wanted]
+        lines = ["kind\tpath"] + [f"{'script' if relative.endswith('.lua') else 'table'}\t{relative}" for relative, _ in wanted]
         written += write_changed(listing, ("\n".join(lines) + "\n").encode("utf-8"))
     except OSError as error:
         raise StageError(f"không ghi được dưới {target}: {error}") from error

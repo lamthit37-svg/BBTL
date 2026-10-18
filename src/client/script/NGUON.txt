@@ -36,6 +36,11 @@ mỗi dòng một cửa sổ, một layout, một script dưới Interface/; 19 
 Client đọc bản chép ở dev/client/assets/Script (sổ và đúng 1 975 script sổ nêu, kèm Script/script.files.tsv cho APK): target CMake
 thienlong_scripts chạy TOOLS/content/stage_scripts.py ở mỗi lượt dựng client.
 
+Dữ liệu nhiệm vụ (quest::DefBook, N1 2b): Config/Script.dat là bảng id script sang tệp của Game.exe (bộ nạp 0x1406865b0), thuần
+ASCII, giữ CRLF của gốc; Config/event/** là khối MisDesc của từng nhiệm vụ. stage_scripts.py chép cả hai sang Script/Config/ kèm
+danh sách cho APK. Tách lại Script.dat:
+  py -X utf8 TOOLS/content/unpack_script_index.py D:/XTLBB/Data src/client/script
+
 Bản căn cột để đọc (dấu `=` và chú thích thẳng cột, chỉ đổi khoảng trắng, mã trung gian LuaPlus khớp từng byte):
   python -B TOOLS/content/script_align.py src/client/script <thư mục đích> --luaplus D:/XTLBB/Bin64
 Thư mục này giữ bản gốc, không căn tại chỗ.

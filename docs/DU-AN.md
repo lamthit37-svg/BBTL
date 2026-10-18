@@ -129,7 +129,10 @@ nhật ký cũ [tài liệu].
   3457 chất liệu) vẽ trong `model.ps`, kèm pass ghi độ sâu của mẫu hai pass. Hiệu ứng gắn theo mã
   máy Render.dll (`translateAll` thiếu thì giữ trục thế giới). Emitter vùng, góc nón, xoay billboard,
   `billboard_origin`, `scroll_anim`, scale UV, vệt NewRibbonTrail, hạt mesh one/one theo mã máy
-  Plugin_ParticleFX và OgreMain. Chụp trên Vulkan, D3D12, D3D11. Còn mở: NGHI-NGO 65.
+  Plugin_ParticleFX và OgreMain. Chụp trên Vulkan, D3D12, D3D11. Còn mở: NGHI-NGO 65. Ngày 10-18 sửa hai lỗi
+  chủ dự án chụp: tên mẫu `all.obj` lệch hoa thường (330, 329 mất neo ghế và hiệu ứng) và tấm trộn
+  `zero one_minus_src_colour` (393, 383, 298, 3 mẫu) nay có pipeline riêng; hiệu ứng của 329, 330 chờ nạp lại
+  `Effect/all.effect` (NGHI-NGO 65 k).
 - Nạp đầu cảnh Đại Lý: 387 ms ngày 10-13, đo lại 490–528 ms, vượt ngân sách 450 ms, chưa kết luận
   (C3).
 

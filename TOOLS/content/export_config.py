@@ -96,6 +96,13 @@ SPECS = (
         },
         joins=(Join(name="scene_name", key=9, other="SceneDefineEx.txt", value=1),),
     ),
+    # Chữ theo dõi nhiệm vụ (s_pMissionTrackDBC của Game.exe, đọc ở GetLuaMissionTrackInfo 0x1402d2670): id script,
+    # chữ gốc (cột 1, +8 của bản ghi) và chữ dịch (cột 2, +0x10; client gốc dùng khi bật chế độ dịch và cột không rỗng).
+    Spec(
+        source="MissionTrack.txt",
+        target="mission_track.tsv",
+        names={0: "id", 1: "text", 2: "text_translated"},
+    ),
     # Sách võ công. Tên tệp đích trùng tên bảng tương ứng của máy chủ (docs/SERVER-TEP-CAU-HINH.md).
     # Kỹ năng: cột 48..78 là id dòng skill_levels.tsv theo bậc tâm pháp (bậc = cấp tâm pháp / 10);
     # cột 11 cộng vào cấp tâm pháp trước khi tính bậc; cột 101 (mới ở 2026, nghĩa chưa rõ) bằng 2 thì
