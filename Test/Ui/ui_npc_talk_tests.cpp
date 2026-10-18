@@ -370,7 +370,8 @@ void notices_prefer_server_text(Context& context) {
         ui::panel::note_notice(talk, notice, items);
     }
     const std::vector<std::string> expected = {
-        "#Y任务完成#W", "获得经验 300", "获得金钱 500", "获得交子 60", "获得物品 铁剑 x2", "获得物品99 x1"};
+        "#Y任务完成#W", "#{NPCTALK_GOT_EXP} 300", "#{NPCTALK_GOT_MONEY} 500", "#{NPCTALK_GOT_JIAOZI} 60",
+        "#{NPCTALK_GOT_ITEM} 铁剑 x2", "#{NPCTALK_GOT_ITEM} 99 x1"};
     context.expect(talk.notices == expected, "chữ máy chủ, thưởng tự dựng, loại không chữ thì bỏ");
 }
 

@@ -120616,3 +120616,206 @@ table/campaign_items/39925270/name	World Token · Lv. 5
 # Language files (assets/i18n/en/): Coming soon page and login server list.
 file/Web/coming_soon.html	web/coming_soon.html
 file/Table/login_servers.tsv	table/login_servers.tsv
+# BỔ SUNG 2026-10-18 (I1): khoá mà mã client và SelectServer dùng còn thiếu ở một số tệp ngôn ngữ. zh là chữ nguyên văn StrDictionary gốc; en và vi theo glossary, thẻ và chỗ điền đã kiểm khớp zh.
+BHKF_150323_198	#e010101#gFF0FA0Supreme Guild Invitational
+BHKF_150323_199	Click to show the Supreme Guild Invitational server list
+DLJM_XML_46	Telecom
+DLJM_XML_48	Unicom (Netcom)
+DLJM_XML_50	Education Network
+DLYHQF_12121302	#e010101#gFF0FA0Global Championship Finals
+DLYHQF_12121303	#e010101#gFF0FA0Global Championship Regional Round
+DLYHQF_12121304	#e010101#gFF0FA0Telecom Region
+DLYHQF_12121305	#e010101#gFF0FA0Netcom Region
+DLYHQF_12121306	#e010101#gFF0FA0Dual-Line Region
+DLYHQF_12121307	Click to show the recommended server list
+DLYHQF_12121308	Click to show the dedicated Global Championship Finals servers
+DLYHQF_12121309	Click to show the dedicated Global Championship Regional Round servers
+DLYHQF_12121310	Click to show the Telecom region list
+DLYHQF_12121311	Click to hide the Telecom region list
+DLYHQF_12121312	Click to show the Netcom region list
+DLYHQF_12121313	Click to hide the Netcom region list
+DLYHQF_12121314	Click to show the Dual-Line region list
+DLYHQF_12121315	Click to hide the Dual-Line region list
+DLYHQF_12121316	Search results
+DLYHQF_12121317	No matching results found
+DLYHQF_12121324	(New)
+DLYHQF_12121333	 servers
+DLYHQF_12121344	Default
+DLYHQF_12121362	#e010101#gFF0FA0Featured Server Region
+DLYHQF_12121363	Click to show the Featured Server region list
+DLYHQF_12121364	Click to hide the Featured Server region list
+DLYHQF_12121365	#e010101#gFF0FA0Casual Region
+DLYHQF_12121366	Click to show the Casual Server region list
+DLYHQF_12121367	Click to hide the Casual Server region list
+FWQWL_201130_01	#cfff263Please select a server
+SJDF_190603_194	#e010101#gFF0FA0Peak Contest Region
+SJDF_190603_195	Click to show the Peak Contest region list
+SJDF_190603_196	Click to hide the Peak Contest region list
+WCJS_180521_71	#e010101#gFF0FA0World Martial Meet Zone
+WCJS_180521_72	Click to show the World Martial Meet tournament server list
+WEJR_251216_03	#e010101#gFF0FA0WG Independent Region
+WEJR_251216_04	#e010101#gFF0FA0Click to show the WG Independent region list
+WEJR_251216_05	#e010101#gFF0FA0Click to hide the WG Independent region list
+BDYB_090714_01	Bound Ingot: 
+CLCZ_101207_01	Ingot spending in the Server Mobilization event is high! The whole server gains a 1.1x EXP bonus for 3 days.
+CLCZ_101207_02	Ingot spending in the Server Mobilization event is second highest! The whole server gains a 1.2x EXP bonus for 3 days.
+CLCZ_101207_03	Ingot spending in the Server Mobilization event is the highest! The whole server gains a 1.2x EXP bonus for 7 days.
+DLYHQF_12121319	View the servers where all characters on your account are located
+DLYHQF_12121334	Top up your account
+DLYHQF_12121335	Apply for a new account
+DLYHQF_12121336	Return to the event schedule
+DLYHQF_12121337	Exit Tianlong Babu
+DLYHQF_12121338	Click to enter the login screen of the selected server
+FWQWL_201130_02	#e010101#H%s0
+FWQWL_201130_03	#e010101#cfff263About to log in: #H%s0
+FWQYM_160120_147	#HYou have already submitted a migration application and cannot do this!
+GJHC_260424_18	[Champion Server]
+GMGameInterface_Script_GameLogin_Info_Exit_To_Account_Input_YesNo	Are you sure you want to return to the account input screen?
+KFZB_110628_205	This server holds the National Championship Finals champion! The whole server gains a 1.2x EXP bonus for 3 weeks.
+KFZB_110628_206	This server holds the National Championship Finals runner-up! The whole server gains a 1.2x EXP bonus for 2 weeks.
+KFZB_110628_207	This server holds the National Championship Finals third place! The whole server gains a 1.2x EXP bonus for 1 week.
+KFZB_110628_208	This server holds a top-three team of the National Championship Regional Round! The whole server gains a 1.1x EXP bonus for 1 week.
+KFZB_110628_251	This server holds a National Championship Finals top-32 team! The whole server gains a 1.2x EXP bonus for 3 days.
+LCRetCreateCharHandler_Info_Role_Is_Full	Your character slots are full!
+LCRetDeleteCharHandler_1	You must wait 15 seconds before deleting another character!
+LCRetDeleteCharHandler_Info_Err	Internal error!
+LCRetDeleteCharHandler_Info_No_Role_Del	There is no character to delete!
+LCRetDeleteCharHandler_Info_Unknow_err	Unknown error!
+MUST_SELECTSERVER	You must select a server before connecting!
+WJZH_100910_17	Returning-player popularity is high in the Tianlong 3 Return to Jianghu event series! The whole server gains a 1.1x EXP bonus for 3 days.
+WJZH_100910_18	Returning-player popularity is second highest in the Tianlong 3 Return to Jianghu event series! The whole server gains a 1.2x EXP bonus for 3 days.
+WJZH_100910_19	Returning-player popularity is the highest in the Tianlong 3 Return to Jianghu event series! The whole server gains a 1.2x EXP bonus for 7 days.
+WJZH_100910_20	The most popular migration server! The whole server gains a 1.2x EXP bonus for 7 days.
+ZNJCS_130825_8	#HThe child feature unlocks at level 50
+ZNJCS_130825_9	#HYou do not have a child yet. You can ask about children at Changsun Popo (143, 176) or Zhang Dashu (153, 184) in Luoyang.
+produce_char_sel_Info_Deling_Role	Deleting character...
+# BỔ SUNG 2026-10-18 (I1b): chữ Trung viết cứng trong mã client (npc_talk, quest_log, relive, online) chuyển sang khoá; zh là chữ nguyên văn của mã cũ.
+NPCTALK_CLOSE	Close
+NPCTALK_COMPLETE	Complete
+NPCTALK_GOODBYE	Farewell
+NPCTALK_FIXED_REWARD	#YFixed rewards:#W
+NPCTALK_RADIO_REWARD	#YChoose one reward after completing the quest:#W
+NPCTALK_NEED_ITEMS	#YRequired items:#W
+NPCTALK_PICK_REWARD	Please choose a reward item!
+NPCTALK_TOO_FAR	You are too far away to talk.
+NPCTALK_LOG_FULL	Your quest log is full. You cannot accept more quests.
+NPCTALK_QUEST_UNAVAILABLE	You cannot accept this quest.
+NPCTALK_QUEST_STATE	The quest status does not allow this action.
+NPCTALK_BAG_FULL	Your bag is full. Please tidy it up first.
+NPCTALK_NO_MONEY	Not enough money.
+NPCTALK_NO_ITEMS	You do not have the required items.
+NPCTALK_CANNOT_ABANDON	This quest cannot be abandoned.
+NPCTALK_RATE_LIMITED	You are acting too fast. Please try again in a moment.
+NPCTALK_CLOSED_FAR	You moved too far away. The conversation has ended.
+NPCTALK_NPC_GONE	The other party has left.
+NPCTALK_EXPIRED	The conversation has timed out.
+NPCTALK_GOT_EXP	EXP gained:
+NPCTALK_GOT_JIAOZI	Jiaozi gained:
+NPCTALK_GOT_MONEY	Money gained:
+NPCTALK_GOT_ITEM	Item gained:
+QUESTLOG_CANNOT_TRACK	Cannot Track
+QUESTLOG_PLACE	Quest Location: 
+QUESTLOG_GIVER	Quest Giver: 
+QUESTLOG_LEVEL	Quest Level: 
+RELIVE_DEAD	You have died.
+RELIVE_HINT	Press 1 to Revive in Town, or 2 to Revive in Place.
+RELIVE_LOSS_EXP	EXP lost:
+RELIVE_LOSS_MONEY	Money lost:
+RELIVE_TOWN	Revive in Town
+RELIVE_HERE	Revive in Place
+ONLINE_UNREACHABLE	Unable to connect to the server. Please check your network and try again.
+ONLINE_SECURE	Server authentication failed. Please update your game client.
+ONLINE_PROTOCOL	A communication error occurred with the server. Please log in again.
+ONLINE_TIMEOUT	The server is not responding. Please try again later.
+ONLINE_BAD_LOGIN	Incorrect account or password.
+ONLINE_SERVER_FULL	This server is full. Please try again later.
+ONLINE_BUSY	The server is busy. Please try again later.
+ONLINE_MAINTENANCE	The server is under maintenance.
+ONLINE_ELSEWHERE	Your account has logged in from another location.
+ONLINE_CLOSED	The connection to the server has been lost.
+ONLINE_FAILED	Operation failed. Please try again.
+ONLINE_WAITING	Connecting to the server…
+# Khoá từ điển mà thoại máy chủ tham chiếu (I1c, 2026-10-18).
+BHXZ_081211_10	#W requires #G
+BHXZ_081211_13	    Exchange #G
+BHXZ_081211_14	#W honor points. Are you sure you want to exchange?
+BHXZ_081211_20	Kala (Shaolin Advanced Fashion)
+BHXZ_081211_21	Evil Blaze (Ming Cult Advanced Fashion)
+BHXZ_081211_22	Tipsiness (Beggars' Sect Advanced Fashion)
+BHXZ_081211_23	Immortal Dust (Emei Advanced Fashion)
+BHXZ_081211_24	Flowing Rosy Clouds (Wudang Advanced Fashion)
+BHXZ_081211_25	Star Cold (Xingxiu Advanced Fashion)
+BHXZ_081211_26	Yaoguang (Tianshan Advanced Fashion)
+BHXZ_081211_27	Green Silk Zither (Xiaoyao Advanced Fashion)
+BHXZ_081211_28	Parting (Tianlong Advanced Fashion)
+BHXZ_081211_30	#W costs #G5000 honor points#W. Are you sure you want to exchange?
+BHXZ_081211_4	Calming Powder
+BHXZ_081211_5	Lesser Marrow Cleansing Pill
+BHXZ_081211_6	Greater Marrow Cleansing Pill
+BHXZ_081211_7	Advanced Engrave Talisman
+FBYQ_090204_01	    Ever since I parted from Miss Shishi, I have thought of her day after day. I pass each day practicing hidden weapons to ease the pain of longing, and quite by accident I have come to master the way of hidden weapon training—
+FBYQ_090204_02	, I can tell you practice martial arts too. If you want to train in hidden weapons, we might as well trade pointers.
+GGXS_160620_02	, your martial arts have come along so quickly!#r  People of Ghost Valley: their learning astonishes the world, their martial arts shake heaven and earth, and there is nothing in the Eight Trigrams or heavenly secrets they have not mastered.
+GUSU_MENPAI_56	your martial arts are advancing so fast. The sect leader must think very highly of you.#r  It has been a long time since I went back to Murong Shanzhuang. I wonder if it is still crowded with boats, the traffic never ceasing.
+HYS_20071224_02	you've plainly been around the jianghu. Further ahead you'll face far more troublesome opponents, so why not stock up on a few things now, what do you say?
+INTERFACE_XML_GemCarve_6	#YGem Carving Guide:#r #r#WSome gems can be turned into pure gems through the #gfff0f0carving function#g000000#W. A gem that has been #gfff0f0carved#g000000#W is not only better than before, but also gives off a more dazzling glow once #gfff0f0inlaid#g000000#W.#rFor now, #gfff0f0carving is open only for wisdom gems and charm gems#g000000#W. When #gfff0f0carving#g000000#W, depending on its #gfff0f0gem level#g000000#W you must also place in the #gfff0f0special item of the matching level: Gem Carving Talisman#g000000#W.
+JKBS_081021_022	    #GCarved#W #Gwisdom gems#W can be #Gsmelted#W into another kind of special gem: the #GVictory Gem#W. These gems have special abilities and can #Greduce the resistance#W of the target's matching attribute.#r    #G3 carved wisdom gems#W can be #Gsmelted into one Victory Gem#W. Would you like to try?#r #r#cfabf8fGem Smelting Requirements:#r #r#W    Only these four gems can be smelted: #YPure Red Crystal#W, #YPure Kyanite#W, #YPure Green Crystal#W and #YPure Citrine#W.#r    #G3 identical#W gems can be smelted into one #GVictory Gem#W of the #Gsame level#W.#r    When smelting, remember to bring the special item: #YGem Smelting Talisman#W.#r #r#cfabf8fHow to Get a Gem Smelting Talisman:#r #r    When heroes of #Glevel 50 or above (including level 50)#W do #Gdevelopment quests#W, #Gmarket quests#W, #Gconstruction quests#W, #Gdefense quests#W, #Gtechnology quests#W or #Gexpansion quests#W in a #Gguild#W city, they have a chance to get a #YBasic Gem Smelting Talisman#W or an #YAdvanced Gem Smelting Talisman#W.
+JKBS_081021_023	    #GVictory Gems#W are legendary, mysterious gems with special powers. There are 4 kinds:#r    #YBlue Nether Stones#W lower the target's #GIce Resist#W in battle;#r    #YRed Nether Stones#W lower the target's #GFire Resist#W in battle;#r    #YYellow Nether Stones#W lower the target's #GMystic Resist#W in battle;#r    #YGreen Nether Stones#W lower the target's #GPoison Resist#W in battle.#r #r#cfabf8fHow to make a Victory Gem:#r #r#W    Use #G3 #YPure Kyanite#W, or #YPure Red Crystal#W, or #YPure Citrine#W, or #YPure Green Crystal#W, plus one #YGem Smelting Talisman#W, to smelt one matching #GVictory Gem#W.
+JNHC_81015_01	#YBeast Skill Upgrade Guide#r #r#cfabf8fUpgrading Beast Skills#r #r#WUpgrading a beast skill requires a #GSpirit Beast Pill#W and a small amount of money.#r#WAn upgraded skill is more powerful than the original.#r#WDifferent skills need different Spirit Beast Pills.#r#WFrost Curse, Blaze Curse, Mystic Thunder Curse, Blood Venom Curse, Advanced Heavy Blow and Advanced Smash#W can be upgraded through a #GLv. 1#W #GSpirit Beast Pill · Curse#W into the #GLv. 1#W #GExtreme Frost Curse, Hellfire Curse, Thunder Curse, Venom-Devouring Curse, Super Heavy Blow and Super Smash#W.#r#WAdvanced Borrowed Force, Advanced Soul Shift, Advanced Flash Shadow, Advanced Body Strengthening and Advanced Concentration#W can be upgraded through a #GLv. 1#W #GSpirit Beast Pill · Quake#W into the #GLv. 1#W #GSuper Borrowed Force, Super Soul Shift, Super Flash Shadow, Super Body Strengthening and Super Concentration#W.#r#WIce Soul, Fire Soul, Poison Soul and Mystic Soul#W can be upgraded through a #GLv. 1#W #GSpirit Beast Pill · Void#W into the #GLv. 1#W #GIce Aura, Fire Aura, Poison Aura and Mystic Aura#W.#r#WDull, Cunning, Honest, Desperate, Spell Soul and Brute Force#W can be upgraded through a #GLv. 1#W #GSpirit Beast Pill · Wind#W into the #GLv. 1#W #GWise Fool, Mischievous, Rough Yet Fine, Fight to the Death, Spirit Roams and Mountain Lifter#W.#r#GLv. 1 Spirit Beast Pills#W can be obtained from the #G20th round each day of sect quests at Lv. 50 and above#W and the #GRare Beasts Descend event#W.#r#WSpirit Beast Pills can be combined into higher levels at #RYun Han'er in Luoyang#G (275, 293)#W and #RYun Si'er in Suzhou#G (175, 240)#W.#r#WA Spirit Beast Pill one level higher can raise a skill one level lower to the corresponding level.#r#WThe new possession-type skills gained from upgrading reach a maximum level of #G6#W (only Treasure Beasts of Lv. 130 or above can raise skills to Lv. 5 and 6); other skill types reach a maximum of #GLv. 4#W.
+M_MUBIAO	#YQuest Objective:
+M_SHOUHUO	You will receive:
+OBJ_caoyuan_0003	? I heard of your great name long ago from the brothers in #GYanbei#W.#r  Now that you've come to the Grasslands, please lead us Han people to turn things around. My mother and brother have lived among the Khitan for so long that they've grown used to it and are nearly forgetting they are subjects of Great Song.#r  The truth is... I was born right here and have never once set foot on the land of Great Song.#r  Great hero, please help us.
+OBJ_caoyuan_0004	, I'm truly grateful to you.#r  If you run into any trouble within Liao territory, you can always come to me for help.#r  Oh, and remember not to tell anyone about me, okay?
+OBJ_caoyuan_0005	, do you think our Princess is hard to talk to? She's really very kind, she's just been in a bad mood lately.#r  The master has chosen a husband for her, but it's the Second Prince, #RYelü Yanxi#W, a notorious playboy prince.#r  The King is away on an embassy to the south, and the young master has been at the #GYanmen Battlefield#W for years, so the whole of vast #GLanling Commandery#W is run by the Princess alone.#r  Only I know what is weighing on her heart, yet there is nothing I can do to help her.
+OBJ_caoyuan_0007	  Hello. Before the horse bandits began raiding, our #GLanling Commandery#W supplied the court with eight thousand warhorses every year, and we quietly sold some to the south as well.#r  Truth is, I seldom talk to Song folk. It's only because you're the Princess's guest. I've followed our Great King for twenty years, and all that time we've been fighting and stopping with the Song army. When we fight, we're enemies; when we stop, there's trade to be done again.#r  The Princess has played with those little southern barbarians since she was small, so she doesn't mind such things.
+OBJ_caoyuan_0008	  Hello. Actually, I'm Han too, newly arrived here.#r  Great Liao has every people under the sun. A Han's life is cheap, so what difference does it make which court you die for? I hear the newly appointed King of the Southern Court is Han as well, and even has the surname Xiao.#r  How did you become the Princess's guest? As for Khitan girls, every one of them is headstrong and wilful. The Princess of Lanling may be pretty, but now that she runs the household she's no different from the Old King and the Young General.
+OBJ_caoyuan_0009	, you're a friend of #RRuan Shi#W, aren't you?#r  I'm #RLiekaba#W. I'm neither Khitan nor Han; the Old King carried me off here as well.#r  I watched every child on the Grasslands grow up playing together. #RRuan Cheng#W and the #RLittle Princess#W are all grown now, each bearing their own burdens, each heading a household of their own, and we've drifted apart, all drifted apart.#r  #RRuan Shi#W is still a child, just far too restless. He refuses to submit to the Khitan.
+OBJ_dali_0004	, how have you been lately? Have you gone to see the scenery of Erhai Lake yet? The emerald waves stretch without end and lift the spirit. Especially when the moon climbs over the willow tips, a rare beauty lies before your eyes.
+OBJ_dali_0005	, as Marshal of Dali, I must serve Dali all the better. You are so capable, you could go help the court. Find Wang Ruoyu and help Dali clear its canal transport, and you will be richly rewarded; the court's rewards are very generous indeed.
+OBJ_dali_0008	, do you know that Dali is surrounded by powerful enemies on all sides? It is only because His Majesty rose from the jianghu and is so wise and martial that we have enjoyed a measure of peace for now. That is why we are holding the Martial Assembly, inviting the heroes of the jianghu to lend our country a hand.#r  But the Martial Assembly has also let all sorts of people into the city, and danger lurks at every turn. You must be careful.
+OBJ_dali_0011	, welcome to Dali City. I am Celestial Master Zhao, one of the Four Benefactors.#r  The ancients said that away from home you rely on friends. This old brother of yours has plenty of friends in the jianghu and many old acquaintances in the great sects. If you need anything, just come to me. Given our bond, I will certainly do all I can to help you. When it comes to matters of the jianghu, I can still offer you a pointer or two.
+OBJ_dali_0012	, it's only been a short while and your martial arts have advanced this much? How wonderful.#r  Come chat with us Four Benefactors whenever you like, busy or not. We can tell you about the great affairs of the jianghu and help broaden your horizons, and it will surely benefit your growth in the days ahead. Are you ready to hear this old man out, young hero?
+OBJ_dali_0013	  To be known throughout the land, one must master past and present and read widely. Do you not see that Great Song picks its talents through the imperial examinations? We too must study more.#r  To make your way in the jianghu, martial arts and knowledge matter equally. The Martial Assembly is about to open—
+OBJ_dali_0015	, when you're out adventuring in the wilds, if you run into a beast leader, don't let it off lightly.#r  If you can search any fine ingredients off a monster leader, bring them to me and I can trade them for equipment bestowed by the Emperor.
+OBJ_dali_0054	, congratulations on reaching level 10! You can now choose a sect you like and join it. Once you have joined a sect, you can learn even more profound martial arts.#r  What? You still don't know which sect to join? Very well, this old man will spare a few more words.
+OBJ_luoyang_0015	, have you come to see our Shishi? My daughter is a different woman now—she's the most famous name in all Luoyang, truly her mama's darling girl!#r  Sigh, I just don't know why, but she seems to have more and more on her mind. All day long she mutters about flowers falling away and swallows flying back, and I can't tell what's the matter with her.
+OBJ_luoyang_0021	  Benefactor, it is good to see you. White Horse Temple is overrun with refugees who fled here from Yanmen Pass. The temple can still provide shelter and congee to fill their bellies, but medicine, clothing and supplies are truly lacking. Those supplies were always raised for the temple by the great hero Yang Zheng, yet I haven't seen him come to White Horse Temple these past few days.#r  Amitabha—#r  Young knights-errant, thick as palm fibers,#r  Hearts of justice and kindness, none alike.#r  Blades and swords are no cure for the world;#r  A good deed each day is the true skill.
+SJSJ_081021_002	    Combining low-level Fine Iron, Mithril or Cotton Cloth into higher-level materials is handled by me along with #GLuoyang (280, 322) #RPeng Huaiyu#W and #GLoulan City (279, 198) #RKelimu#W. Ask us if you have any questions.#r#GTip: The highest you can currently synthesize is Lv. 4 Fine Iron, Mithril and Cotton Cloth.
+SJSJ_081021_003	    Combining low-grade Fine Iron, Mithril or Cotton Cloth into high-grade materials is handled by me, #GLuoyang (280, 322)#R Peng Huaiyu#W and #GShuhe Old Town (135, 85)#R Jing Qianshi#W. If you have any questions, ask us.#r#GTip: at present you can combine up to Lv. 4 Fine Iron, Mithril and Cotton Cloth.
+SJSJ_081021_004	    #YFine Iron is the main raw material of the Refining life skill. Players can learn the Refining skill from Zhu Feng in Suzhou (367, 249).#r #r#cfabf8fFine Iron Synthesis:#r #r#W    Players can use 5 low-level Fine Iron materials to synthesize a high-level Fine Iron material. Currently the highest level that can be synthesized is Lv. 4 Fine Iron.#r    #GYou can synthesize materials at Peng Huaiyu in Luoyang (280, 322), Kelimu in Loulan City (279, 198) and Jing Qianshi in Shuhe Old Town (135, 85).
+SJSJ_081021_005	    #YMithril is the main raw material for the Fine Craft life skill. You can learn Fine Craft from Zhu Feng in Suzhou (367, 249).#r #r#cfabf8fMithril Combining:#r #r#W    You can use 5 portions of low-grade Mithril to combine into higher-grade Mithril. At present you can combine up to Lv. 4 Mithril.#r    #GYou can combine materials with Peng Huaiyu in Luoyang (280, 322), Kelimu in Loulan City (279, 198) and Jing Qianshi in Shuhe Old Town (135, 85).
+SJSJ_081021_006	    #YCotton Cloth is the main raw material for the life skill Fine Processing. Players can learn Fine Processing from Zhu Feng in Suzhou (367, 249).#r #r#cfabf8fCotton Cloth Synthesis:#r #r#W    Players can use 5 low-level Cotton Cloth materials to synthesize a higher-level Cotton Cloth material. Currently, the highest you can synthesize is Lv. 4 Cotton Cloth.#r    #GMaterials can be synthesized at Peng Huaiyu in Luoyang (280, 322), Kelimu in Loulan City (279, 198), and Jing Qianshi in Shuhe Old Town (135, 85).
+THD_190613_149	    Rain stops at the flower pavilion, dozing clouds drunk on sleep; green, green the traveler's inn, sky and water new.#r    Do you know this? At sunrise the sun is near to people, and at noon it is far.
+THD_190613_150	At sunrise it is as large as a carriage canopy, but at noon it is like a plate or a bowl. Isn't this because what is far looks small and what is near looks large?
+THD_190613_151	    Rain stops at the flower pavilion, dozing clouds drunk on sleep; green, green the traveler's inn, sky and water new.#r    Do you know this? At sunrise the sun is far from people, and at noon it is near.
+THD_190613_152	At sunrise the sun is cool and crisp, but by noon it feels like reaching into boiling water. Isn't this because what is near is hot and what is far is cool?
+TJL_xml_XX(02)	Go to the Tribulation Tower outside the city
+TJL_xml_XX(03)	About the Evil-Purging Tribulation Tower
+TJMZYCL_130322_02	Exchange Glazed Pearls for Rewards
+XMPTM_130123_16	, your martial arts are improving so fast!#r  A roaming dragon's shadow toys with sun and moon; a storm of pear blossoms brings down the stars.
+YSSJ_140818_3	#YBeast Taming Art#W#r    The Beast Taming Art has #G4#W volumes: #GVermilion Bird Art#W, #GBlack Tortoise Art#W, #GAzure Dragon Art#W and #GWhite Tiger Art#W. Only after #Gevery acupoint is activated#W in the previous volume can you begin activating the next divine art.#r#r#cfabf8fAcupoints#W#r    Each divine art has #G29#W #Gacupoints#W, and acupoints must be #Gactivated in order#W. Activating different acupoints grants bonuses to the #Gsecondary attributes#W of your summoned beast or the #Gbase aptitudes#W of your possessing beast.#r#r#cfabf8fContract Spirit#W#r    Activating acupoints requires different amounts of #GContract Spirit#W; the further along an acupoint is, the more it costs. You can gain Contract Spirit by using: #YSpirit Release Liquid#W, #YSpirit Release Syrup#W, #YSpirit Release Marrow#W. Activating an acupoint is #G100%#W successful.#r    By taking part in the dungeon: #GThree Gods Illusion#W you can obtain #YSpirit Release Liquid#W, #YSpirit Release Syrup#W or #YSpirit Release Marrow#W to raise your Contract Spirit.
+YWBOSS_140117_91	Chivalrous Constable
+YWBOSS_140117_92	Iron-Faced Head Constable
+YWBOSS_140117_93	Guanzhong Famed Constable
+YWBOSS_140117_94	Constable King of the Age
+YWBOSS_140117_95	Legendary Divine Constable
+ZBQHJ_130508_1	    If you have enhancement items such as #YDisha Enhancement Essence#W, #YTiangang Enhancement Essence#W or #YTiangang Enhancement Dew#W, you can enhance through the #GUse Enhancement Item to Enhance Gear#W option. After a failed enhancement at #Gany level#W, the #Genhancement level#W will #Gstay unchanged#W, and after a certain number of attempts it will #Gdefinitely succeed#W.#r    If you have a #YEnhancement Scroll#W of any grade, you can enhance through the #GUse Enhancement Scroll to Enhance#W option.#r    If you have a #YGuaranteed Enhancement Scroll#W of any grade, you can enhance through the #GUse Guaranteed Enhancement Scroll to Enhance#W option.
+ZBQHJ_130508_5	#YWeapons and gear have a spirit of their own. Want to make yours stronger? Come and enhance your gear!#r#r#cfabf8fEnhancing gear with enhancement items#W#rYou can use #YDisha Enhancement Essence#W or #YTiangang Enhancement Essence/Tiangang Enhancement Dew#W to enhance gear.#rWhen enhancing at #Gany level#W, a failed attempt leaves the #Genhancement level unchanged#W. Each #Gfailed enhancement#W raises the #Gsuccess rate#W of the next one, guaranteeing #G100% enhancement success#W within a #Gcertain number of tries#W.#r#GNote: Tiangang Enhancement Dew can enhance gear of Lv. 40 and above multiple times. (Up to 11 uses)#r#r#cfabf8fEnhancing gear with enhancement scrolls#W#r#YEnhancement Scroll#W — usable on gear of any level, with a #G100% success rate#W.#rUsing #YEnhancement Scroll · Lv. 5 Enhancement#W raises gear whose enhancement level is #Gbelow 5#W #Gdirectly#W to #GLv. 5#W.#rUsing #YEnhancement Scroll · Lv. 7 Enhancement#W raises gear whose enhancement level is #Gbelow 7#W #Gdirectly#W to #GLv. 7#W.#r    Using #YEnhancement Scroll 8→9#W raises gear whose enhancement level has reached #GLv. 8#W #Gdirectly#W to #GLv. 9#W.
+ZBQH_130521_04	#YEnhancement Transfer Guide#W#r #r    Gear with an enhancement level can use the #GEnhancement Transfer function#W to #Gtransfer#W all of that level onto other #Gsame-slot#W gear#W. Enhancement levels can only be transferred between gear of the #Gsame slot#W and the #Gsame level range#W.#r    For gear whose enhancement level is to be transferred: if the gear is #Gbelow Lv. 40#W, its enhancement level can only be transferred onto gear #Gbelow Lv. 40#W. If the gear is #GLv. 40 or above#W, its enhancement level can only be transferred onto gear #GLv. 40 or above#W.#r    When the transfer succeeds, the gear that gave up its enhancement level has all of it #Gcleared#W. The gear that received it has its enhancement level #Graised#W to the corresponding level.#r    #GTip: if the gear whose enhancement level is transferred is bound gear, the gear that receives it will also be force-bound after a successful transfer.#r    If the gear whose enhancement level is transferred is Chonglou gear, the non-Chonglou gear that receives it will also be force-bound after a successful transfer.
+event_dali_0001	#W? You've come at just the right time. Lately #GDali City#W has been bustling beyond words, with heroes from every great sect arriving.#r  Haven't you always wanted to be a great hero? How could you miss an opportunity like the Martial Assembly? Hurry to the #GDali #YWeapon Shop#W and see Proprietor #RPu Liang#W to pick a #Yweapon#W that suits your hand, and begin your journey through the jianghu.
+event_dali_0004	#W, to make your way in the jianghu, martial skill alone won't do. With good cooking skill you can prepare tasty meals and quickly restore your own and your friends' Stamina.#r  You can now make #YSteamed Buns#W. Make a #YSteamed Bun#W and show me. If you have any questions about how to make #YSteamed Buns#W, go ask my brother #RDu Zifei#W.
+event_dali_0012	  Do you remember #RSun Baye#W? He is also one of the Four Benefactors of #GDali City#W, in charge of organizing the #GDali#W Martial Assembly. He may have run into some trouble just now. As a hero who steps up for those in need, #R
+function_help_039	#YGear can be socketed, and once socketed you can inlay different gems to boost your gear's attributes!#r #r#cfabf8fEquipment Socketing:#r #r#WUse a special item, Equipment Socketing Material, and pay a certain amount of money to open sockets in a piece of gear. Only after a piece of gear has sockets can various gems be inlaid. #gfff0f0Each piece of gear can have at most 3 sockets opened by Peng Huaiyu in Luoyang (280, 322), Kelimu in Loulan City (279, 198) or Jing Qianshi in Shuhe Old Town (135, 85). To open a fourth socket, find Cheng Yaotie in Loulan (220, 228) for Extreme Socketing. #YNote: Extreme Socketing is allowed only on gear whose description says it can be extreme-socketed.#g000000#W#r #r#cfabf8fSocketable Gear:#r #r#WThe following gear can be socketed:#rWeapon, Clothes, Hat, Bracers, Shoes, Necklace, Belt, Ring, Amulet, Bracers, Shoulder Guards, Hidden Weapon, Martial Soul, Dragon Pattern, Token, Hero Seal.#r #r#cfabf8fNote:#r#gfff0f0Socketing can fail, you know#g000000#W!
+function_help_040	#YLower-level gems can be synthesized into higher-level gems! Want to give it a try?#r#r#cfabf8fGem Synthesis Requirements#r#W    Only gems of #Gthe same type#W can be synthesized together; the higher the gem level, the more value it adds.#r#r#cfabf8fGem Synthesis#r#W    To synthesize a gem of #Glevel 2-7#W, you need #Gat least 3 and at most 5#W lower-level gems, and the more gems you place, the higher the success chance. You must also place a special material: the #YGem Synthesis Talisman#W, otherwise the success rate cannot reach #G100%#W.#r    If the synthesis fails, the #Ygems#W and #YGem Synthesis Talisman#W used are automatically deducted by the system! If you are confident in your luck, you may also place just 3 gems to synthesize.#r    To synthesize a #G8#W-level gem, you only need to place #G4#W #Ylevel 7 gems#W and #G1#W #YSuper Gem Synthesis Talisman#W.
+function_help_041	#YGems can be socketed into your equipment to boost its attributes!#r #r#WDifferent pieces of equipment can be #Gsocketed#W with different #Gtypes of gems#W.#rOffensive equipment #G(weapon, bracers, ring, amulet, necklace)#W can be socketed with #GHope Gem, Wisdom Gem, Xuanwei Gem, Huanming Gem (Lv. 1-9)#W.#rDefensive equipment #G(clothes, gloves, hat, shoulder guards, shoes, belt, necklace)#W can be socketed with #GLife Gem, Charm Gem, Fate Gem, Tianji Gem (Lv. 1-9)#W.#r#GHidden weapons, Martial Souls, Dragon Patterns, tokens and Hero Seals#W can be socketed with #Gall gems#r #r#cfabf8fSocketing Requirements:#r #r#WIf the equipment has no sockets, gems cannot be socketed.#rDifferent types of gems must be socketed into different equipment.#r#WIn the first three sockets of one piece of equipment, only one gem of each type can be socketed. Gems placed by max socketing may match the gems in the first three sockets, but a Ruby or Bloodstone cannot be repeated in the fourth socket.#r#WWithout the special item #gfff0f0Gem Socketing Talisman#g000000#W, gems cannot be socketed; the #gfff0f0Gem Socketing Talisman#g000000#W greatly raises the socketing success rate. Without the special item #gfff0f0Probability Pearl#g000000#W, a failed socketing will lower the gem's level or make it disappear.#rWhen using a #gfff0f0Gem Socketing Talisman#g000000#W, you do not need a #gfff0f0Probability Pearl#g000000#W.
+function_help_042	#YIf you're not happy with a gem you've inlaid in your gear, you can remove it, but the gem will become bound!#r #r#cfabf8fGem Removal Requirements:#r #r#WWithout the special item #gfff0f0“Advanced Gem Removal Talisman”#g000000#W, gems cannot be removed.#rYou must place gear with gems in it before you can remove them.#rAfter a gem is removed, its socket will become empty.#rAfter removing a gem with an #gfff0f0“Advanced Gem Removal Talisman”#g000000#W, the gem will be #gfff0f0force-bound#g000000#W to the player.
+function_help_043	#YThe longer gear is used, the more its durability drops, so remember to repair it!#r #r#cfabf8fGear repair conditions:#r #r#WThe longer gear is used, the more its durability drops. If a piece of gear's durability falls to 0, it stops working even while worn, so it needs repairing. Of course, the higher the grade of the gear, the harder it is to repair. When a piece of gear's repair#gfff0f0 failures reach 3#g000000#W, that gear#gfff0f0 can no longer be repaired#g000000#W, so be careful when repairing high-grade gear.
+function_help_044	#YWeapons and equipment have a spirit of their own. Want your gear to be passed down through the ages in your name? Come and inscribe your equipment!#r #r#cfabf8fEquipment Inscription Requirements:#r#g000000#WInscribing equipment requires a special material—the #gfff0f0Inscription Talisman#g000000#W.#rEquipment that has already been inscribed cannot be inscribed again.#rThe inscription success rate is 100%.#rInscribed equipment no longer drops when you die.#rAfter inscription, the equipment's base attribute values increase by 10%.#r#GTip: Inscription Talismans can be bought in the Ingot Shop under Exotic Goods!
+function_help_046	#YWeapons and equipment have a spirit of their own. The higher a piece of equipment's aptitude, the more its stats are raised!#r #r#cfabf8fEquipment Aptitude Appraisal Requirements:#r #r#WIf the equipment you want to appraise has no aptitude, there is no need to appraise it.#rIf your equipment has already been appraised, it does not need to be appraised again.#rEquipment aptitude is rated in several grades: Normal, Medium, Excellent and Perfect.#r #r#gfff0f0Aptitude can raise the equipment's base attributes#g000000#W.
+function_help_055	Want your equipment to get stronger? Ask whatever you don't understand, and I'll answer whatever I know.
+function_help_056	Oh, I see you still have questions about Treasure Beasts. Let me tell you!
+function_help_057	#YBreed second-generation Treasure Beasts, with different colors and powerful abilities!#r#cfabf8fBreeding Requirements:#r#WWhen a Treasure Beast baby reaches level #G30#W, #G50#W, #G70#W, #G90#W or #G110#W, it gains one breeding attempt at each.#rA: Both Treasure Beasts are of the same type.#rB: Both Treasure Beasts are Treasure Beast babies.#rC: The two Treasure Beasts are of different genders.#rD: Neither Treasure Beast has a spouse, or the two are each other's spouses.#rE: Neither Treasure Beast is mutated, second-generation or adult.#rF: Both Treasure Beasts have Happiness of 100 and Lifespan of at least 1000.#rG: The Treasure Beast is not summoned for battle.#rH: The team leader is carrying at least 2 taels of gold.#r #r#cfabf8fBreeding Process:#r#WBreeding takes 2 hours for every Treasure Beast. When breeding succeeds, the system mails both owners to come and claim them. If no one comes to claim them within 48 hours of success, the pair of Treasure Beasts and the two second-generation Treasure Beasts will return to nature.#r #r#cfabf8fClaiming Treasure Beasts:#r#WOnce both sides receive the breeding-success mail, you may team up and come to me to claim them. Requirements:#r1. The owners of both Treasure Beasts must come together as a team.#r2. Each of the two owners needs two free Treasure Beast slots. (#GNote: if an owner is carrying a locked Treasure Beast, they must keep at least two slots free when claiming the bred Treasure Beasts to claim them normally, or the Treasure Beasts will be lost! Owners, a reminder once more: a locked Treasure Beast takes three days to unlock, so make sure you have plenty of Treasure Beast slots, and don't delay claiming your bred Treasure Beasts!!#W)#r #rSecond-generation Treasure Beasts are powerful; their aptitude and growth are in a different league from ordinary Treasure Beasts. Hurry and find a good friend for your Treasure Beast baby!
+function_help_058	#YI take it you already know how to teach a baby Treasure Beast a new skill. Now let your baby learn even more powerful skills!#rHow to make a Treasure Beast learn seven skills:#r#WA baby Treasure Beast can learn seven different skills: two #Gmanual skills#W and five #Gauto skills#W. When a Treasure Beast learns a new skill, it does not necessarily gain it outright; quite often the new skill replaces one it already has.#rA reminder: manual skills fall into two categories, #GPojun type#W and #GMizar type#W, and only manual skills of different categories won't replace each other. The first time a Treasure Beast learns a second manual skill, its master must pay #G99 gold#W.#rPojun-type skills include:#r#GFrozen World, Prairie Fire, Blood Venom Spread, Five Thunders, Roar, Frost Kill, Calamity Fire Kill, Corrosive Venom Kill, Mystic Thunder Kill, Holy Burst (Advanced Holy Burst), Blood Burst (Advanced Blood Burst), Ice Burst (Advanced Ice Burst), Possession (Advanced Possession).#r#WMizar-type skills include:#r#GPurify (Advanced Purify), Rebirth (Advanced Rebirth), Symbiosis (Advanced Symbiosis), Heal (Advanced Heal), Flesh Wall (Advanced Flesh Wall), Divine Blessing (Advanced Divine Blessing), Bloodlust (Advanced Bloodlust), Blood Sacrifice (Advanced Blood Sacrifice), Disguise (Advanced Disguise), Unseal Points, Awake, Clear Sight, Nimble, Steady Origin, Carefree.#r #r#YTreasure Beast Skill Insight:#r#WEvery Treasure Beast knows a few skills in its subconscious. When it levels up in battle, it has a certain chance to awaken them.
+function_help_103	Socketing gear, gem combining, gem inlaying and gem removal are handled by me, #GLuoyang (280, 322)#R Peng Huaiyu#W and #GLoulan City (279, 198)#R Kelimu#W. If you have any questions, feel free to ask us.
+function_help_104	Punching sockets in equipment, gem synthesis, gem socketing and gem removal are handled by me, along with #GLuoyang (280, 322) #RPeng Huaiyu#W and #GShuhe Old Town (135, 85) #RJing Qianshi#W. If you have any questions, feel free to ask us.
+help_JQXH_030	Benefits of Raising Relationship Value

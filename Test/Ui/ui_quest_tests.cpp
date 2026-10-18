@@ -1,7 +1,22 @@
-// Bảng nhiệm vụ (ui/panel/quest_log): bản port để lại đúng trạng thái cửa sổ mà QuestLog.lua của
-// client 2026 để lại khi chạy trên LuaPlus.dll gốc (tests/golden/panel/quest_log_newcomer.tsv, sinh
-// bằng TOOLS/port/lua_oracle.py với kịch bản TOOLS/port/oracle/quest_log_newcomer.lua), cùng các ca
-// biên mà kịch bản không đi tới: loại 153, màu theo hiệu cấp, dịch tên, cảnh không tên.
+/*==============================================================================
+ *  THIENLONG  |  TEST
+ *------------------------------------------------------------------------------
+ *  TỆP       : Test/Ui/ui_quest_tests.cpp
+ *  PHÂN HỆ   : Ui / Ui Quest Tests
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng nhiệm vụ (ui/panel/quest_log): bản port để lại đúng trạng thái cửa sổ
+ *    mà QuestLog.lua của client 2026 để lại khi chạy trên LuaPlus.dll gốc
+ *    (tests/golden/panel/quest_log_newcomer.tsv, sinh bằng
+ *    TOOLS/port/lua_oracle.py với kịch bản
+ *    TOOLS/port/oracle/quest_log_newcomer.lua), cùng các ca biên mà kịch bản
+ *    không đi tới: loại 153, màu theo hiệu cấp, dịch tên, cảnh không tên.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/panel/quest_log.hpp"
 
 #include "core/check.hpp"
@@ -24,6 +39,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 namespace game::test {
@@ -125,6 +141,26 @@ void step_empty_buttons(QuestLog& panel, const QuestFacts& facts, std::vector<Ca
 constexpr std::array<Step, 9> kScript = {step_toggle, step_offers_tab, step_pick_mission, step_pick_kind,
     step_pick_kind, step_refuse, step_toggle, step_modes, step_empty_buttons};
 
+// Số vàng là đầu ra của script gốc, viết thẳng chữ Trung; panel nay viết khoá i18n, nên đổi bốn khoá
+// về chữ zh của chúng trước khi so (chữ zh của khoá phải giống từng byte chữ của script).
+constexpr std::array<std::pair<std::string_view, std::string_view>, 4> kZhOfKey = {{
+    {"#{QUESTLOG_CANNOT_TRACK}", "不可追踪"},
+    {"#{QUESTLOG_PLACE}", "任务所在地："},
+    {"#{QUESTLOG_GIVER}", "任务发布人："},
+    {"#{QUESTLOG_LEVEL}", "任务等级："},
+}};
+
+std::vector<std::string> zh_form(std::vector<std::string> lines) {
+    for (std::string& line : lines) {
+        for (const auto& [key, zh] : kZhOfKey) {
+            for (std::size_t at = line.find(key); at != std::string::npos; at = line.find(key, at + zh.size())) {
+                line.replace(at, key.size(), zh);
+            }
+        }
+    }
+    return lines;
+}
+
 void port_matches_original_script(Context& context) {
     if (kPanelGolden.empty()) return;
     const std::vector<GoldenBlock> blocks = read_golden(kGoldenFile);
@@ -136,7 +172,8 @@ void port_matches_original_script(Context& context) {
     std::vector<Call> calls;
     for (std::size_t index = 0; index < kScript.size(); ++index) {
         kScript.at(index)(panel, facts, calls);
-        expect_block(context, blocks.at(index), lines_of(panel, calls));
+        const std::vector<std::string> shown = lines_of(panel, calls);
+        expect_block(context, blocks.at(index), zh_form(shown));
     }
 }
 
@@ -249,9 +286,9 @@ void names_are_translated(Context& context) {
     context.expect(has_line(lines, "QuestLog_Listbox\tItem1\t170000\t\t#gFE7E82- Vô Lượng Sơn"), "tên loại đã dịch");
     context.expect(has_line(lines, "QuestLog_Listbox\tItem2\t170001\tFFD9F80A\t    1 Duyên Khởi"), "tên nhiệm vụ đã dịch");
     context.expect(has_line(lines, "QuestLog_Desc\tElement1\ttext\t#YDuyên Khởi#W"), "tên trong ô mô tả");
-    const std::string_view place = "QuestLog_Desc\tElement2\ttext\t任务所在地：Núi Vô Lượng  #{_INFOAIM187,205,6,Sơn Dân}";
+    const std::string_view place = "QuestLog_Desc\tElement2\ttext\t#{QUESTLOG_PLACE}Núi Vô Lượng  #{_INFOAIM187,205,6,Sơn Dân}";
     context.expect(has_line(lines, place), "tên cảnh lấy ở bảng tên cảnh, NPC đã dịch trong liên kết");
-    context.expect(has_line(lines, "QuestLog_Desc\tElement3\ttext\t任务发布人：Sơn Dân"), "người giao đã dịch");
+    context.expect(has_line(lines, "QuestLog_Desc\tElement3\ttext\t#{QUESTLOG_GIVER}Sơn Dân"), "người giao đã dịch");
 }
 
 void scene_without_name_drops_place_line(Context& context) {
@@ -264,7 +301,7 @@ void scene_without_name_drops_place_line(Context& context) {
     ui::panel::pick_quest_item(panel, 170001, world.facts());
     const std::vector<std::string> lines = lines_of(panel, calls);
     context.expect(has_line(lines, "QuestLog_Desc\tElements\t3"), "cảnh không tên thì chỉ còn ba dòng");
-    context.expect(has_line(lines, "QuestLog_Desc\tElement2\ttext\t任务发布人：Sơn Dân Bị Thương"), "dòng hai là người giao");
+    context.expect(has_line(lines, "QuestLog_Desc\tElement2\ttext\t#{QUESTLOG_GIVER}Sơn Dân Bị Thương"), "dòng hai là người giao");
 }
 
 void stray_picks_only_clear_description(Context& context) {

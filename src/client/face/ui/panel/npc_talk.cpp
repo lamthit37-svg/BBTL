@@ -43,17 +43,24 @@ namespace {
 
 namespace tk = talk;
 
-// Chữ cứng của bảng là chữ Trung gốc (chủ dự án chốt 2026-10-13).
+// Chữ của bảng đi qua khoá i18n (luật chữ 2026-10-18); chữ Trung là giá trị zh của khoá.
+// "继续" và "取消" là INTERFACE_XML_352 và INTERFACE_XML_542 của từ điển gốc.
 constexpr std::string_view kTitleTint = "#gFF0FA0";
-constexpr std::string_view kContinueText = "继续";
-constexpr std::string_view kCompleteText = "完成";
-constexpr std::string_view kGoodbyeText = "再见";
-constexpr std::string_view kCancelText = "取消";
-constexpr std::string_view kCloseText = "关闭";
-constexpr std::string_view kFixedHeader = "#Y固定奖励:#W";
-constexpr std::string_view kRadioHeader = "#Y完成任务后可选一个作为奖品:#W";
-constexpr std::string_view kDemandHeader = "#Y所需物品:#W";
-constexpr std::string_view kPickReward = "请选择奖励物品！";
+constexpr std::string_view kContinueText = "#{INTERFACE_XML_352}";
+constexpr std::string_view kCompleteText = "#{NPCTALK_COMPLETE}";
+constexpr std::string_view kGoodbyeText = "#{NPCTALK_GOODBYE}";
+constexpr std::string_view kCancelText = "#{INTERFACE_XML_542}";
+constexpr std::string_view kCloseText = "#{NPCTALK_CLOSE}";
+constexpr std::string_view kFixedHeader = "#{NPCTALK_FIXED_REWARD}";
+constexpr std::string_view kRadioHeader = "#{NPCTALK_RADIO_REWARD}";
+constexpr std::string_view kDemandHeader = "#{NPCTALK_NEED_ITEMS}";
+constexpr std::string_view kPickReward = "#{NPCTALK_PICK_REWARD}";
+// Nhãn ghép với số hay tên ở note_notice và item_line.
+constexpr std::string_view kItemLabel = "#{INTERFACE_XML_724}";
+constexpr std::string_view kGotExp = "#{NPCTALK_GOT_EXP}";
+constexpr std::string_view kGotJiaozi = "#{NPCTALK_GOT_JIAOZI}";
+constexpr std::string_view kGotMoney = "#{NPCTALK_GOT_MONEY}";
+constexpr std::string_view kGotItem = "#{NPCTALK_GOT_ITEM}";
 constexpr std::string_view kChosen = "●";
 constexpr std::string_view kUnchosen = "○";
 
@@ -116,15 +123,15 @@ void send_turn_in(NpcTalk& talk, std::chrono::milliseconds clock) {
 
 [[nodiscard]] std::string_view refusal_text(tk::Refusal why) noexcept {
     switch (why) {
-    case tk::Refusal::kTooFar: return "距离太远，无法对话。";
-    case tk::Refusal::kQuestLogFull: return "任务栏已满，无法接受更多任务。";
-    case tk::Refusal::kQuestUnavailable: return "无法接受该任务。";
-    case tk::Refusal::kQuestState: return "任务状态不符，无法完成该操作。";
-    case tk::Refusal::kBagFull: return "背包已满，请先整理背包。";
-    case tk::Refusal::kNotEnoughMoney: return "金钱不足。";
-    case tk::Refusal::kNotEnoughItems: return "所需物品不足。";
-    case tk::Refusal::kCannotAbandon: return "该任务无法放弃。";
-    case tk::Refusal::kRateLimited: return "操作过于频繁，请稍后再试。";
+    case tk::Refusal::kTooFar: return "#{NPCTALK_TOO_FAR}";
+    case tk::Refusal::kQuestLogFull: return "#{NPCTALK_LOG_FULL}";
+    case tk::Refusal::kQuestUnavailable: return "#{NPCTALK_QUEST_UNAVAILABLE}";
+    case tk::Refusal::kQuestState: return "#{NPCTALK_QUEST_STATE}";
+    case tk::Refusal::kBagFull: return "#{NPCTALK_BAG_FULL}";
+    case tk::Refusal::kNotEnoughMoney: return "#{NPCTALK_NO_MONEY}";
+    case tk::Refusal::kNotEnoughItems: return "#{NPCTALK_NO_ITEMS}";
+    case tk::Refusal::kCannotAbandon: return "#{NPCTALK_CANNOT_ABANDON}";
+    case tk::Refusal::kRateLimited: return "#{NPCTALK_RATE_LIMITED}";
     case tk::Refusal::kNoSession:
     case tk::Refusal::kStaleSession:
     case tk::Refusal::kBadOption:
@@ -138,9 +145,9 @@ void send_turn_in(NpcTalk& talk, std::chrono::milliseconds clock) {
 // Chữ nhắc khi máy chủ đóng hộp vì một lý do người chơi cần biết; rỗng với lý do bình thường.
 [[nodiscard]] std::string_view closed_text(tk::Reason reason) noexcept {
     switch (reason) {
-    case tk::Reason::kFar: return "距离太远，对话已结束。";
-    case tk::Reason::kNpcGone: return "对方已经离开。";
-    case tk::Reason::kExpired: return "对话已超时。";
+    case tk::Reason::kFar: return "#{NPCTALK_CLOSED_FAR}";
+    case tk::Reason::kNpcGone: return "#{NPCTALK_NPC_GONE}";
+    case tk::Reason::kExpired: return "#{NPCTALK_EXPIRED}";
     case tk::Reason::kDone:
     case tk::Reason::kSceneChanged:
     case tk::Reason::kReplaced:
@@ -179,8 +186,24 @@ void add_option(std::string& blob, std::string_view text, OptionMark mark) {
 
 [[nodiscard]] std::string item_line(const ItemNames& items, const tk::Bonus& bonus) {
     const std::string_view known = items.name(bonus.a);
-    if (known.empty()) return std::format("物品{} x{}", bonus.a, bonus.b);
+    if (known.empty()) return std::format("{} {} x{}", kItemLabel, bonus.a, bonus.b);
     return std::format("{} x{}", known, bonus.b);
+}
+
+// Dòng thưởng tự dựng khi máy chủ không gửi chữ: nhãn rồi số, hay nhãn rồi tên vật phẩm.
+[[nodiscard]] std::string exp_line(const tk::Notice& notice) {
+    return std::format("{} {}", kGotExp, notice.value);
+}
+
+[[nodiscard]] std::string money_line(const tk::Notice& notice) {
+    const std::string_view label = notice.ref == 1 ? kGotJiaozi : kGotMoney;
+    return std::format("{} {}", label, notice.value);
+}
+
+[[nodiscard]] std::string reward_item_line(const tk::Notice& notice, const ItemNames& items) {
+    const std::string_view known = items.name(notice.ref);
+    if (known.empty()) return std::format("{} {} x{}", kGotItem, notice.ref, notice.value);
+    return std::format("{} {} x{}", kGotItem, known, notice.value);
 }
 
 // Một nhóm phần thưởng hay yêu cầu: tiêu đề hiện một lần khi gặp phần tử đầu của nhóm (như cờ nRadio_Necessary và nRadio
@@ -422,16 +445,11 @@ void note_notice(NpcTalk& talk, const tk::Notice& notice, const ItemNames& items
         return;
     }
     switch (notice.kind) {
-    case tk::NoticeKind::kRewardExp: talk.notices.push_back(std::format("获得经验 {}", notice.value)); break;
-    case tk::NoticeKind::kRewardMoney:
-        talk.notices.push_back(std::format("{} {}", notice.ref == 1 ? "获得交子" : "获得金钱", notice.value));
+    case tk::NoticeKind::kRewardExp: talk.notices.push_back(exp_line(notice)); break;
+    case tk::NoticeKind::kRewardMoney: talk.notices.push_back(money_line(notice)); break;
+    case tk::NoticeKind::kRewardItem:
+        talk.notices.push_back(reward_item_line(notice, items));
         break;
-    case tk::NoticeKind::kRewardItem: {
-        const std::string_view known = items.name(notice.ref);
-        talk.notices.push_back(known.empty() ? std::format("获得物品{} x{}", notice.ref, notice.value)
-                                             : std::format("获得物品 {} x{}", known, notice.value));
-        break;
-    }
     case tk::NoticeKind::kAdded:
     case tk::NoticeKind::kUpdated:
     case tk::NoticeKind::kReady:
@@ -480,6 +498,8 @@ void press_talk(NpcTalk& talk, std::string_view window, std::chrono::millisecond
     if (window == kTalkAccept) send_accept(talk, clock);
     if (window == kTalkContinue) send_turn_in(talk, clock);
 }
+
+namespace {
 
 constexpr char kUnitSep = '\x1f';
 constexpr char kRecordSep = '\x1e';
@@ -615,6 +635,8 @@ bool send_mark(NpcTalk& talk, std::uint32_t index, std::chrono::milliseconds clo
     if (is_turn) send_turn_mark(talk, quest, clock);
     return true;
 }
+
+} // namespace
 
 void pick_talk_option(NpcTalk& talk, std::uint32_t index, std::chrono::milliseconds clock) {
     if (!talk.is_open || talk.is_waiting) return;

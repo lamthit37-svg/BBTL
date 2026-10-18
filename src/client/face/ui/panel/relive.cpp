@@ -19,8 +19,6 @@
 #include "gui/sheet.hpp"
 
 #include <array>
-#include <format>
-#include <iterator>
 #include <string>
 #include <string_view>
 
@@ -29,8 +27,14 @@ namespace {
 
 constexpr std::string_view kTownButton = "Relive_Relive_Button";
 constexpr std::string_view kHereButton = "Relive_Fool_Button";
-constexpr std::string_view kTitle = "#gFF0FA0复活";
-constexpr std::string_view kDead = "您已经死亡";
+// Chữ qua khoá i18n; "复活" của tiêu đề là INTERFACE_XML_274 của từ điển gốc.
+constexpr std::string_view kTitle = "#gFF0FA0#{INTERFACE_XML_274}";
+constexpr std::string_view kDead = "#{RELIVE_DEAD}";
+constexpr std::string_view kHint = "\n#{RELIVE_HINT}";
+constexpr std::string_view kLossExp = "\n#{RELIVE_LOSS_EXP} ";
+constexpr std::string_view kLossMoney = "    #{RELIVE_LOSS_MONEY} ";
+constexpr std::string_view kTownLabel = "#{RELIVE_TOWN}";
+constexpr std::string_view kHereLabel = "#{RELIVE_HERE}";
 
 constexpr std::array<std::string_view, 16> kHidden = {
     "Relive_Release_Button", "Relive_AddFoe_Button", "Relive_Rebirth_Button", "Relive_FHQ",
@@ -39,15 +43,20 @@ constexpr std::array<std::string_view, 16> kHidden = {
     "Relive_Time_Text4_1",   "Relive_Time_Text5",    "Relive_Time_Text6",     "Relive_Time_Text7",
 };
 
+void append_loss(std::string& body, const DeathLoss& loss) {
+    const std::string exp = std::to_string(loss.exp);
+    const std::string money = std::to_string(loss.money);
+    body.append(kLossExp);
+    body.append(exp);
+    body.append(kLossMoney);
+    body.append(money);
+}
+
 void write_loss(Deck& deck, const std::optional<DeathLoss>& loss) {
     std::string& body = deck.compose(Key{.window = "Relive_Text1", .name = "Text"});
     body.assign(kDead);
-    if (!loss) {
-        body.append("\n按 1 回城复活，按 2 原地复活");
-        return;
-    }
-    std::format_to(std::back_inserter(body), "\n损失经验 {}    损失金钱 {}\n按 1 回城复活，按 2 原地复活", loss->exp,
-        loss->money);
+    if (loss) append_loss(body, *loss);
+    body.append(kHint);
 }
 
 } // namespace
@@ -59,8 +68,8 @@ void fill_relive(Deck& deck, bool is_dead, const std::optional<DeathLoss>& loss)
     deck.compose(Key{.window = "Relive_Text", .name = "Text"}).assign(kTitle);
     deck.hide("Relive_Text2_Bk");
     write_loss(deck, loss);
-    deck.compose(Key{.window = kTownButton, .name = "Text"}).assign("回城复活");
-    deck.compose(Key{.window = kHereButton, .name = "Text"}).assign("原地复活");
+    deck.compose(Key{.window = kTownButton, .name = "Text"}).assign(kTownLabel);
+    deck.compose(Key{.window = kHereButton, .name = "Text"}).assign(kHereLabel);
 }
 
 std::optional<talk::Place> relive_place(std::string_view window) noexcept {

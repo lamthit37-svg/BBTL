@@ -1,9 +1,25 @@
-// Cầu nối giữa chuỗi đăng nhập (đồng bộ, thuần, chạy ở luồng vẽ) và phần nối máy chủ (bất đồng bộ, luồng riêng):
-// chuỗi đẩy OnlineAsk vào hàng chờ, phần nối lấy ra làm, rồi đưa OnlineReply về cho chuỗi. Kiểu ở đây không biết
-// socket hay giao thức; chỉ có tên máy chủ, tài khoản, nhân vật và lý do thất bại cho người chơi.
-// Máy chủ "trực tuyến" là máy chủ trong danh sách mà bảng cổng (client/session/gates.hpp) có dòng; máy chủ khác
-// là máy chủ cục bộ, chuỗi giữ chế độ offline với sổ nhân vật ở tệp.
-// Bản mới của dự án: client gốc nối máy chủ trong C++ của Game.exe, chuỗi Lua chỉ nhận kết quả qua sự kiện.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/panel/online.hpp
+ *  PHÂN HỆ   : Ui / Panel / Online
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cầu nối giữa chuỗi đăng nhập (đồng bộ, thuần, chạy ở luồng vẽ) và phần nối
+ *    máy chủ (bất đồng bộ, luồng riêng): chuỗi đẩy OnlineAsk vào hàng chờ, phần
+ *    nối lấy ra làm, rồi đưa OnlineReply về cho chuỗi. Kiểu ở đây không biết
+ *    socket hay giao thức; chỉ có tên máy chủ, tài khoản, nhân vật và lý do
+ *    thất bại cho người chơi.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
+// Máy chủ "trực tuyến" là máy chủ trong danh sách mà bảng cổng (client/session/gates.hpp) có dòng;
+// máy chủ khác là máy chủ cục bộ, chuỗi giữ chế độ offline với sổ nhân vật ở tệp. Bản mới của dự
+// án: client gốc nối máy chủ trong C++ của Game.exe, chuỗi Lua chỉ nhận kết quả qua sự kiện.
+
 #pragma once
 
 #include "ui/panel/player_frame.hpp"
@@ -65,10 +81,10 @@ enum class OnlineFault : std::uint8_t {
     kOther,
 };
 
-// Câu hiện cho người chơi, chữ Trung như mọi chữ cứng của client (chủ dự án chốt 2026-10-13).
+// Câu hiện cho người chơi: thẻ #{KHOÁ} của assets/i18n, chữ Trung là giá trị zh.
 [[nodiscard]] std::string_view online_text(OnlineFault fault) noexcept;
 // Câu "đang nối" hiện trong lúc chờ trả lời.
-inline constexpr std::string_view kOnlineWaiting = "正在连接服务器…";
+inline constexpr std::string_view kOnlineWaiting = "#{ONLINE_WAITING}";
 
 // Chân dung thay khi máy chủ báo chân dung 0 (chưa lưu): chân dung đầu của giới (id trong
 // Table/portraits.tsv).

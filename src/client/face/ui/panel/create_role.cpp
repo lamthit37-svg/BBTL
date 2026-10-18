@@ -1,4 +1,18 @@
-// Bảng tạo nhân vật (xem create_role.hpp). Tên hàm gốc của CreateRole.lua ghi ở từng hàm.
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/panel/create_role.cpp
+ *  PHÂN HỆ   : Ui / Panel / Create Role
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Bảng tạo nhân vật (xem create_role.hpp). Tên hàm gốc của CreateRole.lua
+ *    ghi ở từng hàm.
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/panel/create_role.hpp"
 
 #include "gui/content.hpp"
@@ -83,8 +97,8 @@ constexpr std::string_view kZoomIn = "CreateRole_ModelZoomIn";
 constexpr std::string_view kWoman = "CreateRole_Woman";
 constexpr std::string_view kMan = "CreateRole_Man";
 // "女" và "男" là chữ gốc; bảng dịch có dòng =女 và =男. Lời chọn ảnh là khoá từ điển.
-constexpr std::string_view kFemaleText = "女";
-constexpr std::string_view kMaleText = "男";
+constexpr std::string_view kFemaleText = "女"; // i18n-giữ: hiện qua dòng =女 của bảng dịch
+constexpr std::string_view kMaleText = "男"; // i18n-giữ: hiện qua dòng =男 của bảng dịch
 constexpr std::string_view kPickPortrait = "#{DLJM_XML_20}";
 constexpr std::string_view kNoPortrait = "#{DLXZ_090711_1}";
 constexpr std::string_view kRandomTip = "#{JSCJYH_121224_02}";

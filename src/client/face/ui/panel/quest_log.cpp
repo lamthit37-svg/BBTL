@@ -1,3 +1,20 @@
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/panel/quest_log.cpp
+ *  PHÂN HỆ   : Ui / Panel / Quest Log
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Cài đặt bảng nhiệm vụ (QuestLog): mỗi hàm là bản dịch một hàm của
+ *    QuestLog.lua gốc, xem quest_log.hpp.
+ *  - Nhãn hiện ra là thẻ #{...} của bảng chuỗi; test so với script gốc quy thẻ
+ *    về bản zh (ui_quest_tests.cpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/panel/quest_log.hpp"
 
 #include "gui/strings.hpp"
@@ -38,16 +55,17 @@ constexpr std::string_view kCalendar = "QuestLog_huodongricheng";
 constexpr std::string_view kHelp = "QuestLog_Help";
 
 // Chữ của nút theo dõi: ở thẻ nhận được nó là nút đóng (khoá từ điển "Đóng"); ở thẻ hiện tại, khi
-// không có nhiệm vụ theo dõi được thì là "不可追踪" của script.
+// không có nhiệm vụ theo dõi được thì là "不可追踪" của script (khoá QUESTLOG_CANNOT_TRACK).
 constexpr std::string_view kCloseLabel = "#{INTERFACE_XML_301}";
-constexpr std::string_view kCannotTrack = "不可追踪";
+constexpr std::string_view kCannotTrack = "#{QUESTLOG_CANNOT_TRACK}";
 // Dấu gập mở và màu của dòng tên loại.
 constexpr std::string_view kOpenKind = "#gFE7E82- ";
 constexpr std::string_view kShutKind = "#gFE7E82+ ";
-// Ba dòng mô tả của một nhiệm vụ nhận được ("任务所在地：", "任务发布人：", "任务等级：").
-constexpr std::string_view kPlaceLabel = "任务所在地：";
-constexpr std::string_view kGiverLabel = "任务发布人：";
-constexpr std::string_view kLevelLabel = "任务等级：";
+// Ba dòng mô tả của một nhiệm vụ nhận được: "任务所在地：", "任务发布人：", "任务等级：" của
+// script.
+constexpr std::string_view kPlaceLabel = "#{QUESTLOG_PLACE}";
+constexpr std::string_view kGiverLabel = "#{QUESTLOG_GIVER}";
+constexpr std::string_view kLevelLabel = "#{QUESTLOG_LEVEL}";
 // Loại 153 chỉ hiện với người chơi của đợt dẫn "hiệp khách hành".
 constexpr std::int32_t kWandererKind = 153;
 // id của mục danh sách thẻ nhận được: loại x 10000 là dòng tên loại, cộng số thứ tự là nhiệm vụ.

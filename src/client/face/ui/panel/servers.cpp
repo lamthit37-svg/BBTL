@@ -1,4 +1,17 @@
-// Danh sách máy chủ đăng nhập (xem servers.hpp).
+/*==============================================================================
+ *  THIENLONG  |  GAME CLIENT
+ *------------------------------------------------------------------------------
+ *  TỆP       : src/client/face/ui/panel/servers.cpp
+ *  PHÂN HỆ   : Ui / Panel / Servers
+ *  CHUẨN     : C++23
+ *------------------------------------------------------------------------------
+ *  CHỨC NĂNG
+ *  - Danh sách máy chủ đăng nhập (xem servers.hpp).
+ *------------------------------------------------------------------------------
+ *  TÁC GIẢ   : HiepHoon
+ *  TELEGRAM  : @Hoon9xx
+ *============================================================================*/
+
 #include "ui/panel/servers.hpp"
 
 #include "core/number.hpp"
@@ -27,21 +40,21 @@ struct PrefixRow {
 
 // Các tiền tố mà script nhận ra khi gom vùng vào đại khu (SelectServer_Data_GetAreaInfoAndRecommendServerInfo).
 constexpr std::array<PrefixRow, 10> kPrefixes = {{
-    {.prefix = "电信", .area = BigArea::kTelecom},
-    {.prefix = "网通", .area = BigArea::kUnicom},
-    {.prefix = "争霸赛", .area = BigArea::kContest},
-    {.prefix = "双线", .area = BigArea::kDual},
-    {.prefix = "轻享", .area = BigArea::kLight},
-    {.prefix = "特色服", .area = BigArea::kSpecial},
-    {.prefix = "至尊帮派邀请赛", .area = BigArea::kBraveGathering},
-    {.prefix = "天下会武", .area = BigArea::kWorldMartial},
-    {.prefix = "巅峰赛", .area = BigArea::kPeak},
-    {.prefix = "WG独立大区", .area = BigArea::kWeGameOnly},
+    {.prefix = "电信", .area = BigArea::kTelecom}, // i18n-giữ: so với dữ liệu
+    {.prefix = "网通", .area = BigArea::kUnicom}, // i18n-giữ: so với dữ liệu
+    {.prefix = "争霸赛", .area = BigArea::kContest}, // i18n-giữ: so với dữ liệu
+    {.prefix = "双线", .area = BigArea::kDual}, // i18n-giữ: so với dữ liệu
+    {.prefix = "轻享", .area = BigArea::kLight}, // i18n-giữ: so với dữ liệu
+    {.prefix = "特色服", .area = BigArea::kSpecial}, // i18n-giữ: so với dữ liệu
+    {.prefix = "至尊帮派邀请赛", .area = BigArea::kBraveGathering}, // i18n-giữ: so với dữ liệu
+    {.prefix = "天下会武", .area = BigArea::kWorldMartial}, // i18n-giữ: so với dữ liệu
+    {.prefix = "巅峰赛", .area = BigArea::kPeak}, // i18n-giữ: so với dữ liệu
+    {.prefix = "WG独立大区", .area = BigArea::kWeGameOnly}, // i18n-giữ: so với dữ liệu
 }};
 
 // Tiền tố mà mục đề cử cắt khỏi tên vùng (SelectServer_Data_ShowRecommendServer, dòng 997).
 constexpr std::array<std::string_view, 7> kRecommendCut = {
-    "双线", "网通", "电信", "争霸赛", "特色服", "轻享", "WG独立大区"};
+    "双线", "网通", "电信", "争霸赛", "特色服", "轻享", "WG独立大区"}; // i18n-giữ: so với dữ liệu
 
 [[nodiscard]] std::string_view prefix_of(std::string_view area_name) noexcept {
     const std::size_t dash = area_name.find(kDash);

@@ -167,8 +167,8 @@ constexpr std::array<BigInfo, kBigAreaSlots> kBigInfo = {{
 }};
 
 // Khi vùng đầu của đại khu tranh bá tên "tổng quyết đấu" thì nhãn và chú thích đổi (g_ZBS_STRING).
-constexpr std::string_view kContestFinalName = "全球争霸赛总决赛";
-constexpr std::string_view kContestFinalAlias = "全服争霸赛总决赛";
+constexpr std::string_view kContestFinalName = "全球争霸赛总决赛"; // i18n-giữ: so với dữ liệu
+constexpr std::string_view kContestFinalAlias = "全服争霸赛总决赛"; // i18n-giữ: so với dữ liệu
 constexpr std::string_view kContestFinalLabel = "#{DLYHQF_12121302}";
 constexpr std::string_view kContestFinalTip = "#{DLYHQF_12121308}";
 
