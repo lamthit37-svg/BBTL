@@ -22,6 +22,10 @@
 
 struct lua_State;
 
+namespace game::gui {
+class TextMeter;
+}
+
 namespace game::ui::script {
 
 // Lớp Falagard của cửa sổ (TargetType trong scheme), tên theo lớp UILuaControl tương ứng.
@@ -86,6 +90,9 @@ public:
     [[nodiscard]] virtual std::optional<PixelBox> window_box(std::string_view window) const;
     // Cỡ màn hình (cửa sổ gốc của CEGUI): x, y là 0. nullopt khi không biết, khi đó phép kẹp theo màn hình bị bỏ. Mặc định nullopt.
     [[nodiscard]] virtual std::optional<PixelBox> screen_box() const;
+    // Bộ đo chữ của HUD, cho cửa sổ tự co theo chữ (Falagard/SelfFitWindow); nullptr khi chưa có,
+    // khi đó cửa sổ giữ cỡ của layout. Mặc định nullptr.
+    [[nodiscard]] virtual const gui::TextMeter* text_meter() const noexcept;
 
 protected:
     Services(Services&&) = default;

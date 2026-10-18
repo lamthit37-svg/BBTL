@@ -17,6 +17,7 @@
 #include "ui/panel/call.hpp"
 #include "ui/panel/scene_table.hpp"
 #include "ui/script/combat_facts.hpp"
+#include "ui/script/login_port.hpp"
 #include "ui/script/pool_image.hpp"
 #include "ui/script/variable.hpp"
 #include "ui/script/xscript.hpp"
@@ -122,7 +123,11 @@ struct Context {
     std::optional<std::int32_t> menu_bar_page;
     // Bảng biến toàn cục (Variable:GetVariable / SetVariable).
     VariableSystem variables;
-    // Việc native nhờ game (PushEvent của hàm nào đó): chủ host lấy ra bằng take_calls cùng chỗ với Host::take_calls.
+    // Cổng với thủ tục đăng nhập (native_login.cpp): chủ host ghi danh sách nhân vật mỗi khung
+    // trong pha đăng nhập.
+    LoginPort login;
+    // Việc native nhờ game (PushEvent của hàm nào đó): chủ host lấy ra bằng take_calls cùng chỗ với
+    // Host::take_calls.
     std::vector<panel::Call> calls;
     std::size_t dropped_calls = 0;
 

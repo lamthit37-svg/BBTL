@@ -81,4 +81,10 @@ void register_character(lua_State* lua);
 // IsMissionTrackOpen, SetMissionTrackOpen, IsTrackFuncShow, SetTrackFuncShow.
 void register_mission(lua_State* lua);
 
+// Chuỗi đăng nhập (làn K, native_login.cpp, Context::login): GameProduceLogin:GetRoleCount,
+// GetRoleInfo, GetCurSelectRole, SetCurSelect, SendEnterGameMsg(_New), MoveToCharacter,
+// ModelRotBegin/End, ModelZoom, ShowMessageBox, DelSelRole, CancelDelRole...;
+// DataPool:GetCharSaletimeCyg, AskCreateChar; Player:ReportLoginTypeMsg.
+void register_login(lua_State* lua);
+
 } // namespace game::ui::script

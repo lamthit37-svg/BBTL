@@ -94,6 +94,9 @@ public:
 private:
     session::Session& line();
     void refuse(ui::panel::OnlineFault fault);
+    // Đổi một việc của chuỗi đăng nhập thành lệnh của phiên và nộp; dữ liệu hỏng hay phiên bận thì
+    // trả lỗi.
+    void serve_command(const ui::panel::OnlineAsk& ask);
 
     // Thư viện mạng của tiến trình (WSAStartup trên Windows). Khai đầu tiên: huỷ sau cùng, sau phiên và mọi socket của
     // nó. Thiếu nó thì mọi socket hỏng và đăng nhập báo "không nối được máy chủ" dù máy chủ đang chạy (đo 2026-10-16).

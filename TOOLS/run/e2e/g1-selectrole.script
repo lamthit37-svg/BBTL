@@ -1,0 +1,54 @@
+# G1-K (3): bảng chọn nhân vật chạy bằng SelectRole.lua gốc (cửa sổ LoginSelectRole) và hộp thông báo
+# SelectServerQuest.lua (cửa sổ LoginSelectServerQuest). Tài khoản mới, gõ tay qua `type` (không tự
+# đăng nhập): chọn máy chủ, đăng nhập, tạo nhân vật, chọn ô, xoá (hộp YesNo rồi thông báo
+# "không xoá ngay được" của gốc: cấp >= 1 xoá trong game, không gửi gói xoá), tạo nhân vật thứ hai, vào game.
+# Chạy (cụm máy chủ đang chạy):
+#   $env:THIENLONG_UI_SCRIPT='LoginSelectRole,LoginSelectServerQuest'
+#   py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g1-selectrole.script
+# Bản panel C++ để so: chạy cùng kịch bản không đặt biến (panel hỏi xoá trên dòng SelectRole_Info rồi
+# nhấn Xoá lần nữa và gửi gói xoá, nên các bước SelectServerQuest_Button1 không có tác dụng).
+#! account typed e2esr
+#! out build/e2e/G1/selectrole
+#! timeout 300
+#! expect-exit 0
+#! expect-shots sr-account sr-empty-roster sr-create sr-roles sr-ask sr-notice sr-second
+#! expect-net gửi:SignIn gửi:CreateCharacter gửi:EnterGame nhận:CharacterList
+
+wait 6s
+click SelectServer_Server_Last
+click SelectServer_Accept
+wait 2s
+click LogOn_ID
+type {account}\t{account}-thu
+shot sr-account
+click LogOn_LogOnGame
+wait 4s
+shot sr-empty-roster
+click SelectRole_TargetInfo_Button1
+click SelectRole_TargetInfo_Button1
+wait 2s
+shot sr-create
+type {account}
+click CreateRole_Author
+wait 4s
+shot sr-roles
+click SelectRole_TargetInfo_Button1
+click SelectRole_Delete
+wait 1s
+shot sr-ask
+click SelectServerQuest_Button1
+wait 1s
+shot sr-notice
+click SelectServerQuest_Button1
+wait 1s
+click SelectRole_TargetInfo_Button2
+click SelectRole_TargetInfo_Button2
+wait 2s
+type {account}b
+click CreateRole_Author
+wait 4s
+shot sr-second
+click SelectRole_Play
+wait play 120
+wait 2s
+quit

@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <numbers>
 #include <optional>
 #include <print>
@@ -101,15 +102,27 @@ namespace talk = ui::panel::talk;
     return reply;
 }
 
+// Chân dung trên dây là u16 và 0 là "máy chủ chưa lưu". Số ngoài khoảng là lỗi của bảng tạo, không
+// cắt cụt lặng lẽ thành một chân dung khác.
+[[nodiscard]] std::optional<std::uint16_t> wire_portrait(std::int32_t portrait) {
+    constexpr std::int32_t kMax = std::numeric_limits<std::uint16_t>::max();
+    if (portrait <= 0 || portrait > kMax) return std::nullopt;
+    return static_cast<std::uint16_t>(portrait);
+}
+
+// nullopt khi việc không thành lệnh của phiên (đăng nhập đi đường riêng) hoặc dữ liệu bảng tạo
+// hỏng.
 [[nodiscard]] std::optional<session::Command> command_of(const ui::panel::OnlineAsk& ask) {
     switch (ask.work) {
     case ui::panel::OnlineWork::kCreate: {
+        const std::optional<std::uint16_t> portrait = wire_portrait(ask.role.portrait);
+        if (!portrait) return std::nullopt;
         session::Create made;
         made.name = ask.role.name;
         made.gender = ask.role.sex == 1 ? protocol::Gender::kMale : protocol::Gender::kFemale;
         made.face = ask.role.face;
         made.hair = ask.role.hair;
-        made.portrait = static_cast<std::uint16_t>(ask.role.portrait);
+        made.portrait = *portrait;
         made.equip_set = ask.role.outfit;
         return made;
     }
@@ -598,6 +611,8 @@ ui::panel::Role role_of(const protocol::CharacterSummary& character) {
     return role;
 }
 
+namespace {
+
 // Lý do một việc bị từ chối. Xoá dồn nhịp có chữ riêng (mã 2 của gói trả lời xoá gốc, Game.exe
 // 0x1408319c0), khác chữ "bận" của các việc khác.
 OnlineFault refused_fault(const session::Rejected& rejected) noexcept {
@@ -606,6 +621,8 @@ OnlineFault refused_fault(const session::Rejected& rejected) noexcept {
     if (is_delete && is_paced) return OnlineFault::kDeleteTooSoon;
     return fault_of(rejected.code);
 }
+
+} // namespace
 
 std::optional<OnlineReply> reply_of(const session::Event& event) {
     struct Pick {
@@ -624,6 +641,8 @@ std::optional<OnlineReply> reply_of(const session::Event& event) {
     return std::visit(Pick{}, event);
 }
 
+namespace {
+
 using Entry = protocol::PosEntry;
 
 void push_place(Notes& notes, const Entry& place, std::size_t cap, std::size_t& added) {
@@ -633,12 +652,16 @@ void push_place(Notes& notes, const Entry& place, std::size_t cap, std::size_t& 
     ++added;
 }
 
+} // namespace
+
 std::size_t append_positions(Notes& notes, const PosBatch& batch, std::size_t cap) {
     std::size_t added = 0;
     for (const Entry& place : batch.places)
         push_place(notes, place, cap, added);
     return added;
 }
+
+namespace {
 
 void keep_one(Notes& notes, cast::Note note) {
     const bool is_move = std::holds_alternative<cast::Moved>(note);
@@ -660,6 +683,8 @@ void keep_world_note(const session::Event& event, Notes& notes) {
     if (!note) return;
     keep_one(notes, std::move(*note));
 }
+
+} // namespace
 
 std::optional<cast::Note> note_of(const session::Event& event) {
     const auto* world = std::get_if<session::World>(&event);
@@ -716,10 +741,15 @@ void Bridge::serve(std::span<ui::panel::OnlineAsk> asks) {
         }
         // Việc ngoài đăng nhập cần phiên đã dựng; trả phiên khi chưa có phiên thì không có gì để trả.
         if (!session_ && ask.work == ui::panel::OnlineWork::kDrop) continue;
-        if (std::optional<session::Command> command = command_of(ask)) {
-            if (!line().submit(std::move(*command))) refuse(OnlineFault::kBusy);
-        }
+        serve_command(ask);
     }
+}
+
+void Bridge::serve_command(const ui::panel::OnlineAsk& ask) {
+    std::optional<session::Command> command = command_of(ask);
+    const bool is_valid = command.has_value();
+    if (is_valid && line().submit(std::move(*command))) return;
+    refuse(is_valid ? OnlineFault::kBusy : OnlineFault::kOther);
 }
 
 std::vector<OnlineReply> Bridge::collect() {

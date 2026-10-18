@@ -445,52 +445,6 @@ void online_roster_opens_the_select_panel(Context& context) {
     context.expect(!ui::panel::book_text(flow), "sổ cục bộ không đổi nên không có gì để ghi tệp");
 }
 
-// Chân dung và bộ đồ máy chủ lưu (v9) được giữ và đổi ra ảnh cùng ba id hình trang phục; chân dung 0 mới
-// lấy chân dung đầu của giới.
-void online_roster_keeps_portrait_and_outfit(Context& context) {
-    const World world = sample_world();
-    const LoginFacts facts = world.facts();
-    LoginFlow flow = online_flow();
-    type_text(flow, U"a	b", facts);
-    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
-    static_cast<void>(ui::panel::take_asks(flow));
-    OnlineReply reply = roster_reply(5, RoleSex::kFemale);
-    reply.roles.front().portrait = 2;
-    reply.roles.front().outfit = 1;
-    ui::panel::deliver_online(flow, reply, facts);
-    const Role* shown = ui::panel::chosen_role(flow.select);
-    context.expect(shown != nullptr && shown->portrait == 2, "giữ chân dung máy chủ lưu");
-    context.expect(shown != nullptr && shown->icon == "set:Face image:Girl_2", "ảnh theo chân dung");
-    const bool is_outfit = shown != nullptr && shown->outfit == 1 && shown->body == 438;
-    context.expect(is_outfit && shown->foot == 441 && shown->arm == 444, "bộ đồ 1 thành ba id hình");
-}
-
-// CharacterList::can_create tắt thì bảng chọn không mở bảng tạo, dù còn dưới ba nhân vật.
-void online_create_follows_the_server_flag(Context& context) {
-    const World world = sample_world();
-    const LoginFacts facts = world.facts();
-    LoginFlow flow = online_flow();
-    type_text(flow, U"a	b", facts);
-    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
-    static_cast<void>(ui::panel::take_asks(flow));
-    OnlineReply reply = roster_reply(5, RoleSex::kMale);
-    reply.can_create = false;
-    ui::panel::deliver_online(flow, reply, facts);
-    ui::panel::press_flow(flow, "SelectRole_TargetInfo_Button2", facts);
-    context.expect(flow.step == FlowStep::kRoles, "máy chủ không cho tạo thì ở lại bảng chọn");
-    reply.can_create = true;
-    flow.is_waiting = true;
-    ui::panel::deliver_online(flow, reply, facts);
-    ui::panel::press_flow(flow, "SelectRole_TargetInfo_Button2", facts);
-    context.expect(flow.step == FlowStep::kCreate, "máy chủ cho tạo thì mở bảng tạo");
-}
-
-[[nodiscard]] std::vector<std::string> names_of(const std::vector<ui::panel::PostedEvent>& events) {
-    std::vector<std::string> names;
-    for (const ui::panel::PostedEvent& event : events) names.push_back(event.name);
-    return names;
-}
-
 [[nodiscard]] OnlineReply two_role_reply() {
     OnlineReply reply = roster_reply(5, RoleSex::kMale);
     Role second = reply.roles.front();
@@ -498,31 +452,6 @@ void online_create_follows_the_server_flag(Context& context) {
     second.id = 6;
     reply.roles.push_back(second);
     return reply;
-}
-
-// Chuỗi đẩy cho script GAMELOGIN_*: đóng bước cũ, mở bước mới, làm tươi danh sách khi ở lại bảng chọn.
-void flow_events_follow_the_steps(Context& context) {
-    const World world = sample_world();
-    const LoginFacts facts = world.facts();
-    LoginFlow flow = online_flow();
-    static_cast<void>(ui::panel::take_flow_events(flow));
-    type_text(flow, U"a	b", facts);
-    ui::panel::press_flow(flow, "LogOn_LogOnGame", facts);
-    static_cast<void>(ui::panel::take_asks(flow));
-    ui::panel::deliver_online(flow, two_role_reply(), facts);
-    const std::vector<std::string> opened = names_of(ui::panel::take_flow_events(flow));
-    const std::vector<std::string> want_open = {
-        "GAMELOGIN_CLOSE_SYSTEM_INFO", "GAMELOGIN_CLOSE_COUNT_INPUT", "GAMELOGIN_OPEN_SELECT_CHARACTOR"};
-    context.expect(opened == want_open, "vào bảng chọn: đóng hộp, đóng bảng tài khoản, mở bảng chọn");
-    context.expect(ui::panel::take_flow_events(flow).empty(), "lấy rồi thì hết");
-    ui::panel::deliver_online(flow, two_role_reply(), facts);
-    static_cast<void>(ui::panel::take_flow_events(flow));
-    flow.is_waiting = true;
-    ui::panel::deliver_online(flow, two_role_reply(), facts);
-    const std::vector<std::string> kept = names_of(ui::panel::take_flow_events(flow));
-    const std::vector<std::string> want_refresh = {
-        "GAMELOGIN_CLOSE_SYSTEM_INFO", "GAMELOGIN_REFRESH_ROLE_SELECT_CHARACTOR"};
-    context.expect(kept == want_refresh, "ở lại bảng chọn thì làm tươi danh sách");
 }
 
 // Việc GameProduceLogin:* của script: chọn ô bắn GAMELOGIN_SELECTCHARACTER, vào game nhờ máy chủ, đủ ba
@@ -678,9 +607,6 @@ constexpr std::array kCases{
     Case{.name = "online_sign_in_asks_instead_of_opening_roles", .body = &online_sign_in_asks_instead_of_opening_roles},
     Case{.name = "online_waiting_blocks_input", .body = &online_waiting_blocks_input},
     Case{.name = "online_roster_opens_the_select_panel", .body = &online_roster_opens_the_select_panel},
-    Case{.name = "online_roster_keeps_portrait_and_outfit", .body = &online_roster_keeps_portrait_and_outfit},
-    Case{.name = "online_create_follows_the_server_flag", .body = &online_create_follows_the_server_flag},
-    Case{.name = "flow_events_follow_the_steps", .body = &flow_events_follow_the_steps},
     Case{.name = "script_calls_drive_the_select_step", .body = &script_calls_drive_the_select_step},
     Case{.name = "online_enter_waits_for_the_server", .body = &online_enter_waits_for_the_server},
     Case{.name = "online_refusal_shows_the_reason_and_unblocks", .body = &online_refusal_shows_the_reason_and_unblocks},

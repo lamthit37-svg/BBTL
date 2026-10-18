@@ -7,6 +7,7 @@
 #include "ui/script/widget.hpp"
 
 #include "gui/asset.hpp"
+#include "gui/sheet.hpp"
 #include "ui/panel/call.hpp"
 #include "ui/panel/deck.hpp"
 #include "ui/panel/widgets.hpp"
@@ -14,6 +15,8 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <format>
@@ -53,6 +56,10 @@ std::optional<PixelBox> Services::window_box(std::string_view /*window*/) const 
 
 std::optional<PixelBox> Services::screen_box() const {
     return std::nullopt;
+}
+
+const gui::TextMeter* Services::text_meter() const noexcept {
+    return nullptr;
 }
 
 namespace {
@@ -302,6 +309,83 @@ int other_kind(lua_State* state, const WindowRef& window) {
     return std::nullopt;
 }
 
+// Số thực của một thuộc tính (MaxWidth, MinHeight); không có hay không đọc được thì fallback.
+[[nodiscard]] float number_property(const WindowRef& window, std::string_view name,
+    float fallback) {
+    const std::optional<std::string> text = known_property(window, name);
+    if (!text) return fallback;
+    const char* first = text->data();
+    const char* last = first + text->size();
+    float value = 0.0F;
+    const std::from_chars_result parsed = std::from_chars(first, last, value);
+    const bool is_usable = parsed.ec == std::errc{} && std::isfinite(value) && value >= 0.0F;
+    return is_usable ? value : fallback;
+}
+
+// FalagardSelfFitWindow (WindowType TLBB_SelfWindow, 31 layout) tự co theo chữ mỗi lần đổi chữ.
+// Nguồn: CEGUIFalagard.dll 3.71.9509, Ghidra 2026-10-18.
+//  - getRenderSize 0x18009c100: chữ rỗng thì cỡ 0x0 (setText 0x18009c980 còn giấu cửa sổ). Bề rộng
+//    bẻ dòng là MaxWidth trừ hai lề của TextArea; khối chữ là Font::getFormattedSize kiểu
+//    WordWrapLeftAligned (số 4 cố định trong hàm, không đọc HorzFormatting). Rộng = khối + hai lề +
+//    5,0 (0x18013c5f0), cao = khối + hai lề + 2,0 (0x18012fb5c); rồi rộng không quá MaxWidth, không
+//    dưới MinWidth, cao không dưới MinHeight, theo thứ tự đó. Không có MaxHeight.
+//  - Mặc định MaxWidth 200, MinWidth 0, MinHeight 0 (hàm dựng 0x18009af60). Cỡ lưu tới khi đổi chữ
+//    hay cha đổi cỡ (onParentSized 0x18009c670).
+//  - TextArea của TLBB_Look_SelfWindow lẫn ...Lace thụt 3 điểm mỗi cạnh (TLBBLook_StaticText).
+// Khác gốc: tính ở SetText bằng bộ đo chữ của HUD rồi đặt AbsoluteSize (gốc co ngay trong
+// Falagard); bề rộng bẻ dòng không kẹp theo vùng hiển thị của renderer như gốc (0x18009c1xx); chữ
+// rỗng chỉ đặt cỡ 0x0, không giấu cửa sổ như setText 0x18009c980.
+constexpr std::string_view kSelfFitRenderer = "Falagard/SelfFitWindow";
+constexpr float kSelfFitMaxWidth = 200.0F;
+constexpr float kSelfFitInset = 3.0F;
+constexpr float kSelfFitExtraWidth = 5.0F;
+constexpr float kSelfFitExtraHeight = 2.0F;
+constexpr std::uint8_t kSelfFitWrap = 4;
+
+[[nodiscard]] bool is_self_fit(const WindowRef& window) noexcept {
+    const std::int32_t index = window_index(window);
+    if (index < 0) return false;
+    const gui::GuiWindow& entry = window.asset->windows[static_cast<std::size_t>(index)];
+    const auto& types = window.asset->types;
+    if (entry.type < 0 || static_cast<std::size_t>(entry.type) >= types.size()) return false;
+    return types[static_cast<std::size_t>(entry.type)].renderer == kSelfFitRenderer;
+}
+
+// Cỡ của khối chữ text trong cửa sổ SelfFit, theo getRenderSize.
+[[nodiscard]] PixelBox fitted_box(const WindowRef& window, const gui::TextMeter& meter,
+    std::string_view text) {
+    const float max_width = number_property(window, "MaxWidth", kSelfFitMaxWidth);
+    const float min_width = number_property(window, "MinWidth", 0.0F);
+    const float min_height = number_property(window, "MinHeight", 0.0F);
+    const float margins = 2.0F * kSelfFitInset;
+    const gui::TextSize block = meter.formatted_size(text, max_width - margins, kSelfFitWrap);
+    const float wide = std::min(block.width + margins + kSelfFitExtraWidth, max_width);
+    const float width = std::max(wide, min_width);
+    const float height = std::max(block.height + margins + kSelfFitExtraHeight, min_height);
+    return PixelBox{.x = 0.0F, .y = 0.0F, .w = width, .h = height};
+}
+
+// Cỡ SelfFit của cửa sổ theo chữ script đã đặt; nullopt khi không phải SelfFit, chưa có bộ đo chữ
+// hay script chưa đặt chữ (khi đó cửa sổ giữ cỡ của layout).
+[[nodiscard]] std::optional<PixelBox> self_fit_of(const WindowRef& window) {
+    if (window.services == nullptr || !is_self_fit(window)) return std::nullopt;
+    const gui::TextMeter* meter = window.services->text_meter();
+    const Key key{.window = window.name, .name = "Text"};
+    const std::optional<std::string_view> text = window.store->value(key);
+    if (meter == nullptr || !text) return std::nullopt;
+    if (text->empty()) return PixelBox{};
+    return fitted_box(window, *meter, *text);
+}
+
+// Sau SetText: cửa sổ SelfFit co theo chữ mới, đặt thẳng AbsoluteSize như setWindowSize của
+// Falagard.
+void refit_self_fit(const WindowRef& window) {
+    const std::optional<PixelBox> fit = self_fit_of(window);
+    if (!fit) return;
+    const std::string size = std::format("{{{},{}}}", fit->w, fit->h);
+    window.store->set({.window = window.name, .name = "AbsoluteSize", .value = size});
+}
+
 // Các nhóm {a,b} cấp 1 của một giá trị dạng "{{a,b},{c,d},...}".
 [[nodiscard]] std::vector<std::string_view> brace_groups(std::string_view value) {
     std::vector<std::string_view> groups;
@@ -436,8 +520,10 @@ int window_set_text(lua_State* state) {
     if (is_number(state, 2)) {
         window.store->set_text(window.name, std::format("{}", int_at(state, 2)));
     } else if (is_text(state, 2)) {
-        window.store->set_text(window.name, from_script(text_at(state, 2)));
+        const std::string text = from_script(text_at(state, 2));
+        window.store->set_text(window.name, text);
     }
+    refit_self_fit(window);
     return 0;
 }
 
@@ -1165,8 +1251,10 @@ void put_pair(const WindowRef& window, std::string_view name, float first, float
 }
 
 // GetWindowSize (0x1800278f0): cỡ điểm ảnh của cửa sổ, hai số nguyên (int).
+// Cửa sổ SelfFit đã có chữ thì trả cỡ đã co ngay (ô dàn trang chỉ cập nhật ở khung kế).
 int window_get_size(lua_State* state) {
-    const PixelBox box = box_of(self(state));
+    const WindowRef& window = self(state);
+    const PixelBox box = self_fit_of(window).value_or(box_of(window));
     push_pixels(state, box.w);
     push_pixels(state, box.h);
     return 2;

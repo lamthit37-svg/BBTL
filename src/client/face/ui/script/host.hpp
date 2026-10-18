@@ -134,6 +134,10 @@ public:
 
     // Cỡ vùng khách của cửa sổ chương trình, pixel, cho GetCurClientSize (không trả nhỏ hơn 800x600; 0 là chưa biết).
     void set_client_size(ClientSize size) noexcept;
+    // Bộ đo chữ cho cửa sổ tự co theo chữ (SelfFitWindow); nullptr là chưa có. Host chỉ giữ con
+    // trỏ thô: meter phải sống tới khi Host bị huỷ (hay tới khi đặt lại nullptr), vì SetText của
+    // script đọc nó.
+    void set_text_meter(const gui::TextMeter* meter) noexcept;
 
     // Nạp layout của cửa sổ và chạy OnLoad mà không hiện nó (không phát Shown hay Hidden): cho test và khảo sát cần widget của cửa sổ.
     // false khi không có cửa sổ đó hay layout không nạp được (một dòng notes); đã nạp rồi thì true.

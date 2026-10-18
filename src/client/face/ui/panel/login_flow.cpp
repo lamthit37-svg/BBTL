@@ -75,9 +75,21 @@ constexpr std::size_t kEventCap = 64;
 
 void push_flow_event(LoginFlow& flow, std::string_view name, std::string_view arg = {}) {
     if (flow.events.size() >= kEventCap) return;
-    PostedEvent event{.name = std::string(name)};
+    PostedEvent event{.name = std::string(name), .args = {}};
     if (!arg.empty()) event.args.emplace_back(arg);
     flow.events.push_back(std::move(event));
+}
+
+// Hộp thông báo của thủ tục: hộp C++, hay sự kiện cho SelectServerQuest.lua khi cửa sổ đó chạy
+// script (gốc: GameLoginShowSystemInfo, Game.exe 0x1403448d0, bắn GAMELOGIN_SHOW_SYSTEM_INFO kèm
+// chữ).
+void show_box(LoginFlow& flow, std::string_view text,
+    std::string_view event = "GAMELOGIN_SHOW_SYSTEM_INFO") {
+    if (flow.is_box_scripted) {
+        push_flow_event(flow, event, text);
+        return;
+    }
+    show_system_info(flow.system_info, text);
 }
 
 // Cặp sự kiện mở và đóng của từng bước (Game.exe: 0x118/0x119, 0x11a/0x11b, 0x11c/0x11d,
@@ -129,7 +141,7 @@ void request_online(LoginFlow& flow, OnlineAsk&& ask) {
     if (flow.asks.size() >= kAskCap) return;
     flow.asks.push_back(std::move(ask));
     flow.is_waiting = true;
-    show_system_info(flow.system_info, kOnlineWaiting);
+    show_box(flow, kOnlineWaiting, "GAMELOGIN_SHOW_SYSTEM_INFO_NO_BUTTON");
 }
 
 // Trả phiên khi rời nhân vật của máy chủ (về bảng tài khoản hay bảng chọn máy chủ): không đợi trả lời.
@@ -336,7 +348,7 @@ void script_back(LoginFlow& flow, const Call&, const LoginFacts&) {
 void script_open_create(LoginFlow& flow, const Call&, const LoginFacts& facts) {
     if (flow.step != FlowStep::kRoles) return;
     if (!may_create(flow)) {
-        show_system_info(flow.system_info, "#{LCRetCreateCharHandler_Info_Role_Is_Full}");
+        show_box(flow, "#{LCRetCreateCharHandler_Info_Role_Is_Full}");
         return;
     }
     apply_create(flow, facts);
@@ -448,7 +460,7 @@ void pull_servers(LoginFlow& flow, const LoginFacts& facts) {
     if (request->work == ServerWork::kOpenTopUp) flow.pending = LogonAction::kOpenTopUp;
     if (request->work == ServerWork::kOpenRegister) flow.pending = LogonAction::kOpenRegister;
     if (request->work == ServerWork::kLeave) flow.pending = LogonAction::kLeave;
-    if (request->work == ServerWork::kMustPick) show_system_info(flow.system_info, "#{MUST_SELECTSERVER}");
+    if (request->work == ServerWork::kMustPick) show_box(flow, "#{MUST_SELECTSERVER}");
 }
 
 void press_servers(LoginFlow& flow, std::string_view window, const LoginFacts& facts) {
@@ -635,7 +647,7 @@ void settle_refused(LoginFlow& flow, OnlineFault fault) {
         notify_create(flow.create, text);
         return;
     }
-    show_system_info(flow.system_info, text);
+    show_box(flow, text);
 }
 
 // Mất phiên: về bảng tài khoản (máy chủ vẫn là máy chủ đã chọn, nên nhập lại là đăng nhập lại) kèm lý do.
@@ -646,7 +658,7 @@ void settle_lost(LoginFlow& flow, OnlineFault fault) {
     flow.enter_game = false;
     flow.pose = {};
     open_logon(flow.logon);
-    show_system_info(flow.system_info, online_text(fault));
+    show_box(flow, online_text(fault));
 }
 
 } // namespace
@@ -799,7 +811,7 @@ void paint_flow(Deck& deck, const LoginFlow& flow, const gui::TextMeter* meter) 
     if (flow.step == FlowStep::kAccount) paint_logon(deck, flow.logon);
     if (flow.step == FlowStep::kRoles && !flow.is_select_scripted) paint_select(deck, flow.select);
     if (flow.step == FlowStep::kCreate) paint_create(deck, flow.create);
-    paint_system_info(deck, flow.system_info, meter);
+    if (!flow.is_box_scripted) paint_system_info(deck, flow.system_info, meter);
 }
 
 std::optional<LogonAction> take_flow(LoginFlow& flow) noexcept {

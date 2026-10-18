@@ -63,3 +63,7 @@ chụp thanh kỹ năng; chụp minimap.
 3. PlayerFrame, TargetFrame: viết native còn thiếu, so với panel, bảng so.
 4. MainMenuBar và các thanh: native action/chat-action, so với panel.
 5. MiniMap, AutoAttack_Button; chạy `g2-hud.script`; xin kiểm.
+
+Trạng thái lúc phiên 14 dừng (2026-10-18): chưa viết mã G2 (2). Bàn giao làn K, gồm kiểm chéo H1 liên quan nhịp
+Move và hướng đi tiếp, ở `G1-K.md` mục "Bàn giao 2026-10-18 (phiên 14 dừng)". Người làm G2 kế tiếp bắt đầu từ
+bước 1 ở trên và hỏi bd (làn M) tin buff (mục 3) trước khi vẽ PlayerImpactFrame và TargetBuff; 6a đã đóng.

@@ -29,14 +29,19 @@ constexpr std::string_view kCloseLabel = "关闭";
 constexpr float kMaxWidth = 326.0F;
 constexpr float kMinHeight = 25.0F;
 constexpr float kMargin = 3.0F;
+// Phần cộng thêm của getRenderSize (CEGUIFalagard.dll 0x18009c100: 5,0 ở 0x18013c5f0 và 2,0 ở
+// 0x18012fb5c) vào khối chữ cộng hai lề.
+constexpr float kExtraWidth = 5.0F;
+constexpr float kExtraHeight = 2.0F;
 constexpr float kTitleHeight = 23.0F;
 constexpr float kBottomHeight = 25.0F;
 constexpr float kFrameWidth = 346.0F;
 // GuiTextHorz::kWordWrapLeftAligned: HorzFormatting của InfoWindow.
 constexpr std::uint8_t kWrapLeft = 4;
 
-// Cỡ của InfoWindow sau khi nó tự co theo chữ: khối chữ bẻ dòng trong bề rộng tối đa trừ hai lề, cộng
-// lại hai lề; rộng không quá kMaxWidth, cao không dưới kMinHeight.
+// Cỡ của InfoWindow sau khi nó tự co theo chữ (getRenderSize): khối chữ bẻ dòng trong bề rộng tối
+// đa trừ hai lề, cộng hai lề và phần cộng thêm; rộng không quá kMaxWidth, cao không dưới
+// kMinHeight; chữ rỗng thì 0 x 0.
 struct Fit {
     float width = 0.0F;
     float height = kMinHeight;
@@ -44,9 +49,12 @@ struct Fit {
 
 [[nodiscard]] Fit fit_of(std::string_view text, const gui::TextMeter* meter) {
     if (meter == nullptr) return {};
-    const gui::TextSize block = meter->formatted_size(text, kMaxWidth - (2.0F * kMargin), kWrapLeft);
-    return Fit{.width = std::min(block.width + (2.0F * kMargin), kMaxWidth),
-        .height = std::max(block.height + (2.0F * kMargin), kMinHeight)};
+    if (text.empty()) return Fit{.width = 0.0F, .height = 0.0F};
+    const float margins = 2.0F * kMargin;
+    const gui::TextSize block = meter->formatted_size(text, kMaxWidth - margins, kWrapLeft);
+    const float width = std::min(block.width + margins + kExtraWidth, kMaxWidth);
+    const float height = std::max(block.height + margins + kExtraHeight, kMinHeight);
+    return Fit{.width = width, .height = height};
 }
 
 } // namespace

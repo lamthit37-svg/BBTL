@@ -155,11 +155,18 @@ constexpr std::array<std::string_view, 44> kLayouts = {
     "SceneTrans/SceneTrans.layout.xml",
 };
 
-// Cửa sổ chạy bằng script Lua gốc của client 2026 qua ui/script (docs/giao-viec/LUA-GEN/HOST.md). Cửa sổ khác còn là bảng
-// port tay (ui/panel) cho tới khi hàm game mà script của nó gọi (tầng B) có đủ; hết bảng port tay thì danh sách này bỏ và host
-// chạy cả sổ.
-constexpr std::array<std::string_view, 4> kScripted = {
-    "ProgressBar", "DebugListBox", "SceneTrans", "SoftKeyBoard"};
+// Cửa sổ chạy bằng script Lua gốc của client 2026 qua ui/script (docs/giao-viec/LUA-GEN/HOST.md).
+// Cửa sổ khác còn là bảng port tay (ui/panel) cho tới khi hàm game mà script của nó gọi (tầng B) có
+// đủ; hết bảng port tay thì danh sách này bỏ và host chạy cả sổ. Tên trong sổ của bảng chọn nhân
+// vật (SelectRole.lua); có trong danh sách script thì bảng port tay nhường nó (host mở không được
+// thì bảng port tay còn làm việc thay).
+constexpr std::string_view kSelectRole = "LoginSelectRole";
+// Hộp thông báo của thủ tục đăng nhập (SelectServerQuest.lua); trong danh sách script thì hộp C++
+// nhường nó.
+constexpr std::string_view kSelectServerQuest = "LoginSelectServerQuest";
+
+constexpr std::array<std::string_view, 6> kScripted = {
+    "ProgressBar", "DebugListBox", "SceneTrans", "SoftKeyBoard", kSelectRole, kSelectServerQuest};
 
 // Tên trong sổ (Script/windows.tsv) của bàn phím ảo đăng nhập.
 constexpr std::string_view kSoftKeyBoard = "SoftKeyBoard";
@@ -575,7 +582,11 @@ struct Hud::State {
     // Cửa sổ chạy bằng script gốc: kScripted cộng công tắc so sánh THIENLONG_UI_SCRIPT
     // (script/windows.hpp).
     std::vector<std::string> scripted;
-    // Các bảng port từ script (UI-PORT): ui_args là kho arg<k> dùng chung của mọi bảng (xem ui/panel/events.hpp).
+    // Điều chuỗi đăng nhập đọc của game ở khung đăng nhập gần nhất: việc script nhờ
+    // (GameProduceLogin:*) được làm giữa hai khung nên không có HudView trong tay.
+    panel::LoginFacts script_facts;
+    // Các bảng port từ script (UI-PORT): ui_args là kho arg<k> dùng chung của mọi bảng (xem
+    // ui/panel/events.hpp).
     panel::EventArgs ui_args;
     bool is_app_inited = false;
     // Lần nhấn trước trong thủ tục đăng nhập (cửa sổ, lúc nhấn, điểm nhấn: press_x, press_y đứng cạnh
@@ -702,6 +713,9 @@ struct Hud::State {
     void note_host_release(const HudView& view);
     void note_host_pointer(const HudView& view);
     void drain_host_calls();
+    void route_call(const panel::Call& call, std::vector<panel::PostedEvent>& events);
+    void sync_login_port();
+    void note_host_double(std::string_view window);
     [[nodiscard]] std::vector<panel::Call> take_script_calls();
     void update_script_facts(const HudView& view);
     void open_host();
@@ -977,14 +991,56 @@ void Hud::State::update_script_facts(const HudView& view) {
 void Hud::State::drain_host_calls() {
     if (!host) return;
     std::vector<panel::PostedEvent> events;
-    for (const panel::Call& call : take_script_calls()) {
-        if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
-            events.push_back(std::move(*next));
-        } else {
-            std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
-        }
-    }
+    for (const panel::Call& call : take_script_calls())
+        route_call(call, events);
     if (!events.empty()) dispatch(events);
+}
+
+// Một việc script nhờ: sự kiện thì gom vào events; trong pha đăng nhập, việc của chuỗi đăng nhập
+// (GameProduceLogin:* của SelectRole.lua) do thủ tục làm; còn lại ghi một dòng.
+void Hud::State::route_call(const panel::Call& call, std::vector<panel::PostedEvent>& events) {
+    if (std::optional<panel::PostedEvent> next = panel::event_of(call)) {
+        events.push_back(std::move(*next));
+        return;
+    }
+    const bool is_login = phase == Phase::kLogin;
+    if (is_login && panel::apply_script_call(flow, call, script_facts)) return;
+    std::println(stderr, "Script giao diện: việc nhờ {} chưa có ở HUD", panel::name_of(call.ask));
+}
+
+namespace {
+// Dòng GetRoleInfo của ô slot; ô ngoài số nhân vật là dòng rỗng.
+[[nodiscard]] script::LoginRole login_role_of(const panel::SelectRole& select, std::size_t slot) {
+    script::LoginRole row;
+    if (slot >= select.count) return row;
+    const panel::Role& role = select.roles[slot];
+    row.name = role.name;
+    row.sect = role.sect;
+    row.level = role.level;
+    row.icon = role.icon;
+    return row;
+}
+} // namespace
+
+// Danh sách nhân vật của bảng chọn cho GameProduceLogin:GetRoleInfo (script_context.login): chép từ
+// bảng port tay mỗi khung, vì thủ tục đăng nhập là nơi giữ danh sách. Khác gốc: không có giờ xoá
+// chờ, cấp PK hay trạng thái bán nên các trường đó 0.
+void Hud::State::sync_login_port() {
+    script::LoginPort& port = script_context.login;
+    const panel::SelectRole& select = flow.select;
+    port.count = select.count;
+    port.selected = select.selected;
+    for (std::size_t slot = 0; slot < script::kLoginSlots; ++slot) {
+        port.roles[slot] = login_role_of(select, slot);
+    }
+}
+
+// MouseDoubleClick lên cửa sổ window (nhấn trái lần hai của một cú nhấn đúp):
+// SelectRole_DoubleClicked của layout gốc.
+void Hud::State::note_host_double(std::string_view window) {
+    if (!host || window.empty()) return;
+    static_cast<void>(host->fire(window, "MouseDoubleClick", script::MouseButton::kLeft));
+    drain_host_calls();
 }
 
 // Nhả trái: MouseButtonUp lên cửa sổ dưới chuột, và Clicked khi nhả trên đúng cửa sổ đã nhấn (nút của CEGUI).
@@ -1054,6 +1110,7 @@ bool Hud::State::note_double(std::string_view window, const HudView& view) {
 void Hud::State::press_login(std::string_view window, const HudView& view) {
     panel::LoginFacts facts = login_facts(view);
     facts.is_double = note_double(window, view);
+    if (facts.is_double) note_host_double(window);
     if (window == panel::kServerAreaList && view.pointer.has_value()) {
         facts.element = hub->element_at(panel::kServerAreaList, *view.pointer);
     }
@@ -1209,6 +1266,8 @@ void Hud::State::open_host() {
         return;
     }
     host.emplace(std::move(*opened));
+    flow.is_select_scripted = std::ranges::find(scripted, kSelectRole) != scripted.end();
+    flow.is_box_scripted = std::ranges::find(scripted, kSelectServerQuest) != scripted.end();
     for (const std::string& note : host->take_notes())
         std::println(stderr, "Giao diện Lua: {}", note);
 }
@@ -1262,7 +1321,11 @@ void Hud::State::note_host_pointer(const HudView& view) {
 void Hud::State::note_host(const HudView& view) {
     if (!host) return;
     script::Host& active = *host;
-    active.set_client_size(script::ClientSize{.width = pixels_of(view.width), .height = pixels_of(view.height)});
+    const script::ClientSize client{
+        .width = pixels_of(view.width), .height = pixels_of(view.height)};
+    active.set_client_size(client);
+    const gui::TextMeter* meter = writer ? &*writer : nullptr;
+    active.set_text_meter(meter);
     active.tick(view.clock);
     drain_host_calls();
     // Send_XSCRIPT của script: gói CGExecuteScript chưa có trong protocol nên chưa có chỗ gửi; ghi để nhận ra script đang đòi.
@@ -1282,6 +1345,9 @@ void Hud::State::push_debug_message(std::string_view text) {
 // Không có host (thiếu dữ liệu script) thì không có gì để chạy.
 void Hud::State::step_login(const HudView& view) {
     if (!host) return;
+    script_facts = login_facts(view);
+    sync_login_port();
+    dispatch(panel::take_flow_events(flow));
     dispatch(view.events);
     sync_soft_keys(view);
     note_host(view);

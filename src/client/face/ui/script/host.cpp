@@ -96,6 +96,7 @@ public:
     void set_root_shown(bool is_shown) override;
     [[nodiscard]] std::optional<PixelBox> window_box(std::string_view window) const override;
     [[nodiscard]] std::optional<PixelBox> screen_box() const override;
+    [[nodiscard]] const gui::TextMeter* text_meter() const noexcept override;
 
 private:
     Core* core_;
@@ -182,6 +183,8 @@ struct Core {
     bool has_ticked = false;
     // Vùng khách của cửa sổ chương trình (GetCurClientSize); 0 khi người gọi chưa báo.
     ClientSize client_size;
+    // Bộ đo chữ của HUD cho cửa sổ SelfFit; nullptr khi người gọi chưa báo.
+    const gui::TextMeter* meter = nullptr;
 };
 
 // Userdata của `this` (BoxPointer của CUIWindowItem).
@@ -949,12 +952,18 @@ std::optional<PixelBox> ItemServices::window_box(std::string_view window) const 
 std::optional<PixelBox> ItemServices::screen_box() const {
     const ClientSize size = core_->client_size;
     if (size.width == 0 || size.height == 0) return std::nullopt;
-    return PixelBox{.x = 0.0F, .y = 0.0F, .w = static_cast<float>(size.width), .h = static_cast<float>(size.height)};
+    const float width = static_cast<float>(size.width);
+    const float height = static_cast<float>(size.height);
+    return PixelBox{.x = 0.0F, .y = 0.0F, .w = width, .h = height};
 }
 
-// Script đặt cờ hiện của cửa sổ gốc qua widget (SetFadeState, Show/Hide của chính cửa sổ gốc): đổi cờ của `this` và chồng
-// vẽ, không nhường chỗ, không phát Shown/Hidden.
-// Khác gốc: gốc giữ hai cờ (cờ hiện của cửa sổ CEGUI và m_bShow); bản này một cờ, như mô hình của trọng tài.
+const gui::TextMeter* ItemServices::text_meter() const noexcept {
+    return core_->meter;
+}
+
+// Script đặt cờ hiện của cửa sổ gốc qua widget (SetFadeState, Show/Hide của chính cửa sổ gốc): đổi
+// cờ của `this` và chồng vẽ, không nhường chỗ, không phát Shown/Hidden. Khác gốc: gốc giữ hai cờ
+// (cờ hiện của cửa sổ CEGUI và m_bShow); bản này một cờ, như mô hình của trọng tài.
 void ItemServices::set_root_shown(bool is_shown) {
     Item& item = *core_->items[index_];
     if (item.is_shown == is_shown) return;
@@ -1099,6 +1108,10 @@ void Host::tick(std::chrono::milliseconds now) {
 
 void Host::set_client_size(ClientSize size) noexcept {
     state_->core.client_size = size;
+}
+
+void Host::set_text_meter(const gui::TextMeter* meter) noexcept {
+    state_->core.meter = meter;
 }
 
 bool Host::load(std::string_view name) {

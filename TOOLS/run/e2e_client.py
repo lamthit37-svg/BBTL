@@ -12,6 +12,10 @@
 # Chỉ thị (mỗi dòng "#! tên đối số..."):
 #   account fresh [<tiền tố>]    tài khoản MỚI mỗi lượt: <tiền tố, mặc định e2e><mốc giờ base36><hai ký
 #                                tự ngẫu nhiên>; có CreateCharacter ở mọi lượt
+#   account typed [<tiền tố>]    như fresh về tên (mới mỗi lượt) nhưng KHÔNG đặt đăng nhập tự động: kịch bản tự
+#                                gõ tài khoản qua `type`, dùng {account} (mật khẩu máy chủ đòi: <tên>-thu).
+#                                Công cụ ghi bản sao kịch bản đã thay {account} vào thư mục kết quả rồi chạy
+#                                bản sao đó. --account <tên> vẫn thắng: gõ tay một tài khoản đã có
 #   account <tên>                tài khoản CỐ ĐỊNH, dùng khi kịch bản cố ý cần tài khoản đã có (nhân vật
 #                                sẵn); --account thắng cả hai dạng. Không khai: không đăng nhập tự động
 #   out <thư mục>                thư mục kết quả; mặc định build/e2e/<tên tệp kịch bản>
@@ -56,6 +60,9 @@ class Plan:
     account: str = ""
     # Tiền tố của tên tài khoản mới khi kịch bản khai "account fresh"; None là không khai.
     fresh_prefix: str | None = None
+    # "account typed": tên mới như fresh nhưng client không đăng nhập tự động; {account} trong kịch bản
+    # được thay bằng tên đó.
+    is_typed: bool = False
     out: str = ""
     timeout: float = DEFAULT_TIMEOUT
     exit_code: int = 0
@@ -92,11 +99,13 @@ def parse_net(tokens: list[str]) -> list[tuple[str, str]]:
 def set_account(plan: Plan, words: list[str]) -> None:
     if not words:
         raise ValueError("thiếu tên tài khoản")
-    if words[0] == "fresh":
+    if words[0] in ("fresh", "typed"):
         plan.fresh_prefix = words[1] if len(words) > 1 else DEFAULT_FRESH_PREFIX
+        plan.is_typed = words[0] == "typed"
         plan.account = ""
         return
     plan.fresh_prefix = None
+    plan.is_typed = False
     plan.account = " ".join(words)
 
 
@@ -295,6 +304,16 @@ def write_report(out: Path, script: Path, plan: Plan, code: int | None, seconds:
     return text
 
 
+def typed_copy(script: Path, out: Path, plan: Plan) -> Path:
+    """Bản sao kịch bản đã thay {account}, ghi vào thư mục kết quả (client đọc bản này)."""
+    if not plan.account:
+        raise PlanError("account typed cần tên: thiếu tiền tố hay --account")
+    text = script.read_text(encoding="utf-8").replace("{account}", plan.account)
+    copy = out / script.name
+    copy.write_text(text, encoding="utf-8")
+    return copy
+
+
 def run(script: Path, args: argparse.Namespace) -> int:
     plan = read_plan(script)
     if args.account:
@@ -305,12 +324,13 @@ def run(script: Path, args: argparse.Namespace) -> int:
     clear_output(out)
     starts = sizes_of([path for path, _ in plan.files])
     env = dict(os.environ, THIENLONG_NET_TRACE=str(out / "net.log"))
-    if plan.account:
+    if plan.account and not plan.is_typed:
         env["THIENLONG_ACCOUNT"] = plan.account
+    to_run = typed_copy(script, out, plan) if plan.is_typed else script.resolve()
     began = time.monotonic()
     helpers = [start_sidecar(with_account(cmd, plan.account), out / f"sidecar-{index}.txt")
                for index, cmd in enumerate(plan.sidecars, start=1)]
-    client = start_client(Path(args.client), script.resolve(), out, env)
+    client = start_client(Path(args.client), to_run, out, env)
     code = wait_exit(client, plan.timeout)
     client_seconds = time.monotonic() - began
     checks = [Check("exit", code == plan.exit_code, f"nhận {code}, mong {plan.exit_code}")]

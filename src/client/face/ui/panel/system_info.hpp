@@ -1,14 +1,17 @@
-// Hộp thông báo của thủ tục đăng nhập (SelectServerQuest, layout SelectServerQuest/SelectServerQuest.layout.xml):
-// một khung có dòng chữ và nút "đóng". Client gốc mở nó bằng sự kiện GAMELOGIN_SHOW_SYSTEM_INFO kèm chữ
-// (lời báo lỗi đăng nhập, "phải chọn một máy chủ", ...). Bản ở đây chỉ có kiểu thông báo thường: một nút
-// đóng, không có hai nút có / không, đếm ngược, nút đổi máy chủ hay nút quên mật khẩu.
-// Nguồn: Interface/SelectServerQuest/SelectServerQuest.lua của client 2026, giải bằng
+// Hộp thông báo của thủ tục đăng nhập (SelectServerQuest, layout
+// SelectServerQuest/SelectServerQuest.layout.xml): một khung có dòng chữ và nút "đóng". Client gốc
+// mở nó bằng sự kiện GAMELOGIN_SHOW_SYSTEM_INFO kèm chữ (lời báo lỗi đăng nhập, "phải chọn một máy
+// chủ", ...). Bản ở đây chỉ có kiểu thông báo thường: một nút đóng, không có hai nút có / không,
+// đếm ngược, nút đổi máy chủ hay nút quên mật khẩu. Nguồn:
+// Interface/SelectServerQuest/SelectServerQuest.lua của client 2026, giải bằng
 // TOOLS/content/lua_plain.py (LoginSelectServerQuest_OnEvent 129, LoginSelectUpdateRect 119,
-// SelectServerQuest_Bn1Click 2776) và mã máy CEGUIFalagard.dll (FalagardSelfFitWindow::getRenderSize
-// 0x18009c100; mặc định MaxWidth 200 ở 0x18009af60, layout đặt 326 và MinHeight 25).
-// Khác gốc: cỡ ô chữ tính bằng số đo chữ của bộ viết (gốc gọi GetWindowSize sau khi SelfFitWindow tự co):
-// rộng bằng bề rộng khối chữ cộng lề 3 điểm hai bên và không quá 326, cao bằng khối chữ cộng lề, không
-// dưới 25; chưa có nháy mờ dần.
+// SelectServerQuest_Bn1Click 2776) và mã máy CEGUIFalagard.dll
+// (FalagardSelfFitWindow::getRenderSize 0x18009c100; mặc định MaxWidth 200 ở 0x18009af60, layout
+// đặt 326 và MinHeight 25). Cỡ ô chữ theo getRenderSize (gốc gọi GetWindowSize sau khi
+// SelfFitWindow tự co): khối chữ cộng lề 3 điểm hai bên, cộng thêm 5 (rộng, không quá 326) hay 2
+// (cao, không dưới 25); hằng 5,0 và 2,0 ở 0x18013c5f0 và 0x18012fb5c, đọc bằng Ghidra 2026-10-18
+// (ui/script/widget.cpp ghi đủ thứ tự áp). Khác gốc: khối chữ đo bằng bộ viết chữ của HUD; chưa có
+// nháy mờ dần.
 #pragma once
 
 #include "gui/sheet.hpp"

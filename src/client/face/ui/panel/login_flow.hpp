@@ -106,6 +106,10 @@ struct LoginFlow {
     // tay không vẽ, không nhận nhấn, và người mẫu quay, phóng theo ModelRotBegin, ModelRotEnd,
     // ModelZoom của script chứ không theo nút của bảng.
     bool is_select_scripted = false;
+    // Hộp thông báo do script điều khiển (cửa sổ LoginSelectServerQuest nằm trong host): thủ tục
+    // đưa lời báo cho nó bằng sự kiện GAMELOGIN_SHOW_SYSTEM_INFO thay vì mở hộp C++, và hộp C++
+    // không vẽ.
+    bool is_box_scripted = false;
 };
 
 // Mở thủ tục đăng nhập: bảng chọn máy chủ khi đã nạp danh sách, không thì bảng tài khoản. Giữ sổ và
