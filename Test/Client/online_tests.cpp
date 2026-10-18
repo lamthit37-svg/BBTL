@@ -71,6 +71,9 @@ void fault_of_error_codes(Context& context) {
     context.expect(fault_of(ErrorCode::kNameInvalid) == OnlineFault::kNameInvalid, "tên sai");
     context.expect(fault_of(ErrorCode::kCharacterLimit) == OnlineFault::kRoleLimit, "đủ nhân vật");
     context.expect(fault_of(ErrorCode::kNoSuchCharacter) == OnlineFault::kNoRole, "nhân vật không có");
+    context.expect(fault_of(ErrorCode::kNoCharacterToDelete) == OnlineFault::kNoRoleToDelete, "hết nhân vật để xoá (41)");
+    context.expect(fault_of(ErrorCode::kCharacterOnline) == OnlineFault::kRoleOnline, "nhân vật còn trong phiên (42)");
+    context.expect(fault_of(ErrorCode::kInternal) == OnlineFault::kInternal, "lỗi trong của máy chủ (43)");
     context.expect(fault_of(ErrorCode::kMalformed) == OnlineFault::kProtocol, "tin sai dạng");
     context.expect(fault_of(ErrorCode::kCannotAttack) == OnlineFault::kOther, "mã không liên quan đăng nhập");
 }
@@ -104,9 +107,12 @@ void role_of_keeps_server_facts(Context& context) {
     character.hair = 4;
     character.school = 9;
     character.scene = 2;
+    character.portrait = 53;
+    character.equip_set = 2;
     const ui::panel::Role role = client::online::role_of(character);
     context.expect(role.id == 77 && role.name == "Lam" && role.level == 5, "id, tên, cấp");
     context.expect(role.sex == 1 && role.face == 12 && role.hair == 4 && role.sect == 9, "giới, mặt, tóc, môn phái");
+    context.expect(role.portrait == 53 && role.outfit == 2, "id chân dung và id bộ đồ từ dây");
     character.gender = protocol::Gender::kFemale;
     context.expect(client::online::role_of(character).sex == 0, "nữ là 0");
 }
@@ -123,6 +129,15 @@ void reply_of_events(Context& context) {
     using client::session::World;
     const std::optional<OnlineReply> roster = client::online::reply_of(Event{Roster{.characters = {protocol::CharacterSummary{.id = 3, .name = "A"}}}});
     context.expect(roster && roster->kind == OnlineReply::Kind::kRoster && roster->roles.size() == 1 && roster->roles.front().id == 3, "Roster");
+    context.expect(roster && !roster->can_create, "cờ can_create của Roster mặc định tắt, đi qua nguyên vẹn");
+    const std::optional<OnlineReply> open_roster = client::online::reply_of(Event{Roster{.can_create = true}});
+    context.expect(open_roster && open_roster->can_create, "cờ can_create bật đi qua");
+    const std::optional<OnlineReply> too_soon = client::online::reply_of(
+        Event{Rejected{.ask = Ask::kDelete, .request = 0x0203, .code = protocol::ErrorCode::kRateLimited}});
+    context.expect(too_soon && too_soon->fault == OnlineFault::kDeleteTooSoon, "xoá dồn nhịp có chữ riêng");
+    const std::optional<OnlineReply> busy = client::online::reply_of(
+        Event{Rejected{.ask = Ask::kCreate, .request = 0x0201, .code = protocol::ErrorCode::kRateLimited}});
+    context.expect(busy && busy->fault == OnlineFault::kBusy, "việc khác bị giới hạn nhịp vẫn là bận");
 
     const std::optional<OnlineReply> refused = client::online::reply_of(
         Event{Rejected{.ask = Ask::kCreate, .request = 0x0201, .code = protocol::ErrorCode::kNameTaken}});
@@ -246,6 +261,8 @@ void bridge_walks_sign_in_create_enter(Context& context) {
     create.role.sex = 1;
     create.role.face = 5;
     create.role.hair = 2;
+    create.role.portrait = 52;
+    create.role.outfit = 2;
     serve_one(bridge, std::move(create));
     context.expect(collect_until(bridge, seen, [](const OnlineReply& reply) { return is_kind(reply, OnlineReply::Kind::kRoster); }), "danh sách sau khi tạo");
     if (seen.empty() || seen.front().roles.size() != 1) {
@@ -254,6 +271,8 @@ void bridge_walks_sign_in_create_enter(Context& context) {
     }
     const ui::panel::Role made = seen.front().roles.front();
     context.expect(made.name == "Lam" && made.sex == 1 && made.face == 5 && made.hair == 2 && made.id != 0, "nhân vật mang đúng thông tin máy chủ giữ");
+    context.expect(made.portrait == 52 && made.outfit == 2, "chân dung và bộ đồ đi qua máy chủ và quay về");
+    context.expect(seen.front().can_create, "dưới ba nhân vật thì máy chủ cho tạo");
 
     seen.clear();
     OnlineAsk enter;

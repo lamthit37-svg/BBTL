@@ -163,7 +163,10 @@ std::string fields_of(const protocol::Login& message) {
 std::string fields_of(const protocol::CreateCharacter& message) {
     const auto gender = std::to_underlying(message.gender);
     const std::string look = std::format("face={} hair={}", message.face, message.hair);
-    return std::format("name={} gender={} {}", message.name, gender, look);
+    const std::uint16_t portrait = message.portrait;
+    const std::uint16_t set = message.equip_set;
+    const std::string pick = std::format("portrait={} equip_set={}", portrait, set);
+    return std::format("name={} gender={} {} {}", message.name, gender, look, pick);
 }
 
 std::string fields_of(const protocol::DeleteCharacter& message) {
@@ -237,7 +240,8 @@ std::string fields_of(const protocol::CharacterList& message) {
     std::string names;
     for (const protocol::CharacterSummary& one : message.characters)
         names += one.name + ",";
-    return std::format("count={} names={}", message.characters.size(), names);
+    const std::size_t count = message.characters.size();
+    return std::format("count={} can_create={} names={}", count, message.can_create, names);
 }
 
 std::string fields_of(const protocol::SceneEnter& message) {

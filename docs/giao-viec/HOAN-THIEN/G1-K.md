@@ -139,6 +139,41 @@ bot ở `dev/server/bin/thienlong_bot.exe` (đã cài, v8). `g1-scenetrans.scrip
   thì báo "không nạp được layout MissionTrack"; nay layout nạp được và lỗi kế tiếp là native `GetPlayerMission_InUse`
   còn thiếu (họ DataPool nhiệm vụ của 1e).
 
+## Client v9 (G1-M D3, f7 yêu cầu ưu tiên số 1, 2026-10-18)
+
+Hiện trạng đo trên HEAD `77be2269` (f7): `gửi CreateCharacter ... face=100 hair=5` rồi `nhận Reject code=19`
+(BadOption), vì client chưa gửi `portrait` và `equip_set` mới, máy chủ thấy 0 nằm ngoài tập đóng
+(`account/rules.cpp`).
+
+- Dây: `session::Create` mang `portrait`, `equip_set`; `session::Roster` mang `can_create`
+  (`session.hpp`, `session.cpp`); `trace.cpp` ghi cả hai trường mới.
+- Cầu (`online/bridge.cpp`): `command_of` gửi `Role::portrait` và `Role::outfit`; `role_of` đọc lại
+  từ dây; `OnlineReply::can_create`; ba mã lỗi mới 41 `kNoCharacterToDelete`, 42 `kCharacterOnline`,
+  43 `kInternal`; xoá bị `kRateLimited` có chữ riêng (`kDeleteTooSoon`, mã 2 của gói trả lời xoá gốc
+  `0x1408319c0`).
+- Chữ lỗi theo khoá gốc trong `ui_strings.tsv`: `LCRetDeleteCharHandler_Info_No_Role_Del` (41),
+  `FWQYM_160120_147` (42), `LCRetDeleteCharHandler_Info_Err` (43), `LCRetDeleteCharHandler_1`
+  (xoá dồn nhịp), `LCRetDeleteCharHandler_Info_Unknow_err` cho `kNoSuchCharacter` (NOT_OWNER của gốc rơi
+  vào "lỗi lạ"). Bỏ câu tiếng Trung tự soạn "该角色不存在。".
+- Chuỗi đăng nhập (`login_flow.cpp`): chân dung lấy từ dây (0 thì chân dung đầu của giới như cũ), ảnh
+  tra từ bảng chân dung, `outfit` đổi ra `body/arm/foot` bằng `RoleCast::outfit`; `can_create` của
+  `CharacterList` quyết việc mở bảng tạo khi trực tuyến (thay tin hỏi `CLCheckAllowCreateChar`); bộ đồ
+  bảng tạo ghi vào `Role::outfit` để gửi đi.
+- Đăng nhập tự động (`auto_login.hpp`): nam, mặt 100, tóc 5, chân dung 52, bộ đồ 0 như `thienlong_bot`.
+  `gender=2` là `Gender::kMale` của catalog (`messages.hpp`: `kFemale = 1`, `kMale = 2`).
+- Đã kiểm: `ui_flow_tests`, `online_tests`, `session_tests`, `session_logic_tests`, `client_tests` xanh
+  (ca mới: chân dung và bộ đồ qua dây, `can_create`, mã 41–43, xoá dồn nhịp); `g0.script` tài khoản mới
+  trên cụm v9: `gửi CreateCharacter name=e2eex0ztrm gender=2 face=100 hair=5 portrait=52 equip_set=0`,
+  `nhận CharacterList count=1 can_create=true`, vào game, đi hai đoạn, ĐẠT (`build/e2e/G0v9`).
+
+## Nền script cho bảng chọn nhân vật (G1-K (3), chưa nối HUD)
+
+`login_flow` đẩy sự kiện `GAMELOGIN_*` (đóng/mở từng bước, `GAMELOGIN_CLOSE_SYSTEM_INFO` trước mỗi lần
+đổi bước, `GAMELOGIN_REFRESH_ROLE_SELECT_CHARACTOR` khi ở lại bảng chọn, `GAMELOGIN_SELECTCHARACTER`) vào
+hàng `LoginFlow::events` (trần 64; chưa ai lấy cho tới khi HUD nối), và nhận việc `GameProduceLogin:*`
+của script qua `apply_script_call` (vào game, chọn ô, xoá, về bảng tài khoản, sang bảng tạo, quay và
+phóng người mẫu). Có test (`flow_events_follow_the_steps`, `script_calls_drive_the_select_step`). Hàm game và nối HUD là bước sau.
+
 ## Không làm (không có bằng chứng gốc hoặc ngoài loại máy chủ này)
 
 - Agreement, FangChenMi*, LoginTimer, Pswprotect, SafeCenter_*: máy chủ của ta không có kết quả

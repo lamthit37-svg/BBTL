@@ -1,0 +1,16 @@
+# G2: tên NPC và thanh máu vẽ dưới cửa sổ giao diện. Hai ảnh cùng cảnh: không cửa sổ (tên hiện), rồi 任务日志 mở (tên bị cửa sổ che).
+# Chạy: py -X utf8 TOOLS/run/e2e_client.py TOOLS/run/e2e/g2-names.script   (cụm máy chủ đang chạy; tài khoản mới mỗi lượt)
+#! account fresh
+#! out build/e2e/G2/names
+#! timeout 200
+#! expect-exit 0
+#! expect-shots g2-no-window g2-log
+#! expect-net gửi:EnterGame
+
+wait play 120
+wait 2s
+shot g2-no-window
+click Button_Mission
+wait 2s
+shot g2-log
+quit

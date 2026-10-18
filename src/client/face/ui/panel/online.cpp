@@ -17,7 +17,11 @@ std::string_view online_text(OnlineFault fault) noexcept {
     case OnlineFault::kNameTaken: return "#{Login_Create_Role_Name_Exist}";
     case OnlineFault::kNameInvalid: return "#{INVALID_CHARACTER_IN_NAME}";
     case OnlineFault::kRoleLimit: return "#{ROLE_LIST_FULL}";
-    case OnlineFault::kNoRole: return "该角色不存在。";
+    case OnlineFault::kNoRole: return "#{LCRetDeleteCharHandler_Info_Unknow_err}";
+    case OnlineFault::kNoRoleToDelete: return "#{LCRetDeleteCharHandler_Info_No_Role_Del}";
+    case OnlineFault::kRoleOnline: return "#{FWQYM_160120_147}";
+    case OnlineFault::kInternal: return "#{LCRetDeleteCharHandler_Info_Err}";
+    case OnlineFault::kDeleteTooSoon: return "#{LCRetDeleteCharHandler_1}";
     case OnlineFault::kElsewhere: return "您的账号已在别处登录。";
     case OnlineFault::kClosed: return "与服务器的连接已断开。";
     case OnlineFault::kOther: return "操作失败，请重试。";

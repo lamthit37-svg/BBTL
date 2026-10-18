@@ -21,9 +21,11 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cstddef>
 #include <cstdint>
 #include <iterator>
+#include <memory>
 #include <optional>
 #include <span>
 #include <string>
@@ -67,9 +69,55 @@ constexpr std::int32_t kMaxShort = 65535;
     return flow.is_online ? flow.remote : flow.book;
 }
 
+// Trần hàng sự kiện chờ script lấy: client không có host chạy script đăng nhập thì không ai lấy,
+// nên hàng phải tự chặn.
+constexpr std::size_t kEventCap = 64;
+
+void push_flow_event(LoginFlow& flow, std::string_view name, std::string_view arg = {}) {
+    if (flow.events.size() >= kEventCap) return;
+    PostedEvent event{.name = std::string(name)};
+    if (!arg.empty()) event.args.emplace_back(arg);
+    flow.events.push_back(std::move(event));
+}
+
+// Cặp sự kiện mở và đóng của từng bước (Game.exe: 0x118/0x119, 0x11a/0x11b, 0x11c/0x11d,
+// 0x11e/0x11f).
+struct StepEvents {
+    std::string_view open;
+    std::string_view close;
+};
+
+[[nodiscard]] constexpr StepEvents step_events(FlowStep step) noexcept {
+    switch (step) {
+    case FlowStep::kServers:
+        return {"GAMELOGIN_OPEN_SELECT_SERVER", "GAMELOGIN_CLOSE_SELECT_SERVER"};
+    case FlowStep::kAccount: return {"GAMELOGIN_OPEN_COUNT_INPUT", "GAMELOGIN_CLOSE_COUNT_INPUT"};
+    case FlowStep::kRoles:
+        return {"GAMELOGIN_OPEN_SELECT_CHARACTOR", "GAMELOGIN_CLOSE_SELECT_CHARACTOR"};
+    case FlowStep::kCreate:
+        return {"GAMELOGIN_OPEN_CREATE_CHARACTOR", "GAMELOGIN_CLOSE_CREATE_CHARACTOR"};
+    }
+    return {};
+}
+
+// Đổi bước và đẩy cho script sự kiện đóng bước cũ rồi mở bước mới. Ở lại bảng chọn nhân vật (nhân
+// vật xoá hay tạo xong, danh sách đổi) thì đẩy GAMELOGIN_REFRESH_ROLE_SELECT_CHARACTOR (0x120) như
+// gói trả lời của máy chủ gốc.
+void enter_step(LoginFlow& flow, FlowStep next) {
+    const FlowStep was = flow.step;
+    flow.step = next;
+    push_flow_event(flow, "GAMELOGIN_CLOSE_SYSTEM_INFO");
+    if (was == next && next == FlowStep::kRoles) {
+        push_flow_event(flow, "GAMELOGIN_REFRESH_ROLE_SELECT_CHARACTOR");
+        return;
+    }
+    if (was != next) push_flow_event(flow, step_events(was).close);
+    push_flow_event(flow, step_events(next).open);
+}
+
 void show_roles(LoginFlow& flow, std::uint8_t selected) {
     if (flow.step == FlowStep::kCreate) close_create(flow.create);
-    flow.step = FlowStep::kRoles;
+    enter_step(flow, FlowStep::kRoles);
     flow.enter_game = false;
     const Roster roster = roster_of(book_of(flow), flow.account);
     open_select(flow.select, roster, selected);
@@ -120,10 +168,12 @@ void apply_delete(LoginFlow& flow) {
     show_roles(flow, flow.select.selected);
 }
 
-// Bộ đồ tân thủ mà bảng tạo đã đặt cho game, dưới dạng ba id hình của nhân vật.
-void wear_outfit(Role& role, const CreateRole& panel, const LoginFacts& facts) {
-    const NewbieOutfit* outfit = facts.cast == nullptr ? nullptr : facts.cast->outfit(panel.game.outfit);
+// Bộ đồ tân thủ số index của bảng newbie_outfits (id trùng chỉ số), dưới dạng id bộ và ba id hình
+// của nhân vật. Không có bộ đó (bảng chưa nạp, chỉ số lạ) thì giữ nhân vật như cũ.
+void dress_role(Role& role, std::int32_t index, const LoginFacts& facts) {
+    const NewbieOutfit* outfit = facts.cast == nullptr ? nullptr : facts.cast->outfit(index);
     if (outfit == nullptr) return;
+    role.outfit = static_cast<std::uint16_t>(outfit->id);
     role.body = outfit->body;
     role.arm = outfit->arm;
     role.foot = outfit->foot;
@@ -137,7 +187,7 @@ void wear_outfit(Role& role, const CreateRole& panel, const LoginFacts& facts) {
     made.sex = panel.sex == kMale ? std::uint8_t{1} : std::uint8_t{0};
     made.face = short_of(panel.game.face);
     made.hair = short_of(panel.game.hair);
-    wear_outfit(made, panel, facts);
+    dress_role(made, panel.game.outfit, facts);
     made.level = kNewLevel;
     made.sect = kNewSect;
     made.portrait = panel.game.portrait;
@@ -167,6 +217,7 @@ void accept_create(LoginFlow& flow, const LoginFacts& facts) {
     flow.dirty = true;
     const Roster roster = roster_of(flow.book, flow.account);
     const auto last = static_cast<std::uint8_t>(roster.count - 1U);
+    push_flow_event(flow, "GAMELOGIN_CREATE_ROLE_OK");
     show_roles(flow, last);
 }
 
@@ -180,9 +231,16 @@ void settle_create(LoginFlow& flow, const LoginFacts& facts, const std::vector<C
     }
 }
 
+// Còn tạo thêm được nhân vật: dưới trần ba ô, và khi trực tuyến thì máy chủ cũng cho
+// (CharacterList::can_create thay cho tin hỏi CLCheckAllowCreateChar của gốc).
+[[nodiscard]] bool may_create(const LoginFlow& flow) noexcept {
+    if (flow.select.count >= kRoleCap) return false;
+    return !flow.is_online || flow.can_create;
+}
+
 void apply_create(LoginFlow& flow, const LoginFacts& facts) {
-    if (flow.select.count >= kRoleCap) return;
-    flow.step = FlowStep::kCreate;
+    if (!may_create(flow)) return;
+    enter_step(flow, FlowStep::kCreate);
     flow.pose = {};
     std::vector<Call> calls;
     open_create(flow.create, create_facts(flow, facts), calls);
@@ -207,7 +265,7 @@ void apply_enter(LoginFlow& flow) {
 
 void apply_back(LoginFlow& flow) {
     drop_online(flow);
-    flow.step = FlowStep::kAccount;
+    enter_step(flow, FlowStep::kAccount);
     flow.enter_game = false;
     open_logon(flow.logon);
 }
@@ -220,11 +278,110 @@ void apply_select(LoginFlow& flow, SelectAction action, const LoginFacts& facts)
 }
 
 void press_roles(LoginFlow& flow, std::string_view window, const LoginFacts& facts) {
+    if (flow.is_select_scripted) return;
     press_select(flow.select, window);
     const std::optional<SelectAction> action = take_select(flow.select);
     if (!action) return;
     apply_select(flow, *action, facts);
 }
+
+// Đọc một số từ đầu chuỗi; false khi chuỗi không bắt đầu bằng số.
+template <class Number>
+[[nodiscard]] bool read_number(std::string_view text, Number& value) noexcept {
+    const char* const first = text.data();
+    const char* const last = std::to_address(text.end());
+    const auto parsed = std::from_chars(first, last, value);
+    return parsed.ec == std::errc{};
+}
+
+// Ô nhân vật trong đối số của việc script nhờ; nullopt khi không phải số hay ngoài số nhân vật đang
+// có.
+[[nodiscard]] std::optional<std::uint8_t> script_slot(const LoginFlow& flow,
+    const Call& call) noexcept {
+    int slot = -1;
+    if (!read_number(call.text, slot)) return std::nullopt;
+    if (slot < 0 || slot >= static_cast<int>(flow.select.count)) return std::nullopt;
+    return static_cast<std::uint8_t>(slot);
+}
+
+// SendEnterGameMsg(ô) và SendEnterGameMsg_New(ô): chọn ô rồi vào game.
+void script_enter(LoginFlow& flow, const Call& call, const LoginFacts&) {
+    const std::optional<std::uint8_t> slot = script_slot(flow, call);
+    if (!slot || flow.step != FlowStep::kRoles) return;
+    flow.select.selected = *slot;
+    apply_enter(flow);
+}
+
+// MoveToCharacter(ô): chọn ô khác ô đang chọn và đẩy GAMELOGIN_SELECTCHARACTER(ô) (Game.exe
+// 0x14063c480).
+void script_move(LoginFlow& flow, const Call& call, const LoginFacts&) {
+    const std::optional<std::uint8_t> slot = script_slot(flow, call);
+    if (!slot || flow.step != FlowStep::kRoles) return;
+    if (*slot == flow.select.selected) return;
+    flow.select.selected = *slot;
+    push_flow_event(flow, "GAMELOGIN_SELECTCHARACTER", std::to_string(*slot));
+}
+
+// DelSelRole(): xoá nhân vật ở ô đang chọn (script đặt ô bằng SetCurSelect trước khi hỏi).
+void script_delete(LoginFlow& flow, const Call&, const LoginFacts&) {
+    if (flow.step == FlowStep::kRoles) apply_delete(flow);
+}
+
+void script_back(LoginFlow& flow, const Call&, const LoginFacts&) {
+    if (flow.step == FlowStep::kRoles) apply_back(flow);
+}
+
+// ChangeToCreateRoleDlgFromSelectRole() (Game.exe 0x1403414a0): đủ ba nhân vật thì hộp thông báo
+// "Role_Is_Full".
+void script_open_create(LoginFlow& flow, const Call&, const LoginFacts& facts) {
+    if (flow.step != FlowStep::kRoles) return;
+    if (!may_create(flow)) {
+        show_system_info(flow.system_info, "#{LCRetCreateCharHandler_Info_Role_Is_Full}");
+        return;
+    }
+    apply_create(flow, facts);
+}
+
+[[nodiscard]] std::optional<float> script_number(const Call& call) noexcept {
+    float value = 0.0F;
+    if (!read_number(call.text, value)) return std::nullopt;
+    return value;
+}
+
+// ModelRotBegin(vòng/giây) và ModelRotEnd(vòng/giây): đặt tốc độ quay người mẫu (Game.exe
+// 0x1403441a0, 0x140344230).
+void script_spin(LoginFlow& flow, const Call& call, const LoginFacts&) {
+    const std::optional<float> spin = script_number(call);
+    if (spin && flow.step == FlowStep::kRoles) hold_turn(flow.pose, *spin);
+}
+
+// ModelZoom(hướng): -1 lùi, 1 tiến, 0 thôi (Game.exe 0x140344320).
+void script_zoom(LoginFlow& flow, const Call& call, const LoginFacts&) {
+    const std::optional<float> zoom = script_number(call);
+    if (!zoom || flow.step != FlowStep::kRoles) return;
+    const std::int8_t forward = *zoom > 0.0F ? 1 : 0;
+    const std::int8_t backward = *zoom < 0.0F ? 1 : 0;
+    flow.pose.zoom = static_cast<std::int8_t>(forward - backward);
+}
+
+using ScriptRoute = void (*)(LoginFlow&, const Call&, const LoginFacts&);
+
+struct ScriptWork {
+    Ask ask;
+    ScriptRoute route;
+};
+
+constexpr std::array<ScriptWork, 9> kScriptWorks = {{
+    {.ask = Ask::kEnterGame, .route = &script_enter},
+    {.ask = Ask::kEnterGameNew, .route = &script_enter},
+    {.ask = Ask::kMoveToCharacter, .route = &script_move},
+    {.ask = Ask::kDeleteRole, .route = &script_delete},
+    {.ask = Ask::kBackToAccount, .route = &script_back},
+    {.ask = Ask::kOpenCreateRole, .route = &script_open_create},
+    {.ask = Ask::kModelRotBegin, .route = &script_spin},
+    {.ask = Ask::kModelRotEnd, .route = &script_spin},
+    {.ask = Ask::kModelZoom, .route = &script_zoom},
+}};
 
 void press_making(LoginFlow& flow, std::string_view window, const LoginFacts& facts) {
     std::vector<Call> calls;
@@ -237,7 +394,7 @@ void press_making(LoginFlow& flow, std::string_view window, const LoginFacts& fa
 void go_to_servers(LoginFlow& flow) {
     drop_online(flow);
     flow.is_online = false;
-    flow.step = FlowStep::kServers;
+    enter_step(flow, FlowStep::kServers);
     flow.enter_game = false;
     flow.pose = {};
     open_servers(flow.servers, flow.directory, flow.last, flow.chosen);
@@ -276,7 +433,7 @@ void enter_account(LoginFlow& flow, ServerRef server, const LoginFacts& facts) {
     flow.chosen = server;
     const LoginServer* picked = server_at(flow.directory, server);
     flow.is_online = picked != nullptr && picked->is_online;
-    flow.step = FlowStep::kAccount;
+    enter_step(flow, FlowStep::kAccount);
     flow.enter_game = false;
     open_logon(flow.logon);
     note_situation(flow, server, facts);
@@ -408,7 +565,7 @@ void start_login(LoginFlow& flow) {
     flow.is_online = false;
     flow.is_waiting = false;
     open_logon(flow.logon);
-    flow.step = FlowStep::kAccount;
+    enter_step(flow, FlowStep::kAccount);
     flow.enter_game = false;
     flow.pending.reset();
     flow.pose = {};
@@ -429,23 +586,46 @@ std::vector<OnlineAsk> take_asks(LoginFlow& flow) noexcept {
     return std::exchange(flow.asks, {});
 }
 
+std::vector<PostedEvent> take_flow_events(LoginFlow& flow) noexcept {
+    return std::exchange(flow.events, {});
+}
+
+bool apply_script_call(LoginFlow& flow, const Call& call, const LoginFacts& facts) {
+    const auto work = std::ranges::find(kScriptWorks, call.ask, &ScriptWork::ask);
+    if (work == kScriptWorks.end()) return false;
+    work->route(flow, call, facts);
+    return true;
+}
+
 namespace {
 
-// Nhân vật của máy chủ thành nhân vật của sổ. Máy chủ chưa lưu chân dung nên lấy chân dung đầu của giới.
+// Ảnh của chân dung theo id; rỗng khi bảng chân dung chưa nạp.
+[[nodiscard]] std::string portrait_icon(const LoginFacts& facts, std::int32_t portrait) {
+    if (facts.portraits == nullptr) return {};
+    const hero::PortraitId id{portrait};
+    return std::string(facts.portraits->image_of(id));
+}
+
+// Nhân vật của máy chủ thành nhân vật của sổ: ảnh chân dung và ba id hình trang phục suy từ id
+// chân dung và id bộ đồ máy chủ lưu. Chân dung 0 (máy chủ chưa lưu) lấy chân dung đầu của giới.
 void admit_remote(LoginFlow& flow, const OnlineReply& reply, const LoginFacts& facts) {
     flow.remote = {};
     for (Role role : reply.roles) {
-        role.portrait = role.sex == 1 ? kMalePortrait : kFemalePortrait;
-        if (facts.portraits != nullptr) role.icon = std::string(facts.portraits->image_of(hero::PortraitId{role.portrait}));
-        flow.remote.rows.push_back(StoredRole{.account = flow.account, .role = std::move(role)});
+        if (role.portrait <= 0) role.portrait = role.sex == 1 ? kMalePortrait : kFemalePortrait;
+        role.icon = portrait_icon(facts, role.portrait);
+        dress_role(role, role.outfit, facts);
+        StoredRole row{.account = flow.account, .role = std::move(role)};
+        flow.remote.rows.push_back(std::move(row));
     }
 }
 
 void settle_roster(LoginFlow& flow, const OnlineReply& reply, const LoginFacts& facts) {
     const FlowStep was = flow.step;
+    flow.can_create = reply.can_create;
     admit_remote(flow, reply, facts);
     const Roster roster = roster_of(flow.remote, flow.account);
     const auto newest = static_cast<std::uint8_t>(roster.count == 0 ? 0 : roster.count - 1U);
+    if (was == FlowStep::kCreate) push_flow_event(flow, "GAMELOGIN_CREATE_ROLE_OK");
     show_roles(flow, was == FlowStep::kCreate ? newest : (was == FlowStep::kAccount ? std::uint8_t{0} : flow.select.selected));
 }
 
@@ -462,7 +642,7 @@ void settle_refused(LoginFlow& flow, OnlineFault fault) {
 void settle_lost(LoginFlow& flow, OnlineFault fault) {
     flow.remote = {};
     if (flow.step == FlowStep::kCreate) close_create(flow.create);
-    flow.step = FlowStep::kAccount;
+    enter_step(flow, FlowStep::kAccount);
     flow.enter_game = false;
     flow.pose = {};
     open_logon(flow.logon);
@@ -537,6 +717,7 @@ void hover_flow(LoginFlow& flow, std::string_view window, std::optional<std::siz
 }
 
 void hold_flow(LoginFlow& flow, std::string_view window) noexcept {
+    if (flow.step == FlowStep::kRoles && flow.is_select_scripted) return;
     const bool is_making = flow.step == FlowStep::kCreate;
     hold_turn(flow.pose, is_making ? static_cast<float>(flow.create.game.spin) : spin_of(window));
     flow.pose.zoom = held_zoom(flow, window);
@@ -616,7 +797,7 @@ void key_flow(LoginFlow& flow, char32_t code) {
 void paint_flow(Deck& deck, const LoginFlow& flow, const gui::TextMeter* meter) {
     if (flow.step == FlowStep::kServers) paint_server(deck, flow.servers);
     if (flow.step == FlowStep::kAccount) paint_logon(deck, flow.logon);
-    if (flow.step == FlowStep::kRoles) paint_select(deck, flow.select);
+    if (flow.step == FlowStep::kRoles && !flow.is_select_scripted) paint_select(deck, flow.select);
     if (flow.step == FlowStep::kCreate) paint_create(deck, flow.create);
     paint_system_info(deck, flow.system_info, meter);
 }

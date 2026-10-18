@@ -37,6 +37,9 @@ struct Role {
     std::uint8_t sect = kNewSect;
     std::int32_t portrait = 1;
     std::string icon;
+    // Id bộ đồ tân thủ (cột id của newbie_outfits.tsv) gửi cho máy chủ lúc tạo và nhận lại ở danh
+    // sách; body, arm, foot suy ra từ nó. Sổ cục bộ không ghi (nó ghi thẳng ba id hình).
+    std::uint16_t outfit = 0;
     // Id nhân vật do máy chủ cấp (CharacterSummary::id); 0 với nhân vật của sổ cục bộ. Không ghi vào tệp sổ.
     std::uint64_t id = 0;
 

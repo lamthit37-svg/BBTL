@@ -54,13 +54,19 @@ struct AutoLogin {
     return ask;
 }
 
-// Nhân vật thử: nam, mặt 100, tóc 5 như thienlong_bot (bộ mặt và tóc máy chủ nhận); tên là tên tài khoản.
+// Ảnh chân dung nam đầu tiên mà máy chủ nhận lúc tạo (portraits.tsv, choice 3); bộ đồ tân thủ 0.
+inline constexpr std::int32_t kAutoPortrait = 52;
+
+// Nhân vật thử: nam, mặt 100, tóc 5, chân dung 52, bộ đồ 0 như thienlong_bot (bộ mặt, tóc, chân
+// dung và bộ đồ máy chủ nhận); tên là tên tài khoản.
 [[nodiscard]] inline ui::panel::Role auto_role(std::string_view account) {
     ui::panel::Role role;
     role.name = std::string(account);
     role.sex = 1;
     role.face = 100;
     role.hair = 5;
+    role.portrait = kAutoPortrait;
+    role.outfit = 0;
     return role;
 }
 

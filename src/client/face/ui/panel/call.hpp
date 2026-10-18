@@ -80,6 +80,19 @@ enum class Ask : std::uint8_t {
     kMeshZoom,
     // AskServerTimeAgain(): xin máy chủ gửi lại giờ (gói CGAskServerTime, Game.exe 0x140246fe0).
     kAskServerTime,
+    // Việc bảng chọn nhân vật nhờ chuỗi đăng nhập (GameProduceLogin:*, chữ là đối số):
+    // SendEnterGameMsg(ô) 0x140341da0 và SendEnterGameMsg_New(ô) 0x140341e00: vào game.
+    kEnterGame,
+    kEnterGameNew,
+    // MoveToCharacter(ô) 0x1403442c0: chọn ô và đẩy GAMELOGIN_SELECTCHARACTER(ô).
+    kMoveToCharacter,
+    // DelSelRole() 0x140342a50: xoá nhân vật ở ô SetCurSelect đã đặt; CancelDelRole() 0x140342a70.
+    kDeleteRole,
+    kCancelDeleteRole,
+    // ChangeToAccountInputDlgFromSelectRole() 0x140341480: về bảng tài khoản.
+    kBackToAccount,
+    // ChangeToCreateRoleDlgFromSelectRole() 0x1403414a0: sang bảng tạo.
+    kOpenCreateRole,
 };
 
 struct Call {
@@ -126,6 +139,13 @@ struct Call {
     case Ask::kMeshSetCamera: return "SetCameraEx";
     case Ask::kMeshZoom: return "ChangeCameraDistanceEx";
     case Ask::kAskServerTime: return "AskServerTimeAgain";
+    case Ask::kEnterGame: return "SendEnterGameMsg";
+    case Ask::kEnterGameNew: return "SendEnterGameMsg_New";
+    case Ask::kMoveToCharacter: return "MoveToCharacter";
+    case Ask::kDeleteRole: return "DelSelRole";
+    case Ask::kCancelDeleteRole: return "CancelDelRole";
+    case Ask::kBackToAccount: return "ChangeToAccountInputDlgFromSelectRole";
+    case Ask::kOpenCreateRole: return "ChangeToCreateRoleDlgFromSelectRole";
     }
     return {};
 }

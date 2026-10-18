@@ -559,6 +559,8 @@ private:
         message.gender = request.gender;
         message.face = request.face;
         message.hair = request.hair;
+        message.portrait = request.portrait;
+        message.equip_set = request.equip_set;
         send_request(Ask::kCreate, message);
     }
 
@@ -860,7 +862,8 @@ private:
     void deliver(Phase before, protocol::GameServerMessage message) {
         if (auto* list = std::get_if<protocol::CharacterList>(&message)) {
             roster_ = list->characters;
-            emit(Roster{.characters = std::move(list->characters)});
+            const bool can_create = list->can_create;
+            emit(Roster{.characters = std::move(list->characters), .can_create = can_create});
             return;
         }
         const auto* started = std::get_if<protocol::SessionStart>(&message);

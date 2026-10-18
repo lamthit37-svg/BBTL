@@ -54,6 +54,12 @@ enum class OnlineFault : std::uint8_t {
     kNameInvalid,
     kRoleLimit,
     kNoRole,
+    // Mã 41, 42, 43 của v9: hết nhân vật để xoá, nhân vật còn trong phiên, lỗi trong của máy chủ;
+    // và xoá dồn nhịp (mã 2 của gói trả lời xoá gốc, chữ riêng).
+    kNoRoleToDelete,
+    kRoleOnline,
+    kInternal,
+    kDeleteTooSoon,
     kElsewhere,
     kClosed,
     kOther,
@@ -64,8 +70,8 @@ enum class OnlineFault : std::uint8_t {
 // Câu "đang nối" hiện trong lúc chờ trả lời.
 inline constexpr std::string_view kOnlineWaiting = "正在连接服务器…";
 
-// Chân dung tạm cho nhân vật của máy chủ: CharacterSummary chưa mang chân dung nên dùng chân dung đầu của giới
-// (id trong Table/portraits.tsv).
+// Chân dung thay khi máy chủ báo chân dung 0 (chưa lưu): chân dung đầu của giới (id trong
+// Table/portraits.tsv).
 inline constexpr std::int32_t kFemalePortrait = 1;
 inline constexpr std::int32_t kMalePortrait = 13;
 
@@ -85,6 +91,8 @@ struct OnlineReply {
 
     Kind kind = Kind::kLost;
     std::vector<Role> roles;
+    // kRoster: máy chủ cho tạo thêm nhân vật (CharacterList::can_create).
+    bool can_create = true;
     OnlineFault fault = OnlineFault::kOther;
     std::int32_t scene = 0;
     float x_cm = 0.0F;

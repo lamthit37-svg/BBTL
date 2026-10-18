@@ -38,8 +38,8 @@ namespace game::client::online {
 [[nodiscard]] ui::panel::OnlineFault fault_of(protocol::ErrorCode code) noexcept;
 [[nodiscard]] ui::panel::OnlineFault fault_of(const session::Lost& lost) noexcept;
 
-// Nhân vật của máy chủ thành nhân vật của sổ chọn. Chân dung và ảnh do chuỗi đăng nhập gán; bộ đồ để mặc định của giới
-// (CharacterSummary chưa mang trang phục).
+// Nhân vật của máy chủ thành nhân vật của sổ chọn. Id chân dung và id bộ đồ lấy từ dây; ảnh chân
+// dung và ba id hình trang phục do chuỗi đăng nhập suy ra từ chúng (cần bảng của client).
 [[nodiscard]] ui::panel::Role role_of(const protocol::CharacterSummary& character);
 
 // Một sự kiện của phiên thành trả lời cho chuỗi đăng nhập; không có khi sự kiện không cần chuỗi biết (tin thế giới

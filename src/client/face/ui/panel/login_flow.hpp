@@ -18,7 +18,9 @@
 
 #include "gui/sheet.hpp"
 #include "gui/strings.hpp"
+#include "ui/panel/call.hpp"
 #include "ui/panel/create_role.hpp"
+#include "ui/panel/events.hpp"
 #include "ui/panel/logon.hpp"
 #include "ui/panel/online.hpp"
 #include "ui/panel/portraits.hpp"
@@ -79,6 +81,8 @@ struct LoginFlow {
     // Chế độ trực tuyến: nhân vật do máy chủ báo, việc đã nhờ chưa có trả lời, và việc chờ phần nối lấy.
     Book remote;
     bool is_online = false;
+    // Máy chủ cho tạo thêm nhân vật (cờ của danh sách nhân vật mới nhất); chế độ cục bộ không dùng.
+    bool can_create = true;
     bool is_waiting = false;
     std::vector<OnlineAsk> asks;
     std::string account;
@@ -94,6 +98,14 @@ struct LoginFlow {
     std::array<std::uint32_t, 2> seen_turns{};
     // Trạng thái xúc xắc của bảng tạo, luôn khác 0.
     std::uint32_t dice = kDiceSeed;
+    // Sự kiện GAMELOGIN_* chuỗi đẩy cho script giao diện kể từ lần lấy trước (take_flow_events): mở
+    // và đóng của từng bước, làm mới danh sách nhân vật, chọn ô. Chỉ có tác dụng khi host chạy
+    // script của cửa sổ đăng nhập.
+    std::vector<PostedEvent> events;
+    // Bảng chọn nhân vật do script điều khiển (cửa sổ LoginSelectRole nằm trong host): bảng port
+    // tay không vẽ, không nhận nhấn, và người mẫu quay, phóng theo ModelRotBegin, ModelRotEnd,
+    // ModelZoom của script chứ không theo nút của bảng.
+    bool is_select_scripted = false;
 };
 
 // Mở thủ tục đăng nhập: bảng chọn máy chủ khi đã nạp danh sách, không thì bảng tài khoản. Giữ sổ và
@@ -117,6 +129,12 @@ void recall_last(LoginFlow& flow, std::string_view text);
 void mark_last_saved(LoginFlow& flow) noexcept;
 // Đang ở bảng tài khoản: bàn phím ảo chỉ mở ở bước này.
 [[nodiscard]] bool on_account(const LoginFlow& flow) noexcept;
+// Sự kiện GAMELOGIN_* đẩy cho script; lấy rồi thì hết.
+[[nodiscard]] std::vector<PostedEvent> take_flow_events(LoginFlow& flow) noexcept;
+// Việc một hàm GameProduceLogin:* của script nhờ (call.ask là Ask đăng nhập: vào game, chọn ô, xoá,
+// về bảng tài khoản, sang bảng tạo, quay và phóng người mẫu). false khi call không phải việc của
+// chuỗi đăng nhập hay không làm được ở bước này.
+bool apply_script_call(LoginFlow& flow, const Call& call, const LoginFacts& facts);
 // Một lần nhấn trái. facts.element còn là mục của danh sách đuôi tài khoản dưới chuột khi cửa sổ nhấn là danh sách ấy.
 void press_flow(LoginFlow& flow, std::string_view window, const LoginFacts& facts);
 // Danh sách đuôi tài khoản đang mở: lần nhấn kế là của nó, không bấm gì khác.

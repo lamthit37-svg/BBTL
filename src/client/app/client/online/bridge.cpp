@@ -80,6 +80,7 @@ namespace talk = ui::panel::talk;
     OnlineReply reply = plain(OnlineReply::Kind::kRoster);
     reply.roles.reserve(roster.characters.size());
     for (const protocol::CharacterSummary& character : roster.characters) reply.roles.push_back(role_of(character));
+    reply.can_create = roster.can_create;
     return reply;
 }
 
@@ -108,6 +109,8 @@ namespace talk = ui::panel::talk;
         made.gender = ask.role.sex == 1 ? protocol::Gender::kMale : protocol::Gender::kFemale;
         made.face = ask.role.face;
         made.hair = ask.role.hair;
+        made.portrait = static_cast<std::uint16_t>(ask.role.portrait);
+        made.equip_set = ask.role.outfit;
         return made;
     }
     case ui::panel::OnlineWork::kDelete: return session::Delete{.character = ask.role.id};
@@ -558,6 +561,9 @@ OnlineFault fault_of(protocol::ErrorCode code) noexcept {
     case protocol::ErrorCode::kNameInvalid: return OnlineFault::kNameInvalid;
     case protocol::ErrorCode::kCharacterLimit: return OnlineFault::kRoleLimit;
     case protocol::ErrorCode::kNoSuchCharacter: return OnlineFault::kNoRole;
+    case protocol::ErrorCode::kNoCharacterToDelete: return OnlineFault::kNoRoleToDelete;
+    case protocol::ErrorCode::kCharacterOnline: return OnlineFault::kRoleOnline;
+    case protocol::ErrorCode::kInternal: return OnlineFault::kInternal;
     case protocol::ErrorCode::kVersionMismatch:
     case protocol::ErrorCode::kMalformed:
     case protocol::ErrorCode::kOutOfOrder: return OnlineFault::kProtocol;
@@ -587,7 +593,18 @@ ui::panel::Role role_of(const protocol::CharacterSummary& character) {
     role.hair = character.hair;
     role.level = character.level;
     role.sect = character.school;
+    role.portrait = character.portrait;
+    role.outfit = character.equip_set;
     return role;
+}
+
+// Lý do một việc bị từ chối. Xoá dồn nhịp có chữ riêng (mã 2 của gói trả lời xoá gốc, Game.exe
+// 0x1408319c0), khác chữ "bận" của các việc khác.
+OnlineFault refused_fault(const session::Rejected& rejected) noexcept {
+    const bool is_delete = rejected.ask == session::Ask::kDelete;
+    const bool is_paced = rejected.code == protocol::ErrorCode::kRateLimited;
+    if (is_delete && is_paced) return OnlineFault::kDeleteTooSoon;
+    return fault_of(rejected.code);
 }
 
 std::optional<OnlineReply> reply_of(const session::Event& event) {
@@ -596,7 +613,7 @@ std::optional<OnlineReply> reply_of(const session::Event& event) {
         std::optional<OnlineReply> operator()(const session::Rejected& rejected) const {
             // Việc hộp thoại bị từ chối không liên quan chuỗi đăng nhập.
             if (rejected.ask == session::Ask::kSpeak) return std::nullopt;
-            return fault_reply(OnlineReply::Kind::kRefused, fault_of(rejected.code));
+            return fault_reply(OnlineReply::Kind::kRefused, refused_fault(rejected));
         }
         std::optional<OnlineReply> operator()(const session::Entered& entered) const { return entered_reply(entered); }
         std::optional<OnlineReply> operator()(const session::World& world) const { return world_reply(world); }

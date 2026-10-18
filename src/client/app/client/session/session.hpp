@@ -57,6 +57,10 @@ struct Create {
     protocol::Gender gender = protocol::Gender::kFemale;
     std::uint16_t face = 0;
     std::uint16_t hair = 0;
+    // Ảnh chân dung (cột id của portraits.tsv) và bộ đồ tân thủ (newbie_outfits.tsv) người chơi
+    // chọn.
+    std::uint16_t portrait = 0;
+    std::uint16_t equip_set = 0;
 };
 
 struct Delete {
@@ -101,6 +105,9 @@ enum class Fault : std::uint8_t {
 // Danh sách nhân vật mới (sau SignIn, Create, Delete).
 struct Roster {
     std::vector<protocol::CharacterSummary> characters;
+    // Máy chủ cho phép tạo thêm nhân vật (CharacterList::can_create); thay tin hỏi
+    // CLCheckAllowCreateChar của gốc.
+    bool can_create = false;
 };
 
 // Máy chủ từ chối việc `ask` (request là mã tin bị từ chối, 0 khi từ chối ở phía client). Phiên vẫn dùng được.
