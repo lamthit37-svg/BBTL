@@ -605,9 +605,10 @@ Kiểm: cổng xanh (cài lỗi cố ý thấy đỏ), ctest đủ, ảnh bản 
    tự push. Trước khi push, điều phối đọc `git log origin/chuan-hoa..HEAD` ở một lệnh riêng; commit
    nào trong đó chưa kiểm trên HEAD thì kiểm xong mới push (hai lần 2026-10-18 lượt push hồ sơ kéo
    theo commit của làn chưa kiểm: `8030927b`, `81bb6785`, cả hai kiểm bù đạt).
-8. Configure mọi cây với `-DVCPKG_MANIFEST_INSTALL=OFF` (chốt 2026-10-18). Cây
-   `C:\dev\third_party\installed` dùng chung với Dragon; cài theo manifest gỡ gói của dự án kia.
-   Thiếu gói thì nhắn điều phối, không tự bật lại.
+8. Cây vcpkg: từ 2026-10-18 mỗi dự án có cây riêng, `C:\dev\third_party\installed\thienlong`. Chủ
+   máy chốt việc tách vì cây chung bị dự án khác gỡ gói ba lần trong một ngày. Toolchain chung tự đặt
+   cây theo `name` trong `vcpkg.json`, và cài theo manifest lại được bật. Mỗi cây build cũ phải
+   configure lại một lần với `--fresh`; không có bước đó, cache còn trỏ vào cây chung cũ.
 
 ## 7. Lệnh kiểm thực E2E
 
@@ -654,6 +655,7 @@ python -B TOOLS/run/desk_watch.py <lệnh> [đối số]... — mã thoát là m
 | G7 | chưa | chưa | |
 | G8 | chưa | chưa | |
 | G9 | chưa | chưa | |
+| B19, H1 | — | B19 đạt (`6af42661`: `Scene::blocked` kiểm cả đoạn đi); H1-B chưa | Điều phối kiểm B19 trên HEAD `8692e3e1`: bot `--leap 1` 4/4 bị đặt lại, `e2e_g0` đạt |
 
 ### Dừng và mở lại 2026-10-18
 
@@ -673,7 +675,7 @@ Việc dở chưa kiểm của ba làn chụp ở nhánh `luu-tam/2026-10-18-vie
 | Gói N | Trạng thái | Ghi chú |
 |---|---|---|
 | N0 | đạt | Điều phối duyệt 2026-10-18; quyết định ở mục 5.12 |
-| N1 (G3) | đang làm; phần 1 đạt (`1381feef`: cấp 1400 lần vào đầu, menu 赵天师 hết mục chết, hết `}` thừa, giao thức v8) | Điều phối kiểm trên HEAD: bot 6/6, `n1-tanthu` A 12/12. Phần 2 đạt (`2a03a240`: dòng nhiệm vụ dùng biểu tượng QuestButtonImage). Phần 3 đạt (`5b5610fc`, `3badaae4`: 10 hàm DataPool sổ nhiệm vụ, QuestLog script mở không sập). Còn: bước 2 hàm cần định nghĩa nhiệm vụ (MisDesc), QuestLog còn trống, MissionTrack |
+| N1 (G3) | đang làm; phần 1 đạt (`1381feef`: cấp 1400 lần vào đầu, menu 赵天师 hết mục chết, hết `}` thừa, giao thức v8) | Điều phối kiểm trên HEAD: bot 6/6, `n1-tanthu` A 12/12. Phần 2 đạt (`2a03a240`: dòng nhiệm vụ dùng biểu tượng QuestButtonImage). Phần 3 đạt (`5b5610fc`, `3badaae4`: 10 hàm DataPool sổ nhiệm vụ, QuestLog script mở không sập). Phần 2a đạt (`8692e3e1`: bộ đọc MisDesc, đối chiếu Game.exe; ánh xạ hai bảng hàm còn chờ đọc mảng con trỏ, NGHI-NGO 76). Còn: bước 2b khoảng 35 hàm DataPool, QuestLog còn trống, MissionTrack |
 | N2 | chưa | |
 | N3 | chưa | |
 | N4 | chưa | Phụ bản cần đội phụ thuộc G9 |
