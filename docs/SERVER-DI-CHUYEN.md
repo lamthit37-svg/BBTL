@@ -68,7 +68,11 @@ vẫn ngắt khi xả liên tục.
 - Độ nới `kWalkSlackCm` = 20 cm: một điểm đi được khi nó hoặc điểm lệch 20 cm theo bốn hướng đi được. Client đi bằng cùng lưới nên đứng
   trong nó; độ nới chỉ để số thực làm tròn ở mép tam giác không đẩy người chơi ra ngoài (một bước tối đa là 15,5 cm).
 - B19: `Scene::blocked` lấy mẫu dọc đoạn đi, cách nhau `kStepSampleCm` = 20 cm, nên tường dày hơn 40 cm không lọt giữa hai mẫu.
-- Cảnh không có lưới đi (`WalkSource::kNone`) hoặc không nạp được dữ liệu thì không có luật đi: đi đâu cũng được (thay vì chặn mọi bước).
+- Cảnh không có lưới đi (`WalkSource::kNone`), không nạp được dữ liệu hay id không có trong bảng id cảnh thì zone TỪ CHỐI nạp cảnh
+  (`SceneContent::refused`): `Host::scene_for` trả null, người vào nhận `kBusy`, dịch chuyển sang cảnh đó không xảy ra, và zone ghi một dòng
+  log "từ chối nạp cảnh" cho mỗi cảnh. Trước đó (lỗ #5 của kiểm đỏ H1-B) cảnh thiếu dữ liệu vẫn được dựng không có luật đi nên xuyên mọi tường.
+  Khác gốc: máy chủ 2008 không chạy cảnh thiếu tệp đường đi. Cảnh dựng tay trong test (`Seeder` rỗng hay không đặt `refused`) vẫn không có
+  luật đi: chỉ đường chạy thật qua `disk_seeder` bị siết.
 - Giới hạn đã biết: chưa kiểm trục Y; bảng quái 2008 lệch bố cục map 2026 (Đại Lý 50/164 điểm đặt ngoài lưới, `docs/SERVER-SCENEDATA.md` mục 5) nên
   quái đặt ngoài lưới vẫn đứng đó.
 - Kiểm: `walkable_*` và `host_*` trong `zone_tests`; `guard_tests`, `gate_motion_tests`; đầu cuối trên cụm thật bằng `thienlong_bot`

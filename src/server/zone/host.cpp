@@ -269,6 +269,7 @@ Scene* Host::scene_for(std::uint16_t id) {
     if (Scene* existing = find(id)) return existing;
     if (scenes_.size() >= config_.scene_max) return nullptr;
     SceneContent content = config_.seeder ? config_.seeder(id) : SceneContent{};
+    if (content.refused) return nullptr;
     Scene::Config made = config_of(config_, id, content);
     Scene& created = scenes_.try_emplace(id, std::move(made)).first->second;
     seed(created, content.seeds);

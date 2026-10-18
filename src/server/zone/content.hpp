@@ -142,10 +142,12 @@ private:
     std::map<std::uint16_t, Range> ranges_;
 };
 
-// Luật đi của một cảnh từ lưới đi của dữ liệu cảnh (scenedata::Walk). Client đi bằng cùng lưới nên đứng trong nó;
-// độ lệch kWalkSlackCm chỉ để số thực làm tròn ở mép tam giác không đẩy người chơi ra ngoài (15,5 cm là một bước của
-// 30 bước mỗi giây ở tốc độ tối đa). Một điểm đi được khi nó hoặc điểm lệch kWalkSlackCm theo bốn hướng đi được.
-// Cảnh không có lưới đi (WalkSource::kNone) thì trả rỗng: đi đâu cũng được, thay vì chặn mọi bước.
+// Luật đi của một cảnh từ lưới đi của dữ liệu cảnh (scenedata::Walk). Client đi bằng cùng lưới nên
+// đứng trong nó; độ lệch kWalkSlackCm chỉ để số thực làm tròn ở mép tam giác không đẩy người chơi
+// ra ngoài (15,5 cm là một bước của 30 bước mỗi giây ở tốc độ tối đa). Một điểm đi được khi nó hoặc
+// điểm lệch kWalkSlackCm theo bốn hướng đi được. Cảnh không có lưới đi (WalkSource::kNone) thì trả
+// rỗng. Rỗng nghĩa là không có luật đi: bên gọi trên đường thật (disk_seeder) không được dựng cảnh
+// như vậy mà phải từ chối nạp (SceneContent::refused), vì cảnh không luật đi cho xuyên mọi tường.
 inline constexpr float kWalkSlackCm = 20.0F;
 [[nodiscard]] Walkable walkable_of(std::shared_ptr<const scenedata::Walk> walk);
 
@@ -155,6 +157,10 @@ struct SceneContent {
     Walkable walkable{};
     // Vùng sự kiện, cổng đi bộ đã buộc vào ScenePosDefineEx. Rỗng khi cảnh không có areas.
     std::vector<AreaRect> areas;
+    // true: cảnh thiếu dữ liệu (id lạ, bảng id hay thư mục cảnh hỏng, không có lưới đi). Host không
+    // dựng cảnh và từ chối người vào bằng kBusy: thà không vào còn hơn vào một cảnh không tường.
+    // Mặc định false để cảnh dựng tay trong test vẫn dùng được.
+    bool refused = false;
 };
 
 using Seeder = std::function<SceneContent(std::uint16_t scene)>;

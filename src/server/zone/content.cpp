@@ -40,6 +40,7 @@
 #include <memory>
 #include <optional>
 #include <print>
+#include <set>
 #include <string>
 #include <string_view>
 #include <system_error>
@@ -321,6 +322,9 @@ struct DiskState {
     bool has_ai_types = false;
     std::vector<WalkGate> gates;
     std::vector<std::int32_t> chuansong;
+    // Cảnh đã nói to là bị từ chối: mỗi cảnh một dòng log, người vào lại nhiều lần không làm ngập
+    // log.
+    std::set<std::uint16_t> reported;
 
     void open() {
         tried = true;
@@ -393,17 +397,29 @@ struct DiskState {
         }
     }
 
+    // Khác gốc: cảnh thiếu dữ liệu thì không dựng "trần" (không quái, không luật đi, xuyên mọi
+    // tường) như bản đầu của ta, mà từ chối nạp và nói to một lần. Máy chủ 2008 không chạy cảnh
+    // thiếu tệp đường đi.
+    [[nodiscard]] SceneContent refuse(std::uint16_t scene, std::string_view why) {
+        const bool is_new = reported.insert(scene).second;
+        if (is_new) std::println(stderr, "zone: cảnh {}: {}: từ chối nạp cảnh", scene, why);
+        SceneContent denied;
+        denied.refused = true;
+        return denied;
+    }
+
     [[nodiscard]] SceneContent content(std::uint16_t scene) {
         if (!tried) open();
-        if (!directory) return {};
+        if (!directory) return refuse(scene, "không có bảng id cảnh");
         const std::string_view name = directory->dir_of(scene);
-        if (name.empty()) return {};
-        scenedata::Loaded<scenedata::Scene> loaded = scenedata::load_scene(paths.scenes / std::string{name});
-        if (!loaded) {
-            std::println(stderr, "zone: cảnh {} ({}): {}", scene, name, loaded.error().what);
-            return {};
-        }
-        const SeedTables tables{.templates = &templates, .ai_types = has_ai_types ? &ai_types : nullptr, .talks = talks};
+        if (name.empty()) return refuse(scene, "id không có trong bảng id cảnh");
+        const std::filesystem::path dir = paths.scenes / std::string{name};
+        scenedata::Loaded<scenedata::Scene> loaded = scenedata::load_scene(dir);
+        if (!loaded) return refuse(scene, std::format("{}: {}", name, loaded.error().what));
+        const bool has_walk = loaded->walk.source != scenedata::WalkSource::kNone;
+        if (!has_walk) return refuse(scene, std::format("{}: không có lưới đi", name));
+        const AiTypeTable* ai_table = has_ai_types ? &ai_types : nullptr;
+        const SeedTables tables{.templates = &templates, .ai_types = ai_table, .talks = talks};
         Seeding seeding = seeds_of(*loaded, cap, tables, hz);
         if (seeding.over_cap > 0) {
             std::println(stderr, "zone: cảnh {} ({}): bỏ {} thực thể vượt trần {}", scene, name, seeding.over_cap, cap);

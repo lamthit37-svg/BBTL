@@ -807,6 +807,30 @@ void host_refuses_bad_attach(Context& context) {
     context.expect(busy == 1 && host.scene_count() == 2, "quá scene_max: cảnh thứ ba bị từ chối kBusy");
 }
 
+[[nodiscard]] bool refused_with(Outbox& out, std::uint64_t session, protocol::ErrorCode code) {
+    for (const zone::Letter& letter : out.letters()) {
+        const auto refuse = letter.kind == ipc::Relay::kRefuse ? ipc::decode_refuse(letter.body) : std::nullopt;
+        if (refuse && refuse->code == code && letter.session == session) return true;
+    }
+    return false;
+}
+
+void host_refuses_scene_the_seeder_refuses(Context& context) {
+    Host::Config config;
+    config.seeder = [](std::uint16_t scene) {
+        zone::SceneContent content;
+        content.refused = scene == 9;
+        return content;
+    };
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 1, ipc::encode_body(arrival(1, 0.0F, 0.0F, 9))), out);
+    context.expect(refused_with(out, 1, protocol::ErrorCode::kBusy), "cảnh bị từ chối nạp thì người vào nhận kBusy");
+    context.expect(host.scene_count() == 0 && host.player_count() == 0, "cảnh bị từ chối không được dựng");
+    host.handle(frame_of(ipc::Relay::kAttach, 2, ipc::encode_body(arrival(2, 0.0F, 0.0F, 1))), out);
+    context.expect(host.scene_count() == 1 && host.player_count() == 1, "cảnh khác vẫn dựng bình thường");
+}
+
 // --- ghi điểm đứng ---
 
 void detach_saves_final_spot(Context& context) {
@@ -1090,6 +1114,32 @@ void host_seeding_leaves_room_for_players(Context& context) {
     context.expect(scene != nullptr && scene->entity_count() == 3 + 1, "đặt tối đa kEntityMax - player_max, còn chỗ cho người");
 }
 
+// Cảnh không có dữ liệu thì không được dựng "trần": cảnh không luật đi thì mọi tường đều xuyên được (lỗ #5 của
+// agent đỏ, H1-B). Chỉ cần bảng id cảnh có trong dữ liệu máy chủ; bảng mẫu và cổng vắng cũng được.
+void scene_without_data_is_refused(Context& context) {
+#ifdef GAME_SERVER_DATA
+    const std::filesystem::path root{GAME_SERVER_DATA};
+    std::error_code error;
+    if (!std::filesystem::is_regular_file(root / "tables" / "server" / "scene_ids.tsv", error)) return;
+    Host::Config config;
+    config.seeder = zone::disk_seeder(
+        zone::DiskPaths{.scenes = root / "scenes",
+            .ids_table = root / "tables" / "server" / "scene_ids.tsv",
+            .templates = {},
+            .ai_types = {},
+            .gates = {},
+            .scripts = {}},
+        49000);
+    Host host{config};
+    Outbox out;
+    host.handle(frame_of(ipc::Relay::kAttach, 12, ipc::encode_body(arrival(2, 0.0F, 0.0F, 65534))), out);
+    context.expect(host.find(65534) == nullptr, "id lạ không có dữ liệu thì không tạo cảnh");
+    context.expect(refused_with(out, 12, protocol::ErrorCode::kBusy), "id lạ bị từ chối kBusy");
+#else
+    static_cast<void>(context);
+#endif
+}
+
 // Dữ liệu thật: id 2 của client là Đại Lý. Tự bỏ qua khi bản dựng không có thư mục dữ liệu máy chủ.
 void real_scene_seeds(Context& context) {
 #ifdef GAME_SERVER_DATA
@@ -1136,7 +1186,7 @@ void real_scene_seeds(Context& context) {
         erhai = erhai || gate;
     }
     context.expect(erhai, "vùng Đại Lý đi Nhĩ Hải lấy điểm đến 287, 32 của ScenePosDefineEx");
-    context.expect(seeder(65534).seeds.empty() && !seeder(65534).walkable, "id lạ không có cảnh nào");
+    context.expect(seeder(65534).refused, "id lạ không có cảnh nào: bị từ chối nạp");
     Host::Config config;
     config.seeder = seeder;
     Host host{config};
@@ -1799,6 +1849,7 @@ constexpr std::array kCases{
     Case{"info_and_neighbour_queries", info_and_neighbour_queries},
     Case{"host_routes_frames", host_routes_frames},
     Case{"host_refuses_bad_attach", host_refuses_bad_attach},
+    Case{"host_refuses_scene_the_seeder_refuses", host_refuses_scene_the_seeder_refuses},
     Case{"relay_codec_round_trip", relay_codec_round_trip},
     Case{"seeds_convert_units_and_skip_unplaced", seeds_convert_units_and_skip_unplaced},
     Case{"scene_directory_lookup_and_hostile_tables", scene_directory_lookup_and_hostile_tables},
@@ -1806,6 +1857,7 @@ constexpr std::array kCases{
     Case{"host_seeds_scene_once_on_creation", host_seeds_scene_once_on_creation},
     Case{"host_seeding_leaves_room_for_players", host_seeding_leaves_room_for_players},
     Case{"real_scene_seeds", real_scene_seeds},
+    Case{"scene_without_data_is_refused", scene_without_data_is_refused},
     Case{"walkable_blocks_step_into_wall", walkable_blocks_step_into_wall},
     Case{"walkable_neighbour_does_not_see_blocked_step", walkable_neighbour_does_not_see_blocked_step},
     Case{"walkable_lets_trapped_player_leave", walkable_lets_trapped_player_leave},
