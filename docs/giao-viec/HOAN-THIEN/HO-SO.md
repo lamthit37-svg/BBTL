@@ -605,10 +605,20 @@ Kiểm: cổng xanh (cài lỗi cố ý thấy đỏ), ctest đủ, ảnh bản 
    tự push. Trước khi push, điều phối đọc `git log origin/chuan-hoa..HEAD` ở một lệnh riêng; commit
    nào trong đó chưa kiểm trên HEAD thì kiểm xong mới push (hai lần 2026-10-18 lượt push hồ sơ kéo
    theo commit của làn chưa kiểm: `8030927b`, `81bb6785`, cả hai kiểm bù đạt).
-8. Cây vcpkg: từ 2026-10-18 mỗi dự án có cây riêng, `C:\dev\third_party\installed\thienlong`. Chủ
-   máy chốt việc tách vì cây chung bị dự án khác gỡ gói ba lần trong một ngày. Toolchain chung tự đặt
-   cây theo `name` trong `vcpkg.json`, và cài theo manifest lại được bật. Mỗi cây build cũ phải
-   configure lại một lần với `--fresh`; không có bước đó, cache còn trỏ vào cây chung cũ.
+   Từ 2026-10-18 điều phối còn dựng `android-arm64` theo HEAD (APK, ở `.worktrees/ride-check`)
+   trước khi push. Chủ dự án giao điều phối giữ mobile không tụt lại. Lần đầu dựng, APK theo HEAD
+   đỏ ở 8 tệp mà MSVC không báo (từ `21c649a6` trở đi). Đỏ thì làn của commit gây lỗi sửa trước
+   khi push. Các cờ clang hay vấp:
+   - `-Wmissing-prototypes`: hàm tự do vào namespace ẩn danh;
+   - `-Wmissing-designated-field-initializers`: khởi tạo chỉ định ghi đủ field;
+   - `-Wshadow`: kể cả tham số lambda bắt `this`;
+   - `-Wsign-conversion`, `-Wshorten-64-to-32`: API POSIX dùng `size_t`/`ssize_t`.
+8. Cây vcpkg: từ 2026-10-18 mỗi dự án và mỗi triplet có cây riêng, ví dụ
+   `C:\dev\third_party\installed\thienlong-x64-windows-static-md` và `thienlong-arm64-android`. Chủ
+   máy chốt việc tách vì cây chung bị dự án khác gỡ gói ba lần trong một ngày. Phải tách theo cả
+   triplet vì cài theo manifest gỡ cả gói của triplet khác. Toolchain chung tự đặt cây, và cài theo
+   manifest lại được bật. Mỗi cây build cũ configure lại một lần với `--fresh`; không có bước đó,
+   cache còn trỏ vào cây cũ.
 
 ## 7. Lệnh kiểm thực E2E
 
